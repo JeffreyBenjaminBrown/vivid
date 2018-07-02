@@ -103,9 +103,9 @@ instance FromUA (NoDefaults args0) where
    fromUA _ = return []
 
 instance FromUA (UA a args0) where
-   type UAsArgs (UA a sdArgs) = '[a]
-   type SDBodyArgs (UA a args) = args
-   fromUA :: UA a args -> SDBody (UA a args) [(String, Signal)]
+   type UAsArgs (UA a args0) = '[a]
+   type SDBodyArgs (UA a args0) = args0
+   fromUA :: UA a args0 -> SDBody (UA a args0) [(String, Signal)]
    fromUA (UA x) = do
       y <- x
       return [(symbolVal (Proxy::Proxy a), y)]

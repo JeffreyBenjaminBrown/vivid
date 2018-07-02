@@ -52,7 +52,7 @@ license:             GPL
 
 library
   exposed-modules:
-      Vivid
+    Vivid
     , Vivid.Actions
     , Vivid.Actions.Class
     , Vivid.Actions.IO
@@ -118,7 +118,7 @@ library
    -- versions come out.
 
       -- Auto bounds from 'cabal init':
-      base > 3 && < 5
+      base
 
       -- Lower bound:
       --    Just a guess -- 0.5.0.2 is >5 years old
@@ -126,7 +126,7 @@ library
       --    0.2 is the oldest version on Hackage
       -- Upper bound:
       --    0.9 doesn't exist yet
-    , binary > 0.5.0.2 && < 0.9
+    , binary
 
       -- Lower bound:
       --    Just a guess -- 0.9.1.8 is >5 years old
@@ -134,7 +134,7 @@ library
       --    0.9 is the oldest version on Hackage
       -- Upper bound:
       --    0.11 doesn't exist yet
-    , bytestring > 0.9.1.8 && < 0.11
+    , bytestring
 
       -- Lower bound:
       --    Just a guess -- 0.4.0.0 is >5 years old
@@ -142,14 +142,14 @@ library
       --    0.1.0.0 is the oldest version on Hackage
       -- Upper bound:
       --    0.6 doesn't exist yet
-    , containers > 0.4.0.0 && < 0.6
+    , containers
 
       -- Lower bound:
       --    1.0 is the oldest version with 'takeExtension'
       --    (It's from 2007-05)
       -- Upper bound:
       --    1.5 doesn't exist yet
-    , filepath >= 1.0 && < 1.5
+    , filepath
 
      -- Lower bound:
      --    1.1.1.0 is the first version with 'hashWithSalt'
@@ -157,13 +157,13 @@ library
      --    (Also betw 1.2 and 1.2.0.5 are marked as broken!)
      -- Upper bound:
      --    1.3 doesn't exist yet
-    , hashable >= 1.2.0.6 && < 1.3
+    , hashable
 
       -- Lower bound:
       --    0.1 is the oldest version on Hackage
       -- Upper bound:
       --    0.5 doesn't exist yet
-    , MonadRandom >= 0.1 && < 0.5
+    , MonadRandom
 
       -- Lower bound:
       --    Just a guess -- 0.2.0.0 is >5 years old
@@ -171,7 +171,7 @@ library
       --    1.0 is the oldest version on Hackage
       -- Upper bound:
       --    2.3 doesn't exist yet
-    , mtl >= 2.0.0.0 && < 2.3
+    , mtl
 
       -- Lower bound:
       --    Just a guess -- 2.3 is >5 years old
@@ -179,7 +179,7 @@ library
       --    2.0 is the oldest version on Hackage
       -- Upper bound:
       --    2.7 doesn't exist yet
-    , network >= 2.3 && < 2.7
+    , network
 
 
       -- Lower bound:
@@ -188,7 +188,7 @@ library
       --    1.0.0.0 is the oldest version on Hackage
       -- Upper bound:
       --    1.5 doesn't exist yet
-    , process >= 1.0.1.4 && < 1.5
+    , process
 
       -- Lower bound:
       --    Just a guess -- 1.0.0.3 is >5 years old
@@ -197,19 +197,19 @@ library
       -- Upper bound:
       --    1.2 doesn't exist yet
       -- /= :  1.0.1.3 is deprecated
-    , random (>= 1.0.0.3 && <= 1.0.1.1) || (>= 1.1 && < 1.2)
+    , random
 
       -- Lower bound:
       --    0.0.3 is the first version with 'shuffleM'
       -- Upper bound:
       --    0.1 doesn't exist yet (will it ever?)
-    , random-shuffle >= 0.0.3 && < 0.1
+    , random-shuffle
 
       -- Lower bound:
       --    0.2.0.0 is the first version with 'chunksOf'
       -- Upper bound:
       --    0.3 doesn't exist yet
-    , split >= 0.2.0.0 && < 0.3
+    , split
 
       -- Lower bound:
       --    Just a guess -- 2.2.0.1 is >5 years old
@@ -217,7 +217,7 @@ library
       --    2.1 is the oldest version on Hackage
       -- Upper bound:
       --    2.5 doesn't exist yet
-    , stm >= 2.2.0.1 && < 2.5
+    , stm
 
       -- Lower bound:
       --    Just a guess -- 1.2 is >5 years old
@@ -227,7 +227,7 @@ library
       --    1.0 is the oldest version on Hackage
       -- Upper bound:
       --    1.7 doesn't exist yet
-    , time >= 1.2 && < 1.7
+    , time
 
       -- Lower bound:
       --    Only need it for 'MonadIO' which came in 0.2.0.0
@@ -236,7 +236,7 @@ library
       --    0.6 doesn't exist yet
       -- Note there are lots of deprecated versions but I'm taking
       -- a guess for now that 'liftIO' is fine in all of them
-    , transformers >= 0.2.0.0 && < 0.6
+    , transformers
 
   ghc-options:
     -O2
