@@ -6,7 +6,8 @@ import Vivid
 import Data.List as L
 
 boop :: SynthDef '["note","amp"]
-boop = sd ((0,0.01) :: (I "note",I "amp")) $ do
+boop = sd ((0,0.01) -- default values
+           :: (I "note",I "amp")) $ do
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "note"))
    out 0 [s1, s1]
 
@@ -25,6 +26,9 @@ main = do
          )
      $ \(n,n',n'',a,a') -> do
       set s   (toI n   :: I "note")
+      set s   (toI a   :: I "amp")
       set s'  (toI n'  :: I "note")
+      set s'  (toI a'  :: I "amp")
       set s'' (toI n'  :: I "note")
+      -- s'' will keep its default amp value
       wait 0.1
