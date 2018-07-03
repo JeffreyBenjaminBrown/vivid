@@ -1,4 +1,5 @@
--- Here's a loop that can be modified while running.
+-- Here's a loop (in the CS sense, not the musical one)
+-- that can be modified as it runs.
 -- Example:
   -- > x <- newMVar (444 :: Int)
   -- > f x
@@ -15,6 +16,13 @@ boop = sd ((0,0.1) -- default values
            :: (I "note",I "amp")) $ do
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "note"))
    out 0 [s1, s1]
+
+abc :: VividAction m => m [Node '["note", "amp"]]
+abc = do
+  a <- synth boop ()
+  b <- synth boop ()
+  c <- synth boop ()
+  return [a,b,c]
 
 f :: MVar Int -> IO ()
 f m = do
