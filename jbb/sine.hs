@@ -14,7 +14,7 @@ main = do
    s'' <- synth boop ()
    let notes = [200,400]
        notes' = [250,350,450]
-       notes'' = [650,675,725,750,775,775,825,825]
+       notes'' = [650,675,725,750,1825,1825,775,1775]
    forM_ (zip3 (cycle notes) (cycle notes') (cycle notes''))
      $ \(n,n',n'') -> do
       set s   (toI n   :: I "note")
