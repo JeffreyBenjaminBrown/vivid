@@ -1,4 +1,8 @@
--- Here's a synth with two parameters.
+-- Here's a loop that can be modified while running.
+-- Example:
+  -- > x <- newMVar (444 :: Int)
+  -- > f x
+  -- > swapMVar x 555 -- the old value 444 returned here doesn't matter
 
 {-# LANGUAGE DataKinds #-}
 
