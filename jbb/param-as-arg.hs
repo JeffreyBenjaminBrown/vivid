@@ -11,13 +11,15 @@ import Data.Map as M
 import GHC.TypeLits
 
 
-set' :: (Subset '["freq", "amp", "width", "width_vib"] sdArgs
+type MyParams = '["freq", "amp", "width", "width_vib"]
+
+set' :: (Subset MyParams sdArgs
         , Real n, VividAction m)
      => String -> Node sdArgs -> n -> m ()
 set' "freq"  s n = set s (toI n :: I "freq")
 set' "amp"  s n = set s (toI n :: I "amp" )
 
-boop :: SynthDef '["freq", "amp", "width", "width_vib"] 
+boop :: SynthDef MyParams
 boop = sd ( 0    :: I "freq"
           , 0.01 :: I "amp"
   -- the next two params do nothing, but are needed so that boop has
@@ -28,7 +30,7 @@ boop = sd ( 0    :: I "freq"
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "freq"))
    out 0 [s1, s1]
 
-boop' :: SynthDef '["freq", "amp", "width", "width_vib"] 
+boop' :: SynthDef MyParams
 boop' = sd ( 0 :: I "freq"
            , 0.1 :: I "amp"
            , 50 :: I "width"
