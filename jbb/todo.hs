@@ -1,3 +1,12 @@
+features to add, in cumulative order
+  have multiple kinds of synths
+  distribute messages across synths
+  keeo a loop
+    then multiple loops of varying durations
+  make functions for manipulating loops
+    spend a long time on this
+  make a language
+
 constraints
   want to change tempo
   want to start without delay
