@@ -21,4 +21,7 @@ maybe do this
     A synth plan can be represented multiple ways:
       Each has a total duration
       An ordered sequence of (duration, synth message) pairs.
+      Synths are never really off; time between notes = amplitude zero
+    A collection of concurrent notes has to be distributed across synths
+      automatically, rather than requiring the user to say which go where.
     An SCPlan is a map from synth plans (not oneSecondSynthPlans) to synth names.
