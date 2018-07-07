@@ -1,3 +1,4 @@
+-- example by Tom Murphy:
 -- https://we.lurk.org/hyperkitty/list/livecode@we.lurk.org/thread/6JD5SHXPQQ25VZH4PVKIR5Y7HEAPXZWL/
 
 {-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
