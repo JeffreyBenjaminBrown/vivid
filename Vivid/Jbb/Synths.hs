@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 
+module Vivid.Jbb.Synths where
+
 import Vivid
 import Data.List as L
 import Data.Map as M
@@ -34,7 +36,7 @@ boop = sd ( 0   :: I "freq"
           , 0   :: I "nz-amp"   -- unused
           , 0   :: I "nz-lpf"   -- unused
           ) $ do
-  carrier <- (V::V "amp") ~* sinOsc (freq_  $ (V::V "freq")
+  carrier <- (V::V "amp") ~* sinOsc (freq_  $ (V::V "freq"))
   out 0 [carrier, carrier]
 
 vap :: SynthDef MyParams

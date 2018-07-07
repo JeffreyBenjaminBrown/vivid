@@ -53,6 +53,8 @@ license:             GPL
 library
   exposed-modules:
     Vivid
+    , Vivid.Jbb.Synths
+
     , Vivid.Actions
     , Vivid.Actions.Class
     , Vivid.Actions.IO
