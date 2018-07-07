@@ -3,9 +3,6 @@
 module Vivid.Jbb.Synths where
 
 import Vivid
-import Data.List as L
-import Data.Map as M
-import GHC.TypeLits
 
 
 type MyParams =
@@ -16,15 +13,15 @@ type MyParams =
 
 set' :: (Subset MyParams sdArgs
         , Real n, VividAction m)
-     => String -> Node sdArgs -> n -> m ()
-set' "freq"    s n = set s (toI n :: I "freq")
-set' "amp"     s n = set s (toI n :: I "amp" )
-set' "fm-amp"  s n = set s (toI n :: I "fm-amp" )
-set' "fm-freq" s n = set s (toI n :: I "fm-freq" )
-set' "fm2-amp"  s n = set s (toI n :: I "fm2-amp" )
-set' "fm2-freq" s n = set s (toI n :: I "fm2-freq" )
-set' "nz-amp" s n = set s (toI n :: I "nz-amp" )
-set' "nz-lpf" s n = set s (toI n :: I "nz-lpf" )
+     => String -> n -> Node sdArgs -> m ()
+set' "freq"     n s = set s (toI n :: I "freq")
+set' "amp"      n s = set s (toI n :: I "amp" )
+set' "fm-amp"   n s = set s (toI n :: I "fm-amp" )
+set' "fm-freq"  n s = set s (toI n :: I "fm-freq" )
+set' "fm2-amp"  n s = set s (toI n :: I "fm2-amp" )
+set' "fm2-freq" n s = set s (toI n :: I "fm2-freq" )
+set' "nz-amp"   n s = set s (toI n :: I "nz-amp" )
+set' "nz-lpf"   n s = set s (toI n :: I "nz-lpf" )
 
 boop :: SynthDef MyParams
 boop = sd ( 0   :: I "freq"
