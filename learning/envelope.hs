@@ -1,4 +1,4 @@
--- example by Tom Murphy: 
+-- example by Tom Murphy:
 -- https://we.lurk.org/hyperkitty/list/livecode@we.lurk.org/thread/ZQBFCHMBFIIM36KB7S77IDAPYJKMBRF2/
 
 {-# LANGUAGE DataKinds #-}
@@ -14,7 +14,7 @@ foo = sd (1 :: I "gate") $ do
     (Curve_Curve $ -4)
     (gate_ (V::V "gate"))
   s <- e ~* sinOsc (freq_ (500 :: Double)) -- Float or Double works
-  out (0::Integer) [s,s]   -- Int or Integer works
+  out (0::Integer) [s,s] -- Int or Integer works
 
 main = do
   s <- synth foo ()

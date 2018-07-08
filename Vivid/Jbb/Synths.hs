@@ -23,6 +23,8 @@ set' "fm2-freq" n s = set s (toI n :: I "fm2-freq" )
 set' "nz-amp"   n s = set s (toI n :: I "nz-amp" )
 set' "nz-lpf"   n s = set s (toI n :: I "nz-lpf" )
 
+-- boop is just here to demonstrate that set' can apply to multiple synthdefs
+-- provided those synthdefs share the same parameters
 boop :: SynthDef MyParams
 boop = sd ( 0   :: I "freq"
           , 0.1 :: I "amp"
