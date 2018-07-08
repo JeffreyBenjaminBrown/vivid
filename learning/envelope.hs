@@ -1,22 +1,29 @@
--- example by Tom Murphy:
+-- Based on an example by Tom Murphy:
 -- https://we.lurk.org/hyperkitty/list/livecode@we.lurk.org/thread/ZQBFCHMBFIIM36KB7S77IDAPYJKMBRF2/
 
-{-# LANGUAGE DataKinds #-}
+-- The signal grows to unity for 1s, decays for 1s, then plateaus at 0.3.
+-- After main has counted to 5 it sends a gate=0 signal,
+-- which triggers a second of release.
+
+{-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
 import Vivid
 
 foo = sd (1 :: I "gate") $ do
-  e <- adsrGen
-    (0.2::Double)  -- Float or Double works
-    (0.1::Double)  -- Float or Double works
-    (0.6::Double)  -- Float or Double works
-    (0.7::Double)  -- Float or Double works
-    (Curve_Curve $ -4)
+  e <- adsrGen 1 1 0.3 1
+    (Curve_Curve $ 0)
     (gate_ (V::V "gate"))
-  s <- e ~* sinOsc (freq_ (500 :: Double)) -- Float or Double works
-  out (0::Integer) [s,s] -- Int or Integer works
+  s <- e ~* sinOsc (freq_ 500)
+  out 0 [s,s]
+
+count 0 = (putStrLn $ show 0) >> return ()
+count n = do putStrLn $ show n
+             wait 1
+             count $ n-1
 
 main = do
   s <- synth foo ()
-  wait 1
+  count 5
+  set s (0 :: I "gate")
+  count 3
   free s
