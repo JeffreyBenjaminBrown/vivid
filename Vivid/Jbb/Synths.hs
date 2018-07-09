@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
 module Vivid.Jbb.Synths where
 
@@ -13,7 +13,7 @@ type MyParams =
 
 set' :: (Subset MyParams sdArgs
         , Real n, VividAction m)
-     => String -> n -> Node sdArgs -> m ()
+     => String -> n -> Synth sdArgs -> m ()
 set' "freq"     n s = set s (toI n :: I "freq")
 set' "amp"      n s = set s (toI n :: I "amp" )
 set' "fm-amp"   n s = set s (toI n :: I "fm-amp" )
