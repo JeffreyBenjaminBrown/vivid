@@ -11,6 +11,7 @@
 
 import Vivid
 
+foo :: SynthDef '["gate"]
 foo = sd (1 :: I "gate") $ do
   e <- adsrGen 1 1 0.5 1
     (Curve_Curve $ 0)
