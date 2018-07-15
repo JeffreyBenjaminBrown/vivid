@@ -18,22 +18,17 @@ foo = sd (1 :: I "gate") $ do
   out 0 [s,s]
 
 test pauseLength = doScheduledIn 0.1 $ test' pauseLength
-
 test' pauseLength = do
-  s <- synth foo () -- starts the ADSR envelope, with a default gate=1 vlaue
+  s <- synth foo () -- start the ADSR envelope, with a default gate=1 vlaue
   wait 2
 
-  -- I can retrigger the AD phase, IF the R phase is allowed to progress
-  -- for at least a milisecond. If the pause between the gate=0
-  -- and gate=1 messages is substsantially less than that,
-  -- the AD phase is not retriggered; the synth stays in the S phase.
+  set s (0 :: I "gate") -- trigger the R phase
+  -- The next "gate" signal will only retrigger the AD phase
+  -- if the R phase is allowed to progress for at least a milisecond.
   -- (To see this, try running `test 0.001` vs. `test 0.0001`.)
-  set s (0 :: I "gate")
   wait pauseLength
-  set s (1 :: I "gate")
-  wait 2
 
-  set s (0 :: I "gate") -- trigger the R portion of the curve
+  set s (1 :: I "gate") -- retrigger the AD phase
   wait 2
 
   free s
