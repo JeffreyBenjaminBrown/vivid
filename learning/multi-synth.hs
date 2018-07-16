@@ -47,4 +47,3 @@ boop = sd ( 0    :: I "freq"
           ) $ do
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "freq"))
    out 0 [s1, s1]
-
