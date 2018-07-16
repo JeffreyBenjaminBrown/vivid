@@ -1,5 +1,3 @@
--- there's a more interesting synth in param-as-arg.hs
-
 {-# LANGUAGE DataKinds, ExtendedDefaultRules, GADTs #-}
 
 import Vivid
@@ -11,14 +9,13 @@ import GHC.TypeLits
 -- | = messages, which know where they're going
 
 data Msg where
-  Msg :: (VarList usedParams, Subset (InnerVars usedParams) allParams)
+  ParamMsg :: (VarList usedParams, Subset (InnerVars usedParams) allParams)
       => Synth allParams -> usedParams -> Msg
+  FreeMsg :: Synth params -> Msg
 
 send :: VividAction m => Msg -> m ()
-send (Msg synth params) = set synth params
-
-sendFree :: VividAction m => Msg -> m ()
-sendFree (Msg synth _) = free synth
+send (ParamMsg synth params) = set synth params
+send (FreeMsg synth) = free synth
 
 
 -- | = main
@@ -26,11 +23,14 @@ sendFree (Msg synth _) = free synth
 main = do
   b <- synth bop ()
   b' <- synth boop ()
-  let m  = Msg b  (toI 500 :: I "freq")
-      m' = Msg b' (toI 600 :: I "freq", toI 0.02 :: I "amp")
+  let m  = ParamMsg b  (toI 500 :: I "freq")
+      m' = ParamMsg b' (toI 600 :: I "freq", toI 0.02 :: I "amp")
+      fm = FreeMsg b
+      fm' = FreeMsg b'
+      messages = [m,m',fm,fm'] -- checking whether the compiler minds
   mapM_ send [m,m']
   wait 1
-  mapM_ sendFree [m,m']
+  mapM_ send [fm,fm']
 
 
 -- | = synths
