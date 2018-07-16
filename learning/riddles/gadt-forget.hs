@@ -24,3 +24,8 @@ main = do
       list' = [Forget (X 10 :: X ()), Forget (X 20 :: X (()))]
       aSum = forgetAdd (head list) (head list')
   return ()
+
+-- In Vivid I have a similar problem: I want to keep a collection of Synths,
+-- and a collection of VarLists (note that VarList is a class, not a type),
+-- and dispatch messages from the second collection to synths from the
+-- first collection.
