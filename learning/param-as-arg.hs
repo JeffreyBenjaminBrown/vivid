@@ -11,7 +11,7 @@ import Data.Map as M
 import GHC.TypeLits
 
 
-type MyParams = '["freq", "amp", "width", "width_vib"]
+type MyParams = '["freq", "amp", "width", "width-vib"]
 
 set' :: (Subset MyParams sdArgs
         , Real n, VividAction m)
@@ -25,7 +25,7 @@ boop = sd ( 0    :: I "freq"
   -- the next two params do nothing, but are needed so that boop has
   -- the same interface as boop', so that both can be used with set'
           , 0    :: I "width"
-          , 0    :: I "width_vib"
+          , 0    :: I "width-vib"
           ) $ do
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "freq"))
    out 0 [s1, s1]
@@ -34,9 +34,9 @@ boop' :: SynthDef MyParams
 boop' = sd ( 0 :: I "freq"
            , 0.1 :: I "amp"
            , 50 :: I "width"
-           , 51 :: I "width_vib"
+           , 51 :: I "width-vib"
            ) $ do
-  s0 <- sinOsc (freq_ (V::V "width_vib"))
+  s0 <- sinOsc (freq_ (V::V "width-vib"))
   s1 <- sinOsc (freq_ (V::V "width")) ~+ s0
   s2 <- (V::V "amp") ~* pulse (freq_  (V::V "freq"), width_ s1)
   out 0 [s2, s2]
