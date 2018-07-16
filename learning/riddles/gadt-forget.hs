@@ -1,27 +1,27 @@
 {-# LANGUAGE DataKinds, ExtendedDefaultRules, GADTs #-}
 
-data X a where
-  X :: Int -> X a
+data Aware a where
+  Aware :: Int -> Aware a
 
-instance Show a => Show (X a) where
-  show (X a) = "X " ++ show a
+instance Show a => Show (Aware a) where
+  show (Aware a) = "Aware " ++ show a
 
-xAdd :: X a -> X a -> X a
-xAdd (X a) (X b) = X $ a + b
+xAdd :: Aware a -> Aware a -> Aware a
+xAdd (Aware a) (Aware b) = Aware $ a + b
 
-data Forget where
-  Forget :: X a -> Forget
+data Forgot where
+  Forgot :: Aware a -> Forgot
 
 -- Of course the following function doesn't compile:
 -- How would we know whether a and b are the same type?
-forgetAdd :: Forget -> Forget -> Forget
-forgetAdd (Forget a) (Forget b) = Forget $ xAdd a b
+forgetAdd :: Forgot -> Forgot -> Forgot
+forgetAdd (Forgot a) (Forgot b) = Forgot $ xAdd a b
 
--- I would like to be able to use forgetAdd on `Forget`s
--- that were created from the same type of `X`, as in the following:
+-- I would like to be able to use forgetAdd on `Forgot`s
+-- that were created from the same type of `Aware`, as in the following:
 main = do
-  let list =  [Forget (X 1  :: X ()), Forget (X 2  :: X (()))]
-      list' = [Forget (X 10 :: X ()), Forget (X 20 :: X (()))]
+  let list =  [Forgot (Aware 1  :: Aware ()), Forgot (Aware 2  :: Aware (()))]
+      list' = [Forgot (Aware 10 :: Aware ()), Forgot (Aware 20 :: Aware (()))]
       aSum = forgetAdd (head list) (head list')
   return ()
 
