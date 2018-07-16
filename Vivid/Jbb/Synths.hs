@@ -39,7 +39,7 @@ sqfm = sd ( 0 :: I "freq"
           , 50 :: I "width"
           , 51 :: I "width-vib"
           ) $ do
-  s0 <- sinOsc (freq_ (V::V "width_vib"))
+  s0 <- sinOsc (freq_ (V::V "width-vib"))
   s1 <- sinOsc (freq_ (V::V "width")) ~+ s0
   s2 <- (V::V "amp") ~* pulse (freq_  (V::V "freq"), width_ s1)
   out 0 [s2, s2]
