@@ -3,17 +3,17 @@
            , ScopedTypeVariables
            , GADTs #-}
 
--- | In Vivid, a `Synth` will accept any member of the `VarList` type
--- family, as long as the parameters of the `VarList` are a subset of
--- the parameters of the `Synth`:
+-- | In Vivid, a `Synth` can receive a message only if (1) that message is
+-- a member of the `VarList` type family, and (2) the message's parameters
+-- are a subset of the parameters of the `Synth`:
 -- set :: ( VividAction m
 --        , Subset (InnerVars params) sdArgs
 --        , VarList params)
 --     => Synth sdArgs -> params -> m ()
 
--- | Below is a plain text impression of that situation.
--- Things of type `Synth x` accept messages of
--- type `MessageA y` or `MessageB y`, but only if `x == y`.
+-- | Below is an impression of that situation using text instead of audio.
+-- Things of type `Synth x` can accept any message belonging to the
+-- `Messageable y` family, as long as `x == y`.
 
 type SynthName = String
 
