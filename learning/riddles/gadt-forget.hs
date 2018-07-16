@@ -16,3 +16,11 @@ data Forget where
 -- How would we know whether a and b are the same type?
 forgetAdd :: Forget -> Forget -> Forget
 forgetAdd (Forget a) (Forget b) = Forget $ xAdd a b
+
+-- I would like to be able to use forgetAdd on `Forget`s
+-- that were created from the same type of `X`, as in the following:
+main = do
+  let list =  [Forget (X 1  :: X ()), Forget (X 2  :: X (()))]
+      list' = [Forget (X 10 :: X ()), Forget (X 20 :: X (()))]
+      aSum = forgetAdd (head list) (head list')
+  return ()
