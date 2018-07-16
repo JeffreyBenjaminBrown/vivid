@@ -17,7 +17,7 @@ boop = sd ((0,0.1) -- default values
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "note"))
    out 0 [s1, s1]
 
-abc :: VividAction m => m [Node '["note", "amp"]]
+abc :: VividAction m => m [Synth '["note", "amp"]]
 abc = do
   a <- synth boop ()
   b <- synth boop ()

@@ -16,7 +16,7 @@ boop = sd ((0,0.1) -- default values
    out 0 [s1, s1]
 
 loop :: (Elem "note" sdArgs)
-  => MVar Bool -> Node sdArgs -> IO ()
+  => MVar Bool -> Synth sdArgs -> IO ()
 loop continue aSynth = do
   c <- readMVar continue
   if c

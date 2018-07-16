@@ -3,7 +3,7 @@
 -- it can send a value to a target param selected by the computer at runtime,
 -- rather than requiring the programmer to choose that param at compile time.
 
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
 import Vivid
 import Data.List as L
@@ -15,7 +15,7 @@ type MyParams = '["freq", "amp", "width", "width_vib"]
 
 set' :: (Subset MyParams sdArgs
         , Real n, VividAction m)
-     => String -> Node sdArgs -> n -> m ()
+     => String -> Synth sdArgs -> n -> m ()
 set' "freq"  s n = set s (toI n :: I "freq")
 set' "amp"  s n = set s (toI n :: I "amp" )
 

@@ -13,7 +13,7 @@ boop = sd ((0,0.1) -- default values
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "freq"))
    out 0 [s1, s1]
 
-f :: IO (Node '["freq", "amp"] -> Integer -> IO ())
+f :: IO (Synth '["freq", "amp"] -> Integer -> IO ())
 f = pick ( [ \s n -> set s (toI n :: I "freq")
            , \s n -> set s (toI n :: I "amp")
            ] )
