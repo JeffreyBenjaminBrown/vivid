@@ -1,3 +1,7 @@
+maybe rather than recovering type information forgotten by a GADT,
+  maybe create a variation of set that accepts a synth wrapped in a GADT
+  that forgets its type and a message that's similar
+
 features to add, in cumulative order
   distribute messages across synths
   keeo a loop

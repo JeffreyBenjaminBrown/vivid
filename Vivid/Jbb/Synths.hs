@@ -12,7 +12,6 @@ boop = sd ( 0    :: I "freq"
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "freq"))
    out 0 [s1, s1]
 
-
 vap :: SynthDef '["freq",      "amp"
                  , "fm-freq",  "fm-amp"
                  , "fm2-freq", "fm2-amp"
