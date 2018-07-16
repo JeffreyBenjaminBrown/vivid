@@ -1,6 +1,6 @@
 {-# LANGUAGE MultiParamTypeClasses
-           , AllowAmbiguousTypes
            , FlexibleInstances
+           , ScopedTypeVariables
            , GADTs #-}
 
 -- | In Vivid, a `Synth` will accept any member of the `VarList` type
@@ -20,22 +20,26 @@ type SynthName = String
 data Synth format where
   Synth :: SynthName -> Synth format
 
-data MessageA format where
-  MessageA :: String -> MessageA format
-data MessageB format where
-  MessageB :: String -> MessageB format
+data Message format where
+  Message :: String -> Message format
+data PreMessageA format where
+  PreMessageA :: String -> PreMessageA format
+data PreMessageB format where
+  PreMessageB :: String -> PreMessageB format
 
-class (Message format) a where
-  theMessage :: a -> String
-instance (Message format) (MessageA format) where
-  theMessage (MessageA msg) = msg
-instance (Message format) (MessageB format) where
-  theMessage (MessageB msg) = msg
+class Messageable format a where
+  toMessage :: a -> Message format
+instance Messageable format (PreMessageA format) where
+  toMessage (PreMessageA msg) = Message msg
+instance Messageable format (PreMessageB format) where
+  toMessage (PreMessageB msg) = Message msg
 
--- | Argh why won't `play` compile?
-play :: Message format m => Synth format -> m -> IO ()
+play :: forall format m
+     .  Messageable format m
+     => Synth format -> m -> IO ()
 play (Synth name) msg =
-  print $ name ++ " now sounds like " ++ theMessage msg
+  let Message m = toMessage msg :: Message format
+  in print $ name ++ " now sounds like " ++ m
 
 -- | After that, can we define the following?
 --   (1) a heterogeneous list of `Synth x`s
