@@ -17,6 +17,7 @@ module Vivid.Envelopes (
      EnvLiterally(..)
    , envLiterallyToSignals
    , env
+   , env'
 
    , EnvCurve(..)
    , EnvSegment(..)
@@ -163,5 +164,23 @@ env firstPoint pointsAndLengths curve = EnvLiterally {
         _envSegment_targetVal = Constant point
       , _envSegment_timeToGetThere = Constant dur
          -- this is, of course, limiting:
+      , _envSegment_curve = curve
+         -- env' (next) does not have that limitation
+      }
+
+-- This variation lets you specify a separate EnvCurve for each segment
+env' :: Float -> [(Float, Float, EnvCurve)] -> EnvLiterally a
+env' firstPoint pointLengthCurves = EnvLiterally {
+     _envLiterally_initialVal = firstPoint
+   , _envLiterally_releaseNode = Nothing
+   , _envLiterally_offset = 0
+   , _envLiterally_loopNode = Nothing
+   , _envLiterally_curveSegments = map segment pointLengthCurves
+   }
+ where
+   segment :: (Float, Float, EnvCurve) -> EnvSegment
+   segment (point, dur, curve) = EnvSegment {
+        _envSegment_targetVal = Constant point
+      , _envSegment_timeToGetThere = Constant dur
       , _envSegment_curve = curve
       }
