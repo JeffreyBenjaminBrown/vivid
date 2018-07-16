@@ -5,40 +5,18 @@ module Vivid.Jbb.Synths where
 import Vivid
 
 
-type MyParams =
-  '["freq", "amp"
-   , "fm-freq", "fm-amp"
-   , "fm2-freq", "fm2-amp"
-   , "nz-amp","nz-lpf"]
-
-set' :: (Subset MyParams sdArgs
-        , Real n, VividAction m)
-     => String -> n -> Synth sdArgs -> m ()
-set' "freq"     n s = set s (toI n :: I "freq")
-set' "amp"      n s = set s (toI n :: I "amp" )
-set' "fm-amp"   n s = set s (toI n :: I "fm-amp" )
-set' "fm-freq"  n s = set s (toI n :: I "fm-freq" )
-set' "fm2-amp"  n s = set s (toI n :: I "fm2-amp" )
-set' "fm2-freq" n s = set s (toI n :: I "fm2-freq" )
-set' "nz-amp"   n s = set s (toI n :: I "nz-amp" )
-set' "nz-lpf"   n s = set s (toI n :: I "nz-lpf" )
-
--- boop is just here to demonstrate that set' can apply to multiple synthdefs
--- provided those synthdefs share the same parameters
-boop :: SynthDef MyParams
-boop = sd ( 0   :: I "freq"
-          , 0.1 :: I "amp"
-          , 0   :: I "fm-freq"  -- unused
-          , 0   :: I "fm-amp"   -- unused
-          , 0   :: I "fm2-freq" -- unused
-          , 0   :: I "fm2-amp"  -- unused
-          , 0   :: I "nz-amp"   -- unused
-          , 0   :: I "nz-lpf"   -- unused
+boop :: SynthDef '["freq","amp"]
+boop = sd ( 0    :: I "freq"
+          , 0.01 :: I "amp"
           ) $ do
-  carrier <- (V::V "amp") ~* sinOsc (freq_  $ (V::V "freq"))
-  out 0 [carrier, carrier]
+   s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "freq"))
+   out 0 [s1, s1]
 
-vap :: SynthDef MyParams
+
+vap :: SynthDef '["freq",      "amp"
+                 , "fm-freq",  "fm-amp"
+                 , "fm2-freq", "fm2-amp"
+                 , "nz-amp",   "nz-lpf"]
 vap = sd ( 0   :: I "freq"
          , 0.1 :: I "amp"
          , 0   :: I "fm-freq"
@@ -54,3 +32,14 @@ vap = sd ( 0   :: I "freq"
   carrier <- (V::V "amp")
     ~* sinOsc (freq_  $ (V::V "freq") ~+ fm ~+ fm2 ~+ nz)
   out 0 [carrier, carrier]
+
+sqfm :: SynthDef '["freq","amp","width","width-vib"]
+sqfm = sd ( 0 :: I "freq"
+          , 0.1 :: I "amp"
+          , 50 :: I "width"
+          , 51 :: I "width-vib"
+          ) $ do
+  s0 <- sinOsc (freq_ (V::V "width_vib"))
+  s1 <- sinOsc (freq_ (V::V "width")) ~+ s0
+  s2 <- (V::V "amp") ~* pulse (freq_  (V::V "freq"), width_ s1)
+  out 0 [s2, s2]
