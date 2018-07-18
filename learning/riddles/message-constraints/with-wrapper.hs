@@ -9,7 +9,6 @@
 
 import Vivid
 
-
 boop :: SynthDef '["freq","amp"]
 boop = sd ( (0,0.01) -- default values
             :: (I "freq",I "amp")) $ do
@@ -29,6 +28,12 @@ message _ = Message ()
 
 main = do
   s <- synth boop ()
-  let (Message a) = message 0
-  set s a
+  case message 0 of
+    Message a -> set s a
+    return ()
+  case message 1 of
+    Message a -> set s a
+    return ()
+  wait 1
+  freeAll
   return ()
