@@ -1,12 +1,12 @@
 -- A loop (in the CS sense, not the musical one) that can be stopped.
 -- Example
   -- > on <- newMVar True
-  -- > loop on  -- the sound starts
+  -- > loop on           -- the sound starts
   -- > swapMVar on False -- it stops
-  -- True -- ignore this return value; it's the old value of on
+  -- True                -- ignore this return value; it's the old value of on
   -- > swapMVar on True
   -- False
-  -- > loop on -- it starts again
+  -- > loop on           -- it starts again
 
 {-# LANGUAGE DataKinds #-}
 
