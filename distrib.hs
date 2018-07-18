@@ -15,45 +15,31 @@
            , GADTs #-}
 
 import Data.Map as M
+import Data.Set as S
 import Vivid
 import Vivid.Jbb.Synths
 
 
 type SynthName = String
 
+-- | = SynthRegister
+
+data SynthRegister =
+  SynthRegister { boops :: M.Map SynthName (Synth BoopParams)
+                , sqfms :: M.Map SynthName (Synth SqfmParams)
+                , tempNames :: S.Set String }
+
+emptySynthRegister :: SynthRegister
+emptySynthRegister = SynthRegister M.empty M.empty S.empty
+
+
+-- | = Action, and how to act on one
+
 data Action sdArgs where
   Wait :: Float                                   -> Action sdARgs
   Free :: SynthDefName -> SynthName               -> Action sdARgs
   New  :: SynthDefName -> SynthName               -> Action sdARgs
   Send :: SynthDefName -> SynthName -> Msg sdARgs -> Action sdARgs
-
-data SynthRegister =
-  SynthRegister { boops :: M.Map String (Synth BoopParams)
-                , sqfms :: M.Map String (Synth SqfmParams) }
-
-emptySynthRegister :: SynthRegister
-emptySynthRegister = SynthRegister M.empty M.empty
-
-newAction :: VividAction m
-          => SynthDef sdArgs
-          -> String
-          -> M.Map String (Synth sdArgs)
-          -> m (M.Map String (Synth sdArgs))
-newAction synthDef name synthMap = 
-  case M.lookup name $ synthMap of
-    Just _ -> error $ "The name " ++ name ++ " is already in use."
-    Nothing -> do s <- synth synthDef ()
-                  return $ M.insert name s synthMap
-
-freeAction :: VividAction m
-           => String
-           -> M.Map String (Synth sdArgs)
-           -> m (M.Map String (Synth sdArgs))
-freeAction name synthMap = 
-  case M.lookup name $ synthMap of
-    Nothing -> error $ "The name " ++ name ++ " is already unused."
-    Just s -> do free s
-                 return $ M.delete name synthMap
 
 act :: VividAction m => SynthRegister -> Action sdArgs -> m SynthRegister
 act synths (Wait k) = do wait k
@@ -64,3 +50,27 @@ act synths (New Boop name) = do
 act synths (Free Boop name) = do 
   newBoops <- freeAction name $ boops synths
   return $ synths {boops = newBoops}
+
+
+-- | = Helper functions to reduce the boilerplate above
+
+newAction :: VividAction m
+          => SynthDef sdArgs
+          -> SynthName
+          -> M.Map SynthName (Synth sdArgs)
+          -> m (M.Map SynthName (Synth sdArgs))
+newAction synthDef name synthMap = 
+  case M.lookup name $ synthMap of
+    Just _ -> error $ "The name " ++ name ++ " is already in use."
+    Nothing -> do s <- synth synthDef ()
+                  return $ M.insert name s synthMap
+
+freeAction :: VividAction m
+           => SynthName
+           -> M.Map SynthName (Synth sdArgs)
+           -> m (M.Map SynthName (Synth sdArgs))
+freeAction name synthMap = 
+  case M.lookup name $ synthMap of
+    Nothing -> error $ "The name " ++ name ++ " is already unused."
+    Just s -> do free s
+                 return $ M.delete name synthMap
