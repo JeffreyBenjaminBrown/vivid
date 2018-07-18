@@ -1,7 +1,3 @@
--- | Why won't `main` compile?
--- I need a function that returns messages of different types
--- but all acceptable to a particular kind of `Synth`.
-
 {-# LANGUAGE DataKinds
            , ExtendedDefaultRules
            , ScopedTypeVariables
