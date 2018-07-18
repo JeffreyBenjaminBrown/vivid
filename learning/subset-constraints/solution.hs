@@ -30,10 +30,9 @@ main = do
   s <- synth boop ()
   case message 0 of
     Message a -> set s a
-    return ()
+    _ -> return ()
   case message 1 of
     Message a -> set s a
-    return ()
+    _ -> return ()
   wait 1
   freeAll
-  return ()
