@@ -1,14 +1,13 @@
-maybe rather than recovering type information forgotten by a GADT,
-  maybe create a variation of set that accepts a synth wrapped in a GADT
-  that forgets its type and a message that's similar
-
 features to add, in cumulative order
   distribute messages across synths
   keeo a loop
     then multiple loops of varying durations
   make functions for manipulating loops
     spend a long time on this
-  make a language
+  parse a DSL for it
+    seems much easier to make the DSL after the functions it will encode
+    for every bit of terse punctuation, include a verbal alternative
+      => easier to remember, easier to search for language constructs
 
 constraints
   want to change tempo
