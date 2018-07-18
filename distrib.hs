@@ -4,6 +4,9 @@
 --   kinds of actions
 --     transient: create a new synth, give it a Msg, let it persist
 --       for a while, then free it
+--       Give it a random name.
+--       Keep that random name in the synth registry, to be completely sure
+--       there's never a conflict.
 --     to: give a Msg to a named synth
 --     new: create a new synth, give it a name
 --     free: free a named synth
@@ -14,6 +17,7 @@
            , ScopedTypeVariables
            , GADTs #-}
 
+import System.Random
 import Data.Map as M
 import Data.Set as S
 import Vivid
@@ -21,6 +25,11 @@ import Vivid.Jbb.Synths
 
 
 type SynthName = String
+
+randomString = do
+   gen <- newStdGen
+   return $ Prelude.take 10 $ randomRs ('a','Z') gen
+
 
 -- | = SynthRegister
 
@@ -35,6 +44,8 @@ emptySynthRegister = SynthRegister M.empty M.empty S.empty
 
 -- | = Action, and how to act on one
 
+-- If this polymorphism ever gives me trouble, maybe I could bundle
+-- the Map String Synth into the Action. Or an MVar containing it.
 data Action sdArgs where
   Wait :: Float                                   -> Action sdARgs
   Free :: SynthDefName -> SynthName               -> Action sdARgs
