@@ -21,6 +21,9 @@ set' synth (Msg m) = set synth m
 
 
 -- | == Synths
+
+data SynthDefName = Boop | Vap | Sqfm
+
 -- | = Boop
 
 type BoopParams = '["freq","amp"]
