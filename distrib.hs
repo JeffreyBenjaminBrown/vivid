@@ -1,16 +1,12 @@
--- Goal: distribute messages across synths
--- Pieces
---   keep a Map String Synth for each active SynthDef
---   kinds of actions
---     transient: create a new synth, give it a Msg, let it persist
---       for a while, then free it
---       Give it a random name.
---       Keep that random name in the synth registry, to be completely sure
---       there's never a conflict.
---     to: give a Msg to a named synth
---     new: create a new synth, give it a name
---     free: free a named synth
---     wait: wait for a number of seconds
+-- Yet to implement:
+--   transient: create a new synth, give it a Msg, let it persist
+--     for a while, then free it
+--     Give it a random name.
+--     Keep that random name in the synth registry, to be completely sure
+--     there's never a conflict.
+-- For that I will need:
+--   the random string function
+--   if I'm being absurdly safe, the tempNames field of SynthRegistry
 
 {-# LANGUAGE DataKinds
            , ExtendedDefaultRules
@@ -20,6 +16,8 @@
 import System.Random
 import Data.Map as M
 import Data.Set as S
+import Control.Concurrent.MVar
+
 import Vivid
 import Vivid.Jbb.Synths
 
@@ -28,7 +26,9 @@ type SynthName = String
 
 randomString = do
    gen <- newStdGen
-   return $ Prelude.take 10 $ randomRs ('a','Z') gen
+   return $ Prelude.take 20 $ randomRs
+                              ('!','~') --widest possible on normal keyboard
+                              gen
 
 
 -- | = SynthRegister
@@ -44,26 +44,38 @@ emptySynthRegister = SynthRegister M.empty M.empty S.empty
 
 -- | = Action, and how to act on one
 
--- If this polymorphism ever gives me trouble, maybe I could bundle
--- the Map String Synth into the Action. Or an MVar containing it.
-data Action sdArgs where
-  Wait :: Float                                   -> Action sdARgs
-  Free :: SynthDefName -> SynthName               -> Action sdARgs
-  New  :: SynthDefName -> SynthName               -> Action sdARgs
-  Send :: SynthDefName -> SynthName -> Msg sdARgs -> Action sdARgs
+data Action where
+  Wait :: Float -> Action
+  New  :: MVar (M.Map SynthName (Synth sdArgs))
+       -> SynthDef sdArgs
+       -> SynthName -> Action
+  Free :: MVar (M.Map SynthName (Synth sdArgs))
+       -> SynthName -> Action
+  Send :: MVar (M.Map SynthName (Synth sdArgs))
+       -> SynthName
+       -> Msg sdArgs -> Action
 
-act :: VividAction m => SynthRegister -> Action sdArgs -> m SynthRegister
-act synths (Wait k) = do wait k
-                         return synths
-act synths (New Boop name) = do 
-  newBoops <- newAction boop name $ boops synths
-  return $ synths {boops = newBoops}
-act synths (Free Boop name) = do 
-  newBoops <- freeAction name $ boops synths
-  return $ synths {boops = newBoops}
+act :: Action -> IO ()
+  -- todo ? make this a VividAction rather than an IO
+    -- problem: you can't read an MVar from a VividAction
+act (Wait k) = wait k
+-- The rest of this definition of act has to be duplicated for each synthdef.
+act (New mSynthMap synthDef name) = do
+  synthMap <- readMVar mSynthMap
+  synthMap' <- newAction synthDef name synthMap
+  swapMVar mSynthMap synthMap'
+  return ()
+act (Free mSynthMap name) = do
+  synthMap <- readMVar mSynthMap
+  synthMap' <- freeAction name synthMap
+  swapMVar mSynthMap synthMap'
+  return ()
+act (Send mSynthMap name msg) = do
+  synthMap <- readMVar mSynthMap
+  sendAction name msg synthMap
 
 
--- | = Helper functions to reduce the boilerplate above
+-- | = Helper functions, which reduced the above per-synthdef boilerplate.
 
 newAction :: VividAction m
           => SynthDef sdArgs
@@ -85,3 +97,13 @@ freeAction name synthMap =
     Nothing -> error $ "The name " ++ name ++ " is already unused."
     Just s -> do free s
                  return $ M.delete name synthMap
+
+sendAction :: forall m sdArgs. VividAction m
+           => SynthName
+           -> Msg sdArgs
+           -> M.Map SynthName (Synth sdArgs)
+           -> m ()
+sendAction name msg synthMap =
+  case M.lookup name synthMap of
+    Nothing -> error $ "The name " ++ name ++ " is not in use."
+    Just synth -> set' synth msg
