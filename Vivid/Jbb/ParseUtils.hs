@@ -29,3 +29,9 @@ word w = try $ L.lexeme sc $ C.string w <* notFollowedBy wordChar
 
 anyWord :: Parser String
 anyWord = L.lexeme sc $ some wordChar  <* notFollowedBy wordChar
+
+-- | Per this, negative signs must abut the numbers they negate.
+-- TODO: make it accept numbers without a decimal point, or with
+-- no digits to the right of it.
+signedFloat :: Parser Float
+signedFloat = L.signed nothing L.float where nothing = return ()
