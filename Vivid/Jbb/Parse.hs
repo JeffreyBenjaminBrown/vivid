@@ -13,36 +13,36 @@ import Vivid.Jbb.ParseUtils
 import Vivid.Jbb.ParseParams
 
 
-wait :: Parser Action
-wait = Wait <$> (word "wait" >> L.lexeme sc L.float)
-
--- everything below includes per-synth boilerplate
-
 synthDefName :: Parser SynthDefName
 synthDefName = foldr1 (<|>) [ word "boop" >> return Boop
                             , word "vap" >> return Vap
                             , word "sqfm" >> return Sqfm
                             ]
 
-new :: SynthRegister -> Parser Action
+wait :: Parser Action
+wait = Wait <$> (word "wait" >> L.lexeme sc L.float)
+
+-- everything below includes per-synth boilerplate
+
+new :: SynthRegister -> Parser [Action]
 new reg = do
   word "new"
   synthDef <- synthDefName
-  name <- anyWord
+  names <- M.many anyWord
   case synthDef of
-    Boop -> return $ New (boops reg) boop name
-    Vap  -> return $ New (vaps  reg) vap  name
-    Sqfm -> return $ New (sqfms reg) sqfm name
+    Boop -> return $ map (New (boops reg) boop) names
+    Vap  -> return $ map (New (vaps  reg) vap ) names
+    Sqfm -> return $ map (New (sqfms reg) sqfm) names
 
-free :: SynthRegister -> Parser Action
+free :: SynthRegister -> Parser [Action]
 free reg = do
   word "free"
   synthDef <- synthDefName
-  name <- anyWord
+  names <- M.many $ anyWord
   return $ case synthDef of
-    Boop -> Free (boops reg) name
-    Vap  -> Free (vaps  reg) name
-    Sqfm -> Free (sqfms reg) name
+    Boop -> map (Free $ boops reg) names
+    Vap  -> map (Free $ vaps  reg) names
+    Sqfm -> map (Free $ sqfms reg) names
 
 send :: SynthRegister -> Parser [Action]
 send reg = do
