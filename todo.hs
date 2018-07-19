@@ -1,3 +1,6 @@
+add the tag "per-synth boilerplate" to each part of the code
+  that I'll have to modify whenever I add a synth
+
 features to add, in cumulative order
   parse the Action GADT
     see if I can create Actions with different sdArgs values from one string
