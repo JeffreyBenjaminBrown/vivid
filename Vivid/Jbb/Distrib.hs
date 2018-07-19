@@ -11,6 +11,15 @@
            , ScopedTypeVariables
            , GADTs #-}
 
+module Vivid.Jbb.Distrib (
+    SynthName
+  , randomString
+  , SynthRegister
+  , emptySynthRegister
+  , Action(..)
+  , act
+  ) where
+
 import System.Random
 import Data.Map as M
 import Data.Set as S
@@ -22,7 +31,7 @@ import Vivid.Jbb.Synths
 
 type SynthName = String
 
--- | There are 94 characters bewteen ! and ~ (inclusive).
+-- | There are 94 Unicode characters bewteen ! and ~ (inclusive).
 -- The chance of collision between two 32 character strings of those
 -- is (1/94)**32 = 7.242836554608488e-64
 randomString :: IO [Char]
@@ -80,7 +89,7 @@ newAction :: VividAction m
           -> SynthName
           -> M.Map SynthName (Synth sdArgs)
           -> m (M.Map SynthName (Synth sdArgs))
-newAction synthDef name synthMap = 
+newAction synthDef name synthMap =
   case M.lookup name $ synthMap of
     Just _ -> error $ "The name " ++ name ++ " is already in use."
     Nothing -> do s <- synth synthDef ()
@@ -90,7 +99,7 @@ freeAction :: VividAction m
            => SynthName
            -> M.Map SynthName (Synth sdArgs)
            -> m (M.Map SynthName (Synth sdArgs))
-freeAction name synthMap = 
+freeAction name synthMap =
   case M.lookup name $ synthMap of
     Nothing -> error $ "The name " ++ name ++ " is already unused."
     Just s -> do free s

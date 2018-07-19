@@ -1,7 +1,7 @@
 name:                vivid
 version:             0.3.0.2
 synopsis:            Sound synthesis with SuperCollider
-description:         
+description:
   Music and sound synthesis with SuperCollider.
   .
   Example usage (after installing and booting SuperCollider):
@@ -53,6 +53,8 @@ library
   exposed-modules:
     Vivid.Jbb
     , Vivid.Jbb.Synths
+    , Vivid.Jbb.Distrib
+    , Vivid.Jbb.Parse
 
     , Vivid
     , Vivid.Actions
@@ -107,7 +109,7 @@ library
     , Vivid.UGens.Triggers
     , Vivid.UGens.Undocumented
     , Vivid.UGens.UserInteraction
-  -- other-modules:       
+  -- other-modules:
   build-depends:
    -- These package bounds are to comply with the PVP
    -- (https://wiki.haskell.org/Package_versioning_policy).
@@ -273,7 +275,7 @@ library
     -fconstraint-solver-iterations=0
 
 -- TODO:
--- testsuite 
+-- testsuite
 --   build-depends:
 --       vivid
 --     , microspec
