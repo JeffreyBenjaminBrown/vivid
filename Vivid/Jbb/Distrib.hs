@@ -14,7 +14,7 @@
 module Vivid.Jbb.Distrib (
     SynthName
   , randomString
-  , SynthRegister
+  , SynthRegister(..)
   , emptySynthRegister
   , Action(..)
   , act
@@ -22,7 +22,6 @@ module Vivid.Jbb.Distrib (
 
 import System.Random
 import Data.Map as M
-import Data.Set as S
 import Control.Concurrent.MVar
 
 import Vivid
@@ -38,20 +37,24 @@ randomString :: IO [Char]
 randomString = do
    gen <- newStdGen
    return $ Prelude.take 32 $ randomRs
-                              ('!','~') --widest possible on normal keyboard
+                              ('!','~') -- widest possible on normal keyboard
                               gen
 
 
 -- | = SynthRegister
 
 data SynthRegister =
-  SynthRegister { boops :: M.Map SynthName (Synth BoopParams)
-                , sqfms :: M.Map SynthName (Synth SqfmParams)
-                , tempNames :: S.Set String }
+  SynthRegister { boops :: MVar (M.Map SynthName (Synth BoopParams))
+                , vaps  :: MVar (M.Map SynthName (Synth VapParams))
+                , sqfms :: MVar (M.Map SynthName (Synth SqfmParams))
+                }
 
-emptySynthRegister :: SynthRegister
-emptySynthRegister = SynthRegister M.empty M.empty S.empty
-
+emptySynthRegister :: IO SynthRegister
+emptySynthRegister = do x <- newMVar M.empty
+                        y <- newMVar M.empty
+                        z <- newMVar M.empty
+                        return $ SynthRegister x y z
+  
 
 -- | = Action, and how to act on one
 
