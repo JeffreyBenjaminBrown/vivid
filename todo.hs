@@ -1,6 +1,7 @@
 features to add, in cumulative order
-  distribute messages across synths
-  keeo a loop
+  parse the Action GADT
+    see if I can create Actions with different sdArgs values from one string
+  keep a loop
     then multiple loops of varying durations
   make functions for manipulating loops
     spend a long time on this

@@ -4,9 +4,7 @@
 --     Give it a random name.
 --     Keep that random name in the synth registry, to be completely sure
 --     there's never a conflict.
--- For that I will need:
---   the random string function
---   if I'm being absurdly safe, the tempNames field of SynthRegistry
+-- For that I will need to use the random string function below
 
 {-# LANGUAGE DataKinds
            , ExtendedDefaultRules
@@ -24,9 +22,13 @@ import Vivid.Jbb.Synths
 
 type SynthName = String
 
+-- | There are 94 characters bewteen ! and ~ (inclusive).
+-- The chance of collision between two 32 character strings of those
+-- is (1/94)**32 = 7.242836554608488e-64
+randomString :: IO [Char]
 randomString = do
    gen <- newStdGen
-   return $ Prelude.take 20 $ randomRs
+   return $ Prelude.take 32 $ randomRs
                               ('!','~') --widest possible on normal keyboard
                               gen
 
@@ -59,7 +61,6 @@ act :: Action -> IO ()
   -- todo ? make this a VividAction rather than an IO
     -- problem: you can't read an MVar from a VividAction
 act (Wait k) = wait k
--- The rest of this definition of act has to be duplicated for each synthdef.
 act (New mSynthMap synthDef name) = do
   synthMap <- readMVar mSynthMap
   synthMap' <- newAction synthDef name synthMap
@@ -73,9 +74,6 @@ act (Free mSynthMap name) = do
 act (Send mSynthMap name msg) = do
   synthMap <- readMVar mSynthMap
   sendAction name msg synthMap
-
-
--- | = Helper functions, which reduced the above per-synthdef boilerplate.
 
 newAction :: VividAction m
           => SynthDef sdArgs
