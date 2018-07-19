@@ -21,13 +21,13 @@ import Vivid.Jbb.ParseUtils
 -- | parse a Msg for a particular synthdef
 
 parseBoopMsg :: Parser (Msg BoopParams)
-parseBoopMsg = freq <|> amp
+parseBoopMsg = tryEach [freq, amp]
 
 parseVapMsg :: Parser (Msg VapParams)
-parseVapMsg = freq <|> amp
+parseVapMsg = tryEach [freq, amp]
 
 parseSqfmMsg :: Parser (Msg SqfmParams)
-parseSqfmMsg = freq <|> amp <|> width <|> widthVib
+parseSqfmMsg = tryEach [freq, amp, width, widthVibFreq, widthVibAmp]
 
 
 -- | parse a Msg polymorphically
@@ -44,6 +44,10 @@ width :: Elem "width" superset => Parser (Msg superset)
 width = L.lexeme sc $ do n <- word "width" >> signedFloat
                          return $ Msg (toI n :: I "width")
 
-widthVib :: Elem "width-vib" superset => Parser (Msg superset)
-widthVib = L.lexeme sc $ do n <- word "width-vib" >> signedFloat
-                            return $ Msg (toI n :: I "width-vib")
+widthVibFreq :: Elem "width-vib-freq" superset => Parser (Msg superset)
+widthVibFreq = L.lexeme sc $ do n <- word "width-vib-freq" >> signedFloat
+                                return $ Msg (toI n :: I "width-vib-freq")
+
+widthVibAmp :: Elem "width-vib-amp" superset => Parser (Msg superset)
+widthVibAmp = L.lexeme sc $ do n <- word "width-vib-amp" >> signedFloat
+                               return $ Msg (toI n :: I "width-vib-amp")

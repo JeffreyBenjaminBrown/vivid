@@ -1,11 +1,13 @@
 :set prompt "> "
 import Text.Megaparsec (parse)
+import Control.Concurrent (forkIO)
 import Control.Concurrent.MVar (readMVar)
-import Data.Map (size, keys)
 import Data.Either
+import Data.Map (size, keys)
 
 
 reg <- emptySynthRegister
+f s = forkIO $ mapM_ act $ fromRight [] $ parse (msgs reg) "" s
 
 -- | = comma separation works
 size <$> readMVar (boops reg) -- should be 0
@@ -33,7 +35,11 @@ r <- readMVar (boops reg)
 size r -- at this point it should have size 0
 
 -- | = it all works!
-(Right as) = parse (msgs reg) "" "new boop 2, send boop 2 freq 444.0, wait 1.0, free boop 2"
-mapM_ act as
-r <- readMVar (boops reg)
-size r
+reg <- emptySynthRegister
+mapM_ act $ fromRight [] $ parse (msgs reg) "" "new boop 2, send boop 2 freq 444.0 amp 0.1, wait 1.0, free boop 2"
+
+-- if this gives [], it didn't work
+aTest s = fromRight [] $ parse (msgs reg) "" s
+
+-- playing with sqfm
+f "new sqfm margaret, send sqfm margaret freq 555.0 amp 0.2 width 0.1 width-vib-freq 22.0 width-vib-amp 0.1, wait 1.0, free sqfm margaret"

@@ -11,6 +11,9 @@ type Parser = Parsec Void String
 sc :: Parser ()
 sc = L.space C.space1 empty empty
 
+tryEach :: [Parser a] -> Parser a
+tryEach = foldr1 (<|>) . map try
+
 parens :: Parser a -> Parser a
 parens = between (L.symbol sc "(") (L.symbol sc ")")
 
