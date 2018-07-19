@@ -5,6 +5,7 @@ module Vivid.Jbb.Parse where
 import Text.Megaparsec as M
 import qualified Text.Megaparsec.Char as C
 import qualified Text.Megaparsec.Char.Lexer as L
+import Control.Monad.Combinators (sepBy1)
 
 import Vivid
 import Vivid.Jbb.Synths
@@ -19,13 +20,23 @@ synthDefName = foldr1 (<|>) [ word "boop" >> return Boop
                             , word "sqfm" >> return Sqfm
                             ]
 
-wait :: Parser Action
-wait = Wait <$> (word "wait" >> L.lexeme sc L.float)
+msgs :: SynthRegister -> Parser [Action]
+msgs reg = concat <$>
+  sepBy1 (homogeneousMsgs reg) (L.lexeme sc $ C.string ",")
+
+-- | msgs all of the same type, e.g. a bunch of News, or a bunch of Frees
+homogeneousMsgs :: SynthRegister -> Parser [Action]
+homogeneousMsgs reg = L.lexeme sc $ foldl1 (<|>) 
+  [ (:[]) <$> parseWait -- make it return a (length one) list
+  , parseNews reg, parseFrees reg, parseSends reg ]
+
+parseWait :: Parser Action
+parseWait = Wait <$> (word "wait" >> L.lexeme sc L.float)
 
 -- everything below includes per-synth boilerplate
 
-new :: SynthRegister -> Parser [Action]
-new reg = do
+parseNews :: SynthRegister -> Parser [Action]
+parseNews reg = do
   word "new"
   synthDef <- synthDefName
   names <- M.many anyWord
@@ -34,8 +45,8 @@ new reg = do
     Vap  -> return $ map (New (vaps  reg) vap ) names
     Sqfm -> return $ map (New (sqfms reg) sqfm) names
 
-free :: SynthRegister -> Parser [Action]
-free reg = do
+parseFrees :: SynthRegister -> Parser [Action]
+parseFrees reg = do
   word "free"
   synthDef <- synthDefName
   names <- M.many $ anyWord
@@ -44,9 +55,9 @@ free reg = do
     Vap  -> map (Free $ vaps  reg) names
     Sqfm -> map (Free $ sqfms reg) names
 
-send :: SynthRegister -> Parser [Action]
-send reg = do
-  word "free"
+parseSends :: SynthRegister -> Parser [Action]
+parseSends reg = do
+  word "send"
   synthDef <- synthDefName
   name <- anyWord
   case synthDef of

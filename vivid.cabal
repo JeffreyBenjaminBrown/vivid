@@ -175,8 +175,6 @@ library
      -- Try: "&& < 1.3"
     , hashable
 
-    , megaparsec
-
       -- Lower bound:
       --    0.1 is the oldest version on Hackage
       -- Upper bound:
@@ -272,6 +270,10 @@ library
     -- Pinned to vivid's version:
     , vivid-osc
     , vivid-supercollider
+
+    -- jbb added
+    , megaparsec
+    , parser-combinators
 
   -- TODO: constraint solver iterations only for the GHC that needs it
   ghc-options:
