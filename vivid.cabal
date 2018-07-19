@@ -55,6 +55,7 @@ library
     , Vivid.Jbb.Synths
     , Vivid.Jbb.Distrib
     , Vivid.Jbb.Parse
+    , Vivid.Jbb.ParseUtils
 
     , Vivid
     , Vivid.Actions
@@ -172,6 +173,8 @@ library
      --    1.3 doesn't exist yet
      -- Try: "&& < 1.3"
     , hashable
+
+    , megaparsec
 
       -- Lower bound:
       --    0.1 is the oldest version on Hackage
