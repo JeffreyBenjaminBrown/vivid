@@ -16,6 +16,8 @@ import Vivid.Jbb.ParseParams
 wait :: Parser Action
 wait = Wait <$> (word "wait" >> L.lexeme sc L.float)
 
+-- everything below includes per-synth boilerplate
+
 synthDefName :: Parser SynthDefName
 synthDefName = foldr1 (<|>) [ word "boop" >> return Boop
                             , word "vap" >> return Vap
@@ -50,7 +52,7 @@ send reg = do
   case synthDef of
     Boop -> do msgs <- M.many $ parseBoopMsg
                return $ map (Send (boops reg) name) msgs
-    Vap -> do msgs <- M.many $ parseVapMsg
-              return $ map (Send (boops reg) name) msgs
+    Vap  -> do msgs <- M.many $ parseVapMsg
+               return $ map  (Send (vaps  reg) name) msgs
     Sqfm -> do msgs <- M.many $ parseSqfmMsg
-               return $ map (Send (boops reg) name) msgs
+               return $ map (Send (sqfms reg) name) msgs

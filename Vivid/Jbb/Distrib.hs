@@ -43,7 +43,7 @@ randomString = do
 
 -- | = SynthRegister
 
-data SynthRegister =
+data SynthRegister = -- per-synth boilerplate
   SynthRegister { boops :: MVar (M.Map SynthName (Synth BoopParams))
                 , vaps  :: MVar (M.Map SynthName (Synth VapParams))
                 , sqfms :: MVar (M.Map SynthName (Synth SqfmParams))

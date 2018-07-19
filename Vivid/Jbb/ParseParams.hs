@@ -1,3 +1,5 @@
+-- everything below includes per-synth boilerplate
+
 {-# LANGUAGE DataKinds #-}
 
 module Vivid.Jbb.ParseParams (
