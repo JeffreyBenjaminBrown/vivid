@@ -78,11 +78,16 @@ randAbSawMsg poss = AbSawMsg <$> randAbSig poss
 
 -- | An `AbSigName` identifies a previously named `AbSig`. For instance,
 -- in `s1 <- sinOsc (freq_ (V::V "freq"))`, we have created a signal
--- named `s1`. 
+-- named `s1`.
 data AbSigName = AS1 | AS2 | AS3 | AS4 | AS5 | AS6 | AS7 | AS8
   deriving (Show, Eq, Ord)
 
 theAbSigNames = [AS1, AS2, AS3, AS4, AS5, AS6, AS7, AS8]
+
+sigName :: Int -> Int -> AbSigName
+sigName maxAbSigName n = if n <= min maxAbSigName 8 && n >= 1
+  then theAbSigNames !! (n-1)
+  else error $ show n ++ " is not the number of an AbSigName."
 
 randAbSigName :: RandPossib -> IO AbSigName
 randAbSigName (RandPossib _ maxSigName) =
