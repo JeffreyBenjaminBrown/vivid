@@ -5,14 +5,24 @@
 import Vivid
 
 
+-- | Without RPossible we would usually create invalid signal graphs
+-- TODO ? How to ensure that previously created signals are actually used?
+data RPossible = RPossible { maxParams :: Int
+                           , nNamedSignals :: Int }
+
 -- | Every random synth has up to eight parameters.
 data RParam = RP1 | RP2 | RP3 | RP4 | RP5 | RP6 | RP7 | RP8
   deriving (Show, Eq, Ord)
 
-rParam :: Int -> Int -> RParam
-rParam maxParam n = if n <= min maxParam 8 && n >= 1
+theRParams = [RP1, RP2, RP3, RP4, RP5, RP6, RP7, RP8]
+
+param :: Int -> Int -> RParam
+param maxParam n = if n <= min maxParam 8 && n >= 1
   then [RP1, RP2, RP3, RP4, RP5, RP6, RP7, RP8] !! (n-1)
   else error $ show n ++ " is not the number of an RParam."
+
+rParam :: RPossible -> IO RParam
+rParam (RPossible maxParam _) = pick $ take maxParam theRParams
 
 -- | An `RSigName` identifies a previously named `RSig`. For instance,
 -- in `s1 <- sinOsc (freq_ (V::V "freq"))`, we have created a signal
@@ -20,10 +30,15 @@ rParam maxParam n = if n <= min maxParam 8 && n >= 1
 data RSigName = RS1 | RS2 | RS3 | RS4 | RS5 | RS6 | RS7 | RS8
   deriving (Show, Eq, Ord)
 
-rSigName :: Int -> Int -> RSigName
-rSigName maxSigName n = if n <= min maxSigName 8 && n >= 1
+theRSigNames = [RS1, RS2, RS3, RS4, RS5, RS6, RS7, RS8]
+
+sigName :: Int -> Int -> RSigName
+sigName maxSigName n = if n <= min maxSigName 8 && n >= 1
   then [RS1, RS2, RS3, RS4, RS5, RS6, RS7, RS8] !! (n-1)
   else error $ show n ++ " is not the number of an RSigName."
+
+rSigName :: RPossible -> IO RSigName
+rSigName (RPossible _ maxSigName) = pick $ take maxSigName theRSigNames
 
 data RSig = RSig RSigName -- ^ a previously constructed RSig
           | RV RParam
@@ -48,32 +63,27 @@ data RSawMsg = RSawMsg { rSawFreq :: RSig }
 
 -- | = Generating random ones
 
--- | without this we would usually create invalid signal graphs
--- TODO ? How to ensure that previously created signals are actually used?
-data RPossible = RPossible { maxParams :: Int
-                           , nNamedSignals :: Int }
+rSawMsg :: RPossible -> IO RSawMsg -- TODO
+rSawMsg _ = return $ RSawMsg (RV RP1)
 
-rSawMsg :: IO RSawMsg -- TODO
-rSawMsg = return $ RSawMsg (RV RP1)
+rSaw :: RPossible -> IO RGen
+rSaw poss = RSaw <$> rSawMsg poss
 
-rSaw :: IO RGen
-rSaw = RSaw <$> rSawMsg
+rSinMsg :: RPossible -> IO RSinMsg -- TODO
+rSinMsg _ = return $ RSinMsg (RV RP1) (RV RP2)
 
-rSinMsg :: IO RSinMsg -- TODO
-rSinMsg = return $ RSinMsg (RV RP1) (RV RP2)
+rSin :: RPossible -> IO RGen
+rSin poss = RSin <$> rSinMsg poss
 
-rSin :: IO RGen
-rSin = RSin <$> rSinMsg
+rGen :: RPossible -> IO RGen
+rGen poss = do x <- pick [rSaw poss, rSin poss]
+               x -- this doesn't return `x`, it "does" `x`
 
-rGen :: IO RGen
-rGen = do x <- pick [rSaw, rSin]
-          x -- this doesn't return `x`, it "does" `x`
+rFormula :: RPossible -> IO RFormula
+rFormula poss = do f <- pick [RProd, RSum]
+                   a <- rSig poss
+                   b <- rSig poss
+                   return $ f a b
 
-rFormula :: IO RFormula
-rFormula = do f <- pick [RProd, RSum]
-              a <- rSig
-              b <- rSig
-              return $ f a b
-
-rSig :: IO RSig -- TODO
-rSig = return $ RV RP1
+rSig :: RPossible -> IO RSig -- TODO
+rSig (RPossible maxParamms nNamedSigs) = return $ RV RP1
