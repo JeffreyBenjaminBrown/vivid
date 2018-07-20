@@ -52,11 +52,12 @@ license:             GPL
 library
   exposed-modules:
     Vivid.Jbb
-    , Vivid.Jbb.Synths
     , Vivid.Jbb.Distrib
     , Vivid.Jbb.Parse
-    , Vivid.Jbb.ParseUtils
     , Vivid.Jbb.ParseParams
+    , Vivid.Jbb.ParseUtils
+    , Vivid.Jbb.Synths
+    , Vivid.Jbb.Synths.Vap
 
     , Vivid
     , Vivid.Actions

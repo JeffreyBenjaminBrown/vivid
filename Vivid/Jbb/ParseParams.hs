@@ -13,9 +13,10 @@ import qualified Text.Megaparsec.Char as C
 import qualified Text.Megaparsec.Char.Lexer as L
 
 import Vivid
-import Vivid.Jbb.Synths
 import Vivid.Jbb.Distrib
+import Vivid.Jbb.Msg
 import Vivid.Jbb.ParseUtils
+import Vivid.Jbb.Synths
 
 
 -- | parse a Msg for a particular synthdef

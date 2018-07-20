@@ -1,3 +1,5 @@
-module Vivid.Jbb ( module X ) where
+module Vivid.Jbb (
+  module X
+) where
 
 import Vivid.Jbb.Synths as X

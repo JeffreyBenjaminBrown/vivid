@@ -8,10 +8,10 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators (sepBy1)
 
 import Vivid
-import Vivid.Jbb.Synths
 import Vivid.Jbb.Distrib
-import Vivid.Jbb.ParseUtils
 import Vivid.Jbb.ParseParams
+import Vivid.Jbb.ParseUtils
+import Vivid.Jbb.Synths
 
 
 synthDefName :: Parser SynthDefName

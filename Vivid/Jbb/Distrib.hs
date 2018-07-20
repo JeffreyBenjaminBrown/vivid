@@ -25,6 +25,7 @@ import Data.Map as M
 import Control.Concurrent.MVar
 
 import Vivid
+import Vivid.Jbb.Msg
 import Vivid.Jbb.Synths
 
 
