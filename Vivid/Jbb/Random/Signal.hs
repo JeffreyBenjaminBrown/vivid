@@ -5,11 +5,15 @@ module Vivid.Jbb.Random.Signal where
 import Vivid
 
 
--- | Without RandPossib we would usually create invalid signal graphs
+-- | Without RandConstraints we would usually create invalid signal graphs
 -- For instance, we can't refer to the 5th named signal if there are only 4.
 -- TODO ? How to ensure that previously created signals are actually used?
-data RandPossib = RandPossib { maxParams :: Int
-                             , nNamedSignals :: Int }
+data RandConstraints = RandConstraints
+  { nParams :: Int
+  , signalsNamedSoFar :: Int
+  , maxSignals :: Int
+  , maxSignalComplexity :: Int
+  }
 
 
 -- | = abstract signal
@@ -20,8 +24,8 @@ data AbSig = AbSigFormula AbFormula
            | AbV AbParam
   deriving (Show, Eq, Ord)
 
-randAbSig :: RandPossib -> IO AbSig
-randAbSig poss@(RandPossib maxParamms nNamedSigs) = do
+randAbSig :: RandConstraints -> IO AbSig
+randAbSig poss = do
   x <- pick [ AbSigFormula <$> ranAbFormula poss
             , AbSigGen <$> randAbGen poss
             , AbSig <$> randAbSigName poss
@@ -35,7 +39,7 @@ data AbFormula = RProd AbSig AbSig
               | RSum AbSig AbSig
   deriving (Show, Eq, Ord)
 
-ranAbFormula :: RandPossib -> IO AbFormula
+ranAbFormula :: RandConstraints -> IO AbFormula
 ranAbFormula poss = do f <- pick [RProd, RSum]
                        a <- randAbSig poss
                        b <- randAbSig poss
@@ -47,32 +51,32 @@ data AbGen = AbSin AbSinMsg
            | AbSaw AbSawMsg
   deriving (Show, Eq, Ord)
 
-randAbGen :: RandPossib -> IO AbGen
+randAbGen :: RandConstraints -> IO AbGen
 randAbGen poss = do x <- pick [randAbSaw poss, randAbSin poss]
                     x
 
 
 -- | = sinOsc abstraction
-randAbSin :: RandPossib -> IO AbGen
+randAbSin :: RandConstraints -> IO AbGen
 randAbSin poss = AbSin <$> randAbSinMsg poss
 
 data AbSinMsg = AbSinMsg { abSinFreq :: AbSig, abSinPhase :: AbSig }
   deriving (Show, Eq, Ord)
 
-randAbSinMsg :: RandPossib -> IO AbSinMsg -- TODO
+randAbSinMsg :: RandConstraints -> IO AbSinMsg -- TODO
 randAbSinMsg poss = do a <- randAbSig poss
                        b <- randAbSig poss
                        return $ AbSinMsg a b
 
 
 -- | = AbSaw
-randAbSaw :: RandPossib -> IO AbGen
+randAbSaw :: RandConstraints -> IO AbGen
 randAbSaw poss = AbSaw <$> randAbSawMsg poss
 
 data AbSawMsg = AbSawMsg { abSawFreq :: AbSig }
   deriving (Show, Eq, Ord)
 
-randAbSawMsg :: RandPossib -> IO AbSawMsg
+randAbSawMsg :: RandConstraints -> IO AbSawMsg
 randAbSawMsg poss = AbSawMsg <$> randAbSig poss
 
 
@@ -89,9 +93,9 @@ sigName maxAbSigName n = if n <= min maxAbSigName 8 && n >= 1
   then theAbSigNames !! (n-1)
   else error $ show n ++ " is not the number of an AbSigName."
 
-randAbSigName :: RandPossib -> IO AbSigName
-randAbSigName (RandPossib _ maxSigName) =
-  pick $ take maxSigName theAbSigNames
+randAbSigName :: RandConstraints -> IO AbSigName
+randAbSigName cstrs =
+  pick $ take (signalsNamedSoFar cstrs) theAbSigNames
 
 
 -- | = Every random synth has up to eight parameters.
@@ -100,5 +104,5 @@ data AbParam = AP1 | AP2 | AP3 | AP4 | AP5 | AP6 | AP7 | AP8
 
 theRParams = [AP1, AP2, AP3, AP4, AP5, AP6, AP7, AP8]
 
-randAbParam :: RandPossib -> IO AbParam
-randAbParam (RandPossib maxParam _) = pick $ take maxParam theRParams
+randAbParam :: RandConstraints -> IO AbParam
+randAbParam cs = pick $ take (nParams cs) theRParams
