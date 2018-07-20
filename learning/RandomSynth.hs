@@ -18,8 +18,14 @@ data RSig = RSigFormula RFormula
           | RV RParam
   deriving (Show, Eq, Ord)
 
-rSig :: RPossible -> IO RSig -- TODO
-rSig (RPossible maxParamms nNamedSigs) = return $ RV RP1
+rSig :: RPossible -> IO RSig
+rSig poss@(RPossible maxParamms nNamedSigs) = do
+  x <- pick [ RSigFormula <$> rFormula poss
+            , RSigGen <$> rGen poss
+            , RSig <$> rSigName poss
+            , RV <$> rParam poss
+            ]
+  x
 
 
 -- | = RFormula
@@ -41,7 +47,7 @@ data RGen = RSin RSinMsg
 
 rGen :: RPossible -> IO RGen
 rGen poss = do x <- pick [rSaw poss, rSin poss]
-               x -- this doesn't return `x`, it "does" `x`
+               x
 
 
 -- | = RSin
@@ -52,7 +58,9 @@ data RSinMsg = RSinMsg { rSinFreq :: RSig, rSinPhase :: RSig }
   deriving (Show, Eq, Ord)
 
 rSinMsg :: RPossible -> IO RSinMsg -- TODO
-rSinMsg _ = return $ RSinMsg (RV RP1) (RV RP2)
+rSinMsg poss = do a <- rSig poss
+                  b <- rSig poss
+                  return $ RSinMsg a b
 
 
 -- | = RSaw
@@ -62,8 +70,8 @@ rSaw poss = RSaw <$> rSawMsg poss
 data RSawMsg = RSawMsg { rSawFreq :: RSig }
   deriving (Show, Eq, Ord)
 
-rSawMsg :: RPossible -> IO RSawMsg -- TODO
-rSawMsg _ = return $ RSawMsg (RV RP1)
+rSawMsg :: RPossible -> IO RSawMsg
+rSawMsg poss = RSawMsg <$> rSig poss
 
 
 -- | An `RSigName` identifies a previously named `RSig`. For instance,
@@ -74,11 +82,6 @@ data RSigName = RS1 | RS2 | RS3 | RS4 | RS5 | RS6 | RS7 | RS8
 
 theRSigNames = [RS1, RS2, RS3, RS4, RS5, RS6, RS7, RS8]
 
-sigName :: Int -> Int -> RSigName
-sigName maxSigName n = if n <= min maxSigName 8 && n >= 1
-  then [RS1, RS2, RS3, RS4, RS5, RS6, RS7, RS8] !! (n-1)
-  else error $ show n ++ " is not the number of an RSigName."
-
 rSigName :: RPossible -> IO RSigName
 rSigName (RPossible _ maxSigName) = pick $ take maxSigName theRSigNames
 
@@ -88,11 +91,6 @@ data RParam = RP1 | RP2 | RP3 | RP4 | RP5 | RP6 | RP7 | RP8
   deriving (Show, Eq, Ord)
 
 theRParams = [RP1, RP2, RP3, RP4, RP5, RP6, RP7, RP8]
-
-param :: Int -> Int -> RParam
-param maxParam n = if n <= min maxParam 8 && n >= 1
-  then [RP1, RP2, RP3, RP4, RP5, RP6, RP7, RP8] !! (n-1)
-  else error $ show n ++ " is not the number of an RParam."
 
 rParam :: RPossible -> IO RParam
 rParam (RPossible maxParam _) = pick $ take maxParam theRParams
