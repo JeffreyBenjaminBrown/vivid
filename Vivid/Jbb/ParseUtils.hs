@@ -34,7 +34,11 @@ anyWord :: Parser String
 anyWord = L.lexeme sc $ some wordChar  <* notFollowedBy wordChar
 
 -- | Per this, negative signs must abut the numbers they negate.
--- TODO:
+-- TODO: parse floats more flexibly
+  -- actually even easier than the below would be just try three things:
+    -- first try scientific
+    -- if not that try decimal-int
+    -- if not that try int
   -- goal: make it accept numbers without a decimal point, or with
     -- no digits to the right of it.
   -- L.scientific doesn't accept those things either.

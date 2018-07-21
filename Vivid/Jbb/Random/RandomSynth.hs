@@ -11,7 +11,7 @@ import Vivid.Jbb.Random.MentionsSig
 
 
 randAbSynth :: RandConstraints -> IO AbSynth
-randAbSynth cs = prune cs <$>
+randAbSynth cs = -- TODO : prune cs <$>
   go cs M.empty where
   go :: RandConstraints -> AbSynth -> IO AbSynth
   go cs m = if namedSignals cs >= maxSignals cs
@@ -22,6 +22,7 @@ randAbSynth cs = prune cs <$>
                         m' = M.insert (sigName cs' namedSignals') s m
                     go cs' m'
 
+-- TODO : debug `prune`; it seems to strip everything but the last
 -- | After pruning, every remaining signal influences the last one
 prune :: RandConstraints -> AbSynth -> AbSynth
 prune cs m =
