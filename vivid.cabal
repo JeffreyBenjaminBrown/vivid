@@ -58,11 +58,16 @@ library
     , Vivid.Jbb.ParseParams
     , Vivid.Jbb.ParseUtils
     , Vivid.Jbb.Random.MentionsSig
+    , Vivid.Jbb.Random.RandomSignal
+    , Vivid.Jbb.Random.RandomSynth
     , Vivid.Jbb.Random.Render
     , Vivid.Jbb.Random.Signal
-    , Vivid.Jbb.Random.Synth
+    , Vivid.Jbb.Random.Types
+    , Vivid.Jbb.Random.Types.AbstractSignal
+    , Vivid.Jbb.Random.Types.Other
     , Vivid.Jbb.Synths
     , Vivid.Jbb.Synths.Vap
+
 
     , Vivid
     , Vivid.Actions

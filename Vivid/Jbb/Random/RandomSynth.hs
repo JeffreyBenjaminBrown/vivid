@@ -1,13 +1,14 @@
-module Vivid.Jbb.Random.Synth where
+{-# LANGUAGE ViewPatterns #-}
+
+module Vivid.Jbb.Random.RandomSynth where
 
 import qualified Data.Map as M
 
 import Vivid
-import Vivid.Jbb.Random.Signal
+import Vivid.Jbb.Random.Types
+import Vivid.Jbb.Random.RandomSignal
 import Vivid.Jbb.Random.MentionsSig
 
-
-type AbSynth = M.Map AbSigName AbSig
 
 randAbSynth :: RandConstraints -> IO AbSynth
 randAbSynth cs = prune cs <$>
@@ -43,3 +44,9 @@ unused cs (u:used) m =
 unique :: Eq a => [a] -> [a]
 unique [] = []
 unique (a:as) = a : (unique $ filter (not . (==) a) as)
+
+sigName :: RandConstraints -> Int -> AbSigName
+sigName (namedSignals -> k) n =
+  if n > 0 && n <= min k 8
+  then theAbSigNames !! (n - 1)
+  else error $ show n ++ " is not the number of an AbSigName."
