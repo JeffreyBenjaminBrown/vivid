@@ -1,1 +1,2 @@
 :set prompt "> "
+:set -XDataKinds
