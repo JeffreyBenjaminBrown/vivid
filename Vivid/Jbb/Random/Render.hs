@@ -1,5 +1,3 @@
--- aw dang, I have no idea
-
 {-# LANGUAGE DataKinds
            , ExtendedDefaultRules
            , FlexibleContexts
@@ -44,12 +42,12 @@ instance RenderSig AbGen where
 instance RenderSig AbSigName where
   renderSig = (M.!)
 
-instance RenderSig AbParam where -- TODO ? a goofy hack, but it's cpu-cheap.
-  renderSig _ AP1 = (V :: V "AP1") ~+ (0 ~* pulse (freq_ 1))
-  renderSig _ AP2 = (V :: V "AP2") ~+ (0 ~* pulse (freq_ 1))
-  renderSig _ AP3 = (V :: V "AP3") ~+ (0 ~* pulse (freq_ 1))
-  renderSig _ AP4 = (V :: V "AP4") ~+ (0 ~* pulse (freq_ 1))
-  renderSig _ AP5 = (V :: V "AP5") ~+ (0 ~* pulse (freq_ 1))
-  renderSig _ AP6 = (V :: V "AP6") ~+ (0 ~* pulse (freq_ 1))
-  renderSig _ AP7 = (V :: V "AP7") ~+ (0 ~* pulse (freq_ 1))
-  renderSig _ AP8 = (V :: V "AP8") ~+ (0 ~* pulse (freq_ 1))
+instance RenderSig AbParam where
+  renderSig _ AP1 = toSig (V :: V "AP1")
+  renderSig _ AP2 = toSig (V :: V "AP2")
+  renderSig _ AP3 = toSig (V :: V "AP3")
+  renderSig _ AP4 = toSig (V :: V "AP4")
+  renderSig _ AP5 = toSig (V :: V "AP5")
+  renderSig _ AP6 = toSig (V :: V "AP6")
+  renderSig _ AP7 = toSig (V :: V "AP7")
+  renderSig _ AP8 = toSig (V :: V "AP8")
