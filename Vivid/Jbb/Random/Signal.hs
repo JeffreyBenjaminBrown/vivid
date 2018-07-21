@@ -6,14 +6,16 @@ import Vivid
 
 
 -- | Without RandConstraints we would usually create invalid signal graphs
--- For instance, we can't refer to the 5th named signal if there are only 4.
--- TODO ? How to ensure that previously created signals are actually used?
+  -- For instance, we can't refer to the 5th named signal if there are only 4.
+-- TODO ? This is really a hodgepodge of constraints (e.g. maxSignals)
+  -- and state (e.g. namedSignals, which should not exceed maxSignals).
 data RandConstraints = RandConstraints
-  { nParams :: Int
-  , signalsNamedSoFar :: Int
-  , maxSignals :: Int
-  , maxSignalComplexity :: Int
-  }
+  { nParams :: Int -- can be no greater than 8
+  , namedSignals :: Int -- can be no greater than maxSignals
+  , maxSignals :: Int -- can be no greater than 8
+  , depth :: Int -- should start at 1
+  , maxDepth :: Int -- should be greater than 1
+  } deriving (Show, Eq)
 
 
 -- | = abstract signal
@@ -24,14 +26,21 @@ data AbSig = AbSigFormula AbFormula
            | AbV AbParam
   deriving (Show, Eq, Ord)
 
+-- | This implements a maximum depth constraint and a minimum complexity one.
+-- The latter constraint is that a signal with a depth of 1 cannot be a or
+-- the name of another signal, because then it would just be a synonym.
 randAbSig :: RandConstraints -> IO AbSig
-randAbSig poss = do
-  x <- pick [ AbSigFormula <$> ranAbFormula poss
-            , AbSigGen <$> randAbGen poss
-            , AbSig <$> randAbSigName poss
-            , AbV <$> randAbParam poss
-            ]
-  x
+randAbSig poss = do x <- pick $ maybeAParam ++ maybeGoDeeper ++ maybeAName
+                    x
+  where poss' = poss {depth = depth poss + 1}
+        maybeAParam = if depth poss > 0
+          then [AbV <$> randAbParam poss'] else []
+        maybeGoDeeper = if depth poss < maxDepth poss
+          then [ AbSigFormula <$> ranAbFormula poss'
+               , AbSigGen <$> randAbGen poss' ]
+          else []
+        maybeAName = if depth poss > 0 && namedSignals poss > 0
+          then [AbSig <$> randAbSigName poss'] else []
 
 
 -- | = abstract formula
@@ -52,7 +61,8 @@ data AbGen = AbSin AbSinMsg
   deriving (Show, Eq, Ord)
 
 randAbGen :: RandConstraints -> IO AbGen
-randAbGen poss = do x <- pick [randAbSaw poss, randAbSin poss]
+randAbGen poss = do x <- pick [ randAbSaw poss
+                              , randAbSin poss ]
                     x
 
 
@@ -63,7 +73,7 @@ randAbSin poss = AbSin <$> randAbSinMsg poss
 data AbSinMsg = AbSinMsg { abSinFreq :: AbSig, abSinPhase :: AbSig }
   deriving (Show, Eq, Ord)
 
-randAbSinMsg :: RandConstraints -> IO AbSinMsg -- TODO
+randAbSinMsg :: RandConstraints -> IO AbSinMsg
 randAbSinMsg poss = do a <- randAbSig poss
                        b <- randAbSig poss
                        return $ AbSinMsg a b
@@ -88,14 +98,15 @@ data AbSigName = AS1 | AS2 | AS3 | AS4 | AS5 | AS6 | AS7 | AS8
 
 theAbSigNames = [AS1, AS2, AS3, AS4, AS5, AS6, AS7, AS8]
 
-sigName :: Int -> Int -> AbSigName
-sigName maxAbSigName n = if n <= min maxAbSigName 8 && n >= 1
-  then theAbSigNames !! (n-1)
+sigName :: RandConstraints -> Int -> AbSigName
+sigName (namedSignals -> k) n =
+  if n > 0 && n <= min k 8
+  then theAbSigNames !! (n - 1)
   else error $ show n ++ " is not the number of an AbSigName."
 
 randAbSigName :: RandConstraints -> IO AbSigName
 randAbSigName cstrs =
-  pick $ take (signalsNamedSoFar cstrs) theAbSigNames
+  pick $ take (namedSignals cstrs) theAbSigNames
 
 
 -- | = Every random synth has up to eight parameters.
