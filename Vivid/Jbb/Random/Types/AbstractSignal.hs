@@ -36,4 +36,6 @@ theAbSigNames = [AS1, AS2, AS3, AS4, AS5, AS6, AS7, AS8]
 data AbParam = AP1 | AP2 | AP3 | AP4 | AP5 | AP6 | AP7 | AP8
   deriving (Show, Eq, Ord)
 
+type TheAbParams = '["AP1", "AP2", "AP3", "AP4", "AP5", "AP6", "AP7", "AP8"]
+
 theAbParams = [AP1, AP2, AP3, AP4, AP5, AP6, AP7, AP8]

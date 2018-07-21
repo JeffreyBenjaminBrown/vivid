@@ -15,9 +15,8 @@ import Vivid.Jbb.Random.RandomSignal
 import Vivid.Jbb.Random.RandomSynth
 
 
-type TheRParams = '["AP1", "AP2", "AP3", "AP4", "AP5", "AP6", "AP7", "AP8"]
-type RenderTarget = SDBody' TheRParams Signal
-  -- ^ I hope to turn abstract signals into this type.
+type RenderTarget = SDBody' TheAbParams Signal
+  -- ^ Rendering turns abstract signals into this type.
 
 
 class RenderSig a where
