@@ -10,11 +10,11 @@ import Vivid
 -- TODO ? This is really a hodgepodge of constraints (e.g. maxSignals)
   -- and state (e.g. namedSignals, which should not exceed maxSignals).
 data RandConstraints = RandConstraints
-  { nParams :: Int -- can be no greater than 8
-  , namedSignals :: Int -- can be no greater than maxSignals
-  , maxSignals :: Int -- can be no greater than 8
-  , depth :: Int -- should start at 1
-  , maxDepth :: Int -- should be greater than 1
+  { nParams :: Int -- in [1,8]
+  , namedSignals :: Int -- in [0,maxSignals]
+  , maxSignals :: Int -- in [1,8]
+  , depth :: Int -- in [1, maxDepth]
+  , maxDepth :: Int -- greater than 1
   } deriving (Show, Eq)
 
 
@@ -33,19 +33,19 @@ randAbSig :: RandConstraints -> IO AbSig
 randAbSig poss = do x <- pick $ maybeAParam ++ maybeGoDeeper ++ maybeAName
                     x
   where poss' = poss {depth = depth poss + 1}
-        maybeAParam = if depth poss > 0
+        maybeAParam = if depth poss > 1
           then [AbV <$> randAbParam poss'] else []
         maybeGoDeeper = if depth poss < maxDepth poss
           then [ AbSigFormula <$> ranAbFormula poss'
                , AbSigGen <$> randAbGen poss' ]
           else []
-        maybeAName = if depth poss > 0 && namedSignals poss > 0
+        maybeAName = if depth poss > 1 && namedSignals poss > 0
           then [AbSig <$> randAbSigName poss'] else []
 
 
 -- | = abstract formula
 data AbFormula = RProd AbSig AbSig
-              | RSum AbSig AbSig
+               | RSum AbSig AbSig
   deriving (Show, Eq, Ord)
 
 ranAbFormula :: RandConstraints -> IO AbFormula

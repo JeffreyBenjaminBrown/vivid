@@ -4,6 +4,7 @@ import Data.Map as M
 
 import Vivid
 import Vivid.Jbb.Random.Signal
+import Vivid.Jbb.Random.MentionsSig
 
 
 type AbSynth = M.Map AbSigName AbSig
@@ -18,3 +19,6 @@ randAbSynth cs = go cs M.empty where
                         cs' = cs {namedSignals = namedSignals'}
                         m' = M.insert (sigName cs' namedSignals') s m
                     go cs' m'
+
+--prune :: AbSynth -> AbSynth
+--prune m = 
