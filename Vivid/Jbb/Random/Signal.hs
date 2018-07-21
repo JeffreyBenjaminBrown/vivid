@@ -1,4 +1,4 @@
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE ViewPatterns, DataKinds #-}
 
 module Vivid.Jbb.Random.Signal where
 
@@ -112,6 +112,8 @@ randAbSigName cstrs =
 -- | = Every random synth has up to eight parameters.
 data AbParam = AP1 | AP2 | AP3 | AP4 | AP5 | AP6 | AP7 | AP8
   deriving (Show, Eq, Ord)
+
+type TheRParams = ' [AP1, AP2, AP3, AP4, AP5, AP6, AP7, AP8]
 
 theRParams = [AP1, AP2, AP3, AP4, AP5, AP6, AP7, AP8]
 
