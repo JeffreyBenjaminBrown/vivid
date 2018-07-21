@@ -18,9 +18,18 @@ import Vivid.Jbb.Random.RandomSynth
 
 
 type TheRParams = '["AP1", "AP2", "AP3", "AP4", "AP5", "AP6", "AP7", "AP8"]
+type RenderTarget = SDBody' TheRParams Signal
+  -- ^ I hope to turn abstract signals into this type.
 
 class RenderSig a where
-  renderSig :: M.Map AbSigName a -> a -> SDBody' TheRParams Signal
+  renderSig :: M.Map AbSigName RenderTarget -> a -> RenderTarget
+
+--instance RenderSig AbGen where
+--  renderSig _ (AbSin (AbSinMsg freq phase)) =
+--    sinOsc (freq_ $ renderSig freq, phase_ $ renderSig phase)
+
+instance RenderSig AbSigName where
+  renderSig = (M.!)
 
 instance RenderSig AbParam where
   -- This is a goofy hack, but it's cpu-cheap.
