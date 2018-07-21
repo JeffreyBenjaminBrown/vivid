@@ -7,9 +7,10 @@ import Vivid.Jbb.Random.Signal
 class MentionsSig a where
   mentionsSig :: AbSigName -> a -> Bool
 
---allMentions :: MentionsSig a => RandConstraints -> a -> [AbSigName]
---allMentions cs s =
---  let allNames = take (maxSignals cs) theAbSigNames
+allMentions :: MentionsSig a => RandConstraints -> a -> [AbSigName]
+allMentions cs a = let names = take (maxSignals cs) theAbSigNames
+                   in filter (\y -> mentionsSig y a) names
+
 
 instance MentionsSig AbParam where
   mentionsSig _ _ = False
