@@ -11,8 +11,8 @@ data AbSig = AbSigFormula AbFormula
            | AbV AbParam
   deriving (Show, Eq, Ord)
 
-data AbFormula = RProd AbSig AbSig
-               | RSum AbSig AbSig
+data AbFormula = AbProd AbSig AbSig
+               | AbSum AbSig AbSig
   deriving (Show, Eq, Ord)
 
 data AbGen = AbSin AbSinMsg

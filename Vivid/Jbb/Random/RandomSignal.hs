@@ -23,7 +23,7 @@ randAbSig poss = do x <- pick $ maybeAParam ++ maybeGoDeeper ++ maybeAName
           then [AbSig <$> randAbSigName poss'] else []
 
 ranAbFormula :: RandConstraints -> IO AbFormula
-ranAbFormula poss = do f <- pick [RProd, RSum]
+ranAbFormula poss = do f <- pick [AbProd, AbSum]
                        a <- randAbSig poss
                        b <- randAbSig poss
                        return $ f a b

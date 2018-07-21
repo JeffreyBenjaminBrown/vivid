@@ -19,8 +19,8 @@ instance MentionsSig AbSig where
   mentionsSig name (AbV p) = mentionsSig name p
 
 instance MentionsSig AbFormula where
-  mentionsSig name (RProd x y) = mentionsSig name x || mentionsSig name y
-  mentionsSig name (RSum x y)  = mentionsSig name x || mentionsSig name y
+  mentionsSig name (AbProd x y) = mentionsSig name x || mentionsSig name y
+  mentionsSig name (AbSum x y)  = mentionsSig name x || mentionsSig name y
 
 instance MentionsSig AbGen where
   mentionsSig name (AbSin x) =   mentionsSig name x 

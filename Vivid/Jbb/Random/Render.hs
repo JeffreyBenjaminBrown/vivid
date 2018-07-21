@@ -21,6 +21,7 @@ type TheRParams = '["AP1", "AP2", "AP3", "AP4", "AP5", "AP6", "AP7", "AP8"]
 type RenderTarget = SDBody' TheRParams Signal
   -- ^ I hope to turn abstract signals into this type.
 
+
 class RenderSig a where
   renderSig :: M.Map AbSigName RenderTarget -> a -> RenderTarget
 
@@ -31,8 +32,8 @@ instance RenderSig AbSig where
   renderSig m (AbV abParam) = renderSig m abParam
 
 instance RenderSig AbFormula where
-  renderSig m (RProd x y) = renderSig m x ~* renderSig m y
-  renderSig m (RSum x y) = renderSig m x ~+ renderSig m y
+  renderSig m (AbProd x y) = renderSig m x ~* renderSig m y
+  renderSig m (AbSum x y) = renderSig m x ~+ renderSig m y
 
 instance RenderSig AbGen where
   renderSig m (AbSin (AbSinMsg freq phase)) =
