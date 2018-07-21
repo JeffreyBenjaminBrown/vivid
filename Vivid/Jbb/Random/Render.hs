@@ -24,15 +24,26 @@ type RenderTarget = SDBody' TheRParams Signal
 class RenderSig a where
   renderSig :: M.Map AbSigName RenderTarget -> a -> RenderTarget
 
---instance RenderSig AbGen where
---  renderSig _ (AbSin (AbSinMsg freq phase)) =
---    sinOsc (freq_ $ renderSig freq, phase_ $ renderSig phase)
+instance RenderSig AbSig where
+  renderSig m (AbSigFormula abFormula) = renderSig m abFormula
+  renderSig m (AbSigGen abGen) = renderSig m abGen
+  renderSig m (AbSig abSigName) = renderSig m abSigName
+  renderSig m (AbV abParam) = renderSig m abParam
+
+instance RenderSig AbFormula where
+  renderSig m (RProd x y) = renderSig m x ~* renderSig m y
+  renderSig m (RSum x y) = renderSig m x ~+ renderSig m y
+
+instance RenderSig AbGen where
+  renderSig m (AbSin (AbSinMsg freq phase)) =
+    sinOsc (freq_ $ renderSig m freq, phase_ $ renderSig m phase)
+  renderSig m (AbSaw (AbSawMsg freq)) =
+    saw (freq_ $ renderSig m freq)
 
 instance RenderSig AbSigName where
   renderSig = (M.!)
 
-instance RenderSig AbParam where
-  -- This is a goofy hack, but it's cpu-cheap.
+instance RenderSig AbParam where -- TODO ? a goofy hack, but it's cpu-cheap.
   renderSig _ AP1 = (V :: V "AP1") ~+ (0 ~* pulse (freq_ 1))
   renderSig _ AP2 = (V :: V "AP2") ~+ (0 ~* pulse (freq_ 1))
   renderSig _ AP3 = (V :: V "AP3") ~+ (0 ~* pulse (freq_ 1))
