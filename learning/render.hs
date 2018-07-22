@@ -13,6 +13,7 @@ import Vivid.Jbb.Random.Types
 import Vivid.Jbb.Random.RandomSignal
 import Vivid.Jbb.Random.RandomSynth
 import Vivid.Jbb.Random.Render
+import Vivid.Jbb.Synths
 
 
 cs = mkRandConstraints 3 3 3
@@ -50,7 +51,7 @@ abSigToSD a = sd defaultArgs $ do
   out 0 [s1, s1]
 
 -- | Generate an mwc for this using "Data.Random.create"
-main' mwc = do
+oneSignal mwc = do
   a <- randAbSig cs
   print $ show a
 
@@ -62,3 +63,21 @@ main' mwc = do
   set s y
   wait 1
   free s
+
+-- | = Try a whole synth
+abSynthToSD :: AbSynth -> SynthDef TheAbParams
+abSynthToSD plan = sd defaultArgs $ do
+  let m = M.empty
+  s1 <- renderSig m $ (M.!) plan AS1
+  let m = M.insert AS1 s1 m
+--  s2 <- renderSig m $ (M.!) plan AS2 -- Doh! 
+--  let m = M.insert AS2 s2 m
+--  s3 <- renderSig m $ (M.!) plan AS3
+--  let m = M.insert AS3 s3 m
+--  out 0 [s3, s3]
+  out 0 [s1,s1]
+
+wholeSynth mwc = do
+  a <- randAbSig cs
+  print $ show a
+

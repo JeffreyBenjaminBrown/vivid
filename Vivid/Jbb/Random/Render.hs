@@ -18,9 +18,9 @@ import Vivid.Jbb.Random.RandomSynth
 type RenderTarget = SDBody' TheAbParams Signal
   -- ^ Rendering turns abstract signals into this type.
 
-
 class RenderSig a where
   renderSig :: M.Map AbSigName RenderTarget -> a -> RenderTarget
+  -- TODO >>> renderSig :: a -> (M.Map AbSigName Signal -> RenderTarget)
 
 instance RenderSig AbSig where
   renderSig m (AbSigFormula abFormula) = renderSig m abFormula
