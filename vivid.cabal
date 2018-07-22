@@ -284,7 +284,9 @@ library
 
     -- jbb added
     , megaparsec
+    , mwc-random
     , parser-combinators
+    , random-fu
 
   -- TODO: constraint solver iterations only for the GHC that needs it
   ghc-options:
