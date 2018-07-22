@@ -2,6 +2,7 @@
 -- Then run either of these repeatedly:
   -- > oneSignal mwc
   -- > wholeSynth mwc
+-- Maybe change the constraints (below).
 
 {-# LANGUAGE DataKinds
 , ExtendedDefaultRules
@@ -21,7 +22,10 @@ import Vivid.Jbb.Random.Render
 import Vivid.Jbb.Synths
 
 
-cs = mkRandConstraints 3 3 2
+-- | Max # of params, max # of signals, max depth.
+-- Should be in [1,8], [1,8], and >1, respectively.
+constraints = mkRandConstraints 3 3 2
+
 
 -- | Creates a value between 1 and x if log x appears in the formula below.
 logRandomFreq :: RVar Double
@@ -57,7 +61,7 @@ abSigToSD a = sd defaultArgs $ do
 
 -- | Generate an mwc for this using "Data.Random.create"
 oneSignal mwc = do
-  a <- randAbSig cs
+  a <- randAbSig constraints
   print $ show a
 
   let sd = abSigToSD a
@@ -88,7 +92,7 @@ abSynthToSD plan = sd defaultArgs $ do
 
 -- | Generate an mwc for this using "Data.Random.create"
 wholeSynth mwc = do
-  a <- randAbSynth cs
+  a <- randAbSynth constraints
   print $ show a
 
   let sd = abSynthToSD a
