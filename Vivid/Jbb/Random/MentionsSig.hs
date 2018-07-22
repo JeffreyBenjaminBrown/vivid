@@ -17,6 +17,7 @@ instance MentionsSig AbSig where
   mentionsSig name (AbSigGen g) = mentionsSig name g
   mentionsSig name (AbSig n) = mentionsSig name n
   mentionsSig name (AbV p) = mentionsSig name p
+  mentionsSig name (AbConst f) = False
 
 instance MentionsSig AbFormula where
   mentionsSig name (AbProd x y) = mentionsSig name x || mentionsSig name y

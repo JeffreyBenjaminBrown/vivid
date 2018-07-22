@@ -27,6 +27,7 @@ instance RenderSig AbSig where
   renderSig m (AbSigGen abGen) = renderSig m abGen
   renderSig m (AbSig abSigName) = renderSig m abSigName
   renderSig m (AbV abParam) = renderSig m abParam
+  renderSig m (AbConst f) = toSig f
 
 instance RenderSig AbFormula where
   renderSig m (AbProd x y) = renderSig m x ~* renderSig m y

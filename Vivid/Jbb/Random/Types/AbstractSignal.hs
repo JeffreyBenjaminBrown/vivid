@@ -11,6 +11,7 @@ data AbSig = AbSigFormula AbFormula
            | AbSigGen AbGen
            | AbSig AbSigName -- ^ a previously constructed AbSig
            | AbV AbParam
+           | AbConst Float
   deriving (Show, Eq, Ord)
 
 data AbFormula = AbProd AbSig AbSig
