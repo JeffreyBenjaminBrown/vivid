@@ -15,24 +15,25 @@ import Vivid.Jbb.Random.RandomSynth
 import Vivid.Jbb.Random.Render
 
 
-cs = mkRandConstraints 2 2 2
+cs = mkRandConstraints 3 3 3
 
+-- | Creates a value between 1 and x if log x appears in the formula below.
 logRandomFreq :: RVar Double
-logRandomFreq = exp . (* log 20000) <$> stdUniform
+logRandomFreq = exp . (* log 100) <$> stdUniform
 
-logNormal :: Double -> Double -> RVar Double
-logNormal mu sigmaSq = do
-  x <- normal mu sigmaSq
-  return (exp x)
-
--- | Create an mwc with the "create" function.
--- I don't know how to seed random-fu, so I hold onto the source of entropy.
-aRandom mwc = do
-  y <- sampleFrom mwc (logNormal 5 1)
-  print y
-  return mwc
-
-t = exp . (* log 20000) <$> stdNormal
+randomArgs :: RVar ( I "AP1", I "AP2", I "AP3", I "AP4"
+                   , I "AP5", I "AP6", I "AP7", I "AP8")
+randomArgs = do
+  let toHz = exp . ((-)1) . (*2) -- takes [0,1] to [1,20k]
+  a <- toI . toHz <$> stdUniform
+  b <- toI . toHz <$> stdUniform
+  c <- toI . toHz <$> stdUniform
+  d <- toI . toHz <$> stdUniform
+  e <- toI . toHz <$> stdUniform
+  f <- toI . toHz <$> stdUniform
+  g <- toI . toHz <$> stdUniform
+  h <- toI . toHz <$> stdUniform
+  return $ ( a,b,c,d,e,f,g,h )
 
 defaultArgs = ( 0 :: I "AP1"
               , 0 :: I "AP2"
@@ -48,6 +49,16 @@ abSigToSD a = sd defaultArgs $ do
   s1 <- renderSig M.empty a
   out 0 [s1, s1]
 
--- main = do
---   a <- randAbSig cs
---   sd <- abSigToSD a
+-- | Generate an mwc for this using "Data.Random.create"
+main' mwc = do
+  a <- randAbSig cs
+  print $ show a
+
+  let sd = abSigToSD a
+  s <- synth sd defaultArgs
+  y <- sampleFrom mwc randomArgs
+  print $ show y  
+
+  set s y
+  wait 1
+  free s
