@@ -16,7 +16,7 @@ import Vivid.Jbb.Random.Render
 import Vivid.Jbb.Synths
 
 
-cs = mkRandConstraints 3 3 3
+cs = mkRandConstraints 3 3 2
 
 -- | Creates a value between 1 and x if log x appears in the formula below.
 logRandomFreq :: RVar Double
@@ -47,7 +47,7 @@ defaultArgs = ( 0 :: I "AP1"
 
 abSigToSD :: AbSig -> SynthDef TheAbParams
 abSigToSD a = sd defaultArgs $ do
-  s1 <- renderSig M.empty a
+  s1 <- renderSig a M.empty
   out 0 [s1, s1]
 
 -- | Generate an mwc for this using "Data.Random.create"
@@ -68,16 +68,32 @@ oneSignal mwc = do
 abSynthToSD :: AbSynth -> SynthDef TheAbParams
 abSynthToSD plan = sd defaultArgs $ do
   let m = M.empty
-  s1 <- renderSig m $ (M.!) plan AS1
-  let m = M.insert AS1 s1 m
---  s2 <- renderSig m $ (M.!) plan AS2 -- Doh! 
---  let m = M.insert AS2 s2 m
---  s3 <- renderSig m $ (M.!) plan AS3
---  let m = M.insert AS3 s3 m
---  out 0 [s3, s3]
-  out 0 [s1,s1]
 
+  s1 <- renderSig ((M.!) plan AS1) m
+  let m = M.insert AS1 s1 m
+  
+  s2 <- renderSig ((M.!) plan AS2) m
+  let m = M.insert AS2 s2 m
+
+  s3 <- renderSig ((M.!) plan AS3) m
+  let m = M.insert AS3 s3 m
+
+  out 0 [s3,s3]
+
+
+-- | Generate an mwc for this using "Data.Random.create"
 wholeSynth mwc = do
-  a <- randAbSig cs
+  a <- randAbSynth cs
   print $ show a
 
+  let sd = abSynthToSD a
+  print "1"
+  s <- synth sd defaultArgs
+  print "2"
+
+  y <- sampleFrom mwc randomArgs
+  print $ show y  
+
+  set s y
+  wait 1
+  free s

@@ -19,35 +19,35 @@ type RenderTarget = SDBody' TheAbParams Signal
   -- ^ Rendering turns abstract signals into this type.
 
 class RenderSig a where
-  renderSig :: M.Map AbSigName RenderTarget -> a -> RenderTarget
-  -- TODO >>> renderSig :: a -> (M.Map AbSigName Signal -> RenderTarget)
+  renderSig :: a -> (M.Map AbSigName Signal -> RenderTarget)
 
 instance RenderSig AbSig where
-  renderSig m (AbSigFormula abFormula) = renderSig m abFormula
-  renderSig m (AbSigGen abGen) = renderSig m abGen
-  renderSig m (AbSig abSigName) = renderSig m abSigName
-  renderSig m (AbV abParam) = renderSig m abParam
-  renderSig m (AbConst f) = toSig f
+  renderSig (AbSigFormula abFormula) = renderSig abFormula
+  renderSig (AbSigGen abGen) = renderSig abGen
+  renderSig (AbSig abSigName) = renderSig abSigName
+  renderSig (AbV abParam) = renderSig abParam
+  renderSig (AbConst f) = const $ toSig f
 
 instance RenderSig AbFormula where
-  renderSig m (AbProd x y) = renderSig m x ~* renderSig m y
-  renderSig m (AbSum x y) = renderSig m x ~+ renderSig m y
+  renderSig (AbProd x y) m = renderSig x m ~* renderSig y m
+  renderSig (AbSum x y) m = renderSig x m ~+ renderSig y m
 
 instance RenderSig AbGen where
-  renderSig m (AbSin (AbSinMsg freq phase)) =
-    sinOsc (freq_ $ renderSig m freq, phase_ $ renderSig m phase)
-  renderSig m (AbSaw (AbSawMsg freq)) =
-    saw (freq_ $ renderSig m freq)
+  renderSig (AbSin (AbSinMsg freq phase)) = \m -> 
+    sinOsc (freq_ $ renderSig freq m, phase_ $ renderSig phase m)
+  renderSig (AbSaw (AbSawMsg freq)) = \m -> 
+    saw (freq_ $ renderSig freq m)
 
 instance RenderSig AbSigName where
-  renderSig = (M.!)
+  renderSig name = \m -> toSig $ (M.!) m name
+    -- confusingly, toSig converts a signal to an SDBody'
 
 instance RenderSig AbParam where
-  renderSig _ AP1 = toSig (V :: V "AP1")
-  renderSig _ AP2 = toSig (V :: V "AP2")
-  renderSig _ AP3 = toSig (V :: V "AP3")
-  renderSig _ AP4 = toSig (V :: V "AP4")
-  renderSig _ AP5 = toSig (V :: V "AP5")
-  renderSig _ AP6 = toSig (V :: V "AP6")
-  renderSig _ AP7 = toSig (V :: V "AP7")
-  renderSig _ AP8 = toSig (V :: V "AP8")
+  renderSig AP1 = const $ toSig (V :: V "AP1")
+  renderSig AP2 = const $ toSig (V :: V "AP2")
+  renderSig AP3 = const $ toSig (V :: V "AP3")
+  renderSig AP4 = const $ toSig (V :: V "AP4")
+  renderSig AP5 = const $ toSig (V :: V "AP5")
+  renderSig AP6 = const $ toSig (V :: V "AP6")
+  renderSig AP7 = const $ toSig (V :: V "AP7")
+  renderSig AP8 = const $ toSig (V :: V "AP8")
