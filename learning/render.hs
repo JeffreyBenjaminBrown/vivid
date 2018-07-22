@@ -1,3 +1,8 @@
+-- To use, first run `mwc <- create` once,
+-- Then run either of these repeatedly:
+  -- > oneSignal mwc
+  -- > wholeSynth mwc
+
 {-# LANGUAGE DataKinds
 , ExtendedDefaultRules
 , FlexibleContexts -- just for the random-fu hack
