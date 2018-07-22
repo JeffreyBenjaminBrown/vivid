@@ -1,3 +1,5 @@
+{-# LANGUAGE DataKinds #-}
+
 module Vivid.Jbb.Random.Types.AbstractSignal where
 
 import qualified Data.Map as M
