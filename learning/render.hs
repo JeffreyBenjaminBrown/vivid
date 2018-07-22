@@ -79,13 +79,13 @@ abSynthToSD plan = sd defaultArgs $ do
   let m = M.empty
 
   s1 <- renderSig ((M.!) plan AS1) m
-  let m = M.insert AS1 s1 m
+  let m1 = M.insert AS1 s1 m
   
-  s2 <- renderSig ((M.!) plan AS2) m
-  let m = M.insert AS2 s2 m
+  s2 <- renderSig ((M.!) plan AS2) m1
+  let m2 = M.insert AS2 s2 m1
 
-  s3 <- renderSig ((M.!) plan AS3) m
-  let m = M.insert AS3 s3 m
+  s3 <- renderSig ((M.!) plan AS3) m2
+  let m3 = M.insert AS3 s3 m2
 
   out 0 [s3,s3]
 
