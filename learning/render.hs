@@ -96,7 +96,7 @@ wholeSynth mwc = do
   print $ show a
 
   let sd = abSynthToSD a
-  s <- synth sd defaultArgs -- TODO ? it usually gets stuck here
+  s <- synth sd defaultArgs
 
   y <- sampleFrom mwc randomArgs
   print $ show y  
