@@ -14,6 +14,7 @@ type ZotParams = '["amp"
   ,"w","wm-b","wm-m","wm-f"  -- baseline, fb mul, sin mul, sin freq
   ,"am","am-b","am-f"        -- amSig = am * am'd carrier + (1-am) * carrier
                              -- am'd carrier = am-b * fb + (1 - am-b) * sin
+  ,"rm","rm-b","rm-f"        -- same as am, just no bias
   ,"del"]
 
 zot :: SynthDef ZotParams
@@ -33,6 +34,9 @@ zot = sd ( 0 :: I "amp"
          , 0 :: I "am"
          , 0 :: I "am-b"
          , 0 :: I "am-f"
+         , 0 :: I "rm"
+         , 0 :: I "rm-b"
+         , 0 :: I "rm-f"
          , 0.01 :: I "del"
          ) $ do
   [fb_1] <- localIn(1)
@@ -57,10 +61,17 @@ zot = sd ( 0 :: I "amp"
   amSig <- (1 ~- (V::V"am")) ~* source
            ~+    (V::V"am")  ~* source ~* am
 
-  s1 <- delayL( in_ amSig
+  -- this formula could be simplified, I think
+  rmSin <- sinOsc (freq_ (V::V"rm-f"))
+  rm <-    fb_1  ~*       (V::V"rm-b")
+        ~+ rmSin ~* (1 ~- (V::V"rm-b"))
+  rmSig <- (1 ~- (V::V"rm")) ~* amSig
+           ~+    (V::V"rm")  ~* amSig ~* rm
+
+  s1 <- delayL( in_ rmSig
                , maxDelaySecs_ 1
                , delaySecs_ $ (V::V "del") )
 
   localOut( [s1] )
 
-  out 0 [(V::V "amp") ~* amSig, (V::V "amp") ~* amSig]
+  out 0 [(V::V "amp") ~* rmSig, (V::V "amp") ~* rmSig]
