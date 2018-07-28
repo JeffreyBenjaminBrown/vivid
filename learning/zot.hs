@@ -15,6 +15,7 @@ type ZotParams = '["amp"
   ,"am","am-b","am-f"        -- amSig = am * am'd carrier + (1-am) * carrier
                              -- am'd carrier = am-b * fb + (1 - am-b) * sin
   ,"rm","rm-b","rm-f"        -- same as am, just no bias
+  ,"lim"                     -- lim=x => signal will not exceed +/- x
   ,"del"]
 
 zot :: SynthDef ZotParams
@@ -37,6 +38,7 @@ zot = sd ( 0 :: I "amp"
          , 0 :: I "rm"
          , 0 :: I "rm-b"
          , 0 :: I "rm-f"
+         , 1 :: I "lim"
          , 0.01 :: I "del"
          ) $ do
   [fb_1] <- localIn(1)
@@ -47,7 +49,7 @@ zot = sd ( 0 :: I "amp"
   pm <- (pi/2) ~* (   (V::V"pm-b") ~* fb01
                    ~+ (V::V"pm-m") ~* sinOsc (freq_ (V::V"pm-f")))
   wm <- (V :: V "w")
-    ~+ 0.5 ~* (   (V::V"wm-b") ~* fb_1
+    ~+ 0.5 ~* (   (V::V"wm-b") ~* fb_1 -- TODO: scale by wm-m
                ~+ (V::V"wm-m")  ~* sinOsc (freq_ (V::V"wm-f")))
 
   aSin <- sinOsc  (freq_ fm, phase_ pm)
@@ -68,10 +70,12 @@ zot = sd ( 0 :: I "amp"
   rmSig <- (1 ~- (V::V"rm")) ~* amSig
            ~+    (V::V"rm")  ~* amSig ~* rm
 
-  s1 <- delayL( in_ rmSig
+  lim <- tanh' (rmSig ~/ (V::V"lim")) ~* (V::V"lim")
+
+  s1 <- delayL( in_ lim
                , maxDelaySecs_ 1
                , delaySecs_ $ (V::V "del") )
 
   localOut( [s1] )
 
-  out 0 [(V::V "amp") ~* rmSig, (V::V "amp") ~* rmSig]
+  out 0 [(V::V "amp") ~* lim, (V::V "amp") ~* lim]
