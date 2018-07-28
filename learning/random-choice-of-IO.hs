@@ -3,7 +3,7 @@
 -- This is based on Tom Murphy's code suggested here:
   -- https://we.lurk.org/hyperkitty/list/livecode@we.lurk.org/thread/25W4GB76BWXONUSUEMW5NV6Y6OO6NPAR/
 
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
 import Vivid
 
@@ -26,3 +26,4 @@ main = do
   set' s 400
   set' s 400
   set' s 400
+  freeAll
