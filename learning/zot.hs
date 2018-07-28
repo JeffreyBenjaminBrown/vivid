@@ -1,5 +1,6 @@
 -- next: add AM, RM, filter, shaper, delay, pitch shift.
 -- then ? taps
+-- maybe ? frequencies should all be expressed as multiples of the fundamental
 
 {-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
@@ -11,6 +12,8 @@ type ZotParams = '["amp"
   ,"f","fm-b","fm-m","fm-f"  -- baseline, fb mul, sin mul, sin freq
       ,"pm-b","pm-m","pm-f"            -- fb mul, sin mul, sin freq
   ,"w","wm-b","wm-m","wm-f"  -- baseline, fb mul, sin mul, sin freq
+  ,"am","am-b","am-f"        -- amSig = am * am'd carrier + (1-am) * carrier
+                             -- am'd carrier = am-b * fb + (1 - am-b) * sin
   ,"del"]
 
 zot :: SynthDef ZotParams
@@ -27,10 +30,13 @@ zot = sd ( 0 :: I "amp"
          , 0 :: I "wm-b"
          , 0 :: I "wm-m"
          , 0 :: I "wm-f"
+         , 0 :: I "am"
+         , 0 :: I "am-b"
+         , 0 :: I "am-f"
          , 0.01 :: I "del"
          ) $ do
   [fb_1] <- localIn(1)
-  fb01 <- ((fb_1 ~+ 1) ~/ 2) -- varies in [0,1]
+  fb01 <- (fb_1 ~+ 1) ~/ 2
   fm <- (V::V "f")
         ~+ (V::V "fm-b") ~* fb_1
         ~+ (V::V"fm-m") ~* sinOsc (freq_ (V::V"fm-f"))
@@ -45,10 +51,16 @@ zot = sd ( 0 :: I "amp"
   source <-          (V :: V "pulse" ) ~* aPulse
             ~+ (1 ~- (V :: V "pulse")) ~* aSin
 
-  s1 <- delayL( in_ source
+  amSin <- (sinOsc (freq_ (V::V"am-f")) ~+ 1) ~/ 2
+  am <-    fb01  ~*       (V::V"am-b")
+        ~+ amSin ~* (1 ~- (V::V"am-b"))
+  amSig <- (1 ~- (V::V"am")) ~* source
+           ~+    (V::V"am")  ~* source ~* am
+
+  s1 <- delayL( in_ amSig
                , maxDelaySecs_ 1
                , delaySecs_ $ (V::V "del") )
 
   localOut( [s1] )
 
-  out 0 [(V::V "amp") ~* source, (V::V "amp") ~* source]
+  out 0 [(V::V "amp") ~* amSig, (V::V "amp") ~* amSig]
