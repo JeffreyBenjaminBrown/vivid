@@ -15,6 +15,17 @@ type VapParams = '[ "freq",      "amp"
                   , "fm2-freq", "fm2-amp"
                   , "nz-lpf"] -- nz-amp would be collinear with fm2-amp
 
+data VapParam = VapFreq
+              | VapAmp
+              | VapSaw
+              | VapDelayFreq
+              | VapDelayAmp
+              | VapFmFreq
+              | VapFmAmp
+              | VapFm2Freq
+              | VapFm2Amp
+              | VapNzLpf
+
 vap :: SynthDef VapParams
 vap = sd ( 0   :: I "freq" 
          , 0.1 :: I "amp"

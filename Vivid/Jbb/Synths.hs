@@ -7,8 +7,10 @@ module Vivid.Jbb.Synths (
   module X
   , SynthDefName(..)
   , BoopParams
+  , BoopParam(..)
   , boop
   , SqfmParams
+  , SqfmParam(..)
   , sqfm
 ) where
 
@@ -24,6 +26,7 @@ data SynthDefName = Boop | Vap | Sqfm | Zot
 -- | = Boop
 
 type BoopParams = '["freq","amp"]
+data BoopParam = BoopFreq | BoopAmp
 
 boop :: SynthDef BoopParams
 boop = sd ( 0    :: I "freq"
@@ -35,7 +38,10 @@ boop = sd ( 0    :: I "freq"
 
 -- | = Sqfm
 
-type SqfmParams = '["freq","amp","width","width-vib-amp","width-vib-freq"]
+type SqfmParams = '["freq","amp","width"
+                   ,"width-vib-amp","width-vib-freq"]
+data SqfmParam = SqfmFreq | SqfmAmp | SqfmWidth
+               | SqfmWidthVibAmp | SqfmWidthVibFreq
 
 sqfm :: SynthDef SqfmParams
 sqfm = sd ( 0   :: I "freq"
