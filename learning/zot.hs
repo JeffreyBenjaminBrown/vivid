@@ -1,6 +1,10 @@
--- next: add AM, RM, filter, shaper, delay, pitch shift.
+-- next: add filter, delay, pitch shift.
 -- then ? taps
 -- maybe ? frequencies should all be expressed as multiples of the fundamental
+
+-- The AM and RM scale factors of 2 would cause no change in the integral
+-- of the signal if the modulator was a triangle wave. A modulator that
+-- spent more time at the extremes would cause its volume to rise.
 
 {-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
@@ -8,6 +12,8 @@ import Vivid
 
 
 type ZotParams = '["amp"
+  -- note that am-b and rm-b, like pulse, add to one thing while
+  -- subtracting from another. fm-b, pm-b, wm-b are not like that.
   ,"pulse"                    -- pulse + sin = 1
   ,"f","fm-b","fm-m","fm-f"  -- baseline, fb mul, sin mul, sin freq
       ,"pm-b","pm-m","pm-f"            -- fb mul, sin mul, sin freq
@@ -49,7 +55,7 @@ zot = sd ( 0 :: I "amp"
   pm <- (pi/2) ~* (   (V::V"pm-b") ~* fb01
                    ~+ (V::V"pm-m") ~* sinOsc (freq_ (V::V"pm-f")))
   wm <- (V :: V "w")
-    ~+ 0.5 ~* (   (V::V"wm-b") ~* fb_1 -- TODO: scale by wm-m
+    ~+ 0.5 ~* (   (V::V"wm-b") ~* fb_1
                ~+ (V::V"wm-m")  ~* sinOsc (freq_ (V::V"wm-f")))
 
   aSin <- sinOsc  (freq_ fm, phase_ pm)
@@ -58,15 +64,18 @@ zot = sd ( 0 :: I "amp"
             ~+ (1 ~- (V :: V "pulse")) ~* aSin
 
   amSin <- (sinOsc (freq_ (V::V"am-f")) ~+ 1) ~/ 2
-  am <-    fb01  ~*       (V::V"am-b")
-        ~+ amSin ~* (1 ~- (V::V"am-b"))
+  am <- 2 ~* -- scale by 2 because AM makes it quieter
+        (    fb01  ~*       (V::V"am-b")
+          ~+ amSin ~* (1 ~- (V::V"am-b")) )
   amSig <- (1 ~- (V::V"am")) ~* source
            ~+    (V::V"am")  ~* source ~* am
 
-  -- this formula could be simplified, I think
   rmSin <- sinOsc (freq_ (V::V"rm-f"))
-  rm <-    fb_1  ~*       (V::V"rm-b")
-        ~+ rmSin ~* (1 ~- (V::V"rm-b"))
+  rm <- 2 ~* -- scale by 2 because RM makes it quieter
+        (    fb_1  ~*       (V::V"rm-b")
+          ~+ rmSin ~* (1 ~- (V::V"rm-b")) )
+  -- the `rmSig` formula could be simplified, I think, by
+  -- pulling the constant term into the `rm` signal
   rmSig <- (1 ~- (V::V"rm")) ~* amSig
            ~+    (V::V"rm")  ~* amSig ~* rm
 
