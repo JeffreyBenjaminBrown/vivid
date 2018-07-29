@@ -67,7 +67,7 @@ library
     , Vivid.Jbb.Random.Types.Other
     , Vivid.Jbb.Synths
     , Vivid.Jbb.Synths.Vap
-
+    , Vivid.Jbb.Synths.Zot
 
     , Vivid
     , Vivid.Actions

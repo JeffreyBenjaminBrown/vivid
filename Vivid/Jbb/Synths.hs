@@ -17,11 +17,12 @@ module Vivid.Jbb.Synths (
 import Vivid
 import Vivid.Jbb.Msg
 import Vivid.Jbb.Synths.Vap as X
+import Vivid.Jbb.Synths.Zot as X
 
 
 -- | == Synths
 
-data SynthDefName = Boop | Vap | Sqfm
+data SynthDefName = Boop | Vap | Sqfm | Zot
 
 -- | = Boop
 

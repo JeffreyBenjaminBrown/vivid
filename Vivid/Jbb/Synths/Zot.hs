@@ -1,14 +1,18 @@
--- next ? taps
--- should ? frequencies all be expressed as multiples of the fundamental
+-- TODO
+  -- next ? taps
+  -- should ? frequencies all be expressed as multiples of the fundamental
 
--- The AM and RM scale factors of 2 would cause no change in the integral
--- of the signal if the modulator was a triangle wave. A modulator that
--- spent more time at the extremes would cause its volume to rise.
-
--- `am-b` and `rm-b`, like `pulse`, add to one thing while
--- subtracting from another. `fm-b`, `pm-b`, `wm-b` are not like that.
+-- Notes on usage
+  -- The AM and RM scale factors of 2 would cause no change in the integral
+  -- of the signal if the modulator was a triangle wave. A modulator that
+  -- spent more time at the extremes would cause its volume to rise.
+  
+  -- `am-b` and `rm-b`, like `pulse`, add to the feedback input while
+  -- subtracting from a competing one. `fm-b`, `pm-b`, `wm-b` do not.
 
 {-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
+
+module Vivid.Jbb.Synths.Zot where
 
 import Vivid
 
