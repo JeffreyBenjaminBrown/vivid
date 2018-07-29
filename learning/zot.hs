@@ -1,10 +1,12 @@
--- next: add filter, delay, pitch shift.
--- then ? taps
+-- next : add filter, pitch shift.  then ? taps.
 -- maybe ? frequencies should all be expressed as multiples of the fundamental
 
 -- The AM and RM scale factors of 2 would cause no change in the integral
 -- of the signal if the modulator was a triangle wave. A modulator that
 -- spent more time at the extremes would cause its volume to rise.
+
+-- `am-b` and `rm-b`, like `pulse`, add to one thing while
+-- subtracting from another. `fm-b`, `pm-b`, `wm-b` are not like that.
 
 {-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
@@ -12,16 +14,15 @@ import Vivid
 
 
 type ZotParams = '["amp"
-  -- note that am-b and rm-b, like pulse, add to one thing while
-  -- subtracting from another. fm-b, pm-b, wm-b are not like that.
   ,"pulse"                    -- pulse + sin = 1
-  ,"f","fm-b","fm-m","fm-f"  -- baseline, fb mul, sin mul, sin freq
-      ,"pm-b","pm-m","pm-f"            -- fb mul, sin mul, sin freq
-  ,"w","wm-b","wm-m","wm-f"  -- baseline, fb mul, sin mul, sin freq
-  ,"am","am-b","am-f"        -- amSig = am * am'd carrier + (1-am) * carrier
+  ,"f", "fm-b","fm-m","fm-f"  -- baseline, fb mul, sin mul, sin freq
+      , "pm-b","pm-m","pm-f"            -- fb mul, sin mul, sin freq
+  ,"w", "wm-b","wm-m","wm-f"  -- baseline, fb mul, sin mul, sin freq
+  ,"am","am-b",       "am-f" -- amSig = am * am'd carrier + (1-am) * carrier
                              -- am'd carrier = am-b * fb + (1 - am-b) * sin
-  ,"rm","rm-b","rm-f"        -- same as am, just no bias
-  ,"lim"                     -- lim=x => signal will not exceed +/- x
+  ,"rm","rm-b",       "rm-f" -- same as am, just no bias
+  ,"lpf","hpf"
+  ,"lim"                     -- lim = x  =>  |signal| will not exceed x
   ,"del"]
 
 zot :: SynthDef ZotParams
@@ -44,6 +45,8 @@ zot = sd ( 0 :: I "amp"
          , 0 :: I "rm"
          , 0 :: I "rm-b"
          , 0 :: I "rm-f"
+         , 22050 :: I "lpf" -- any higher than this and it freaks out
+         , 1 :: I "hpf"     -- much lower than this and it freaks out
          , 1 :: I "lim"
          , 0.01 :: I "del"
          ) $ do
@@ -79,7 +82,10 @@ zot = sd ( 0 :: I "amp"
   rmSig <- (1 ~- (V::V"rm")) ~* amSig
            ~+    (V::V"rm")  ~* amSig ~* rm
 
-  lim <- tanh' (rmSig ~/ (V::V"lim")) ~* (V::V"lim")
+  filt_1 <- lpf(in_ rmSig , freq_ (V::V"lpf"))
+  filt <-   hpf(in_ filt_1, freq_ (V::V"hpf"))
+
+  lim <- tanh' (filt ~/ (V::V"lim")) ~* (V::V"lim")
 
   s1 <- delayL( in_ lim
                , maxDelaySecs_ 1
