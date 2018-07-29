@@ -9,8 +9,8 @@ import Control.Monad.Combinators (sepBy1)
 
 import Vivid
 import Vivid.Jbb.Distrib
-import Vivid.Jbb.ParseParams
-import Vivid.Jbb.ParseUtils
+import Vivid.Jbb.Parse.Params
+import Vivid.Jbb.Parse.Utils
 import Vivid.Jbb.Synths
 
 

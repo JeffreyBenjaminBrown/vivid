@@ -2,7 +2,7 @@
 
 {-# LANGUAGE DataKinds #-}
 
-module Vivid.Jbb.ParseParams (
+module Vivid.Jbb.Parse.Params (
     parseBoopMsg
   , parseVapMsg -- TODO : unfinished, needs more params
   , parseSqfmMsg
@@ -15,7 +15,7 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import Vivid
 import Vivid.Jbb.Distrib
 import Vivid.Jbb.Msg
-import Vivid.Jbb.ParseUtils
+import Vivid.Jbb.Parse.Utils
 import Vivid.Jbb.Synths
 
 

@@ -55,8 +55,8 @@ library
     , Vivid.Jbb.Distrib
     , Vivid.Jbb.Msg
     , Vivid.Jbb.Parse
-    , Vivid.Jbb.ParseParams
-    , Vivid.Jbb.ParseUtils
+    , Vivid.Jbb.Parse.Params
+    , Vivid.Jbb.Parse.Utils
     , Vivid.Jbb.Random.MentionsSig
     , Vivid.Jbb.Random.RandomSignal
     , Vivid.Jbb.Random.RandomSynth
