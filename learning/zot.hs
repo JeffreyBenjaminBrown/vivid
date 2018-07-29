@@ -1,5 +1,5 @@
--- next : add filter, pitch shift.  then ? taps.
--- maybe ? frequencies should all be expressed as multiples of the fundamental
+-- next ? taps
+-- should ? frequencies all be expressed as multiples of the fundamental
 
 -- The AM and RM scale factors of 2 would cause no change in the integral
 -- of the signal if the modulator was a triangle wave. A modulator that
@@ -21,8 +21,11 @@ type ZotParams = '["amp"
   ,"am","am-b",       "am-f" -- amSig = am * am'd carrier + (1-am) * carrier
                              -- am'd carrier = am-b * fb + (1 - am-b) * sin
   ,"rm","rm-b",       "rm-f" -- same as am, just no bias
-  ,"lpf","hpf"
+  ,"lpf","lpf-m"
+  ,"bpf","bpf-m","bpf-q"
+  ,"hpf","hpf-m"
   ,"lim"                     -- lim = x  =>  |signal| will not exceed x
+  ,"shift"
   ,"del"]
 
 zot :: SynthDef ZotParams
@@ -46,8 +49,14 @@ zot = sd ( 0 :: I "amp"
          , 0 :: I "rm-b"
          , 0 :: I "rm-f"
          , 22050 :: I "lpf" -- any higher than this and it freaks out
-         , 1 :: I "hpf"     -- much lower than this and it freaks out
+         , 0 :: I "lpf-m"
+         , 300 :: I "bpf"
+         , 0 :: I "bpf-m"
+         , 0.5 :: I "bpf-q"
+         , 1 :: I "hpf" -- much lower than this and it freaks out
+         , 0 :: I "hpf-m"
          , 1 :: I "lim"
+         , 0 :: I "shift"
          , 0.01 :: I "del"
          ) $ do
   [fb_1] <- localIn(1)
@@ -77,20 +86,27 @@ zot = sd ( 0 :: I "amp"
   rm <- 2 ~* -- scale by 2 because RM makes it quieter
         (    fb_1  ~*       (V::V"rm-b")
           ~+ rmSin ~* (1 ~- (V::V"rm-b")) )
-  -- the `rmSig` formula could be simplified, I think, by
+  -- The `rmSig` formula could be simplified, I think, by
   -- pulling the constant term into the `rm` signal
   rmSig <- (1 ~- (V::V"rm")) ~* amSig
            ~+    (V::V"rm")  ~* amSig ~* rm
 
-  filt_1 <- lpf(in_ rmSig , freq_ (V::V"lpf"))
-  filt <-   hpf(in_ filt_1, freq_ (V::V"hpf"))
+  filt_1 <- (1 ~- (V::V"lpf-m")) ~*         rmSig
+            ~+    (V::V"lpf-m")  ~* lpf(in_ rmSig, freq_ (V::V"lpf"))
+  filt_2 <- (1 ~- (V::V"bpf-m")) ~*         filt_1
+            ~+    (V::V"bpf-m")  ~* bpf(in_ filt_1, freq_ (V::V"bpf")
+                                       , rq_ (V::V"bpf-q"))
+  filt   <- (1 ~- (V::V"hpf-m")) ~*         filt_2
+            ~+    (V::V"hpf-m")  ~* hpf(in_ filt_2, freq_ (V::V"hpf"))
 
   lim <- tanh' (filt ~/ (V::V"lim")) ~* (V::V"lim")
 
-  s1 <- delayL( in_ lim
+  shift <- freqShift (in_ lim, freq_ (V::V"shift"))
+
+  s1 <- delayL( in_ shift
                , maxDelaySecs_ 1
                , delaySecs_ $ (V::V "del") )
 
   localOut( [s1] )
 
-  out 0 [(V::V "amp") ~* lim, (V::V "amp") ~* lim]
+  out 0 [(V::V "amp") ~* shift, (V::V "amp") ~* shift]
