@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Vivid.Jbb.Parse where
+module Vivid.Jbb.DistribLang.Early.Parse where
 
 import Text.Megaparsec as M
 import qualified Text.Megaparsec.Char as C
@@ -8,9 +8,9 @@ import qualified Text.Megaparsec.Char.Lexer as L
 import Control.Monad.Combinators (sepBy1)
 
 import Vivid
-import Vivid.Jbb.Distrib
-import Vivid.Jbb.Parse.Params
-import Vivid.Jbb.Parse.Utils
+import Vivid.Jbb.DistribLang.Early.Distrib
+import Vivid.Jbb.DistribLang.Early.Parse.Params
+import Vivid.Jbb.DistribLang.Early.Parse.Utils
 import Vivid.Jbb.Synths
 
 

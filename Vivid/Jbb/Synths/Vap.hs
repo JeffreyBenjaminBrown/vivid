@@ -6,7 +6,6 @@
 module Vivid.Jbb.Synths.Vap where
 
 import Vivid
-import Vivid.Jbb.Msg
 
 
 type VapParams = '[ "freq",      "amp"
@@ -41,15 +40,3 @@ vap = sd ( 0   :: I "freq"
                          , maxDelaySecs_ 1
                          , delaySecs_ (V :: V "delay-freq") ) )
   out 0 [fb, fb]
-
-vapMsg :: String -> Float -> Msg VapParams
-vapMsg "freq" n = Msg (toI n :: I "freq")
-vapMsg "amp" n = Msg (toI n :: I "amp")
-vapMsg "saw" n = Msg (toI n :: I "saw")
-vapMsg "delay-freq" n = Msg (toI n :: I "delay-freq")
-vapMsg "delay-amp" n = Msg (toI n :: I "delay-amp")
-vapMsg "fm-freq" n = Msg (toI n :: I "fm-freq")
-vapMsg "fm-amp" n = Msg (toI n :: I "fm-amp")
-vapMsg "fm2-freq" n = Msg (toI n :: I "fm2-freq")
-vapMsg "fm2-amp" n = Msg (toI n :: I "fm2-amp")
-vapMsg "nz-lpf" n = Msg (toI n :: I "nz-lpf")
