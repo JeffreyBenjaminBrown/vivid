@@ -3,7 +3,7 @@
            , ScopedTypeVariables
            , GADTs #-}
 
-module Vivid.Jbb.DistribLang.Msg where
+module Vivid.Jbb.Distrib.Msg where
 
 import Vivid
 import Vivid.Jbb.Synths

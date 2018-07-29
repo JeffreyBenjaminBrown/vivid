@@ -11,7 +11,7 @@
            , ScopedTypeVariables
            , GADTs #-}
 
-module Vivid.Jbb.DistribLang.Early.Distrib (
+module Vivid.Jbb.Distrib.Early.Distrib (
     SynthName
   , randomString
   , SynthRegister(..)
@@ -25,7 +25,7 @@ import Data.Map as M
 import Control.Concurrent.MVar
 
 import Vivid
-import Vivid.Jbb.DistribLang.Early.Msg
+import Vivid.Jbb.Distrib.Early.Msg
 import Vivid.Jbb.Synths
 
 

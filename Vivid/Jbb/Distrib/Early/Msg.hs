@@ -3,7 +3,7 @@
            , ScopedTypeVariables
            , GADTs #-}
 
-module Vivid.Jbb.DistribLang.Early.Msg where
+module Vivid.Jbb.Distrib.Early.Msg where
 
 import Vivid
 
