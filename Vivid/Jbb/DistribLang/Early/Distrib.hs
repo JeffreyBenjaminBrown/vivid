@@ -69,7 +69,7 @@ data Action where
        -> SynthName -> Action
   Send :: MVar (M.Map SynthName (Synth sdArgs))
        -> SynthName
-       -> Msg sdArgs -> Action
+       -> MsgEarly sdArgs -> Action
 
 act :: Action -> IO ()
   -- todo ? make this a VividAction rather than an IO
@@ -112,7 +112,7 @@ freeAction name synthMap =
 
 sendAction :: forall m sdArgs. VividAction m
            => SynthName
-           -> Msg sdArgs
+           -> MsgEarly sdArgs
            -> M.Map SynthName (Synth sdArgs)
            -> m ()
 sendAction name msg synthMap =

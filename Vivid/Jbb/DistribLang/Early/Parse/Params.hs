@@ -21,34 +21,34 @@ import Vivid.Jbb.Synths
 
 -- | parse a Msg for a particular synthdef
 
-parseBoopMsg :: Parser (Msg BoopParams)
+parseBoopMsg :: Parser (MsgEarly BoopParams)
 parseBoopMsg = tryEach [freq, amp]
 
-parseVapMsg :: Parser (Msg VapParams)
+parseVapMsg :: Parser (MsgEarly VapParams)
 parseVapMsg = tryEach [freq, amp]
 
-parseSqfmMsg :: Parser (Msg SqfmParams)
+parseSqfmMsg :: Parser (MsgEarly SqfmParams)
 parseSqfmMsg = tryEach [freq, amp, width, widthVibFreq, widthVibAmp]
 
 
 -- | parse a Msg polymorphically
 
-freq :: Elem "freq" superset => Parser (Msg superset)
+freq :: Elem "freq" superset => Parser (MsgEarly superset)
 freq = L.lexeme sc $ do n <- word "freq" >> signedFloat
-                        return $ Msg (toI n :: I "freq")
+                        return $ MsgEarly (toI n :: I "freq")
 
-amp :: Elem "amp" superset => Parser (Msg superset)
+amp :: Elem "amp" superset => Parser (MsgEarly superset)
 amp = L.lexeme sc $ do n <- word "amp" >> signedFloat
-                       return $ Msg (toI n :: I "amp")
+                       return $ MsgEarly (toI n :: I "amp")
 
-width :: Elem "width" superset => Parser (Msg superset)
+width :: Elem "width" superset => Parser (MsgEarly superset)
 width = L.lexeme sc $ do n <- word "width" >> signedFloat
-                         return $ Msg (toI n :: I "width")
+                         return $ MsgEarly (toI n :: I "width")
 
-widthVibFreq :: Elem "width-vib-freq" superset => Parser (Msg superset)
+widthVibFreq :: Elem "width-vib-freq" superset => Parser (MsgEarly superset)
 widthVibFreq = L.lexeme sc $ do n <- word "width-vib-freq" >> signedFloat
-                                return $ Msg (toI n :: I "width-vib-freq")
+                                return $ MsgEarly (toI n :: I "width-vib-freq")
 
-widthVibAmp :: Elem "width-vib-amp" superset => Parser (Msg superset)
+widthVibAmp :: Elem "width-vib-amp" superset => Parser (MsgEarly superset)
 widthVibAmp = L.lexeme sc $ do n <- word "width-vib-amp" >> signedFloat
-                               return $ Msg (toI n :: I "width-vib-amp")
+                               return $ MsgEarly (toI n :: I "width-vib-amp")

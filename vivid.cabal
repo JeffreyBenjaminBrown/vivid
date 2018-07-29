@@ -53,11 +53,11 @@ library
   exposed-modules:
     Vivid.Jbb
     , Vivid.Jbb.DistribLang.Msg
---    , Vivid.Jbb.DistribLang.Early.Distrib
---    , Vivid.Jbb.DistribLang.Early.Msg
---    , Vivid.Jbb.DistribLang.Early.Parse
---    , Vivid.Jbb.DistribLang.Early.Parse.Params
---    , Vivid.Jbb.DistribLang.Early.Parse.Utils
+    , Vivid.Jbb.DistribLang.Early.Distrib
+    , Vivid.Jbb.DistribLang.Early.Msg
+    , Vivid.Jbb.DistribLang.Early.Parse
+    , Vivid.Jbb.DistribLang.Early.Parse.Params
+    , Vivid.Jbb.DistribLang.Early.Parse.Utils
     , Vivid.Jbb.Random.MentionsSig
     , Vivid.Jbb.Random.RandomSignal
     , Vivid.Jbb.Random.RandomSynth
