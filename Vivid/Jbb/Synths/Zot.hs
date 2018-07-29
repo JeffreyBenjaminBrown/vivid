@@ -29,7 +29,7 @@ type ZotParams = '["amp"
   ,"bpf","bpf-m","bpf-q"
   ,"hpf","hpf-m"
   ,"lim"                     -- lim = x  =>  |signal| will not exceed x
-  ,"shift"
+  ,"sh", "sh-b"              -- pitch shift: baseline, feedback mul
   ,"del"]
 
 zot :: SynthDef ZotParams
@@ -57,36 +57,39 @@ zot = sd ( 0 :: I "amp"
          , 300 :: I "bpf"
          , 0 :: I "bpf-m"
          , 0.5 :: I "bpf-q"
-         , 1 :: I "hpf" -- much lower than this and it freaks out
+         , 1 :: I "hpf" -- negative and it freaks out
          , 0 :: I "hpf-m"
          , 1 :: I "lim"
-         , 0 :: I "shift"
-         , 0.01 :: I "del"
+         , 0 :: I "sh"
+         , 0 :: I "sh-b"
+         , 1 :: I "del"
          ) $ do
   [fb_1] <- localIn(1)
   fb01 <- (fb_1 ~+ 1) ~/ 2
   fm <- (V::V "f")
         ~+ (V::V "fm-b") ~* fb_1
-        ~+ (V::V"fm-m") ~* sinOsc (freq_ (V::V"fm-f"))
+        ~+ (V::V"fm-m") ~* sinOsc (freq_ $ (V::V"f") ~* (V::V"fm-f"))
   pm <- (pi/2) ~* (   (V::V"pm-b") ~* fb01
-                   ~+ (V::V"pm-m") ~* sinOsc (freq_ (V::V"pm-f")))
+                   ~+ (V::V"pm-m")
+                      ~* sinOsc (freq_ $ (V::V"f") ~* (V::V"pm-f")))
   wm <- (V :: V "w")
     ~+ 0.5 ~* (   (V::V"wm-b") ~* fb_1
-               ~+ (V::V"wm-m")  ~* sinOsc (freq_ (V::V"wm-f")))
+               ~+ (V::V"wm-m")
+                  ~* sinOsc (freq_ $ (V::V"f") ~* (V::V"wm-f")))
 
   aSin <- sinOsc  (freq_ fm, phase_ pm)
   aPulse <- pulse (freq_ fm, width_ wm)
   source <-          (V :: V "pulse" ) ~* aPulse
             ~+ (1 ~- (V :: V "pulse")) ~* aSin
 
-  amSin <- (sinOsc (freq_ (V::V"am-f")) ~+ 1) ~/ 2
+  amSin <- (sinOsc (freq_ $ (V::V"f") ~* (V::V"am-f")) ~+ 1) ~/ 2
   am <- 2 ~* -- scale by 2 because AM makes it quieter
         (    fb01  ~*       (V::V"am-b")
           ~+ amSin ~* (1 ~- (V::V"am-b")) )
   amSig <- (1 ~- (V::V"am")) ~* source
            ~+    (V::V"am")  ~* source ~* am
 
-  rmSin <- sinOsc (freq_ (V::V"rm-f"))
+  rmSin <- sinOsc (freq_ $ (V::V"f") ~* (V::V"rm-f"))
   rm <- 2 ~* -- scale by 2 because RM makes it quieter
         (    fb_1  ~*       (V::V"rm-b")
           ~+ rmSin ~* (1 ~- (V::V"rm-b")) )
@@ -95,21 +98,26 @@ zot = sd ( 0 :: I "amp"
   rmSig <- (1 ~- (V::V"rm")) ~* amSig
            ~+    (V::V"rm")  ~* amSig ~* rm
 
-  filt_1 <- (1 ~- (V::V"lpf-m")) ~*         rmSig
-            ~+    (V::V"lpf-m")  ~* lpf(in_ rmSig, freq_ (V::V"lpf"))
-  filt_2 <- (1 ~- (V::V"bpf-m")) ~*         filt_1
-            ~+    (V::V"bpf-m")  ~* bpf(in_ filt_1, freq_ (V::V"bpf")
+  filt_1 <- (1 ~- (V::V"lpf-m")) ~*          rmSig
+            ~+    (V::V"lpf-m")  ~* lpf( in_ rmSig
+                                       , freq_ $ (V::V"f") ~* (V::V"lpf"))
+  filt_2 <- (1 ~- (V::V"bpf-m")) ~*          filt_1
+            ~+    (V::V"bpf-m")  ~* bpf( in_ filt_1
+                                       , freq_ $ (V::V"f") ~* (V::V"bpf")
                                        , rq_ (V::V"bpf-q"))
-  filt   <- (1 ~- (V::V"hpf-m")) ~*         filt_2
-            ~+    (V::V"hpf-m")  ~* hpf(in_ filt_2, freq_ (V::V"hpf"))
+  filt   <- (1 ~- (V::V"hpf-m")) ~*          filt_2
+            ~+    (V::V"hpf-m")  ~* hpf( in_ filt_2
+                                       , freq_ $ (V::V"f") ~* (V::V"hpf"))
 
   lim <- tanh' (filt ~/ (V::V"lim")) ~* (V::V"lim")
 
-  shift <- freqShift (in_ lim, freq_ (V::V"shift"))
+  shift <- freqShift ( in_ lim
+                     , freq_ $ (V::V"f") ~* (    (V::V"sh")
+                                              ~+ (V::V"sh-b") ~* fb_1) )
 
   s1 <- delayL( in_ shift
                , maxDelaySecs_ 1
-               , delaySecs_ $ (V::V "del") )
+               , delaySecs_ $ (V::V "del") ~/ (V::V"f") )
 
   localOut( [s1] )
 
