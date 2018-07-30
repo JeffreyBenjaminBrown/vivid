@@ -1,4 +1,4 @@
-module Vivid.Jbb.Distrib.Early.Parse.Utils where
+module Vivid.Jbb.Distrib.Parse.Utils where
 
 import Data.Void
 import Text.Megaparsec

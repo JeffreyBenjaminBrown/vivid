@@ -1,17 +1,9 @@
--- Yet to implement:
---   transient: create a new synth, give it a Msg, let it persist
---     for a while, then free it
---     Give it a random name.
---     Keep that random name in the synth registry, to be completely sure
---     there's never a conflict.
--- For that I will need to use the random string function below
-
 {-# LANGUAGE DataKinds
            , ExtendedDefaultRules
            , ScopedTypeVariables
            , GADTs #-}
 
-module Vivid.Jbb.Distrib.Early.Distrib (
+module Vivid.Jbb.Distrib.Distrib (
     SynthName
   , randomString
   , SynthRegister(..)
@@ -25,7 +17,7 @@ import Data.Map as M
 import Control.Concurrent.MVar
 
 import Vivid
-import Vivid.Jbb.Distrib.Early.Msg
+import Vivid.Jbb.Distrib.Msg
 import Vivid.Jbb.Synths
 
 
