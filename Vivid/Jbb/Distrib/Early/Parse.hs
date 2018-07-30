@@ -20,50 +20,50 @@ synthDefName = foldr1 (<|>) [ word "boop" >> return Boop
                             , word "sqfm" >> return Sqfm
                             ]
 
-msgs :: SynthRegister -> Parser [Action]
+msgs :: SynthRegister -> Parser [Action']
 msgs reg = concat <$>
   sepBy1 (homogeneousMsgs reg) (L.lexeme sc $ C.string ",")
 
 -- | msgs all of the same type, e.g. a bunch of News, or a bunch of Frees
-homogeneousMsgs :: SynthRegister -> Parser [Action]
+homogeneousMsgs :: SynthRegister -> Parser [Action']
 homogeneousMsgs reg = L.lexeme sc $ foldl1 (<|>) 
   [ (:[]) <$> parseWait -- make it return a (length one) list
   , parseNews reg, parseFrees reg, parseSends reg ]
 
-parseWait :: Parser Action
-parseWait = Wait <$> (word "wait" >> L.lexeme sc L.float)
+parseWait :: Parser Action'
+parseWait = Wait' <$> (word "wait" >> L.lexeme sc L.float)
 
 -- everything below includes per-synth boilerplate
 
-parseNews :: SynthRegister -> Parser [Action]
+parseNews :: SynthRegister -> Parser [Action']
 parseNews reg = do
   word "new"
   synthDef <- synthDefName
   names <- M.many anyWord
   case synthDef of
-    Boop -> return $ map (New (boops reg) boop) names
-    Vap  -> return $ map (New (vaps  reg) vap ) names
-    Sqfm -> return $ map (New (sqfms reg) sqfm) names
+    Boop -> return $ map (New' (boops reg) boop) names
+    Vap  -> return $ map (New' (vaps  reg) vap ) names
+    Sqfm -> return $ map (New' (sqfms reg) sqfm) names
 
-parseFrees :: SynthRegister -> Parser [Action]
+parseFrees :: SynthRegister -> Parser [Action']
 parseFrees reg = do
   word "free"
   synthDef <- synthDefName
   names <- M.many $ anyWord
   return $ case synthDef of
-    Boop -> map (Free $ boops reg) names
-    Vap  -> map (Free $ vaps  reg) names
-    Sqfm -> map (Free $ sqfms reg) names
+    Boop -> map (Free' $ boops reg) names
+    Vap  -> map (Free' $ vaps  reg) names
+    Sqfm -> map (Free' $ sqfms reg) names
 
-parseSends :: SynthRegister -> Parser [Action]
+parseSends :: SynthRegister -> Parser [Action']
 parseSends reg = do
   word "send"
   synthDef <- synthDefName
   name <- anyWord
   case synthDef of
     Boop -> do msgs <- M.many $ parseBoopMsg
-               return $ map (Send (boops reg) name) msgs
+               return $ map (Send' (boops reg) name) msgs
     Vap  -> do msgs <- M.many $ parseVapMsg
-               return $ map  (Send (vaps  reg) name) msgs
+               return $ map  (Send' (vaps  reg) name) msgs
     Sqfm -> do msgs <- M.many $ parseSqfmMsg
-               return $ map (Send (sqfms reg) name) msgs
+               return $ map (Send' (sqfms reg) name) msgs

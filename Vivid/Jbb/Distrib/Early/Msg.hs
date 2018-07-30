@@ -10,14 +10,14 @@ import Vivid
 
 -- | == Messaging
 
-data MsgEarly sdArgs where
-  MsgEarly :: forall params sdArgs.
+data Msg' sdArgs where
+  Msg' :: forall params sdArgs.
          (VarList params
          , Subset (InnerVars params) sdArgs)
-      => params -> MsgEarly sdArgs
+      => params -> Msg' sdArgs
 
-set' :: VividAction m => Synth params -> MsgEarly params -> m ()
-set' synth (MsgEarly m) = set synth m
+set' :: VividAction m => Synth params -> Msg' params -> m ()
+set' synth (Msg' m) = set synth m
 
 
 -- | == Probably obsolete
