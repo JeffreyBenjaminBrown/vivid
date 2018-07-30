@@ -4,64 +4,16 @@
            , GADTs #-}
 
 module Vivid.Jbb.Distrib.Distrib (
-    SynthName
-  , randomString
-  , SynthRegister(..)
-  , emptySynthRegister
-  , Action'(..)
-  , act
+  act
   ) where
 
-import System.Random
 import Data.Map as M
 import Control.Concurrent.MVar
 
 import Vivid
-import Vivid.Jbb.Distrib.Msg
+import Vivid.Jbb.Distrib.Types
 import Vivid.Jbb.Synths
 
-
-type SynthName = String
-
--- | There are 94 Unicode characters bewteen ! and ~ (inclusive).
--- The chance of collision between two 32 character strings of those
--- is (1/94)**32 = 7.242836554608488e-64
-randomString :: IO [Char]
-randomString = do
-   gen <- newStdGen
-   return $ Prelude.take 32 $ randomRs
-                              ('!','~') -- widest possible on normal keyboard
-                              gen
-
-
--- | = SynthRegister
-
-data SynthRegister = -- per-synth boilerplate
-  SynthRegister { boops :: MVar (M.Map SynthName (Synth BoopParams))
-                , vaps  :: MVar (M.Map SynthName (Synth VapParams))
-                , sqfms :: MVar (M.Map SynthName (Synth SqfmParams))
-                , zots :: MVar (M.Map SynthName (Synth ZotParams))
-                }
-
-emptySynthRegister :: IO SynthRegister
-emptySynthRegister = do x <- newMVar M.empty
-                        y <- newMVar M.empty
-                        z <- newMVar M.empty
-                        w <- newMVar M.empty
-                        return $ SynthRegister x y z w  
-
--- | = Action', and how to act on one
-
-data Action' where
-  Wait' :: Float -> Action'
-  New'  :: MVar (M.Map SynthName (Synth sdArgs))
-       -> SynthDef sdArgs
-       -> SynthName -> Action'
-  Free' :: MVar (M.Map SynthName (Synth sdArgs))
-       -> SynthName -> Action'
-  Send' :: MVar (M.Map SynthName (Synth sdArgs))
-       -> SynthName
-       -> Msg' sdArgs -> Action'
 
 act :: Action' -> IO ()
   -- todo ? make this a VividAction rather than an IO

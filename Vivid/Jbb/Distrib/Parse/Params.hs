@@ -14,7 +14,7 @@ import qualified Text.Megaparsec.Char.Lexer as L
 
 import Vivid
 import Vivid.Jbb.Distrib.Distrib
-import Vivid.Jbb.Distrib.Msg
+import Vivid.Jbb.Distrib.Types
 import Vivid.Jbb.Distrib.Parse.Utils
 import Vivid.Jbb.Synths
 

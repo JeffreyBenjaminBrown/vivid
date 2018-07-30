@@ -52,12 +52,11 @@ license:             GPL
 library
   exposed-modules:
     Vivid.Jbb
-    , Vivid.Jbb.Distrib.Msg
     , Vivid.Jbb.Distrib.Distrib
-    , Vivid.Jbb.Distrib.Msg
     , Vivid.Jbb.Distrib.Parse
     , Vivid.Jbb.Distrib.Parse.Params
     , Vivid.Jbb.Distrib.Parse.Utils
+    , Vivid.Jbb.Distrib.Types
     , Vivid.Jbb.Random.MentionsSig
     , Vivid.Jbb.Random.RandomSignal
     , Vivid.Jbb.Random.RandomSynth
