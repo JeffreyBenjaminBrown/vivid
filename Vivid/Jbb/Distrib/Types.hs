@@ -38,12 +38,12 @@ emptySynthRegister = do x <- newMVar M.empty
                         y <- newMVar M.empty
                         z <- newMVar M.empty
                         w <- newMVar M.empty
-                        return $ SynthRegister x y z w  
+                        return $ SynthRegister x y z w
 
 data Action = Wait Float
-            | New  SynthDefEnum SynthString        
-            | Free SynthDefEnum SynthString        
-            | Send SynthDefEnum SynthString Msg 
+            | New  SynthDefEnum SynthString
+            | Free SynthDefEnum SynthString
+            | Send SynthDefEnum SynthString Msg
 
 data Action' where
   Wait' :: Float -> Action'
