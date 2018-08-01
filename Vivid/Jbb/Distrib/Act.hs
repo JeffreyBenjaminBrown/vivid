@@ -12,8 +12,25 @@ import Control.Concurrent.MVar
 
 import Vivid
 import Vivid.Jbb.Distrib.Types
+import Vivid.Jbb.Distrib.Msg
 import Vivid.Jbb.Synths
 
+
+act :: SynthRegister -> Action -> IO ()
+act r a = act' $ toAction' r a
+
+toAction' :: SynthRegister -> Action -> Action'
+toAction' _ (Wait n) = Wait' n
+-- per-synth boilerplate follows
+toAction' reg (New Boop synth) = New' (boops reg) boop synth
+toAction' reg (Free Boop synth) = Free' (boops reg) synth
+toAction' reg (Send Boop synth msg) = Send' (boops reg) synth (boopMsg msg)
+toAction' reg (New Vap synth) = New' (vaps reg) vap synth
+toAction' reg (Free Vap synth) = Free' (vaps reg) synth
+toAction' reg (Send Vap synth msg) = Send' (vaps reg) synth (vapMsg msg)
+toAction' reg (New Sqfm synth) = New' (sqfms reg) sqfm synth
+toAction' reg (Free Sqfm synth) = Free' (sqfms reg) synth
+toAction' reg (Send Sqfm synth msg) = Send' (sqfms reg) synth (sqfmMsg msg)
 
 act' :: Action' -> IO ()
   -- todo ? make this a VividAction rather than an IO

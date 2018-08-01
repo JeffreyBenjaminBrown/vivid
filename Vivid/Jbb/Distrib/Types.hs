@@ -30,15 +30,15 @@ data SynthRegister = -- per-synth boilerplate
   SynthRegister { boops :: MVar (M.Map SynthString (Synth BoopParams))
                 , vaps  :: MVar (M.Map SynthString (Synth VapParams))
                 , sqfms :: MVar (M.Map SynthString (Synth SqfmParams))
-                , zots :: MVar (M.Map SynthString (Synth ZotParams))
+                -- , zots :: MVar (M.Map SynthString (Synth ZotParams))
                 }
 
 emptySynthRegister :: IO SynthRegister
 emptySynthRegister = do x <- newMVar M.empty
                         y <- newMVar M.empty
                         z <- newMVar M.empty
-                        w <- newMVar M.empty
-                        return $ SynthRegister x y z w
+--                        w <- newMVar M.empty
+                        return $ SynthRegister x y z -- w
 
 data Action = Wait Float
             | New  SynthDefEnum SynthString
