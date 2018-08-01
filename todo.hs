@@ -2,6 +2,9 @@ add the tag "per-synth boilerplate" to each part of the code
   that I'll have to modify whenever I add a synth
 
 features to add, in cumulative order
+  represent a loop
+    a vector of (Time, Msg) pairs, sorted on Time, starting at Time 0
+    and a duration >= the greatest Time in the vector
   keep a loop
     then multiple loops of varying durations
   make functions for manipulating loops
@@ -34,7 +37,7 @@ maybe do this
     A synth plan can be represented multiple ways:
       Each has a total duration
       An ordered sequence of (duration, synth message) pairs.
-      Synths are never really off; time between notes = amplitude zero
+      Extant synths are never off; time between notes = amplitude zero
     A collection of concurrent notes has to be distributed across synths
       automatically, rather than requiring the user to say which go where.
     An SCPlan is a map from synth plans (not oneSecondSynthPlans) to synth names.
