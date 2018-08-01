@@ -5,7 +5,7 @@
 
 module Vivid.Jbb.Synths (
   module X
-  , SynthDefName(..)
+  , SynthDefEnum(..)
   , BoopParams
   , BoopParam(..)
   , boop
@@ -21,7 +21,7 @@ import Vivid.Jbb.Synths.Zot as X
 
 -- | == Synths
 
-data SynthDefName = Boop | Vap | Sqfm | Zot
+data SynthDefEnum = Boop | Vap | Sqfm | Zot
 
 -- | = Boop
 

@@ -12,9 +12,10 @@ import Vivid
 import Vivid.Jbb.Synths
 
 
-type SynthName = String
+type SynthString = String
+type ParamString = String
 
-type Msg = (String,Float)
+type Msg = (ParamString,Float)
 
 data Msg' sdArgs where
   Msg' :: forall params sdArgs.
@@ -26,10 +27,10 @@ set' :: VividAction m => Synth params -> Msg' params -> m ()
 set' synth (Msg' m) = set synth m
 
 data SynthRegister = -- per-synth boilerplate
-  SynthRegister { boops :: MVar (M.Map SynthName (Synth BoopParams))
-                , vaps  :: MVar (M.Map SynthName (Synth VapParams))
-                , sqfms :: MVar (M.Map SynthName (Synth SqfmParams))
-                , zots :: MVar (M.Map SynthName (Synth ZotParams))
+  SynthRegister { boops :: MVar (M.Map SynthString (Synth BoopParams))
+                , vaps  :: MVar (M.Map SynthString (Synth VapParams))
+                , sqfms :: MVar (M.Map SynthString (Synth SqfmParams))
+                , zots :: MVar (M.Map SynthString (Synth ZotParams))
                 }
 
 emptySynthRegister :: IO SynthRegister
@@ -40,17 +41,17 @@ emptySynthRegister = do x <- newMVar M.empty
                         return $ SynthRegister x y z w  
 
 data Action = Wait Float
-            | New  SynthDefName SynthName        
-            | Free SynthDefName SynthName        
-            | Send SynthDefName SynthName Msg 
+            | New  SynthDefEnum SynthString        
+            | Free SynthDefEnum SynthString        
+            | Send SynthDefEnum SynthString Msg 
 
 data Action' where
   Wait' :: Float -> Action'
-  New'  :: MVar (M.Map SynthName (Synth sdArgs))
+  New'  :: MVar (M.Map SynthString (Synth sdArgs))
        -> SynthDef sdArgs
-       -> SynthName -> Action'
-  Free' :: MVar (M.Map SynthName (Synth sdArgs))
-       -> SynthName -> Action'
-  Send' :: MVar (M.Map SynthName (Synth sdArgs))
-       -> SynthName
+       -> SynthString -> Action'
+  Free' :: MVar (M.Map SynthString (Synth sdArgs))
+       -> SynthString -> Action'
+  Send' :: MVar (M.Map SynthString (Synth sdArgs))
+       -> SynthString
        -> Msg' sdArgs -> Action'

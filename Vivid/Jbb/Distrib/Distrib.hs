@@ -35,9 +35,9 @@ act (Send' mSynthMap name msg) = do
 
 newAction' :: VividAction m
           => SynthDef sdArgs
-          -> SynthName
-          -> M.Map SynthName (Synth sdArgs)
-          -> m (M.Map SynthName (Synth sdArgs))
+          -> SynthString
+          -> M.Map SynthString (Synth sdArgs)
+          -> m (M.Map SynthString (Synth sdArgs))
 newAction' synthDef name synthMap =
   case M.lookup name $ synthMap of
     Just _ -> error $ "The name " ++ name ++ " is already in use."
@@ -45,9 +45,9 @@ newAction' synthDef name synthMap =
                   return $ M.insert name s synthMap
 
 freeAction' :: VividAction m
-           => SynthName
-           -> M.Map SynthName (Synth sdArgs)
-           -> m (M.Map SynthName (Synth sdArgs))
+           => SynthString
+           -> M.Map SynthString (Synth sdArgs)
+           -> m (M.Map SynthString (Synth sdArgs))
 freeAction' name synthMap =
   case M.lookup name $ synthMap of
     Nothing -> error $ "The name " ++ name ++ " is already unused."
@@ -55,9 +55,9 @@ freeAction' name synthMap =
                  return $ M.delete name synthMap
 
 sendAction' :: forall m sdArgs. VividAction m
-           => SynthName
+           => SynthString
            -> Msg' sdArgs
-           -> M.Map SynthName (Synth sdArgs)
+           -> M.Map SynthString (Synth sdArgs)
            -> m ()
 sendAction' name msg synthMap =
   case M.lookup name synthMap of

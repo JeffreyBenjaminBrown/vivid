@@ -15,7 +15,7 @@ import Vivid.Jbb.Distrib.Parse.Utils
 import Vivid.Jbb.Synths
 
 
-synthDefName :: Parser SynthDefName
+synthDefName :: Parser SynthDefEnum
 synthDefName = foldr1 (<|>) [ word "boop" >> return Boop
                             , word "vap" >> return Vap
                             , word "sqfm" >> return Sqfm
