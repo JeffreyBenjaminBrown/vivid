@@ -13,7 +13,7 @@ import qualified Text.Megaparsec.Char as C
 import qualified Text.Megaparsec.Char.Lexer as L
 
 import Vivid
-import Vivid.Jbb.Distrib.Distrib
+import Vivid.Jbb.Distrib.Act
 import Vivid.Jbb.Distrib.Types
 import Vivid.Jbb.Distrib.Parse.Utils
 import Vivid.Jbb.Synths

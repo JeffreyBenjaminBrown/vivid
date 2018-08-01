@@ -3,7 +3,7 @@
            , ScopedTypeVariables
            , GADTs #-}
 
-module Vivid.Jbb.Distrib.Distrib (
+module Vivid.Jbb.Distrib.Act (
   act'
   ) where
 
