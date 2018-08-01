@@ -4,7 +4,7 @@
            , GADTs #-}
 
 module Vivid.Jbb.Distrib.Distrib (
-  act
+  act'
   ) where
 
 import Data.Map as M
@@ -15,21 +15,21 @@ import Vivid.Jbb.Distrib.Types
 import Vivid.Jbb.Synths
 
 
-act :: Action' -> IO ()
+act' :: Action' -> IO ()
   -- todo ? make this a VividAction rather than an IO
     -- problem: you can't read an MVar from a VividAction
-act (Wait' k) = wait k
-act (New' mSynthMap synthDef name) = do
+act' (Wait' k) = wait k
+act' (New' mSynthMap synthDef name) = do
   synthMap <- readMVar mSynthMap
   synthMap' <- newAction' synthDef name synthMap
   swapMVar mSynthMap synthMap'
   return ()
-act (Free' mSynthMap name) = do
+act' (Free' mSynthMap name) = do
   synthMap <- readMVar mSynthMap
   synthMap' <- freeAction' name synthMap
   swapMVar mSynthMap synthMap'
   return ()
-act (Send' mSynthMap name msg) = do
+act' (Send' mSynthMap name msg) = do
   synthMap <- readMVar mSynthMap
   sendAction' name msg synthMap
 
