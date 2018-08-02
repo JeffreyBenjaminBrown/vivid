@@ -7,6 +7,12 @@ import Vivid.Jbb.Synths
 import Vivid.Jbb.Distrib.Types
 
 
+set' :: VividAction m => Synth params -> Msg' params -> m ()
+set' synth (Msg' m) = set synth m
+
+
+-- | = per-synth boilerplate
+
 boopMsg :: Msg -> Msg' BoopParams
 boopMsg ("freq",n) = Msg' (toI n :: I "freq")
 boopMsg ("amp",n) = Msg' (toI n :: I "amp")

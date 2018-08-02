@@ -1,9 +1,10 @@
-add the tag "per-synth boilerplate" to each part of the code
-  that I'll have to modify whenever I add a synth
+change the representations
+  Wait should not be a kind of Action;
+    Waits should instead be automatically generated from each Museq
 
 features to add, in cumulative order
   represent a loop
-    a vector of (Time, Msg) pairs, sorted on Time, starting at Time 0
+    a vector of (Time, Action) pairs, sorted on Time, starting at Time 0
     and a duration >= the greatest Time in the vector
   keep a loop
     then multiple loops of varying durations

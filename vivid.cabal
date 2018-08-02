@@ -54,6 +54,7 @@ library
     Vivid.Jbb
     , Vivid.Jbb.Distrib.Act
     , Vivid.Jbb.Distrib.Msg
+    , Vivid.Jbb.Distrib.Museq
     , Vivid.Jbb.Distrib.Parse
     , Vivid.Jbb.Distrib.Parse.Params
     , Vivid.Jbb.Distrib.Parse.Utils
@@ -286,11 +287,13 @@ library
 
     -- jbb added
     , HUnit
+    , lens
     , megaparsec
     , mwc-random
     , parser-combinators
     , random-fu
     , vector
+    , vector-algorithms
 
   -- TODO: constraint solver iterations only for the GHC that needs it
   ghc-options:

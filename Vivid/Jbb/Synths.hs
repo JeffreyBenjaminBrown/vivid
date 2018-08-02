@@ -22,6 +22,7 @@ import Vivid.Jbb.Synths.Zot as X
 -- | == Synths
 
 data SynthDefEnum = Boop | Vap | Sqfm | Zot
+  deriving (Show,Eq,Ord)
 
 -- | = Boop
 

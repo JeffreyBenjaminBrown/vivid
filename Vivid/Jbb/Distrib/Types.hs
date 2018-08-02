@@ -1,30 +1,41 @@
 {-# LANGUAGE DataKinds
            , ExtendedDefaultRules
            , ScopedTypeVariables
+           , TemplateHaskell
            , GADTs #-}
 
 module Vivid.Jbb.Distrib.Types where
 
 import Control.Concurrent.MVar
+import Control.Lens
 import Data.Map as M
+import Data.Ratio
+import Data.Vector
 
 import Vivid
 import Vivid.Jbb.Synths
 
 
+-- | = The easy types
+
 type SynthString = String
 type ParamString = String
+type Duration = Rational
+type Time = Rational
 
 type Msg = (ParamString,Float)
 
-data Msg' sdArgs where
-  Msg' :: forall params sdArgs.
-         (VarList params
-         , Subset (InnerVars params) sdArgs)
-      => params -> Msg' sdArgs
+data Action = Wait Float
+            | New  SynthDefEnum SynthString
+            | Free SynthDefEnum SynthString
+            | Send SynthDefEnum SynthString Msg
+  deriving (Show,Eq,Ord)
 
-set' :: VividAction m => Synth params -> Msg' params -> m ()
-set' synth (Msg' m) = set synth m
+data Museq = Museq { _dur :: Duration
+                   , _vec :: Vector (Time, Action) }
+  deriving (Show,Eq)
+-- see Tidal/vector/Sound/Tidal/Vector/DurVec.hs for mutability|sort problem
+makeLenses ''Museq
 
 data SynthRegister = -- per-synth boilerplate
   SynthRegister { boops :: MVar (M.Map SynthString (Synth BoopParams))
@@ -40,10 +51,14 @@ emptySynthRegister = do x <- newMVar M.empty
 --                        w <- newMVar M.empty
                         return $ SynthRegister x y z -- w
 
-data Action = Wait Float
-            | New  SynthDefEnum SynthString
-            | Free SynthDefEnum SynthString
-            | Send SynthDefEnum SynthString Msg
+
+-- | = The hard types. Hopefully quarantined away from the live coding.
+
+data Msg' sdArgs where
+  Msg' :: forall params sdArgs.
+         (VarList params
+         , Subset (InnerVars params) sdArgs)
+      => params -> Msg' sdArgs
 
 data Action' where
   Wait' :: Float -> Action'
@@ -55,3 +70,4 @@ data Action' where
   Send' :: MVar (M.Map SynthString (Synth sdArgs))
        -> SynthString
        -> Msg' sdArgs -> Action'
+
