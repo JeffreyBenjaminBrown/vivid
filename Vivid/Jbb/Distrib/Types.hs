@@ -30,8 +30,7 @@ unTimestamp (Timestamp x) = x
 
 type Msg = (ParamString,Float)
 
-data Action = Wait Float
-            | New  SynthDefEnum SynthString
+data Action = New  SynthDefEnum SynthString
             | Free SynthDefEnum SynthString
             | Send SynthDefEnum SynthString Msg
   deriving (Show,Eq,Ord)
@@ -66,7 +65,6 @@ data Msg' sdArgs where
       => params -> Msg' sdArgs
 
 data Action' where
-  Wait' :: Float -> Action'
   New'  :: MVar (M.Map SynthString (Synth sdArgs))
        -> SynthDef sdArgs
        -> SynthString -> Action'
@@ -75,4 +73,3 @@ data Action' where
   Send' :: MVar (M.Map SynthString (Synth sdArgs))
        -> SynthString
        -> Msg' sdArgs -> Action'
-

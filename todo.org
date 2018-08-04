@@ -22,7 +22,6 @@
 *** Extant synths are never off; time between notes = amplitude zero
 ** A collection of concurrent notes has to be distributed across synths
 *** automatically, rather than requiring the user to say which go where.
-
 * constraints
 ** want to change tempo
 ** want to start without delay
@@ -30,11 +29,3 @@
 ** loops will have different lengths
 ** want sequences to be vectors
 *** they're easier to work with than functions
-
-* loop pseudocode
-** compute each second in advance
-** maintain a "time zero"
-*** When the user says to start, record time0 = the current time.
-**** Refer to that start for each upcoming second of planning.
-*** When the user says to change tempo, redefine time0 = the current time.
-

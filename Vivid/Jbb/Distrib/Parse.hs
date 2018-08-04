@@ -28,11 +28,7 @@ msgs reg = concat <$>
 -- | msgs all of the same type, e.g. a bunch of News, or a bunch of Frees
 homogeneousMsgs :: SynthRegister -> Parser [Action']
 homogeneousMsgs reg = L.lexeme sc $ foldl1 (<|>) 
-  [ (:[]) <$> parseWait -- make it return a (length one) list
-  , parseNews reg, parseFrees reg, parseSends reg ]
-
-parseWait :: Parser Action'
-parseWait = Wait' <$> (word "wait" >> L.lexeme sc L.float)
+  [ parseNews reg, parseFrees reg, parseSends reg ]
 
 -- everything below includes per-synth boilerplate
 

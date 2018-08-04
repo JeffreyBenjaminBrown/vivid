@@ -23,7 +23,6 @@ act :: SynthRegister -> Action -> IO ()
 act r a = act' $ toAction' r a
 
 toAction' :: SynthRegister -> Action -> Action'
-toAction' _ (Wait n) = Wait' n
 -- per-synth boilerplate follows
 toAction' reg (New Boop synth) = New' (boops reg) boop synth
 toAction' reg (Free Boop synth) = Free' (boops reg) synth
@@ -43,7 +42,6 @@ toAction' reg (Send Sqfm synth msg) = Send' (sqfms reg) synth (sqfmMsg msg)
 act' :: Action' -> IO ()
   -- todo ? make this a VividAction rather than an IO
     -- problem: you can't read an MVar from a VividAction
-act' (Wait' k) = wait k
 act' (New' mSynthMap synthDef name) = do
   synthMap <- readMVar mSynthMap
   synthMap' <- newAction' synthDef name synthMap
