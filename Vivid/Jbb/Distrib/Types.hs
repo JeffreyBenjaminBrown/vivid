@@ -25,6 +25,9 @@ type ParamString = String
 type Duration = Rational
 type Time = Rational
 
+unTimestamp :: Timestamp -> Double
+unTimestamp (Timestamp x) = x
+
 type Msg = (ParamString,Float)
 
 data Action = Wait Float

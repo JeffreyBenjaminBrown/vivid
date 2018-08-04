@@ -1,6 +1,6 @@
 module Vivid.Jbb.Distrib.Museq where
 
-import Control.Lens
+import Control.Lens ((^.),(.~),(%~))
 import Control.Monad.ST
 import qualified Data.Vector as V
 import Data.Vector.Algorithms.Intro (sortBy)

@@ -16,6 +16,7 @@ testFomat = do
   print $ diffTimestamps y x
 
 -- | Do something every second, very nearly on the second
+-- (consistently 1 to 3 ms after the second)
 loop = do
   let loop = do x <- unTimestamp <$> getTime
                 print x
