@@ -1,6 +1,7 @@
 * change the representations
 ** Wait should not be a kind of Action;
-*** Waits should instead be automatically generated from each Museq
+*** delays should instead be programmed from each Museq
+*** and scheduled: pick a delay time taking current time into account
 * features to add, in cumulative order
 ** represent a loop
 *** a vector of (Time, Action) pairs, sorted on Time, starting at Time 0

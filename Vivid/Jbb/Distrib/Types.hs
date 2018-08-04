@@ -13,6 +13,8 @@ import Data.Ratio
 import Data.Vector
 
 import Vivid
+-- | A few types are also defined in Jbb.Synths
+
 import Vivid.Jbb.Synths
 
 
@@ -34,7 +36,7 @@ data Action = Wait Float
 data Museq = Museq { _dur :: Duration
                    , _vec :: Vector (Time, Action) }
   deriving (Show,Eq)
--- see Tidal/vector/Sound/Tidal/Vector/DurVec.hs for mutability|sort problem
+
 makeLenses ''Museq
 
 data SynthRegister = -- per-synth boilerplate
@@ -52,7 +54,7 @@ emptySynthRegister = do x <- newMVar M.empty
                         return $ SynthRegister x y z -- w
 
 
--- | = The hard types. Hopefully quarantined away from the live coding.
+-- | = The GADTs. Hopefully quarantined away from the live coding.
 
 data Msg' sdArgs where
   Msg' :: forall params sdArgs.
