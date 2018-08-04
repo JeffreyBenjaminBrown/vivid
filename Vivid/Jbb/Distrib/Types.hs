@@ -7,7 +7,7 @@
 module Vivid.Jbb.Distrib.Types where
 
 import Control.Concurrent.MVar
-import Control.Lens
+import Control.Lens (makeLenses)
 import Data.Map as M
 import Data.Ratio
 import Data.Vector

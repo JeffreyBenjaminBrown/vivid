@@ -25,7 +25,7 @@ loop = do
                 unTimestamp <$> getTime >>= print
                 print ""
                 loop
-  x <- forkIO loop 
+  x <- forkIO loop
   getChar
   killThread x
 
