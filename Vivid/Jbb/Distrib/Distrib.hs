@@ -1,4 +1,4 @@
-module Vivid.Jbb.Distrib.Loop where
+module Vivid.Jbb.Distrib.Distrib where
 
 import Control.Concurrent.MVar
 
@@ -6,6 +6,8 @@ import Vivid
 import Vivid.Jbb.Distrib.Act
 import Vivid.Jbb.Distrib.Msg
 import Vivid.Jbb.Distrib.Types
+
+
 
 
 ---- | Period is the inverse of tempo.

@@ -53,6 +53,7 @@ library
   exposed-modules:
     Vivid.Jbb
     , Vivid.Jbb.Distrib.Act
+    , Vivid.Jbb.Distrib.Distrib
     , Vivid.Jbb.Distrib.Loop
     , Vivid.Jbb.Distrib.Msg
     , Vivid.Jbb.Distrib.Museq
