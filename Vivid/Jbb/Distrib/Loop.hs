@@ -39,6 +39,6 @@ import Vivid.Jbb.Distrib.Types
 --        now <- unTimestamp <$> getTime
 --
 --  loopThread <- forkIO go
-
-  -- it seems safe, and simpler, to use nextEvents_timeUntil and not this
-    -- let frameDur = 1 -- music is rendered frameDur seconds at a time
+--
+---- it seems safe, and simpler, to use nextEvents_timeUntil and not this
+--  -- let frameDur = 1 -- music is rendered frameDur seconds at a time

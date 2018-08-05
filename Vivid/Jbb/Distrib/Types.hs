@@ -58,6 +58,16 @@ emptySynthRegister = do x <- newMVar M.empty
 --                        w <- newMVar M.empty
                         return $ SynthRegister x y z -- w
 
+-- | The global state variable
+data Distrib = Distrib {
+  mMuseqs :: MVar (M.Map String (Time, Museq))
+    -- ^ Each `Time` here is the next time that Museq is scheduled to run.
+    -- Rarely, those `Time` values might be discovered to be in the past.
+  , reg :: SynthRegister
+  , mTime0 :: MVar Time
+  , mPeriod :: MVar Duration
+  }
+
 
 -- | = The GADTs. Hopefully quarantined away from the live coding.
 
