@@ -1,12 +1,5 @@
-* change the representations
-** Wait should not be a kind of Action;
-*** delays should instead be programmed from each Museq
-*** and scheduled: pick a delay time taking current time into account
 * features to add, in cumulative order
-** represent a loop
-*** a vector of (Time, Action) pairs, sorted on Time, starting at Time 0
-*** and a duration >= the greatest Time in the vector
-** keep a loop
+** keep, run a loop
 *** then multiple loops of varying durations
 ** make functions for manipulating loops
 *** spend a long time on this
@@ -14,7 +7,6 @@
 *** seems much easier to make the DSL after the functions it will encode
 *** for every bit of terse punctuation, include a verbal alternative
 **** => easier to remember, easier to search for language constructs
-
 * more features, not ordered
 ** A synth plan can be represented multiple ways:
 *** Each has a total duration
@@ -27,5 +19,9 @@
 ** want to start without delay
 ** user might redefine loop halfway through
 ** loops will have different lengths
-** want sequences to be vectors
-*** they're easier to work with than functions
+** dubious ? the user sees many Museqs, but the loop keeps one master Museq
+*** in favor: harmony
+**** this might make it easier to write across-Museq harmony functions
+*** against: cpu-costly
+**** I would be culling through more notes (e.g. drums) than needed
+**** Polyrhythms could make the global Museq way longer than its components
