@@ -22,8 +22,11 @@ import Vivid.Jbb.Synths
 
 type SynthString = String
 type ParamString = String
-type Duration = Rational
 type Time = Rational
+type Duration = Rational
+type RelDuration = Rational
+  -- ^ Each Museq's duration is expressed relatively, as a multiple of
+  -- the global cycle duration.
 
 unTimestamp :: Timestamp -> Double
 unTimestamp (Timestamp x) = x

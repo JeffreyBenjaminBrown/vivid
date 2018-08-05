@@ -18,12 +18,14 @@ sortMuseq = vec %~
                    sortBy compare' v'
                    V.freeze v'
 
+-- | A valid Museq is sorted on start time, has (relative) duration > 0,
+-- has its first action at time 0 and all actions at time < 1.
 museqIsValid :: Museq -> Bool
 museqIsValid mu = a && b && c && d where
   a = if V.length (_vec mu) == 0 then True
       else fst (V.head $ _vec mu) == 0
   b = if V.length (_vec mu) == 0 then True
-      else fst (V.last $ _vec mu) < _dur mu
+      else fst (V.last $ _vec mu) < 1
   c = mu == sortMuseq mu
   d = _dur mu > 0
 
@@ -41,9 +43,10 @@ lastPhase0 time0 period now =
 
 -- | >>> work in progress
 
---findNextEvents :: Time -> Duration -> Time -> Museq -> (Duration, [Action])
---findNextEvents time0 period now museq =
---  let np0 = nextPhase0 time0 period now
+--findNextEvents :: Time -> Duration -> Time -> RelDuration
+--  -> Museq -> (Duration, [Action])
+--findNextEvents time0 globalPeriod now museqPeriod museq =
+--  let np0 = nextPhase0 time0 (period * museqPeriod) now
 
 -- | Finds the first element of `v` which is >= to `a`.
 -- When comparing Museq elements, a good comparison function is
