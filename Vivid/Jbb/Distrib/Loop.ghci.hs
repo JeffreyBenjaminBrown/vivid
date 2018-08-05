@@ -13,3 +13,13 @@ import Control.Concurrent.MVar
 
 reg <- emptySynthRegister
 mPeriod <- newMVar 1
+
+
+
+findNextEvents :: Time -> Duration -> Time
+               -> Museq -> (Duration, [Action])
+findNextEvents time0 globalPeriod now museq =
+--  last phase 0 was at 30, so this is halfway through
+bp s = New Boop s
+events = [(0,bp "a"), (0.25,bp"b"), (0.5,bp"c"), (0.5,bp"d"), (0.75,bp"e")]
+findNextEvents 1 10 40 $ Museq 2 $ V.fromList events

@@ -38,7 +38,7 @@ data Action = New  SynthDefEnum SynthString
             | Send SynthDefEnum SynthString Msg
   deriving (Show,Eq,Ord)
 
-data Museq = Museq { _dur :: Duration
+data Museq = Museq { _dur :: RelDuration
                    , _vec :: Vector (Time, Action) }
   deriving (Show,Eq)
 

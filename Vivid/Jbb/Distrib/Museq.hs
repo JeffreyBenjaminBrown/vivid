@@ -9,6 +9,7 @@ import Data.Vector.Algorithms.Search
 
 import Vivid
 import Vivid.Jbb.Distrib.Types
+import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 
 
 sortMuseq :: Museq -> Museq
@@ -43,25 +44,43 @@ prevPhase0 time0 period now =
 
 -- | >>> work in progress
 
---findNextEvents :: Time -> Duration -> Time -> RelDuration
---               -> Museq -> (Duration, [Action])
---findNextEvents time0 globalPeriod now museqPeriod museq =
---  let pp0 = lastPhase0 time0 (period * museqPeriod) now
+-- TODO ? This could be made a little faster by using binarySearchRByBounds
+-- instead of binarySearchR, to avoid repeating the work done by
+-- binarySearchLBy -- that is, to avoid searching the first part
+-- of the vector again.
+findNextEvents :: Time -> Duration -> Time
+               -> Museq -> (Duration, [Action])
+findNextEvents time0 globalPeriod now museq =
+  let pp0 = prevPhase0 time0 (globalPeriod * _dur museq) now
+      timeRemaining = now - pp0
+      relNow =       (now - pp0) / (globalPeriod * _dur museq)
+      vecLen = V.length $ _vec museq
+      compare' :: (Duration, a) -> (Duration, a) -> Ordering
+      compare' ve ve' = compare (fst ve) (fst ve')
+      dummyAction = New Boop "marge"
+      start = firstIndexGTE         compare'
+        (_vec museq) (relNow, dummyAction)
+      end   = firstIndexMoreThanGTE compare'
+        (_vec museq) (relNow, dummyAction)
+  in ( timeRemaining
+     , map snd $ V.toList $ V.slice start (end - start) $ _vec museq )
 
-
--- | Finds the first (0-indexed) element of `v` which is >= to `a`.
--- If none such, returns length of vector.
+-- | = Functions to find a range of items of interest in a sorted vector.
 -- When comparing Museq elements, a good comparison function is
 -- to consider the Time and ignore the Action:
 -- compare' ve ve' = compare (fst ve) (fst ve')
+
+-- | 0-indexed. Returns the least index `i` such that `v!i >= a`.
+-- If none such, returns length of vector.
 firstIndexGTE :: Comparison a -> V.Vector a -> a -> Int
 firstIndexGTE comp v a = runST $ do
   v' <- V.thaw v
   return =<< binarySearchLBy comp v' a
 
--- | Finds the first (0-indexed) element of `v` which is > to `a`.
+-- | If `i` is the least index at which `v!i >= a`, then this
+-- returns the least index `j` for which `v!j > v!i`.
 -- If none such, returns length of vector.
-lastIndexGTE :: Comparison a -> V.Vector a -> a -> Int
-lastIndexGTE comp v a = runST $ do
+firstIndexMoreThanGTE :: Comparison a -> V.Vector a -> a -> Int
+firstIndexMoreThanGTE comp v a = runST $ do
   v' <- V.thaw v
   return =<< binarySearchRBy comp v' a
