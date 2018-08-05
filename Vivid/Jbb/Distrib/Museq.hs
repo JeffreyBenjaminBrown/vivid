@@ -29,8 +29,7 @@ museqIsValid mu = b && c && d where
   d = _dur mu > 0
 
 -- TODO ? This could be made a little faster by using binarySearchRByBounds
--- instead of binarySearchR, to avoid repeating the work done by
--- binarySearchLBy -- that is, to avoid searching the first part
+-- instead of binarySearchR, to avoid searching the first part
 -- of the vector again.
 findNextEvents :: Time -> Duration -> Time
                -> Museq -> (Duration, [Action])

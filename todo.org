@@ -1,3 +1,11 @@
+* problems with Loop.hs
+** collect MVars
+** changing tempo: options
+*** *change tempo only when all Museqs are waiting
+**** if any of them is not, wait for a random time in 5-10 ms, then retry
+*** keep a global rendering frame rate
+*** keep a global Museq, and change tempo when it's waiting
+*** deal with it later
 * features to add, in cumulative order
 ** keep, run a loop
 *** then multiple loops of varying durations
