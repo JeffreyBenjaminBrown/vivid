@@ -41,8 +41,6 @@ prevPhase0 :: RealFrac a => a -> a -> a -> a
 prevPhase0 time0 period now =
   fromIntegral (floor $ (now - time0) / period ) * period + time0
 
--- | >>> work in progress
-
 -- TODO ? This could be made a little faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid repeating the work done by
 -- binarySearchLBy -- that is, to avoid searching the first part
@@ -50,9 +48,9 @@ prevPhase0 time0 period now =
 findNextEvents :: Time -> Duration -> Time
                -> Museq -> (Duration, [Action])
 findNextEvents time0 globalPeriod now museq =
-  let pp0 = prevPhase0 time0 (globalPeriod * _dur museq) now
-      elapsed = now - pp0
-      relNow =       (now - pp0) / (globalPeriod * _dur museq)
+  let period = globalPeriod * _dur museq
+      pp0 = prevPhase0 time0 period now
+      relNow = (now - pp0) / period
       vecLen = V.length $ _vec museq
       compare' :: (Duration, a) -> (Duration, a) -> Ordering
       compare' ve ve' = compare (fst ve) (fst ve')
@@ -63,9 +61,12 @@ findNextEvents time0 globalPeriod now museq =
             then lastIndexJustGTE
                  compare' (_vec museq) $ _vec museq ! start
             else vecLen
-  in ( elapsed
+      relTimeOfNextEvent = if start < vecLen
+                           then fst $ _vec museq ! start
+                           else 1
+      timeUntilNextEvent = relTimeOfNextEvent * period + pp0 - now
+  in ( timeUntilNextEvent
      , map snd $ V.toList $ V.slice start (end - start) $ _vec museq)
-
 
 -- | = Functions to find a range of items of interest in a sorted vector.
 -- When comparing Museq elements, a good comparison function is
