@@ -34,11 +34,11 @@ museqIsValid mu = b && c && d where
 findNextEvents :: Time -> Duration -> Time
                -> Museq -> (Duration, [Action])
 findNextEvents time0 globalPeriod now museq =
-  let period = globalPeriod * _dur museq
+  let period = globalPeriod * fromRational (_dur museq)
       pp0 = prevPhase0 time0 period now
-      relNow = (now - pp0) / period
+      relNow = toRational $ (now - pp0) / period
       vecLen = V.length $ _vec museq
-      compare' :: (Duration, a) -> (Duration, a) -> Ordering
+      compare' :: (RelDuration, a) -> (RelDuration, a) -> Ordering
       compare' ve ve' = compare (fst ve) (fst ve')
       dummyAction = New Boop "marge"
       start = firstIndexGTE         compare'
@@ -50,6 +50,7 @@ findNextEvents time0 globalPeriod now museq =
       relTimeOfNextEvent = if start < vecLen
                            then fst $ _vec museq ! start
                            else 1
-      timeUntilNextEvent = relTimeOfNextEvent * period + pp0 - now
+      timeUntilNextEvent =
+        fromRational relTimeOfNextEvent * period + pp0 - now
   in ( timeUntilNextEvent
      , map snd $ V.toList $ V.slice start (end - start) $ _vec museq)

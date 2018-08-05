@@ -1,3 +1,5 @@
+-- | A few types are also defined in Jbb.Synths
+
 {-# LANGUAGE DataKinds
            , ExtendedDefaultRules
            , ScopedTypeVariables
@@ -13,23 +15,32 @@ import Data.Ratio
 import Data.Vector
 
 import Vivid
--- | A few types are also defined in Jbb.Synths
-
 import Vivid.Jbb.Synths
 
 
--- | = The easy types
+-- | == The easy types
 
 type SynthString = String
 type ParamString = String
-type Time = Rational
-type Duration = Rational
+
+
+-- | = Kinds of time
+
+type Time = Double
+type Duration = Double
+
+type RTime = Rational
+type RDuration = Rational
+
 type RelDuration = Rational
-  -- ^ Each Museq's duration is expressed relatively, as a multiple of
-  -- the global cycle duration.
+  -- ^ Some durations are expressed relative to the global cycle duration.
+  -- (An "R" prefix here would be redundant.)
 
 unTimestamp :: Timestamp -> Double
 unTimestamp (Timestamp x) = x
+
+
+-- | = Instructions
 
 type Msg = (ParamString,Float)
 
@@ -39,10 +50,13 @@ data Action = New  SynthDefEnum SynthString
   deriving (Show,Eq,Ord)
 
 data Museq = Museq { _dur :: RelDuration
-                   , _vec :: Vector (Time, Action) }
+                   , _vec :: Vector (RTime, Action) }
   deriving (Show,Eq)
 
 makeLenses ''Museq
+
+
+-- | The global state
 
 data SynthRegister = -- per-synth boilerplate
   SynthRegister { boops :: MVar (M.Map SynthString (Synth BoopParams))
@@ -58,18 +72,17 @@ emptySynthRegister = do x <- newMVar M.empty
 --                        w <- newMVar M.empty
                         return $ SynthRegister x y z -- w
 
--- | The global state variable
 data Distrib = Distrib {
   mMuseqs :: MVar (M.Map String (Time, Museq))
     -- ^ Each `Time` here is the next time that Museq is scheduled to run.
-    -- Rarely, those `Time` values might be discovered to be in the past.
+    -- Rarely, briefly, those `Time` values will be in the past.
   , reg :: SynthRegister
   , mTime0 :: MVar Time
   , mPeriod :: MVar Duration
   }
 
 
--- | = The GADTs. Hopefully quarantined away from the live coding.
+-- | == The GADTs. Hopefully quarantined away from the live coding.
 
 data Msg' sdArgs where
   Msg' :: forall params sdArgs.
