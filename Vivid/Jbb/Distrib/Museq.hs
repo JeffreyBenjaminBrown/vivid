@@ -3,6 +3,7 @@ module Vivid.Jbb.Distrib.Museq where
 import Control.Lens ((^.),(.~),(%~))
 import Control.Monad.ST
 import qualified Data.Vector as V
+import Data.Vector ((!))
 import Data.Vector.Algorithms.Intro (sortBy)
 import Data.Vector.Algorithms.Search
   (binarySearchLBy, binarySearchRBy, Comparison)
@@ -20,11 +21,9 @@ sortMuseq = vec %~
                    V.freeze v'
 
 -- | A valid Museq is sorted on start time, has (relative) duration > 0,
--- has its first action at time 0 and all actions at time < 1.
+-- and all actions at time < 1.
 museqIsValid :: Museq -> Bool
-museqIsValid mu = a && b && c && d where
-  a = if V.length (_vec mu) == 0 then True
-      else fst (V.head $ _vec mu) == 0
+museqIsValid mu = b && c && d where
   b = if V.length (_vec mu) == 0 then True
       else fst (V.last $ _vec mu) < 1
   c = mu == sortMuseq mu
@@ -52,7 +51,7 @@ findNextEvents :: Time -> Duration -> Time
                -> Museq -> (Duration, [Action])
 findNextEvents time0 globalPeriod now museq =
   let pp0 = prevPhase0 time0 (globalPeriod * _dur museq) now
-      timeRemaining = now - pp0
+      elapsed = now - pp0
       relNow =       (now - pp0) / (globalPeriod * _dur museq)
       vecLen = V.length $ _vec museq
       compare' :: (Duration, a) -> (Duration, a) -> Ordering
@@ -60,27 +59,31 @@ findNextEvents time0 globalPeriod now museq =
       dummyAction = New Boop "marge"
       start = firstIndexGTE         compare'
         (_vec museq) (relNow, dummyAction)
-      end   = firstIndexMoreThanGTE compare'
-        (_vec museq) (relNow, dummyAction)
-  in ( timeRemaining
-     , map snd $ V.toList $ V.slice start (end - start) $ _vec museq )
+      end = if start < vecLen
+            then lastIndexJustGTE
+                 compare' (_vec museq) $ _vec museq ! start
+            else vecLen
+  in ( elapsed
+     , map snd $ V.toList $ V.slice start (end - start) $ _vec museq)
+
 
 -- | = Functions to find a range of items of interest in a sorted vector.
 -- When comparing Museq elements, a good comparison function is
 -- to consider the Time and ignore the Action:
 -- compare' ve ve' = compare (fst ve) (fst ve')
 
--- | 0-indexed. Returns the least index `i` such that `v!i >= a`.
+-- | 0-indexed. Returns the first index you could insert `a` and preserve
+-- sortedness (shoving whatever was there before to the right).
 -- If none such, returns length of vector.
 firstIndexGTE :: Comparison a -> V.Vector a -> a -> Int
 firstIndexGTE comp v a = runST $ do
   v' <- V.thaw v
   return =<< binarySearchLBy comp v' a
 
--- | If `i` is the least index at which `v!i >= a`, then this
--- returns the least index `j` for which `v!j > v!i`.
+-- | 0-indexed. Returns the last index you could insert `a` and preserve
+-- sortedness (shoving whatever was there before to the right).
 -- If none such, returns length of vector.
-firstIndexMoreThanGTE :: Comparison a -> V.Vector a -> a -> Int
-firstIndexMoreThanGTE comp v a = runST $ do
+lastIndexJustGTE :: Comparison a -> V.Vector a -> a -> Int
+lastIndexJustGTE comp v a = runST $ do
   v' <- V.thaw v
   return =<< binarySearchRBy comp v' a
