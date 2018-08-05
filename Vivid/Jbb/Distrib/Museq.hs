@@ -42,4 +42,4 @@ searchTest :: V.Vector (Int,Int) -> (Int,Int) -> Int
 searchTest v (a,b) = runST $ do
   v' <- V.thaw v
   let compare' ve ve' = compare (fst ve) (fst ve')
-  return =<< binarySearchLBy compare v' (a,b)
+  return =<< binarySearchLBy compare' v' (a,b)
