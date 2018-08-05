@@ -4,8 +4,8 @@ import Control.Lens ((^.),(.~),(%~))
 import Control.Monad.ST
 import qualified Data.Vector as V
 import Data.Vector.Algorithms.Intro (sortBy)
-import Data.Vector.Mutable
-import Data.Vector.Algorithms.Search (binarySearchLBy, Comparison)
+import Data.Vector.Algorithms.Search
+  (binarySearchLBy, binarySearchRBy, Comparison)
 
 import Vivid
 import Vivid.Jbb.Distrib.Types
@@ -37,22 +37,31 @@ nextPhase0 time0 period now =
 -- | PITFALL ? if lastPhase0 or nextPhase0 was called precisely at phase0,
 -- both would yield the same result. Since time is measured in microseconds
 -- there is exactly a one in a million chance of that.
-lastPhase0 :: RealFrac a => a -> a -> a -> a
-lastPhase0 time0 period now =
+prevPhase0 :: RealFrac a => a -> a -> a -> a
+prevPhase0 time0 period now =
   fromIntegral (floor $ (now - time0) / period ) * period + time0
 
 -- | >>> work in progress
 
 --findNextEvents :: Time -> Duration -> Time -> RelDuration
---  -> Museq -> (Duration, [Action])
+--               -> Museq -> (Duration, [Action])
 --findNextEvents time0 globalPeriod now museqPeriod museq =
---  let np0 = nextPhase0 time0 (period * museqPeriod) now
+--  let pp0 = lastPhase0 time0 (period * museqPeriod) now
 
--- | Finds the first element of `v` which is >= to `a`.
+
+-- | Finds the first (0-indexed) element of `v` which is >= to `a`.
+-- If none such, returns length of vector.
 -- When comparing Museq elements, a good comparison function is
 -- to consider the Time and ignore the Action:
 -- compare' ve ve' = compare (fst ve) (fst ve')
-firstIndexGTE :: Comparison a -> a -> V.Vector a -> Int
-firstIndexGTE comp a v = runST $ do
+firstIndexGTE :: Comparison a -> V.Vector a -> a -> Int
+firstIndexGTE comp v a = runST $ do
   v' <- V.thaw v
   return =<< binarySearchLBy comp v' a
+
+-- | Finds the first (0-indexed) element of `v` which is > to `a`.
+-- If none such, returns length of vector.
+lastIndexGTE :: Comparison a -> V.Vector a -> a -> Int
+lastIndexGTE comp v a = runST $ do
+  v' <- V.thaw v
+  return =<< binarySearchRBy comp v' a
