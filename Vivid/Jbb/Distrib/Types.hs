@@ -12,7 +12,7 @@ import Control.Concurrent.MVar
 import Control.Lens (makeLenses)
 import Data.Map as M
 import Data.Ratio
-import Data.Vector
+import Data.Vector as V
 
 import Vivid
 import Vivid.Jbb.Synths
@@ -55,6 +55,9 @@ data Museq = Museq { _dur :: RelDuration
 
 makeLenses ''Museq
 
+emptyMuseq :: Museq
+emptyMuseq = Museq { _dur = 1, _vec = V.empty }
+
 
 -- | The global state
 
@@ -81,7 +84,7 @@ data Distrib = Distrib {
   , mPeriod :: MVar Duration
   }
 
--- | `new` because it's not really empty, except for time0
+-- | "new" because it's not really empty, except for `time0`
 newDistrib :: IO Distrib
 newDistrib = do
   mMuseqs <- newMVar M.empty
