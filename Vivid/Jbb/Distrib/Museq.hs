@@ -5,7 +5,7 @@ import Control.Monad.ST
 import qualified Data.Vector as V
 import Data.Vector.Algorithms.Intro (sortBy)
 import Data.Vector.Mutable
-import Data.Vector.Algorithms.Search (binarySearchP)
+import Data.Vector.Algorithms.Search (binarySearchLBy)
 
 import Vivid
 import Vivid.Jbb.Distrib.Types
@@ -32,6 +32,14 @@ nextPhase0 :: RealFrac a => a -> a -> a -> a
 nextPhase0 time0 period now =
   fromIntegral (ceiling $ (now - time0) / period ) * period + time0
 
+-- | >>> work in progress
+
 --findNextEvents :: Time -> Duration -> Time -> Museq -> (Duration, [Action])
 --findNextEvents time0 period now museq =
 --  let np0 = nextPhase0 time0 period now
+
+searchTest :: V.Vector (Int,Int) -> (Int,Int) -> Int
+searchTest v (a,b) = runST $ do
+  v' <- V.thaw v
+  let compare' ve ve' = compare (fst ve) (fst ve')
+  return =<< binarySearchLBy compare v' (a,b)
