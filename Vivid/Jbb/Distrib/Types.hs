@@ -81,6 +81,16 @@ data Distrib = Distrib {
   , mPeriod :: MVar Duration
   }
 
+-- | `new` because it's not really empty, except for time0
+newDistrib :: IO Distrib
+newDistrib = do
+  mMuseqs <- newMVar M.empty
+  reg <- emptySynthRegister
+  mTime0 <- newEmptyMVar
+  mPeriod <- newMVar 1
+  return Distrib { mMuseqs = mMuseqs,  reg     = reg
+                 , mTime0  = mTime0 ,  mPeriod = mPeriod }
+
 
 -- | == The GADTs. Hopefully quarantined away from the live coding.
 
