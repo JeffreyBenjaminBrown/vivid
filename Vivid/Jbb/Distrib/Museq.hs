@@ -26,3 +26,12 @@ museqIsValid mu = a && b && c && d where
       else fst (V.last $ _vec mu) < _dur mu
   c = mu == sortMuseq mu
   d = _dur mu > 0
+
+-- | time0 is the first time that had phase 0
+nextPhase0 :: RealFrac a => a -> a -> a -> a
+nextPhase0 time0 period now =
+  fromIntegral (ceiling $ (now - time0) / period ) * period + time0
+
+--findNextEvents :: Time -> Duration -> Time -> Museq -> (Duration, [Action])
+--findNextEvents time0 period now museq =
+--  let np0 = nextPhase0 time0 period now
