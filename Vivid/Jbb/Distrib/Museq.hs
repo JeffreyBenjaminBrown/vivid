@@ -5,7 +5,7 @@ import Control.Monad.ST
 import qualified Data.Vector as V
 import Data.Vector.Algorithms.Intro (sortBy)
 import Data.Vector.Mutable
-import Data.Vector.Algorithms.Search (binarySearchLBy)
+import Data.Vector.Algorithms.Search (binarySearchLBy, Comparison)
 
 import Vivid
 import Vivid.Jbb.Distrib.Types
@@ -45,8 +45,11 @@ lastPhase0 time0 period now =
 --findNextEvents time0 period now museq =
 --  let np0 = nextPhase0 time0 period now
 
-searchTest :: V.Vector (Int,Int) -> (Int,Int) -> Int
-searchTest v (a,b) = runST $ do
+-- | Finds the first element of `v` which is >= to `a`.
+-- When comparing Museq elements, a good comparison function is
+-- to consider the Time and ignore the Action:
+-- compare' ve ve' = compare (fst ve) (fst ve')
+firstIndexGTE :: Comparison a -> a -> V.Vector a -> Int
+firstIndexGTE comp a v = runST $ do
   v' <- V.thaw v
-  let compare' ve ve' = compare (fst ve) (fst ve')
-  return =<< binarySearchLBy compare' v' (a,b)
+  return =<< binarySearchLBy comp v' a
