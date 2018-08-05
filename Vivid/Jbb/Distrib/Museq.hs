@@ -3,13 +3,12 @@ module Vivid.Jbb.Distrib.Museq where
 import Control.Lens ((^.),(.~),(%~))
 import Control.Monad.ST
 import qualified Data.Vector as V
-import Data.Vector ((!))
+import           Data.Vector ((!))
 import Data.Vector.Algorithms.Intro (sortBy)
-import Data.Vector.Algorithms.Search
-  (binarySearchLBy, binarySearchRBy, Comparison)
 
 import Vivid
 import Vivid.Jbb.Distrib.Types
+import Vivid.Jbb.Distrib.Util
 import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 
 
@@ -28,18 +27,6 @@ museqIsValid mu = b && c && d where
       else fst (V.last $ _vec mu) < 1
   c = mu == sortMuseq mu
   d = _dur mu > 0
-
--- | time0 is the first time that had phase 0
-nextPhase0 :: RealFrac a => a -> a -> a -> a
-nextPhase0 time0 period now =
-  fromIntegral (ceiling $ (now - time0) / period ) * period + time0
-
--- | PITFALL ? if lastPhase0 or nextPhase0 was called precisely at phase0,
--- both would yield the same result. Since time is measured in microseconds
--- there is exactly a one in a million chance of that.
-prevPhase0 :: RealFrac a => a -> a -> a -> a
-prevPhase0 time0 period now =
-  fromIntegral (floor $ (now - time0) / period ) * period + time0
 
 -- TODO ? This could be made a little faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid repeating the work done by
@@ -67,24 +54,3 @@ findNextEvents time0 globalPeriod now museq =
       timeUntilNextEvent = relTimeOfNextEvent * period + pp0 - now
   in ( timeUntilNextEvent
      , map snd $ V.toList $ V.slice start (end - start) $ _vec museq)
-
--- | = Functions to find a range of items of interest in a sorted vector.
--- When comparing Museq elements, a good comparison function is
--- to consider the Time and ignore the Action:
--- compare' ve ve' = compare (fst ve) (fst ve')
-
--- | 0-indexed. Returns the first index you could insert `a` and preserve
--- sortedness (shoving whatever was there before to the right).
--- If none such, returns length of vector.
-firstIndexGTE :: Comparison a -> V.Vector a -> a -> Int
-firstIndexGTE comp v a = runST $ do
-  v' <- V.thaw v
-  return =<< binarySearchLBy comp v' a
-
--- | 0-indexed. Returns the last index you could insert `a` and preserve
--- sortedness (shoving whatever was there before to the right).
--- If none such, returns length of vector.
-lastIndexJustGTE :: Comparison a -> V.Vector a -> a -> Int
-lastIndexJustGTE comp v a = runST $ do
-  v' <- V.thaw v
-  return =<< binarySearchRBy comp v' a

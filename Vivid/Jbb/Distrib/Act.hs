@@ -4,7 +4,7 @@
            , GADTs #-}
 
 module Vivid.Jbb.Distrib.Act (
-  act'
+  act, act'
   ) where
 
 import Data.Map as M
