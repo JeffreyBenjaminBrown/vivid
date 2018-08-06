@@ -31,6 +31,7 @@ museqIsValid mu = b && c && d where
 -- TODO ? This could be made a little faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid searching the first part
 -- of the vector again.
+-- | Returns a list of actions and the time remaining until they start.
 findNextEvents :: Time -> Duration -> Time
                -> Museq -> (Duration, [Action])
 findNextEvents time0 globalPeriod now museq =

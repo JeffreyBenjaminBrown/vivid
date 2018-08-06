@@ -76,23 +76,23 @@ emptySynthRegister = do x <- newMVar M.empty
                         return $ SynthRegister x y z -- w
 
 data Distrib = Distrib {
-  mMuseqs :: MVar (M.Map String (Time, Museq))
+  mTimeMuseqs :: MVar (M.Map String (Time, Museq))
     -- ^ Each `Time` here is the next time that Museq is scheduled to run.
     -- Rarely, briefly, those `Time` values will be in the past.
   , reg :: SynthRegister
   , mTime0 :: MVar Time
-  , mPeriod :: MVar Duration
+  , mPeriod :: MVar Duration -- ^ Period is the inverse of tempo.
   }
 
 -- | "new" because it's not really empty, except for `time0`
 newDistrib :: IO Distrib
 newDistrib = do
-  mMuseqs <- newMVar M.empty
+  mTimeMuseqs <- newMVar M.empty
   reg <- emptySynthRegister
   mTime0 <- newEmptyMVar
   mPeriod <- newMVar 1
-  return Distrib { mMuseqs = mMuseqs,  reg     = reg
-                 , mTime0  = mTime0 ,  mPeriod = mPeriod }
+  return Distrib { mTimeMuseqs = mTimeMuseqs,  reg     = reg
+                 , mTime0  = mTime0         ,  mPeriod = mPeriod }
 
 
 -- | == The GADTs. Hopefully quarantined away from the live coding.

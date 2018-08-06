@@ -40,7 +40,7 @@ testFindNextEvents = TestCase $ do
 testAllWaiting = TestCase $ do
   now <- unTimestamp <$> getTime
   dist <- newDistrib
-  let mm = mMuseqs dist
+  let mm = mTimeMuseqs dist
   swapMVar mm $ M.fromList [("a",(now+1,emptyMuseq))
                            ,("b",(now+1,emptyMuseq))]
   assertBool "all waiting" =<< allWaiting dist
