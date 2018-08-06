@@ -5,8 +5,7 @@
 ** keep a global Museq, and change tempo when it's waiting
 ** deal with it later
 * features to add, in cumulative order
-** keep, run a loop
-*** then multiple loops of varying durations
+** run multiple loops of varying durations
 ** make functions for manipulating loops
 *** spend a long time on this
 ** parse a DSL for it
@@ -22,12 +21,4 @@
 *** automatically, rather than requiring the user to say which go where.
 * constraints
 ** want to change tempo
-** want to start without delay
 ** user might redefine loop halfway through
-** loops will have different lengths
-** dubious ? the user sees many Museqs, but the loop keeps one master Museq
-*** in favor: harmony
-**** this might make it easier to write across-Museq harmony functions
-*** against: cpu-costly
-**** I would be culling through more notes (e.g. drums) than needed
-**** Polyrhythms could make the global Museq way longer than its components

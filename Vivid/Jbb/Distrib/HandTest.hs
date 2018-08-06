@@ -19,13 +19,6 @@ msq s n = Museq { _dur = 1,
                                 , (s+n, Send Boop "marge" ("amp",0.2))
                                 , (0.99, Free Boop "marge")] }
 
--- | This works, as long as the tempo is slow enough.
-msq' = Museq { _dur = 2,
-               _vec = V.fromList [ (0.25, New Boop "marge")
-                                 , (0.5, Send Boop "marge" ("freq",444))
-                                 , (0.5, Send Boop "marge" ("amp",0.2))
-                                 , (0.75, Free Boop "marge")] }
-
 actIsWorking = do
   dist <- newDistrib
   act (reg dist) $ New Boop "fred"
@@ -39,7 +32,7 @@ actIsWorking = do
   act (reg dist) $ Free Boop "fred"
 
 -- | Call it, and then end it, like this:
--- tid <- loopTest msq -- or msq'
+-- tid <- loopTest msq 0 0.2 -- or some such parameters
 -- killThread tid
 loopTest msq = do
   dist <- newDistrib
