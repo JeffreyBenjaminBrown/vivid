@@ -1,4 +1,4 @@
-module Vivid.Jbb.Distrib.Test (tests) where
+module Vivid.Jbb.Distrib.Test (tests, handTest) where
 
 import           Control.Concurrent.MVar
 import qualified Data.Map as M

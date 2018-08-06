@@ -54,6 +54,7 @@ library
     Vivid.Jbb
     , Vivid.Jbb.Distrib.Act
     , Vivid.Jbb.Distrib.Distrib
+    , Vivid.Jbb.Distrib.HandTest
     , Vivid.Jbb.Distrib.Loop
     , Vivid.Jbb.Distrib.Msg
     , Vivid.Jbb.Distrib.Museq

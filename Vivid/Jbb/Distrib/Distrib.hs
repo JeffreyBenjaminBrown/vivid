@@ -27,7 +27,7 @@ allWaiting dist = do
   now <- unTimestamp <$> getTime
   return $ and $ map (> now) times
 
---chPeriod :: Distrib -> IO ()
+--chPeriod :: Distrib -> IO () -- TODO
 --chPeriod = do
 --  waitingUntil <- readMVar mWaitingUntil
 --  now <- unTimestamp <$> getTime
