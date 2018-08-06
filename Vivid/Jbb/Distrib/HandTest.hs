@@ -1,4 +1,6 @@
-eimport           Control.Concurrent.MVar
+module Vivid.Jbb.Distrib.HandTest where
+
+import           Control.Concurrent.MVar
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
