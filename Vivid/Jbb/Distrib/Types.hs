@@ -12,7 +12,7 @@ import Control.Concurrent.MVar
 import Control.Lens (makeLenses)
 import Data.Map as M
 import Data.Ratio
-import Data.Vector as V
+import qualified Data.Vector as V
 
 import Vivid
 import Vivid.Jbb.Synths
@@ -50,7 +50,7 @@ data Action = New  SynthDefEnum SynthString
   deriving (Show,Eq,Ord)
 
 data Museq = Museq { _dur :: RelDuration
-                   , _vec :: Vector (RTime, Action) }
+                   , _vec :: V.Vector (RTime, Action) }
   deriving (Show,Eq)
 
 makeLenses ''Museq
@@ -74,6 +74,13 @@ emptySynthRegister = do x <- newMVar M.empty
                         z <- newMVar M.empty
 --                        w <- newMVar M.empty
                         return $ SynthRegister x y z -- w
+
+-- | todo : this blocks if any MVar is empty
+showSynthRegister :: SynthRegister -> IO String
+showSynthRegister reg = do bs <- show <$> (readMVar $ boops reg)
+                           vs <- show <$> (readMVar $ vaps reg )
+                           ss <- show <$> (readMVar $ sqfms reg)
+                           return $ bs ++ "\n" ++ vs ++ "\n" ++ ss
 
 data Distrib = Distrib {
   mTimeMuseqs :: MVar (M.Map String (Time, Museq))

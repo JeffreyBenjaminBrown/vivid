@@ -11,6 +11,15 @@ import Vivid.Jbb.Distrib.Museq
 import Vivid.Jbb.Distrib.Types
 
 
+-- | todo : this blocks if any MVar is empty
+showDist :: Distrib -> IO String
+showDist dist = do timeMuseqs <- readMVar $ mTimeMuseqs dist
+                   reg' <- showSynthRegister $ reg dist
+                   time0 <- readMVar $ mTime0 dist
+                   period <- readMVar $ mPeriod dist
+                   return $ show timeMuseqs ++ "\n" ++ show reg' ++ "\n"
+                     ++ show (time0, period)
+
 allWaiting :: Distrib -> IO (Bool)
 allWaiting dist = do
   timeMuseqs <- readMVar $ mTimeMuseqs dist
