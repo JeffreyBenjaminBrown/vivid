@@ -16,9 +16,14 @@ import Vivid.Jbb.Distrib.Types
 -- a sequence like this doesn't work if `n` is small enough.
 msq s n = Museq { _dur = 1,
               _vec = V.fromList [ (s, New Boop "marge")
-                                , (s+n, Send Boop "marge" ("freq",444))
+                                , (s+n, Send Boop "marge" ("freq",333))
                                 , (s+n, Send Boop "marge" ("amp",0.2))
                                 , (0.99, Free Boop "marge")] }
+
+msq' on off = Museq { _dur = 1,
+                   _vec = V.fromList [ (on, Send Boop "marge" ("freq",333))
+                                     , (on, Send Boop "marge" ("amp",0.2))
+                                     , (off, Send Boop "marge" ("amp",0)) ] }
 
 actIsWorking = do
   dist <- newDistrib
@@ -39,20 +44,35 @@ oneLoop msq = do
   swapMVar (mTimeMuseqs dist) $ M.fromList [("1",(0,msq))]
   startDistribLoop dist
 
--- tid <- twoLoops
+m1 = Museq {_dur = 1, _vec = V.fromList
+             [ (0,   Send Boop "1" ("freq",400) )
+             , (0,   Send Boop "1" ("amp",0.1)  )
+             , (0.5, Send Boop "1" ("amp",0)    ) ] }
+m2 = Museq {_dur = 2, _vec = V.fromList
+             [ (0,   Send Boop "2" ("amp",0)    )
+             , (0.5, Send Boop "2" ("freq",500) )
+             , (0.5, Send Boop "2" ("amp",0.1)  ) ] }
+-- TODO BUG : m2' should be silent sometimes
+m2' = Museq {_dur = 2, _vec = V.fromList
+             [ (0.25,   Send Boop "2" ("amp",0)    )
+             , (0.5, Send Boop "2" ("freq",550) )
+             , (0.5, Send Boop "2" ("amp",0.1)  )
+             , (0.75, Send Boop "2" ("freq",650) )
+             , (0.75, Send Boop "2" ("amp",0.1)  ) ] }
+m3 = Museq {_dur = 2, _vec = V.fromList
+             [ (0,   Send Boop "3" ("amp",0)    )
+             , (0.5, Send Boop "3" ("freq",650) )
+             , (0.5, Send Boop "3" ("amp",0.1)  ) ] }
+
+-- (tid, dist) <- twoLoops
+-- m <- readMVar $ mTimeMuseqs dist
+-- swapMVar (mTimeMuseqs dist) $ M.insert "2" (0,m2') m
 -- killThread tid
-twoLoops :: IO ThreadId
+twoLoops :: IO (ThreadId, Distrib)
 twoLoops = do
   dist <- newDistrib
-  let m1 = Museq {_dur = 1, _vec = V.fromList
-                                   [ (0,   Send Boop "1" ("freq",444) )
-                                   , (0,   Send Boop "1" ("amp",0.1)  )
-                                   , (0.5, Send Boop "1" ("amp",0)    ) ] }
-      m2 = Museq {_dur = 2, _vec = V.fromList
-                                   [ (0,   Send Boop "2" ("amp",0)    )
-                                   , (0.5, Send Boop "2" ("freq",555) )
-                                   , (0.5, Send Boop "2" ("amp",0.1)  ) ] }
   swapMVar (mTimeMuseqs dist) $ M.fromList [ ("1",(0,m1))
                                            , ("2",(0,m2)) ]
-  mapM_ (act $ reg dist) $ concatMap newsFromMuseq [m1,m2]
-  startDistribLoop dist
+  mapM_ (act $ reg dist) $ concatMap newsFromMuseq [m1,m2,m2',m3,msq' 0 0.5]
+  tid <- startDistribLoop dist
+  return $ (tid, dist)
