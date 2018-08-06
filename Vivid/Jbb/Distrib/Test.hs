@@ -29,13 +29,17 @@ testMuseqIsValid = TestCase $ do
     $ Museq { _dur = 1, _vec = V.fromList [(1.5, New Boop "marge")]}
 
 testFindNextEvents = TestCase $ do
-  let bp s = New Boop s
-      events = [(0,bp "a"),(0.25,bp"b"),(0.5,bp"c"),(0.5,bp"d"),(0.75,bp"e")]
-  assertBool "testFindNextEvents" $
+  let bp f = New Boop $ show f
+      events = [(0,bp 1),(0.25,bp 2),(0.5,bp 3),(0.5,bp 4),(0.75,bp 5)]
+  assertBool "testFindNextEvents, midway" $
     (findNextEvents 1 10 29 $ Museq 2 $ V.fromList events)
       -- findNextEvents time0 globalPeriod now museq
     == (2, Prelude.map snd $ V.toList $ V.slice 2 2 $ V.fromList events)
       -- last phase 0 was at 21s, so now (29) is 2s before halfway through
+  assertBool "testFindNextEvents, end (wraparound)" $
+    (findNextEvents 1 10 39.5 $ Museq 2 $ V.fromList events)
+    == (1.5, Prelude.map snd $ V.toList $ V.slice 0 1 $ V.fromList events)
+
 
 testAllWaiting = TestCase $ do
   now <- unTimestamp <$> getTime

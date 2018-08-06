@@ -53,7 +53,7 @@ distribLoop dist = do
   -- putStrLn =<< showDist dist
 
   -- find what comes next in each Museq
-  let nextPlus :: M.Map String (Duration, [Action])
+  let nextPlus :: M.Map MuseqString (Duration, [Action])
         -- some of these are immediately next, but maybe not all
       nextPlus = M.map (findNextEvents time0 period now . snd) timeMuseqs
 

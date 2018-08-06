@@ -20,8 +20,11 @@ import Vivid.Jbb.Synths
 
 -- | == The easy types
 
+-- | = Kinds of name
+
 type SynthString = String
 type ParamString = String
+type MuseqString = String
 
 
 -- | = Kinds of time
@@ -83,7 +86,7 @@ showSynthRegister reg = do bs <- show <$> (readMVar $ boops reg)
                            return $ bs ++ "\n" ++ vs ++ "\n" ++ ss
 
 data Distrib = Distrib {
-  mTimeMuseqs :: MVar (M.Map String (Time, Museq))
+  mTimeMuseqs :: MVar (M.Map MuseqString (Time, Museq))
     -- ^ Each `Time` here is the next time that Museq is scheduled to run.
     -- Rarely, briefly, those `Time` values will be in the past.
   , reg :: SynthRegister

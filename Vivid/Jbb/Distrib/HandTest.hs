@@ -13,7 +13,6 @@ import Vivid.Jbb.Distrib.Types
 
 -- | Since a SynthDef takes time to be instantiated,
 -- a sequence like this doesn't work if `n` is small enough.
--- TODO, BUG : This won't work unless the start time `s` is >= .005-ish
 msq s n = Museq { _dur = 1,
               _vec = V.fromList [ (s, New Boop "marge")
                                 , (s+n, Send Boop "marge" ("freq",444))
