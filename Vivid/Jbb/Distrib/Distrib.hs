@@ -17,10 +17,10 @@ showDist dist = do timeMuseqs <- readMVar $ mTimeMuseqs dist
                    reg' <- showSynthRegister $ reg dist
                    time0 <- readMVar $ mTime0 dist
                    period <- readMVar $ mPeriod dist
-                   return $ "(Time,Museq)s: " ++ show timeMuseqs ++ "\n"
-                     ++ "SynthRegister: " ++ show reg' ++ "\n"
-                     ++ "Time 0: " ++ show time0
-                     ++ "Period: " ++ show period
+                   return $ "(Time,Museq)s: " ++ show timeMuseqs
+                     ++ "\nSynthRegister: " ++ show reg'
+                     ++ "\nTime 0: " ++ show time0
+                     ++ "\nPeriod: " ++ show period
 
 allWaiting :: Distrib -> IO (Bool)
 allWaiting dist = do
@@ -43,14 +43,13 @@ startDistribLoop dist = do
 
 distribLoop :: Distrib -> IO ()
 distribLoop dist = do
-  putStrLn =<< showDist dist
   time0  <- readMVar $ mTime0  dist
   period <- readMVar $ mPeriod dist
   timeMuseqs <- readMVar $ mTimeMuseqs dist
   now <- unTimestamp <$> getTime -- get time ALAP
 
   -- TODO ? delete
-  putStrLn $ "\n" ++ show now
+  putStrLn $ "\n" ++ show (now - time0)
   putStrLn =<< showDist dist
 
   -- find what comes next in each Museq
@@ -60,7 +59,8 @@ distribLoop dist = do
 
   -- record (ASAP) in each Museq the time until its next Action(s)
   swapMVar (mTimeMuseqs dist) $ M.mapWithKey
-    (\name (_,vec) -> (fst $ (M.!) nextPlus name, vec))
+    (\name (_,vec) -> (now + fst ((M.!) nextPlus name)
+                      , vec))
     timeMuseqs
 
   -- TODO : if the sequence is empty, this errs
