@@ -1,5 +1,7 @@
-* problems with Loop.hs
-** collect MVars
+* problems with Distrb.hs
+** I can't tell if act, act' are working
+*** on the one hand, HandTest.actIsWorking indicates it works
+*** on the other, see errors.txt after running HandTest.loopTest
 ** changing tempo: options
 *** *change tempo only when all Museqs are waiting
 **** if any of them is not, wait for a random time in 5-10 ms, then retry
