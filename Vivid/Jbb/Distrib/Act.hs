@@ -40,8 +40,6 @@ toAction' reg (Send Sqfm synth msg) = Send' (sqfms reg) synth (sqfmMsg msg)
 -- | How to act' on an Action'
 
 act' :: Action' -> IO ()
-  -- todo ? make this a VividAction rather than an IO
-    -- problem: you can't read an MVar from a VividAction
 act' (New' mSynthMap synthDef name) = do
   synthMap <- readMVar mSynthMap
   synthMap' <- newAction' synthDef name synthMap

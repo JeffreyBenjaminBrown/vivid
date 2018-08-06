@@ -11,11 +11,21 @@ import Vivid.Jbb.Distrib.Distrib
 import Vivid.Jbb.Distrib.Types
 
 
-msq = Museq {_dur = 2,
-              _vec = V.fromList [(0, New Boop "marge")
-                                ,(0.1, Send Boop "marge" ("freq",444))
-                                ,(0.1, Send Boop "marge" ("amp",0.2))
-                                ,(0.5, Free Boop "marge")] }
+-- | Since a SynthDef takes time to be instantiated,
+-- a sequence like this doesn't work if `n` is small enough.
+-- TODO, BUG : This won't work unless the start time `s` is >= .005-ish
+msq s n = Museq { _dur = 1,
+              _vec = V.fromList [ (s, New Boop "marge")
+                                , (s+n, Send Boop "marge" ("freq",444))
+                                , (s+n, Send Boop "marge" ("amp",0.2))
+                                , (0.99, Free Boop "marge")] }
+
+-- | This works, as long as the tempo is slow enough.
+msq' = Museq { _dur = 2,
+               _vec = V.fromList [ (0.25, New Boop "marge")
+                                 , (0.5, Send Boop "marge" ("freq",444))
+                                 , (0.5, Send Boop "marge" ("amp",0.2))
+                                 , (0.75, Free Boop "marge")] }
 
 actIsWorking = do
   dist <- newDistrib
@@ -30,9 +40,9 @@ actIsWorking = do
   act (reg dist) $ Free Boop "fred"
 
 -- | Call it, and then end it, like this:
--- tid <- loopTest
+-- tid <- loopTest msq -- or msq'
 -- killThread tid
-loopTest = do
+loopTest msq = do
   dist <- newDistrib
-  swapMVar (mTimeMuseqs dist) $ M.fromList [("1",(0::Time, msq))]
+  swapMVar (mTimeMuseqs dist) $ M.fromList [("1",(0,msq))]
   startDistribLoop dist

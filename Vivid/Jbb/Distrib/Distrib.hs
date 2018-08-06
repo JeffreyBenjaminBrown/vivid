@@ -48,9 +48,9 @@ distribLoop dist = do
   timeMuseqs <- readMVar $ mTimeMuseqs dist
   now <- unTimestamp <$> getTime -- get time ALAP
 
-  -- TODO ? delete
-  putStrLn $ "\n" ++ show (now - time0)
-  putStrLn =<< showDist dist
+  -- -- for debugging
+  -- putStrLn $ "\n" ++ show (now - time0)
+  -- putStrLn =<< showDist dist
 
   -- find what comes next in each Museq
   let nextPlus :: M.Map String (Duration, [Action])

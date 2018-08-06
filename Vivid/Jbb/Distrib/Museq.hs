@@ -28,7 +28,7 @@ museqIsValid mu = b && c && d where
   c = mu == sortMuseq mu
   d = _dur mu > 0
 
--- TODO ? This could be made a little faster by using binarySearchRByBounds
+-- todo ? This could be made a little faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid searching the first part
 -- of the vector again.
 -- | Returns a list of actions and the time remaining until they start.

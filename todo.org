@@ -1,13 +1,9 @@
-* problems with Distrb.hs
-** I can't tell if act, act' are working
-*** on the one hand, HandTest.actIsWorking indicates it works
-*** on the other, see errors.txt after running HandTest.loopTest
-** changing tempo: options
-*** *change tempo only when all Museqs are waiting
-**** if any of them is not, wait for a random time in 5-10 ms, then retry
-*** keep a global rendering frame rate
-*** keep a global Museq, and change tempo when it's waiting
-*** deal with it later
+* changing tempo: options
+** *change tempo only when all Museqs are waiting
+*** if any of them is not, wait for a random time in 5-10 ms, then retry
+** keep a global rendering frame rate
+** keep a global Museq, and change tempo when it's waiting
+** deal with it later
 * features to add, in cumulative order
 ** keep, run a loop
 *** then multiple loops of varying durations
