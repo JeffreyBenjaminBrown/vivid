@@ -7,8 +7,9 @@ module Vivid.Jbb.Distrib.Act (
   act, act'
   ) where
 
-import Data.Map as M
 import Control.Concurrent.MVar
+import qualified Data.Map as M
+import qualified Data.Vector as V
 
 import Vivid
 import Vivid.Jbb.Distrib.Types
@@ -16,9 +17,17 @@ import Vivid.Jbb.Distrib.Msg
 import Vivid.Jbb.Synths
 
 
----- | Scrape the names from an Action
---actionNames :: [Action] -> [SynthString]
---actionNames = 
+-- | = Given a Museq (hopefully without Sends or News),
+-- create or destroy all the synths it uses
+
+newsFromMuseq :: Museq -> [Action]
+newsFromMuseq = map f . V.toList . _vec where
+  f = (\(sd,name) -> New sd name) . actionSynthInfo . snd
+
+freesFromMuseq :: Museq -> [Action]
+freesFromMuseq = map f . V.toList . _vec where
+  f = (\(sd,name) -> Free sd name) . actionSynthInfo . snd
+
 
 -- | How to act on an Action:
 -- Turn it into an Action', then act' on it.

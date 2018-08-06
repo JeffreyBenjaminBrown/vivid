@@ -52,6 +52,11 @@ data Action = New  SynthDefEnum SynthString
             | Send SynthDefEnum SynthString Msg
   deriving (Show,Eq,Ord)
 
+actionSynthInfo :: Action -> (SynthDefEnum, SynthString)
+actionSynthInfo (New  s n  ) = (s,n)
+actionSynthInfo (Free s n  ) = (s,n)
+actionSynthInfo (Send s n _) = (s,n)
+
 data Museq = Museq { _dur :: RelDuration
                    , _vec :: V.Vector (RTime, Action) }
   deriving (Show,Eq)
