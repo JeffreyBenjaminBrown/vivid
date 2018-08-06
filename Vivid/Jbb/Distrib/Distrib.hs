@@ -34,20 +34,24 @@ allWaiting dist = do
 --  waitingUntil <- readMVar mWaitingUntil
 --  now <- unTimestamp <$> getTime
 
--- startDistribLoop :: Distrib -> IO ThreadId
+startDistribLoop :: Distrib -> IO ThreadId
 startDistribLoop dist = do
   tryTakeMVar $ mTime0 dist -- empty it, just in case
   (+(-0.05)) . unTimestamp <$> getTime >>= putMVar (mTime0 dist)
     -- subtract .1 so music starts in .05 seconds, not frameDur seconds
-  putStrLn =<< showDist dist
-  --forkIO $ distribLoop dist
+  forkIO $ distribLoop dist
 
 distribLoop :: Distrib -> IO ()
 distribLoop dist = do
+  putStrLn =<< showDist dist
   time0  <- readMVar $ mTime0  dist
   period <- readMVar $ mPeriod dist
   timeMuseqs <- readMVar $ mTimeMuseqs dist
   now <- unTimestamp <$> getTime -- get time ALAP
+
+  -- TODO ? delete
+  putStrLn $ "\n" ++ show now
+  putStrLn =<< showDist dist
 
   -- find what comes next in each Museq
   let nextPlus :: M.Map String (Duration, [Action])
@@ -59,11 +63,13 @@ distribLoop dist = do
     (\name (_,vec) -> (fst $ (M.!) nextPlus name, vec))
     timeMuseqs
 
-  let nextTime = minimum $ M.elems $ M.map fst nextPlus
+  -- TODO : if the sequence is empty, this errs
+  let leastWait = minimum $ M.elems $ M.map fst nextPlus
       nextActions = concatMap snd
-                    $ filter ((== nextTime) . fst)
+                    $ filter ((== leastWait) . fst)
                     $ M.elems nextPlus
 
-  wait $ nextTime - now
+  wait leastWait
   mapM_ (act $ reg dist) nextActions
+
   distribLoop dist
