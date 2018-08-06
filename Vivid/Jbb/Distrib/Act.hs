@@ -62,7 +62,9 @@ newAction' :: SynthDef sdArgs
            -> IO (M.Map SynthString (Synth sdArgs))
 newAction' synthDef name synthMap =
   case M.lookup name $ synthMap of
-    Just _ -> do print $ "The name " ++ name ++ " is already in use."
+    Just _ -> do now <- getTime
+                 appendFile "errors.txt" $ show now
+                   ++ " The name " ++ name ++ " is already in use.\n"
                  return synthMap
     Nothing -> do s <- synth synthDef ()
                   return $ M.insert name s synthMap
@@ -72,7 +74,9 @@ freeAction' :: SynthString
             -> IO (M.Map SynthString (Synth sdArgs))
 freeAction' name synthMap =
   case M.lookup name $ synthMap of
-    Nothing -> do print $ "The name " ++ name ++ " is already unused."
+    Nothing -> do now <- getTime
+                  appendFile "errors.txt" $ show now
+                    ++ " The name " ++ name ++ " is already unused.\n"
                   return synthMap
     Just s -> do free s
                  return $ M.delete name synthMap
@@ -84,5 +88,7 @@ sendAction' :: forall m sdArgs.
             -> IO ()
 sendAction' name msg synthMap =
   case M.lookup name synthMap of
-    Nothing -> print $ "The name " ++ name ++ " is not in use."
+    Nothing -> do now <- getTime
+                  appendFile "errors.txt" $ show now
+                    ++ " The name " ++ name ++ " is not in use.\n"
     Just synth -> set' synth msg

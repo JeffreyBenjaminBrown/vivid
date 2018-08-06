@@ -17,8 +17,10 @@ showDist dist = do timeMuseqs <- readMVar $ mTimeMuseqs dist
                    reg' <- showSynthRegister $ reg dist
                    time0 <- readMVar $ mTime0 dist
                    period <- readMVar $ mPeriod dist
-                   return $ show timeMuseqs ++ "\n" ++ show reg' ++ "\n"
-                     ++ show (time0, period)
+                   return $ "(Time,Museq)s: " ++ show timeMuseqs ++ "\n"
+                     ++ "SynthRegister: " ++ show reg' ++ "\n"
+                     ++ "Time 0: " ++ show time0
+                     ++ "Period: " ++ show period
 
 allWaiting :: Distrib -> IO (Bool)
 allWaiting dist = do
@@ -32,12 +34,13 @@ allWaiting dist = do
 --  waitingUntil <- readMVar mWaitingUntil
 --  now <- unTimestamp <$> getTime
 
-startDistribLoop :: Distrib -> IO ThreadId
+-- startDistribLoop :: Distrib -> IO ThreadId
 startDistribLoop dist = do
   tryTakeMVar $ mTime0 dist -- empty it, just in case
   (+(-0.05)) . unTimestamp <$> getTime >>= putMVar (mTime0 dist)
     -- subtract .1 so music starts in .05 seconds, not frameDur seconds
-  forkIO $ distribLoop dist
+  putStrLn =<< showDist dist
+  --forkIO $ distribLoop dist
 
 distribLoop :: Distrib -> IO ()
 distribLoop dist = do
