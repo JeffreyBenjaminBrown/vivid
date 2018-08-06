@@ -4,7 +4,10 @@
            , GADTs #-}
 
 module Vivid.Jbb.Distrib.Act (
-  act, act'
+  newsFromMuseq
+  , freesFromMuseq
+  , act
+  , act'
   ) where
 
 import Control.Concurrent.MVar
@@ -18,7 +21,7 @@ import Vivid.Jbb.Synths
 
 
 -- | = Given a Museq (hopefully without Sends or News),
--- create or destroy all the synths it uses
+-- create or destroy the synths it uses.
 
 newsFromMuseq :: Museq -> [Action]
 newsFromMuseq = map f . V.toList . _vec where

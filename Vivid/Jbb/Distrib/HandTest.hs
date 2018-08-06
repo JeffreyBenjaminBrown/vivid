@@ -1,5 +1,6 @@
 module Vivid.Jbb.Distrib.HandTest where
 
+import           Control.Concurrent
 import           Control.Concurrent.MVar
 import qualified Data.Map as M
 import qualified Data.Vector as V
@@ -31,10 +32,27 @@ actIsWorking = do
   wait 1
   act (reg dist) $ Free Boop "fred"
 
--- | Call it, and then end it, like this:
--- tid <- loopTest $ msq 0 0.2 -- or some such parameters
+-- tid <- oneLoop $ msq 0 0.2 -- or some such parameters
 -- killThread tid
-loopTest msq = do
+oneLoop msq = do
   dist <- newDistrib
   swapMVar (mTimeMuseqs dist) $ M.fromList [("1",(0,msq))]
+  startDistribLoop dist
+
+-- tid <- twoLoops
+-- killThread tid
+twoLoops :: IO ThreadId
+twoLoops = do
+  dist <- newDistrib
+  let m1 = Museq {_dur = 1, _vec = V.fromList
+                                   [ (0,   Send Boop "1" ("freq",444) )
+                                   , (0,   Send Boop "1" ("amp",0.1)  )
+                                   , (0.5, Send Boop "1" ("amp",0)    ) ] }
+      m2 = Museq {_dur = 2, _vec = V.fromList
+                                   [ (0,   Send Boop "2" ("amp",0)    )
+                                   , (0.5, Send Boop "2" ("freq",555) )
+                                   , (0.5, Send Boop "2" ("amp",0.1)  ) ] }
+  swapMVar (mTimeMuseqs dist) $ M.fromList [ ("1",(0,m1))
+                                           , ("2",(0,m2)) ]
+  mapM_ (act $ reg dist) $ concatMap newsFromMuseq [m1,m2]
   startDistribLoop dist
