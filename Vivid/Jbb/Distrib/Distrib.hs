@@ -1,6 +1,7 @@
 module Vivid.Jbb.Distrib.Distrib where
 
 import Control.Concurrent.MVar
+import qualified Data.Map as M
 
 import Vivid
 import Vivid.Jbb.Distrib.Act
@@ -8,6 +9,12 @@ import Vivid.Jbb.Distrib.Msg
 import Vivid.Jbb.Distrib.Types
 
 
+allWaiting :: Distrib -> IO (Bool)
+allWaiting dist = do
+  museqs <- readMVar $ mMuseqs dist
+  let times = map fst $ M.elems $ museqs
+  now <- unTimestamp <$> getTime
+  return $ and $ map (> now) times
 
 
 ---- | Period is the inverse of tempo.

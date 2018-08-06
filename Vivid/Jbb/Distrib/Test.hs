@@ -1,8 +1,12 @@
 module Vivid.Jbb.Distrib.Test (tests) where
 
-import Data.Vector as V
+import           Control.Concurrent.MVar
+import qualified Data.Map as M
+import qualified Data.Vector as V
 
+import Vivid
 import Vivid.Jbb.Synths
+import Vivid.Jbb.Distrib.Distrib
 import Vivid.Jbb.Distrib.Types
 import Vivid.Jbb.Distrib.Museq
 import Test.HUnit
@@ -11,6 +15,7 @@ import Test.HUnit
 tests = runTestTT $ TestList
   [ TestLabel "museqIsValid" testMuseqIsValid
   , TestLabel "findNextEvents" testFindNextEvents
+  , TestLabel "testAllWaiting" testAllWaiting
   ]
 
 testMuseqIsValid = TestCase $ do
@@ -31,3 +36,14 @@ testFindNextEvents = TestCase $ do
       -- findNextEvents time0 globalPeriod now museq
     == (2, Prelude.map snd $ V.toList $ V.slice 2 2 $ V.fromList events)
       -- last phase 0 was at 21s, so now (29) is 2s before halfway through
+
+testAllWaiting = TestCase $ do
+  now <- unTimestamp <$> getTime
+  dist <- newDistrib
+  let mm = mMuseqs dist
+  swapMVar mm $ M.fromList [("a",(now+1,emptyMuseq))
+                           ,("b",(now+1,emptyMuseq))]
+  assertBool "all waiting" =<< allWaiting dist
+  swapMVar mm $ M.fromList [("a",(now-1,emptyMuseq))
+                           ,("b",(now+1,emptyMuseq))]
+  assertBool "one is not waiting" =<< not <$> allWaiting dist
