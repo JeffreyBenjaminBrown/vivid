@@ -56,33 +56,33 @@ act' (Send' mSynthMap name msg) = do
   synthMap <- readMVar mSynthMap
   sendAction' name msg synthMap
 
-newAction' :: VividAction m
-          => SynthDef sdArgs
-          -> SynthString
-          -> M.Map SynthString (Synth sdArgs)
-          -> m (M.Map SynthString (Synth sdArgs))
+newAction' :: SynthDef sdArgs
+           -> SynthString
+           -> M.Map SynthString (Synth sdArgs)
+           -> IO (M.Map SynthString (Synth sdArgs))
 newAction' synthDef name synthMap =
   case M.lookup name $ synthMap of
-    Just _ -> error $ "The name " ++ name ++ " is already in use."
+    Just _ -> do print $ "The name " ++ name ++ " is already in use."
+                 return synthMap
     Nothing -> do s <- synth synthDef ()
                   return $ M.insert name s synthMap
 
-freeAction' :: VividAction m
-           => SynthString
-           -> M.Map SynthString (Synth sdArgs)
-           -> m (M.Map SynthString (Synth sdArgs))
+freeAction' :: SynthString
+            -> M.Map SynthString (Synth sdArgs)
+            -> IO (M.Map SynthString (Synth sdArgs))
 freeAction' name synthMap =
   case M.lookup name $ synthMap of
-    Nothing -> error $ "The name " ++ name ++ " is already unused."
+    Nothing -> do print $ "The name " ++ name ++ " is already unused."
+                  return synthMap
     Just s -> do free s
                  return $ M.delete name synthMap
 
-sendAction' :: forall m sdArgs. VividAction m
-           => SynthString
-           -> Msg' sdArgs
-           -> M.Map SynthString (Synth sdArgs)
-           -> m ()
+sendAction' :: forall m sdArgs.
+               SynthString
+            -> Msg' sdArgs
+            -> M.Map SynthString (Synth sdArgs)
+            -> IO ()
 sendAction' name msg synthMap =
   case M.lookup name synthMap of
-    Nothing -> error $ "The name " ++ name ++ " is not in use."
+    Nothing -> print $ "The name " ++ name ++ " is not in use."
     Just synth -> set' synth msg
