@@ -1,5 +1,6 @@
 module Vivid.Jbb.Distrib.Distrib where
 
+import Control.Concurrent (forkIO, ThreadId)
 import Control.Concurrent.MVar
 import qualified Data.Map as M
 
@@ -22,40 +23,35 @@ allWaiting dist = do
 --  waitingUntil <- readMVar mWaitingUntil
 --  now <- unTimestamp <$> getTime
 
-startDistribLoop :: Distrib -> IO ()
+startDistribLoop :: Distrib -> IO ThreadId
 startDistribLoop dist = do
   tryTakeMVar $ mTime0 dist -- empty it, just in case
   (+(-0.05)) . unTimestamp <$> getTime >>= putMVar (mTime0 dist)
     -- subtract .1 so music starts in .05 seconds, not frameDur seconds
-  distribLoop dist
+  forkIO $ distribLoop dist
 
 distribLoop :: Distrib -> IO ()
 distribLoop dist = do
   time0  <- readMVar $ mTime0  dist
   period <- readMVar $ mPeriod dist
   timeMuseqs <- readMVar $ mTimeMuseqs dist
-  now <- unTimestamp <$> getTime
+  now <- unTimestamp <$> getTime -- get time ALAP
 
   -- find what comes next in each Museq
   let nextPlus :: M.Map String (Duration, [Action])
         -- some of these are immediately next, but maybe not all
       nextPlus = M.map (findNextEvents time0 period now . snd) timeMuseqs
 
----- >>>
-      -- record in each Museq the time until its next Action(s)
+  -- record (ASAP) in each Museq the time until its next Action(s)
+  swapMVar (mTimeMuseqs dist) $ M.mapWithKey
+    (\name (_,vec) -> (fst $ (M.!) nextPlus name, vec))
+    timeMuseqs
 
-      nextTime = minimum $ M.elems $ M.map fst nextPlus
+  let nextTime = minimum $ M.elems $ M.map fst nextPlus
+      nextActions = concatMap snd
+                    $ filter ((== nextTime) . fst)
+                    $ M.elems nextPlus
 
-  return ()
-
---        swapMVar mWaitingUntil $ now + timeToWait
---
---        -- | period (tempo) can only be changed while waiting
---        swapMVar mWaiting True
---        wait timeToWait
---        swapMVar mWaiting False
---
---        map (act reg) nextEvents
---        go
---
---  loopThread <- forkIO go
+  wait $ nextTime - now
+  mapM_ (act $ reg dist) nextActions
+  distribLoop dist
