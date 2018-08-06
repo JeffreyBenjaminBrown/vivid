@@ -16,6 +16,10 @@ import Vivid.Jbb.Distrib.Msg
 import Vivid.Jbb.Synths
 
 
+---- | Scrape the names from an Action
+--actionNames :: [Action] -> [SynthString]
+--actionNames = 
+
 -- | How to act on an Action:
 -- Turn it into an Action', then act' on it.
 

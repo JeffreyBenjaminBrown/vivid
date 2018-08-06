@@ -1,10 +1,19 @@
-module Vivid.Jbb.Distrib.Util where
+module Vivid.Jbb.Util where
 
 import Control.Monad.ST
 import qualified Data.Vector as V
 import Data.Vector.Algorithms.Search
   (binarySearchLBy, binarySearchRBy, Comparison)
 
+
+-- | There's a Hackage package for this surely that's faster, but
+-- it's not compatible with the stack snapshot I'm using.
+unique :: Eq a => [a] -> [a]
+unique [] = []
+unique (a:as) = a : (unique $ filter (not . (==) a) as)
+
+
+-- | = Functions for working with time
 
 -- | time0 is the first time that had phase 0
 nextPhase0 :: RealFrac a => a -> a -> a -> a

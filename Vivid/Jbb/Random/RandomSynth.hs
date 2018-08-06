@@ -8,6 +8,7 @@ import Vivid
 import Vivid.Jbb.Random.Types
 import Vivid.Jbb.Random.RandomSignal
 import Vivid.Jbb.Random.MentionsSig
+import Vivid.Jbb.Util (unique)
 
 
 randAbSynth :: RandConstraints -> IO AbSynth
@@ -41,10 +42,6 @@ unused cs (u:used) m =
         $ filter (flip elem $ M.keys m) -- delete irrelevant keys
         $ newMentions ++ used
   in unused cs remainingLeads m'
-
-unique :: Eq a => [a] -> [a]
-unique [] = []
-unique (a:as) = a : (unique $ filter (not . (==) a) as)
 
 sigName :: RandConstraints -> Int -> AbSigName
 sigName (namedSignals -> k) n =

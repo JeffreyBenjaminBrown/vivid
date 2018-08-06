@@ -32,7 +32,7 @@ actIsWorking = do
   act (reg dist) $ Free Boop "fred"
 
 -- | Call it, and then end it, like this:
--- tid <- loopTest msq 0 0.2 -- or some such parameters
+-- tid <- loopTest $ msq 0 0.2 -- or some such parameters
 -- killThread tid
 loopTest msq = do
   dist <- newDistrib

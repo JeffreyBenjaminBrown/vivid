@@ -60,7 +60,6 @@ library
     , Vivid.Jbb.Distrib.Museq
     , Vivid.Jbb.Distrib.Test
     , Vivid.Jbb.Distrib.Types
-    , Vivid.Jbb.Distrib.Util
     , Vivid.Jbb.Random.MentionsSig
     , Vivid.Jbb.Random.RandomSignal
     , Vivid.Jbb.Random.RandomSynth
@@ -72,6 +71,7 @@ library
     , Vivid.Jbb.Synths
     , Vivid.Jbb.Synths.Vap
     , Vivid.Jbb.Synths.Zot
+    , Vivid.Jbb.Util
 
     , Vivid
     , Vivid.Actions
@@ -293,6 +293,7 @@ library
     , mwc-random
     , parser-combinators
     , random-fu
+    -- , Unique -- can't, for some reason; stack won't build it
     , vector
     , vector-algorithms
 

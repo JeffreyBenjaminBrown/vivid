@@ -8,7 +8,7 @@ import Data.Vector.Algorithms.Intro (sortBy)
 
 import Vivid
 import Vivid.Jbb.Distrib.Types
-import Vivid.Jbb.Distrib.Util
+import Vivid.Jbb.Util
 import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 
 
