@@ -32,6 +32,8 @@ allWaiting dist = do
   now <- unTimestamp <$> getTime
   return $ and $ map (> now) times
 
+-- | If can't change period now (because some Museq is not waiting),
+-- wait between 5 and 10 ms, then retry
 chPeriod :: Distrib -> Duration -> IO ()
 chPeriod dist newPeriod = try where
   try = do

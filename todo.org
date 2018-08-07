@@ -1,9 +1,3 @@
-* changing tempo: options
-** *change tempo only when all Museqs are waiting
-*** if any of them is not, wait for a random time in 5-10 ms, then retry
-** keep a global rendering frame rate
-** keep a global Museq, and change tempo when it's waiting
-** deal with it later
 * features to add, in cumulative order
 ** make functions for manipulating loops
 *** spend a long time on this
@@ -18,5 +12,3 @@
 *** Extant synths are never off; time between notes = amplitude zero
 ** A collection of concurrent notes has to be distributed across synths
 *** automatically, rather than requiring the user to say which go where.
-* constraints
-** user might redefine loop halfway through
