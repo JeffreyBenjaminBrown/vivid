@@ -7,6 +7,7 @@ import qualified Data.Vector as V
 
 import Vivid
 import Vivid.Jbb.Synths
+import Vivid.Jbb.Util
 import Vivid.Jbb.Distrib.Act
 import Vivid.Jbb.Distrib.Distrib
 import Vivid.Jbb.Distrib.Types
@@ -85,13 +86,14 @@ m3 = Museq {_dur = 2, _vec = V.fromList
 -- (tid, dist) <- twoLoops
 -- m <- readMVar $ mTimeMuseqs dist
 -- chPeriod dist 0.5
--- swapMVar (mTimeMuseqs dist) $ M.insert "2" (0,m2' 0.2) m
+-- swapMVar (mTimeMuseqs dist) $ M.insert "2" (0,m3 0.2) m
 -- killThread tid
 twoLoops :: IO (ThreadId, Distrib)
 twoLoops = do
   dist <- newDistrib
   swapMVar (mTimeMuseqs dist) $ M.fromList [ ("1",(0,m1)),
                                              ("2",(0,m2)) ]
-  mapM_ (act $ reg dist) $ concatMap newsFromMuseq [m1,m2,m2' 0,m3,msq' 0 0.5]
+  mapM_ (act $ reg dist) $ unique
+    $ concatMap newsFromMuseq [m1,m2,m2' 0,m3,msq' 0 0.5]
   tid <- startDistribLoop dist
   return $ (tid, dist)

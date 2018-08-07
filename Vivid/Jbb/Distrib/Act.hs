@@ -20,7 +20,8 @@ import Vivid.Jbb.Distrib.Msg
 import Vivid.Jbb.Synths
 
 
--- | = Given a Museq (hopefully without Sends or News),
+-- | = (Use `unique` when mapping these, to avoid redundancy error messages.)
+-- Given a Museq (hopefully without Sends or News),
 -- create or destroy the synths it uses.
 
 newsFromMuseq :: Museq -> [Action]
