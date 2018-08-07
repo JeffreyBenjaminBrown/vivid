@@ -1,9 +1,3 @@
-* There's a bug in HandTest.hs
-** mysteries
-*** why can it take a few cycles to respond to a swapMVar?
-*** why will a Museq work alone but not with another one?
-** suspects
-*** Distrb.timeMuseqs can have a 0 (e.g. the year 1980) start time
 * changing tempo: options
 ** *change tempo only when all Museqs are waiting
 *** if any of them is not, wait for a random time in 5-10 ms, then retry
