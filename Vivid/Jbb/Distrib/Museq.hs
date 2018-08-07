@@ -42,47 +42,13 @@ findNextEvents time0 globalPeriod now museq =
       compare' :: (RelDuration, a) -> (RelDuration, a) -> Ordering
       compare' ve ve' = compare (fst ve) (fst ve')
       dummyAction = New Boop "marge"
-      start = let x = firstIndexGTE
-                      compare' (_vec museq) (relNow, dummyAction)
-        in if x < vecLen then x else 0
-      end =           lastIndexJustGTE
-                      compare' (_vec museq) (_vec museq ! start)
-
-      -- PITFALL: Duplicate this across findNextEvents and findNextEvents'
-      relTimeOfNextEvent = fst $ _vec museq ! start
---      relTimeOfNextEvent = if start == 0
---                           then (+1) $ fst $ _vec museq ! 0
---                           else        fst $ _vec museq ! start
-
+      startOrOOB = firstIndexGTE  compare' (_vec museq) (relNow, dummyAction)
+      start = if startOrOOB < vecLen then startOrOOB else 0
+      end = lastIndexJustGTE compare' (_vec museq) (_vec museq ! start)
+      relTimeOfNextEvent = if startOrOOB == start
+                           then        fst $ _vec museq ! start
+                           else (+1) $ fst $ _vec museq ! 0
       timeUntilNextEvent =
         fromRational relTimeOfNextEvent * period + pp0 - now
   in ( timeUntilNextEvent
      , map snd $ V.toList $ V.slice start (end - start) $ _vec museq )
-
--- | Like the real thing, but reports more information
-findNextEvents' time0 globalPeriod now museq =
-  let period = globalPeriod * fromRational (_dur museq)
-      pp0 = prevPhase0 time0 period now
-      relNow = toRational $ (now - pp0) / period
-      vecLen = V.length $ _vec museq
-      compare' :: (RelDuration, a) -> (RelDuration, a) -> Ordering
-      compare' ve ve' = compare (fst ve) (fst ve')
-      dummyAction = New Boop "marge"
-      start = let x = firstIndexGTE
-                      compare' (_vec museq) (relNow, dummyAction)
-        in if x < vecLen then x else 0
-      end =           lastIndexJustGTE
-                      compare' (_vec museq) (_vec museq ! start)
-
-      -- PITFALL: Duplicate this across findNextEvents and findNextEvents'
-      relTimeOfNextEvent = fst $ _vec museq ! start
---      relTimeOfNextEvent = if start == 0
---                           then (+1) $ fst $ _vec museq ! 0
---                           else        fst $ _vec museq ! start
-
-      timeUntilNextEvent =
-        fromRational relTimeOfNextEvent * period + pp0 - now
-  in ( timeUntilNextEvent
-     , map snd $ V.toList $ V.slice start (end - start) $ _vec museq
-     , (period, pp0, relNow, vecLen, start, end, relTimeOfNextEvent )
-     )

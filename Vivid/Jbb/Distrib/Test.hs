@@ -5,6 +5,7 @@ import qualified Data.Map as M
 import qualified Data.Vector as V
 
 import Vivid
+import Vivid.Jbb.Util
 import Vivid.Jbb.Synths
 import Vivid.Jbb.Distrib.Distrib
 import Vivid.Jbb.Distrib.Types
@@ -13,10 +14,24 @@ import Test.HUnit
 
 
 tests = runTestTT $ TestList
-  [ TestLabel "museqIsValid" testMuseqIsValid
+  [ TestLabel "testPrevPhase0" testPrevPhase0
+  , TestLabel "testNextPhase0" testNextPhase0
+  , TestLabel "museqIsValid" testMuseqIsValid
   , TestLabel "findNextEvents" testFindNextEvents
   , TestLabel "testAllWaiting" testAllWaiting
   ]
+
+testPrevPhase0 = TestCase $ do
+  assertBool "" $ prevPhase0 0 10 11 == 10
+  assertBool "" $ prevPhase0 0 10 10 == 10
+  assertBool "" $ prevPhase0 0 20 41 == 40
+  assertBool "" $ prevPhase0 0 20 59 == 40
+
+testNextPhase0 = TestCase $ do
+  assertBool "" $ nextPhase0 0 10 11 == 20
+  assertBool "" $ nextPhase0 0 10 10 == 10
+  assertBool "" $ nextPhase0 0 20 41 == 60
+  assertBool "" $ nextPhase0 0 20 59 == 60
 
 testMuseqIsValid = TestCase $ do
   assertBool "valid, empty"                   $ museqIsValid
@@ -47,7 +62,6 @@ testFindNextEvents = TestCase $ do
   assertBool "testFindNextEvents, no zero event, next cycle" $
     (findNextEvents 1 50 100 $ Museq 2 $ V.fromList events') -- next is 126
     == (26, Prelude.map snd $ V.toList $ V.slice 1 1 $ V.fromList events)
-
 
 testAllWaiting = TestCase $ do
   now <- unTimestamp <$> getTime
