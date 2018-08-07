@@ -40,6 +40,14 @@ testFindNextEvents = TestCase $ do
     (findNextEvents 1 10 39.5 $ Museq 2 $ V.fromList events)
     == (1.5, Prelude.map snd $ V.toList $ V.slice 0 1 $ V.fromList events)
 
+  let events' = tail events -- PITFALL, maybe confusing: below I use both
+  assertBool "testFindNextEvents, no zero event, this cycle" $
+    (findNextEvents 1 50 123 $ Museq 2 $ V.fromList events') -- next is 126
+    == (3, Prelude.map snd $ V.toList $ V.slice 1 1 $ V.fromList events)
+  assertBool "testFindNextEvents, no zero event, next cycle" $
+    (findNextEvents 1 50 100 $ Museq 2 $ V.fromList events') -- next is 126
+    == (26, Prelude.map snd $ V.toList $ V.slice 1 1 $ V.fromList events)
+
 
 testAllWaiting = TestCase $ do
   now <- unTimestamp <$> getTime

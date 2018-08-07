@@ -43,6 +43,19 @@ startDistribLoop dist = do
 
 distribLoop :: Distrib -> IO ()
 distribLoop dist = do
+  let epsilon = 0.005 :: Duration -- ^ PITFALL:
+    -- Events scheduled with a difference
+    -- of less than epsilon seconds might play at the same time.
+    -- (In learning/schedule.hs.loop, I determined that threadDelay
+    -- always lags less than 5 ms.)
+    -- Why I think I need that: Suppose at now=0, e and f are scheduled for
+    -- time 1 and 1.00001. If I wait 1s and then play e, it could be that
+    -- the next scan for upcoming events would take place after f
+    -- was scheduled for, in which case f would never happen.
+    -- If I play e and f together, and GHC happens to play f again
+    -- thereafter, it should not matter, because it's just telling
+    -- a synth to keep doing what it's doing.
+
   time0  <- readMVar $ mTime0  dist
   period <- readMVar $ mPeriod dist
   timeMuseqs <- readMVar $ mTimeMuseqs dist
@@ -66,7 +79,7 @@ distribLoop dist = do
   -- TODO : if the sequence is empty, this errs
   let leastWait = minimum $ M.elems $ M.map fst nextPlus
       nextActions = concatMap snd
-                    $ filter ((== leastWait) . fst)
+                    $ filter ((< leastWait + epsilon) . fst)
                     $ M.elems nextPlus
 
   wait leastWait
