@@ -3,6 +3,9 @@ module Vivid.Jbb.Distrib.Distrib where
 import Control.Concurrent (forkIO, ThreadId)
 import Control.Concurrent.MVar
 import qualified Data.Map as M
+import Data.Random
+import System.Random.MWC
+
 
 import Vivid
 import Vivid.Jbb.Distrib.Act
@@ -29,10 +32,18 @@ allWaiting dist = do
   now <- unTimestamp <$> getTime
   return $ and $ map (> now) times
 
---chPeriod :: Distrib -> IO () -- TODO
---chPeriod = do
---  waitingUntil <- readMVar mWaitingUntil
---  now <- unTimestamp <$> getTime
+chPeriod :: Distrib -> Duration -> IO ()
+chPeriod dist newPeriod = try where
+  try = do
+    waitingUntils <- map fst . M.elems <$> readMVar (mTimeMuseqs dist)
+    now <- unTimestamp <$> getTime
+    if and $ map (> now) waitingUntils
+      then swapMVar (mPeriod dist) newPeriod >> return ()
+      else do mwc <- createSystemRandom
+              wait =<< (sampleFrom mwc
+                        $ (*(1/1000)) . (+5) . (*5) <$> stdUniform
+                        :: IO Double)
+              try
 
 startDistribLoop :: Distrib -> IO ThreadId
 startDistribLoop dist = do

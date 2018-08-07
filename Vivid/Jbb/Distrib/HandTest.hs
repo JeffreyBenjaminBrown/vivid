@@ -84,6 +84,7 @@ m3 = Museq {_dur = 2, _vec = V.fromList
 
 -- (tid, dist) <- twoLoops
 -- m <- readMVar $ mTimeMuseqs dist
+-- chPeriod dist 0.5
 -- swapMVar (mTimeMuseqs dist) $ M.insert "2" (0,m2' 0.2) m
 -- killThread tid
 twoLoops :: IO (ThreadId, Distrib)
