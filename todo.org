@@ -1,15 +1,8 @@
-* ongoing
-** after the Museq Functor instance, generalize findNextEvents
-*** don't use a dummy event; rather, create a new vector whose every payload is unit
 * supercollider mysteries
 ** envelopes
 ** many voices to one distortion
 ** slow changes, e.g. for slide guitar
 * features to add, in roughly cumulative order
-** f :: SynthDefEnum -> SynthName -> [Msg] -> [Action]
-** once :: [Action] -> IO ()
-*** good for setting parameters that don't change frequently
-*** good for creating, destroying synths -- but better to automate that
 ** functions over loops
 *** append, stack
 *** merge (multiplicative or additive (? per parameter))
@@ -22,6 +15,7 @@
 *** space: play a duration n < k loop over duration k. (Hard; see Tidal.epic.)
 *** onParams :: [(ParamString, Double -> Double)] -> Museq -> Museq
 *** dropParams, keepParams :: [ParamString] -> Museq -> Museq
+
 ** distribute concurrent notes across synths
 *** automatically, rather than requiring the user to say which go where.
 ** scales, harmonies

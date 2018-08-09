@@ -59,6 +59,7 @@ library
     , Vivid.Jbb.Distrib.Msg
     , Vivid.Jbb.Distrib.Museq
     , Vivid.Jbb.Distrib.Test
+    , Vivid.Jbb.Distrib.Transform
     , Vivid.Jbb.Distrib.Types
     , Vivid.Jbb.Random.MentionsSig
     , Vivid.Jbb.Random.RandomSignal

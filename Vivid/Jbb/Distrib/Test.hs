@@ -8,8 +8,9 @@ import Vivid
 import Vivid.Jbb.Util
 import Vivid.Jbb.Synths
 import Vivid.Jbb.Distrib.Distrib
-import Vivid.Jbb.Distrib.Types
 import Vivid.Jbb.Distrib.Museq
+import Vivid.Jbb.Distrib.Transform
+import Vivid.Jbb.Distrib.Types
 import Test.HUnit
 
 
@@ -19,6 +20,7 @@ tests = runTestTT $ TestList
   , TestLabel "museqIsValid" testMuseqIsValid
   , TestLabel "findNextEvents" testFindNextEvents
   , TestLabel "testAllWaiting" testAllWaiting
+  , TestLabel "testAppend" testAppend
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -74,3 +76,11 @@ testAllWaiting = TestCase $ do
   swapMVar mm $ M.fromList [("a",(now-1,emptyMuseq))
                            ,("b",(now+1,emptyMuseq))]
   assertBool "one is not waiting" =<< not <$> allWaiting dist
+
+testAppend = TestCase $ do
+  let m = Museq { _dur = 1, _vec = V.fromList [(1/2,())] }
+      n = Museq { _dur = 2, _vec = V.fromList [(1/2,())] }
+  assertBool "length 1 midpoint ++ length 2 midpoint" $
+    append m n == Museq { _dur = 3, _vec = V.fromList [(1/6,())
+                                                      ,(4/6,())
+                                                      ] }
