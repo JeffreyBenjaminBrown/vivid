@@ -41,13 +41,13 @@ findNextEvents time0 globalPeriod now museq =
       vecLen = V.length $ _vec museq
       compare' :: (RelDuration, a) -> (RelDuration, a) -> Ordering
       compare' ve ve' = compare (fst ve) (fst ve')
-      dummyAction = New Boop "marge"
-      startOrOOB = firstIndexGTE  compare' (_vec museq) (relNow, dummyAction)
+      uv = _vec $ unitMuseq museq
+      startOrOOB = firstIndexGTE  compare' uv (relNow, ())
       start = if startOrOOB < vecLen then startOrOOB else 0
-      end = lastIndexJustGTE compare' (_vec museq) (_vec museq ! start)
+      end =     lastIndexJustGTE  compare' uv (uv ! start)
       relTimeOfNextEvent = if startOrOOB == start
-                           then        fst $ _vec museq ! start
-                           else (+1) $ fst $ _vec museq ! 0
+                           then        fst $ uv ! start
+                           else (+1) $ fst $ uv ! 0
       timeUntilNextEvent =
         fromRational relTimeOfNextEvent * period + pp0 - now
   in ( timeUntilNextEvent

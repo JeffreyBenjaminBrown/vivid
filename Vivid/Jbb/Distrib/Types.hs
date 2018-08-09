@@ -9,7 +9,7 @@
 module Vivid.Jbb.Distrib.Types where
 
 import Control.Concurrent.MVar
-import Control.Lens (makeLenses)
+import Control.Lens (makeLenses, over, _2)
 import Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
@@ -65,6 +65,9 @@ makeLenses ''Museq
 
 emptyMuseq :: Museq a
 emptyMuseq = Museq { _dur = 1, _vec = V.empty }
+
+unitMuseq :: Museq a -> Museq ()
+unitMuseq = over vec $ V.map $ over _2 $ const ()
 
 
 -- | The global state
