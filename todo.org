@@ -1,3 +1,7 @@
+* Transform.stack is a problem
+** stacking two Museqs without a simple duration ratio wastes lots of space
+** alternative: a Museq is a Set of Museq's, where Museq' = the old thing
+*** but then appending two Museq's will mean ... I don't even know what
 * supercollider mysteries
 ** envelopes
 ** many voices to one distortion

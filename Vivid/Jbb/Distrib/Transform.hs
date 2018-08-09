@@ -14,3 +14,14 @@ append a b = let d  = _dur a + _dur b
                  vb = V.map (over _1 f) $ _vec b where
                    f time = time * (_dur b / d) + (_dur a / d)
              in Museq {_dur = d, _vec = (V.++) va vb}
+
+-- | TODO : speed this up dramatically by computing start times once, rather
+-- than readjusting the whole series each time a new copy is folded into it.
+repeat' :: Int -> Museq a -> Museq a
+repeat' k m = foldl1 append $ replicate k m
+
+-- >>> TODO
+--stack :: Museq a -> Museq a -> Museq a
+--stack a b = let d = lcmRatios (_dur a) (_dur b)
+
+  

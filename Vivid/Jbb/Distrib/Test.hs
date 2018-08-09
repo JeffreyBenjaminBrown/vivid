@@ -84,3 +84,11 @@ testAppend = TestCase $ do
     append m n == Museq { _dur = 3, _vec = V.fromList [(1/6,())
                                                       ,(4/6,())
                                                       ] }
+
+--testStack = TestCase $ do
+--  let a = Museq { _dur = 2, _vec = V.fromList [(1/2,"a")] }
+--      z = Museq { _dur = 3, _vec = V.fromList [(1/2,"z"] }
+--  assertBool "" $
+--    stack a z == Museq {_dur = 6,
+--                        _vec = V.fromList [
+

@@ -1,9 +1,17 @@
 module Vivid.Jbb.Util where
 
 import Control.Monad.ST
+import Data.Ratio
 import qualified Data.Vector as V
 import Data.Vector.Algorithms.Search
   (binarySearchLBy, binarySearchRBy, Comparison)
+
+
+lcmRatios :: Rational -> Rational -> Rational
+lcmRatios x y = let (a,b) = (numerator x, denominator x)
+                    (c,d) = (numerator y, denominator y)
+                    l = lcm b d
+                in lcm (a * div l b) (c * div l d) % l
 
 
 -- | There's a Hackage package for this surely that's faster, but

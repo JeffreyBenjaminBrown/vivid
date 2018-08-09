@@ -52,3 +52,4 @@ findNextEvents time0 globalPeriod now museq =
         fromRational relTimeOfNextEvent * period + pp0 - now
   in ( timeUntilNextEvent
      , map snd $ V.toList $ V.slice start (end - start) $ _vec museq )
+

@@ -56,12 +56,6 @@ m2 = Museq {_dur = 2, _vec = V.fromList
              , (0.5, Send Boop "2" ("freq",500) )
              , (0.5, Send Boop "2" ("amp",0.4)  ) ] }
 
--- TODO BUG : m2' should be silent sometimes
--- It is never silent as long as it starts after time 0,
--- and yet `oneLoop $ msq 0.2 0.6` works fine.
--- Moreover if I change start from 0.01 to 0.2 I hear no difference.
--- UNLESS it's the only voice. Then it makes a difference -- but it can
--- take a few cycles to respond to a swapMVar.
 m2' start = Museq {_dur = 2, _vec = V.fromList
              [ (start, Send Boop "2" ("amp",0)    )
              , (0.5,   Send Boop "2" ("freq",550) )
