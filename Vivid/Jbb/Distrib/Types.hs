@@ -63,11 +63,14 @@ data Museq a = Museq { _dur :: RelDuration
 
 makeLenses ''Museq
 
+instance Functor Museq where
+  fmap = over vec . V.map . over _2
+
 emptyMuseq :: Museq a
 emptyMuseq = Museq { _dur = 1, _vec = V.empty }
 
 unitMuseq :: Museq a -> Museq ()
-unitMuseq = over vec $ V.map $ over _2 $ const ()
+unitMuseq = fmap $ const ()
 
 
 -- | The global state
