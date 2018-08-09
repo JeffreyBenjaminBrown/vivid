@@ -12,7 +12,7 @@ import Vivid.Jbb.Util
 import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 
 
-sortMuseq :: Museq -> Museq
+sortMuseq :: Museq a -> Museq a
 sortMuseq = vec %~
   \v -> runST $ do v' <- V.thaw v
                    let compare' ve ve' = compare (fst ve) (fst ve')
@@ -21,7 +21,7 @@ sortMuseq = vec %~
 
 -- | A valid Museq is sorted on start time, has (relative) duration > 0,
 -- and all actions at time < 1.
-museqIsValid :: Museq -> Bool
+museqIsValid :: Eq a => Museq a -> Bool
 museqIsValid mu = b && c && d where
   b = if V.length (_vec mu) == 0 then True
       else fst (V.last $ _vec mu) < 1
@@ -33,7 +33,7 @@ museqIsValid mu = b && c && d where
 -- of the vector again.
 -- | Returns a list of actions and the time remaining until they start.
 findNextEvents :: Time -> Duration -> Time
-               -> Museq -> (Duration, [Action])
+               -> Museq Action -> (Duration, [Action])
 findNextEvents time0 globalPeriod now museq =
   let period = globalPeriod * fromRational (_dur museq)
       pp0 = prevPhase0 time0 period now

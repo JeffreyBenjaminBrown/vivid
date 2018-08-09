@@ -24,11 +24,11 @@ import Vivid.Jbb.Synths
 -- Given a Museq (hopefully without Sends or News),
 -- create or destroy the synths it uses.
 
-newsFromMuseq :: Museq -> [Action]
+newsFromMuseq :: Museq Action -> [Action]
 newsFromMuseq = map f . V.toList . _vec where
   f = (\(sd,name) -> New sd name) . actionSynthInfo . snd
 
-freesFromMuseq :: Museq -> [Action]
+freesFromMuseq :: Museq Action -> [Action]
 freesFromMuseq = map f . V.toList . _vec where
   f = (\(sd,name) -> Free sd name) . actionSynthInfo . snd
 

@@ -57,13 +57,13 @@ actionSynthInfo (New  s n  ) = (s,n)
 actionSynthInfo (Free s n  ) = (s,n)
 actionSynthInfo (Send s n _) = (s,n)
 
-data Museq = Museq { _dur :: RelDuration
-                   , _vec :: V.Vector (RTime, Action) }
+data Museq a = Museq { _dur :: RelDuration
+                     , _vec :: V.Vector (RTime, a) }
   deriving (Show,Eq)
 
 makeLenses ''Museq
 
-emptyMuseq :: Museq
+emptyMuseq :: Museq a
 emptyMuseq = Museq { _dur = 1, _vec = V.empty }
 
 
@@ -91,7 +91,7 @@ showSynthRegister reg = do bs <- show <$> (readMVar $ boops reg)
                            return $ bs ++ "\n" ++ vs ++ "\n" ++ ss
 
 data Distrib = Distrib {
-  mTimeMuseqs :: MVar (M.Map MuseqName (Time, Museq))
+  mTimeMuseqs :: MVar (M.Map MuseqName (Time, Museq Action))
     -- ^ Each `Time` here is the next time that Museq is scheduled to run.
     -- Rarely, briefly, those `Time` values will be in the past.
   , reg :: SynthRegister

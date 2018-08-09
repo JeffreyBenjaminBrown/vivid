@@ -34,10 +34,11 @@ testNextPhase0 = TestCase $ do
   assertBool "" $ nextPhase0 0 20 59 == 60
 
 testMuseqIsValid = TestCase $ do
+  let vempty = V.empty :: V.Vector (RTime, ())
   assertBool "valid, empty"                   $ museqIsValid
-    $ Museq { _dur = 3, _vec = V.empty }
+    $ Museq { _dur = 3, _vec = vempty }
   assertBool "invalid, zero length"     $ not $ museqIsValid
-    $ Museq { _dur = 0, _vec = V.empty }
+    $ Museq { _dur = 0, _vec = vempty }
   assertBool "valid, nonempty"                $ museqIsValid
     $ Museq { _dur = 1, _vec = V.fromList [(0, New Boop "marge")]}
   assertBool "invalid, time > 1" $ not $ museqIsValid

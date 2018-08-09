@@ -1,3 +1,6 @@
+* ongoing
+** after the Museq Functor instance, generalize findNextEvents
+*** don't use a dummy event; rather, create a new vector whose every payload is unit
 * supercollider mysteries
 ** envelopes
 ** many voices to one distortion
@@ -7,9 +10,6 @@
 ** once :: [Action] -> IO ()
 *** good for setting parameters that don't change frequently
 *** good for creating, destroying synths -- but better to automate that
-** give Museq a type parameter
-*** Distrib uses (Museq Action). 
-*** Will be useful too: Museq Msg, Museq (Msg -> Msg) ...
 ** functions over loops
 *** append, stack
 *** merge (multiplicative or additive (? per parameter))
