@@ -4,6 +4,7 @@ import Control.Lens (over, _1)
 import qualified Data.Vector as V
 
 import Vivid
+import Vivid.Jbb.Util
 import Vivid.Jbb.Distrib.Museq (sortMuseq)
 import Vivid.Jbb.Distrib.Types
 
@@ -26,5 +27,8 @@ stackAsIfEqualLength m n =
   sortMuseq $ Museq {_dur = _dur m,
                       _vec = (V.++) (_vec m) (_vec n)}
 
--- stack :: Museq a -> Museq a -> Museq a
--- stack a b = let d = lcmRatios (_dur a) (_dur b)
+stack :: Museq a -> Museq a -> Museq a
+stack a b = let lcm = lcmRatios (_dur a) (_dur b)
+                a' = repeat' (round $ lcm / _dur a) a
+                b' = repeat' (round $ lcm / _dur b) b
+            in stackAsIfEqualLength a' b'

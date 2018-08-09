@@ -2,6 +2,7 @@ module Vivid.Jbb.Distrib.Test (tests) where
 
 import           Control.Concurrent.MVar
 import qualified Data.Map as M
+import Data.Ratio
 import qualified Data.Vector as V
 
 import Vivid
@@ -22,6 +23,7 @@ tests = runTestTT $ TestList
   , TestLabel "testAllWaiting" testAllWaiting
   , TestLabel "testAppend" testAppend
   , TestLabel "testStackAsIfEqualLength" testStackAsIfEqualLength
+  , TestLabel "testStack" testStack
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -93,10 +95,14 @@ testStackAsIfEqualLength = TestCase $ do
     Museq { _dur = 2, _vec = V.fromList [(1/2,"a"),
                                          (2/3,"z")] }
 
---testStack = TestCase $ do
---  let a = Museq { _dur = 2, _vec = V.fromList [(1/2,"a")] }
---      z = Museq { _dur = 3, _vec = V.fromList [(1/2,"z"] }
---  assertBool "" $
---    stack a z == Museq {_dur = 6,
---                        _vec = V.fromList [
-
+testStack = TestCase $ do
+  let a = Museq { _dur = 2, _vec = V.fromList [(0,"a")] }
+      z = Museq { _dur = 3, _vec = V.fromList [(1/2,"z")] }
+  assertBool "" $ stack a z ==
+    Museq { _dur = 6
+          , _vec = V.fromList [(0,"a")
+                              ,(1%4,"z")
+                              ,(1%3,"a")
+                              ,(2%3,"a")
+                              ,(3%4,"z")
+                              ] }
