@@ -32,3 +32,10 @@ stack a b = let lcm = lcmRatios (_dur a) (_dur b)
                 a' = repeat' (round $ lcm / _dur a) a
                 b' = repeat' (round $ lcm / _dur b) b
             in stackAsIfEqualLength a' b'
+
+-- todo ? sorting in `rev` is overkill; faster would be to move the
+-- elements at time=1, if they exist, to time=0
+rev :: Museq a -> Museq a
+rev = sortMuseq . over vec g
+  where g = V.reverse . V.map (over _1 f)
+        f x = if 1-x < 1 then 1-x else 0

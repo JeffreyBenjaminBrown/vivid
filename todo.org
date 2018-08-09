@@ -8,11 +8,9 @@
 ** slow changes, e.g. for slide guitar
 * features to add, in roughly cumulative order
 ** functions over loops
-*** append, stack
 *** merge (multiplicative or additive (? per parameter))
 **** e.g., merging freq of 2 and freq of 440 gives freq of 880
 *** apply
-*** rev -- the name `reverse` is taken
 *** early, late, slow, fast, dense, sparse
 *** rotate t = fast t . sparse t
 *** rep n = slow n . dense n -- the name `repeat` is taken

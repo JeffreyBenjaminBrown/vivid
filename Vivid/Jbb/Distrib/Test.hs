@@ -24,6 +24,7 @@ tests = runTestTT $ TestList
   , TestLabel "testAppend" testAppend
   , TestLabel "testStackAsIfEqualLength" testStackAsIfEqualLength
   , TestLabel "testStack" testStack
+  , TestLabel "testRev" testRev
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -106,3 +107,12 @@ testStack = TestCase $ do
                               ,(2%3,"a")
                               ,(3%4,"z")
                               ] }
+
+testRev = TestCase $ do
+  let a = Museq { _dur = 2, _vec = V.fromList [(0,"a")
+                                              ,(1/3,"b")
+                                              ,(1/2,"c")] }
+  assertBool "rev" $ rev a == Museq {_dur = 2,
+                                     _vec = V.fromList [(0,"a")
+                                                       ,(1/2,"c")
+                                                       ,(2/3,"b")] }
