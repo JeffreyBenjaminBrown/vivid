@@ -21,6 +21,7 @@ tests = runTestTT $ TestList
   , TestLabel "findNextEvents" testFindNextEvents
   , TestLabel "testAllWaiting" testAllWaiting
   , TestLabel "testAppend" testAppend
+  , TestLabel "testStackAsIfEqualLength" testStackAsIfEqualLength
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -84,6 +85,13 @@ testAppend = TestCase $ do
     append m n == Museq { _dur = 3, _vec = V.fromList [(1/6,())
                                                       ,(4/6,())
                                                       ] }
+
+testStackAsIfEqualLength = TestCase $ do
+  let a = Museq { _dur = 2,      _vec = V.fromList [(1/2,"a")] }
+      z = Museq { _dur = (-3/0), _vec = V.fromList [(2/3,"z")] }
+  assertBool "stackAsIfEqualLength" $ stackAsIfEqualLength a z ==
+    Museq { _dur = 2, _vec = V.fromList [(1/2,"a"),
+                                         (2/3,"z")] }
 
 --testStack = TestCase $ do
 --  let a = Museq { _dur = 2, _vec = V.fromList [(1/2,"a")] }

@@ -4,6 +4,7 @@ import Control.Lens (over, _1)
 import qualified Data.Vector as V
 
 import Vivid
+import Vivid.Jbb.Distrib.Museq (sortMuseq)
 import Vivid.Jbb.Distrib.Types
 
 
@@ -20,8 +21,10 @@ append a b = let d  = _dur a + _dur b
 repeat' :: Int -> Museq a -> Museq a
 repeat' k m = foldl1 append $ replicate k m
 
--- >>> TODO
---stack :: Museq a -> Museq a -> Museq a
---stack a b = let d = lcmRatios (_dur a) (_dur b)
+stackAsIfEqualLength :: Museq a -> Museq a -> Museq a
+stackAsIfEqualLength m n =
+  sortMuseq $ Museq {_dur = _dur m,
+                      _vec = (V.++) (_vec m) (_vec n)}
 
-  
+-- stack :: Museq a -> Museq a -> Museq a
+-- stack a b = let d = lcmRatios (_dur a) (_dur b)
