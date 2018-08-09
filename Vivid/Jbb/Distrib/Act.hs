@@ -72,9 +72,9 @@ act' (Send' mSynthMap name msg) = do
   sendAction' name msg synthMap
 
 newAction' :: SynthDef sdArgs
-           -> SynthString
-           -> M.Map SynthString (Synth sdArgs)
-           -> IO (M.Map SynthString (Synth sdArgs))
+           -> SynthName
+           -> M.Map SynthName (Synth sdArgs)
+           -> IO (M.Map SynthName (Synth sdArgs))
 newAction' synthDef name synthMap =
   case M.lookup name $ synthMap of
     Just _ -> do now <- getTime
@@ -84,9 +84,9 @@ newAction' synthDef name synthMap =
     Nothing -> do s <- synth synthDef ()
                   return $ M.insert name s synthMap
 
-freeAction' :: SynthString
-            -> M.Map SynthString (Synth sdArgs)
-            -> IO (M.Map SynthString (Synth sdArgs))
+freeAction' :: SynthName
+            -> M.Map SynthName (Synth sdArgs)
+            -> IO (M.Map SynthName (Synth sdArgs))
 freeAction' name synthMap =
   case M.lookup name $ synthMap of
     Nothing -> do now <- getTime
@@ -97,9 +97,9 @@ freeAction' name synthMap =
                  return $ M.delete name synthMap
 
 sendAction' :: forall m sdArgs.
-               SynthString
+               SynthName
             -> Msg' sdArgs
-            -> M.Map SynthString (Synth sdArgs)
+            -> M.Map SynthName (Synth sdArgs)
             -> IO ()
 sendAction' name msg synthMap =
   case M.lookup name synthMap of

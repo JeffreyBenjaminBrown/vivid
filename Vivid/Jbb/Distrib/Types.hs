@@ -22,9 +22,9 @@ import Vivid.Jbb.Synths
 
 -- | = Kinds of name
 
-type SynthString = String
-type ParamString = String
-type MuseqString = String
+type SynthName = String
+type ParamName = String
+type MuseqName = String
 
 
 -- | = Kinds of time
@@ -45,14 +45,14 @@ unTimestamp (Timestamp x) = x
 
 -- | = Instructions
 
-type Msg = (ParamString,Float)
+type Msg = (ParamName,Float)
 
-data Action = New  SynthDefEnum SynthString
-            | Free SynthDefEnum SynthString
-            | Send SynthDefEnum SynthString Msg
+data Action = New  SynthDefEnum SynthName
+            | Free SynthDefEnum SynthName
+            | Send SynthDefEnum SynthName Msg
   deriving (Show,Eq,Ord)
 
-actionSynthInfo :: Action -> (SynthDefEnum, SynthString)
+actionSynthInfo :: Action -> (SynthDefEnum, SynthName)
 actionSynthInfo (New  s n  ) = (s,n)
 actionSynthInfo (Free s n  ) = (s,n)
 actionSynthInfo (Send s n _) = (s,n)
@@ -70,10 +70,10 @@ emptyMuseq = Museq { _dur = 1, _vec = V.empty }
 -- | The global state
 
 data SynthRegister = -- per-synth boilerplate
-  SynthRegister { boops :: MVar (M.Map SynthString (Synth BoopParams))
-                , vaps  :: MVar (M.Map SynthString (Synth VapParams))
-                , sqfms :: MVar (M.Map SynthString (Synth SqfmParams))
-                -- , zots :: MVar (M.Map SynthString (Synth ZotParams))
+  SynthRegister { boops :: MVar (M.Map SynthName (Synth BoopParams))
+                , vaps  :: MVar (M.Map SynthName (Synth VapParams))
+                , sqfms :: MVar (M.Map SynthName (Synth SqfmParams))
+                -- , zots :: MVar (M.Map SynthName (Synth ZotParams))
                 }
 
 emptySynthRegister :: IO SynthRegister
@@ -91,7 +91,7 @@ showSynthRegister reg = do bs <- show <$> (readMVar $ boops reg)
                            return $ bs ++ "\n" ++ vs ++ "\n" ++ ss
 
 data Distrib = Distrib {
-  mTimeMuseqs :: MVar (M.Map MuseqString (Time, Museq))
+  mTimeMuseqs :: MVar (M.Map MuseqName (Time, Museq))
     -- ^ Each `Time` here is the next time that Museq is scheduled to run.
     -- Rarely, briefly, those `Time` values will be in the past.
   , reg :: SynthRegister
@@ -119,11 +119,11 @@ data Msg' sdArgs where
       => params -> Msg' sdArgs
 
 data Action' where
-  New'  :: MVar (M.Map SynthString (Synth sdArgs))
+  New'  :: MVar (M.Map SynthName (Synth sdArgs))
        -> SynthDef sdArgs
-       -> SynthString -> Action'
-  Free' :: MVar (M.Map SynthString (Synth sdArgs))
-       -> SynthString -> Action'
-  Send' :: MVar (M.Map SynthString (Synth sdArgs))
-       -> SynthString
+       -> SynthName -> Action'
+  Free' :: MVar (M.Map SynthName (Synth sdArgs))
+       -> SynthName -> Action'
+  Send' :: MVar (M.Map SynthName (Synth sdArgs))
+       -> SynthName
        -> Msg' sdArgs -> Action'
