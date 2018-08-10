@@ -39,3 +39,20 @@ rev :: Museq a -> Museq a
 rev = sortMuseq . over vec g
   where g = V.reverse . V.map (over _1 f)
         f x = if 1-x < 1 then 1-x else 0
+
+-- TODO : what if the shift is greater than a cycle?
+-- todo ? sorting in `early` or `late` is overkill too
+early :: RTime -> Museq a -> Museq a
+early t m = sortMuseq $ over vec (V.map $ over _1 f) m
+  where t' = let pp0 = prevPhase0 0 (_dur m) t
+             in t - pp0
+        f s = let s' = s - t' / _dur m
+              in if s' < 0 then s'+1 else s'
+
+late :: RTime -> Museq a -> Museq a
+late t m = sortMuseq $ over vec (V.map $ over _1 f) m
+  where t' = let pp0 = prevPhase0 0 (_dur m) t
+             in t - pp0
+        f s = let s' = s + t' / _dur m
+              in if s' >= 1 then s'-1 else s'
+
