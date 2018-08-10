@@ -15,16 +15,14 @@ import Vivid.Jbb.Distrib.Types
 
 -- | Since a SynthDef takes time to be instantiated,
 -- a sequence like this doesn't work if `n` is small enough.
-msq s n = Museq { _dur = 1,
-              _vec = V.fromList [ (s, New Boop "marge")
-                                , (s+n, Send Boop "marge" ("freq",333))
-                                , (s+n, Send Boop "marge" ("amp",0.2))
-                                , (0.99, Free Boop "marge")] }
+msq s n = museq 1 [ (s, New Boop "marge")
+                  , (s+n, Send Boop "marge" ("freq",333))
+                  , (s+n, Send Boop "marge" ("amp",0.2))
+                  , (0.99, Free Boop "marge")]
 
-msq' on off = Museq { _dur = 1,
-                   _vec = V.fromList [ (on, Send Boop "marge" ("freq",333))
-                                     , (on, Send Boop "marge" ("amp",0.2))
-                                     , (off, Send Boop "marge" ("amp",0)) ] }
+msq' on off = museq 1 [ (on, Send Boop "marge" ("freq",333))
+                      , (on, Send Boop "marge" ("amp",0.2))
+                      , (off, Send Boop "marge" ("amp",0)) ]
 
 actIsWorking = do
   dist <- newDistrib
@@ -46,36 +44,31 @@ oneLoop museq = do
   swapMVar (mTimeMuseqs dist) $ M.fromList [("1",(0,museq))]
   startDistribLoop dist
 
-m1 = Museq {_dur = 1, _vec = V.fromList
-             [ (0,   Send Boop "1" ("freq",400) )
+m1 = museq 1 [ (0,   Send Boop "1" ("freq",400) )
              , (0,   Send Boop "1" ("amp",0.4)  )
-             , (0.5, Send Boop "1" ("amp",0)    ) ] }
+             , (0.5, Send Boop "1" ("amp",0)    ) ]
 
-m2 = Museq {_dur = 2, _vec = V.fromList
-             [ (0,   Send Boop "2" ("amp",0)    )
+m2 = museq 2 [ (0,   Send Boop "2" ("amp",0)    )
              , (0.5, Send Boop "2" ("freq",500) )
-             , (0.5, Send Boop "2" ("amp",0.4)  ) ] }
+             , (0.5, Send Boop "2" ("amp",0.4)  ) ]
 
-m2' start = Museq {_dur = 2, _vec = V.fromList
-             [ (start, Send Boop "2" ("amp",0)    )
-             , (0.5,   Send Boop "2" ("freq",550) )
-             , (0.5,   Send Boop "2" ("amp",0.4)  )
-             , (0.75,  Send Boop "2" ("freq",650) )
-             , (0.75,  Send Boop "2" ("amp",0.4)  ) ] }
+m2' start = museq 2 [ (start, Send Boop "2" ("amp",0)    )
+                    , (0.5,   Send Boop "2" ("freq",550) )
+                    , (0.5,   Send Boop "2" ("amp",0.4)  )
+                    , (0.75,  Send Boop "2" ("freq",650) )
+                    , (0.75,  Send Boop "2" ("amp",0.4)  ) ]
 
 -- | like m2' but with a dummy action at time 0. Still doesn't work.
-m2'' start = Museq {_dur = 2, _vec = V.fromList
-             [ (0,     Send Boop "2" ("freq",550)    )
-             , (start, Send Boop "2" ("amp",0)    )
-             , (0.5,   Send Boop "2" ("freq",550) )
-             , (0.5,   Send Boop "2" ("amp",0.4)  )
-             , (0.75,  Send Boop "2" ("freq",650) )
-             , (0.75,  Send Boop "2" ("amp",0.4)  ) ] }
+m2'' start = museq 2 [ (0,     Send Boop "2" ("freq",550)    )
+                     , (start, Send Boop "2" ("amp",0)    )
+                     , (0.5,   Send Boop "2" ("freq",550) )
+                     , (0.5,   Send Boop "2" ("amp",0.4)  )
+                     , (0.75,  Send Boop "2" ("freq",650) )
+                     , (0.75,  Send Boop "2" ("amp",0.4)  ) ]
 
-m3 = Museq {_dur = 2, _vec = V.fromList
-             [ (0,   Send Boop "3" ("amp",0)    )
+m3 = museq 2 [ (0,   Send Boop "3" ("amp",0)    )
              , (0.5, Send Boop "3" ("freq",650) )
-             , (0.5, Send Boop "3" ("amp",0.4)  ) ] }
+             , (0.5, Send Boop "3" ("amp",0.4)  ) ]
 
 -- (tid, dist) <- twoLoops
 -- m <- readMVar $ mTimeMuseqs dist

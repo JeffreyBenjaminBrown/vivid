@@ -57,8 +57,14 @@ actionSynthInfo (New  s n  ) = (s,n)
 actionSynthInfo (Free s n  ) = (s,n)
 actionSynthInfo (Send s n _) = (s,n)
 
-data Museq a = Museq { _dur :: RelDuration
-                     , _vec :: V.Vector (RTime, a) }
+data Museq a = Museq {
+  _dur :: RelDuration -- ^ the play duration of the loop
+  , _sup :: RelDuration -- ^ the supremum of the possible RTime values
+  -- in the `Museq`'s `vec`. If this is greater than `dur`, the `Museq`
+  -- will rotate through different sections of the `vec` each time it plays.
+  -- If less than `dur`, the `Museq` will play the entire `vec` more than
+  -- once each time it plays.
+  , _vec :: V.Vector (RTime, a) }
   deriving (Show,Eq)
 
 makeLenses ''Museq
@@ -71,6 +77,9 @@ emptyMuseq = Museq { _dur = 1, _vec = V.empty }
 
 unitMuseq :: Museq a -> Museq ()
 unitMuseq = fmap $ const ()
+
+museq :: RelDuration -> [(RTime,a)] -> Museq a
+museq d tas = Museq {_dur = d, _sup = d, _vec = V.fromList tas}
 
 
 -- | The global state
