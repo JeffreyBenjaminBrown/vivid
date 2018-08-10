@@ -26,6 +26,7 @@ tests = runTestTT $ TestList
   , TestLabel "testStack" testStack
   , TestLabel "testRev" testRev
   , TestLabel "testEarlyAndLate" testEarlyAndLate
+  , TestLabel "testFastAndSlow" testFastAndSlow
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -135,3 +136,8 @@ testEarlyAndLate = TestCase $ do
     V.fromList [(4%10,"b"),(9%10,"a")]
   assertBool "late" $ _vec (late (-11) a) ==
     V.fromList [(4%10,"b"),(9%10,"a")]
+
+testFastAndSlow = TestCase $ do
+  let a = Museq { _dur = 10, _vec = V.fromList [(0,"a"),(1%2,"b")] }
+  assertBool "fast" $ (fast 2 a) == a {_dur = 5}
+  assertBool "slow" $ (slow 2 a) == a {_dur = 20}
