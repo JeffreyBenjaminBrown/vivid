@@ -19,8 +19,12 @@ append a b = let d  = _dur a + _dur b
 
 -- | TODO : speed this up dramatically by computing start times once, rather
 -- than readjusting the whole series each time a new copy is folded into it.
+cat :: [Museq a] -> Museq a
+cat = foldl1 append
+
+-- | TODO : this ought to accept positive nonintegers
 repeat' :: Int -> Museq a -> Museq a
-repeat' k m = foldl1 append $ replicate k m
+repeat' k = cat . replicate k
 
 stackAsIfEqualLength :: Museq a -> Museq a -> Museq a
 stackAsIfEqualLength m n =
@@ -40,7 +44,6 @@ rev = sortMuseq . over vec g
   where g = V.reverse . V.map (over _1 f)
         f x = if 1-x < 1 then 1-x else 0
 
--- TODO : what if the shift is greater than a cycle?
 -- todo ? sorting in `early` or `late` is overkill too
 early :: RDuration -> Museq a -> Museq a
 early t m = sortMuseq $ over vec (V.map $ over _1 f) m
@@ -61,3 +64,13 @@ fast d = over dur (/d)
 
 slow :: RDuration -> Museq a -> Museq a
 slow d = over dur (*d)
+
+--dense :: RDuration -> Museq a -> Museq a
+--dense d m = let cd = ceiling d
+--                fm = fast cd m
+--                g mul time = time + mul * _dur fm
+--                ms = zip [1..cd] $ repeat fm
+--                ms' = map (\(mul,msq) ->
+--                             over vec (V.map $ over _1 $ g mul) msq)
+--                      ms
+--            in foldl1 
