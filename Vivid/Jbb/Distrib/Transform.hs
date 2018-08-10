@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Vivid.Jbb.Distrib.Transform where
 
 import Control.Lens (over, _1)
@@ -65,12 +67,15 @@ fast d = over dur (/d)
 slow :: RDuration -> Museq a -> Museq a
 slow d = over dur (*d)
 
---dense :: RDuration -> Museq a -> Museq a
---dense d m = let cd = ceiling d
---                fm = fast cd m
---                g mul time = time + mul * _dur fm
---                ms = zip [1..cd] $ repeat fm
---                ms' = map (\(mul,msq) ->
---                             over vec (V.map $ over _1 $ g mul) msq)
---                      ms
---            in foldl1 
+dense :: forall a. RDuration -> Museq a -> Museq a
+dense d m = let cd = ceiling d :: Int
+                indexedMs = zip [0..cd-1] $ repeat m :: [(Int,Museq a)]
+                shiftedMs :: [Museq a]
+                shiftedMs = map (\(idx,msq) ->
+                                   over vec (V.map $ over _1
+                                            $ (/d) . (+ fromIntegral idx))
+                                   msq)
+                            indexedMs
+                in Museq { _dur = _dur m
+                         , _vec = V.filter ((< 1) . fst)
+                                  $ V.concat $ map _vec shiftedMs}

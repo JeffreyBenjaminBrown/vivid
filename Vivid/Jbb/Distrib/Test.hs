@@ -27,6 +27,7 @@ tests = runTestTT $ TestList
   , TestLabel "testRev" testRev
   , TestLabel "testEarlyAndLate" testEarlyAndLate
   , TestLabel "testFastAndSlow" testFastAndSlow
+  , TestLabel "testDenseAndSparse" testDenseAndSparse
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -141,3 +142,16 @@ testFastAndSlow = TestCase $ do
   let a = Museq { _dur = 10, _vec = V.fromList [(0,"a"),(1%2,"b")] }
   assertBool "fast" $ (fast 2 a) == a {_dur = 5}
   assertBool "slow" $ (slow 2 a) == a {_dur = 20}
+
+testDenseAndSparse = TestCase $ do
+  let x = Museq {_dur = 10 % 1, _vec = V.fromList [(0 % 1,"a"),(1 % 2,"b")]}
+  return ()
+  assertBool "dense 2" $ dense 2 x == 
+    Museq {_dur = 10 % 1, _vec = V.fromList [(0 % 1,"a")
+                                            ,(1 % 4,"b")
+                                            ,(1 % 2,"a")
+                                            ,(3 % 4,"b")]}
+  assertBool "dense 1.5" $ dense 1.5 x ==
+    Museq {_dur = 10 % 1, _vec = V.fromList  [(0 % 1,"a")
+                                             ,(1 % 3,"b")
+                                             ,(2 % 3,"a")]}
