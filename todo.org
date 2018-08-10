@@ -1,7 +1,7 @@
-* Transform.stack is a problem
-** stacking two Museqs without a simple duration ratio wastes lots of space
-** alternative: a Museq is a Set of Museq's, where Museq' = the old thing
-*** but then appending two Museq's will mean ... I don't even know what
+* sparse requires a major type rewrite
+** there should be two durations to a Museq: the glue-duration and the RTime-supremum
+** if in Museq x the glue-duration is half the RTime-sup, and x is glued to y, then the sound is of half of x, then y, then the other half of x, then y again
+** if in Museq x the glueDur is twice the supDur, then gluing x to y would result in the sound of x played twice (each iteration being glueDur in length) followed by y played once
 * supercollider mysteries
 ** envelopes
 ** many voices to one distortion
@@ -42,3 +42,8 @@
 **** Each `Museq` tracks when it last played
 **** `distribLoop` tracks when it's supposed to wake up.
 **** If, when `distribLoop` awakens, it discovers a Museq which last played before the scheduled awakening, which should have played something since, then that skipped thing gets played immediately.
+* problems, minor
+** Transform.stack wastes space
+*** stacking two Museqs without a simple duration ratio wastes lots of space
+*** alternative: a Museq is a Set of Museq's, where Museq' = the old thing
+**** but then appending two Museq's will mean ... I don't even know what

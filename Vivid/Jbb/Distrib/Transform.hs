@@ -21,6 +21,10 @@ append a b = let d  = _dur a + _dur b
 
 -- | TODO : speed this up dramatically by computing start times once, rather
 -- than readjusting the whole series each time a new copy is folded into it.
+-- It would look something like the dense algorithm, but without the ceiling,
+-- and with each Museq's RTimes being adjusted as a function of that Museq's
+-- duration, the duration of the whole collection, and the duration of those
+-- Museq's prior to it. Data.List.scanl should help.
 cat :: [Museq a] -> Museq a
 cat = foldl1 append
 
