@@ -46,7 +46,7 @@ explicitReps m = unsafeExplicitReps maxTime m
 -- | PITFALL: I don't know what this will do if
 -- `maxTime` is not an integer multiple of `lcmRatios (_sup m) (_dur m)`
 unsafeExplicitReps :: forall a.
-  RelDuration -> Museq a -> [V.Vector (RTime,a)]
+  RTime -> Museq a -> [V.Vector (RTime,a)]
 unsafeExplicitReps maxTime m =
   let sups = round $ maxTime / (_sup m)
         -- It takes a duration equal to this many multiples of _sup m
@@ -67,7 +67,7 @@ unsafeExplicitReps maxTime m =
         :: [V.Vector (RTime,a)]
   in reps
 
--- the sup-aware append
+-- | the `sup`-aware append
 --append' :: Museq a -> Museq a -> Museq a
 --append' a b = let toFinish m = lcmRatios (_dur m) (_sup m) / _sup m
 --  -- `toFinish` is the number of its `sup`s a Museq must play through
