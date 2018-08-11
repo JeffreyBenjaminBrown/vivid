@@ -91,9 +91,10 @@ stack x y = let tx = timeToRepeat x
 -- todo ? sorting in `rev` is overkill; faster would be to move the
 -- elements at time=1, if they exist, to time=0
 rev :: Museq a -> Museq a
-rev = sortMuseq . over vec g
-  where g = V.reverse . V.map (over _1 f)
-        f x = if 1-x < 1 then 1-x else 0
+rev m = sortMuseq $ over vec g m
+  where s = _sup m
+        g = V.reverse . V.map (over _1 f)
+        f x = if s-x < s then s-x else 0
 
 -- todo ? sorting in `early` or `late` is overkill too
 early :: RDuration -> Museq a -> Museq a

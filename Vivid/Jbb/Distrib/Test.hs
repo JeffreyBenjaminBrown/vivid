@@ -112,8 +112,8 @@ testRev = TestCase $ do
                   ,(1/3,"b")
                   ,(1/2,"c")]
   assertBool "rev" $ rev a == museq 2 [(0,"a")
-                                      ,(1/2,"c")
-                                      ,(2/3,"b")]
+                                      ,(3/2,"c")
+                                      ,(5/3,"b")]
 
 testEarlyAndLate = TestCase $ do
   let a = museq 10 [(0,"a"),(1%2,"b")]
