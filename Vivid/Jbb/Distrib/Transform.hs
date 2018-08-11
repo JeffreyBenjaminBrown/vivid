@@ -119,17 +119,10 @@ slow :: Rational -> Museq a -> Museq a
 slow d m = let f = (*d)
   in over dur f $ over sup f $ over vec (V.map $ over _1 f) $ m
 
+dense :: Rational -> Museq a -> Museq a
+dense d m = let f = (/d)
+  in              over sup f $ over vec (V.map $ over _1 f) $ m
 
-dense :: forall a. Rational -> Museq a -> Museq a
-dense d m = let cd = ceiling d :: Int
-                indexedMs = zip [0..cd-1] $ repeat m :: [(Int,Museq a)]
-                shiftedMs :: [Museq a]
-                shiftedMs = map (\(idx,msq) ->
-                                   over vec (V.map $ over _1
-                                            $ (/d) . (+ fromIntegral idx))
-                                   msq)
-                            indexedMs
-                in Museq { _dur = _dur m
-                         , _sup = _sup m
-                         , _vec = V.filter ((< 1) . fst)
-                                  $ V.concat $ map _vec shiftedMs}
+sparse :: Rational -> Museq a -> Museq a
+sparse d m = let f = (*d)
+  in              over sup f $ over vec (V.map $ over _1 f) $ m
