@@ -29,7 +29,6 @@ tests = runTestTT $ TestList
   , TestLabel "testFastAndSlow" testFastAndSlow
   , TestLabel "testDenseAndSparse" testDenseAndSparse
   , TestLabel "testExplicitReps" testExplicitReps
-  , TestLabel "testAppend'" testAppend'
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -86,14 +85,6 @@ testAllWaiting = TestCase $ do
                            ,("b",(now+1,emptyMuseq))]
   assertBool "one is not waiting" =<< not <$> allWaiting dist
 
-testAppend = TestCase $ do
-  let m = museq 1 [(1/2,())]
-      n = museq 2 [(1/2,())]
-  assertBool "length 1 midpoint ++ length 2 midpoint" $
-    append m n == museq 3 [(1/6,())
-                          ,(4/6,())
-                          ]
-
 testStackAsIfEqualLength = TestCase $ do
   let a = museq 2 [(1/2,"a")]
       z = museq (-3/0) [(2/3,"z")]
@@ -103,12 +94,13 @@ testStackAsIfEqualLength = TestCase $ do
 
 testStack = TestCase $ do
   let a = museq 2 [(0,"a")]
-      z = museq 3 [(1/2,"z")]
-  assertBool "" $ stack a z == museq 6 [(0,"a")
-                                       ,(1%4,"z")
-                                       ,(1%3,"a")
-                                       ,(2%3,"a")
-                                       ,(3%4,"z") ]
+      z = museq 3 [(1,"z")]
+  assertBool "" $ stack a z == let m = museq 6 [(0,"a")
+                                               ,(1,"z")
+                                               ,(2,"a")
+                                               ,(4,"a")
+                                               ,(4,"z")]
+                               in m {_sup = 6}
 
 testRev = TestCase $ do
   let a = museq 2 [(0,"a")
@@ -171,17 +163,17 @@ testExplicitReps = TestCase $ do
      , V.fromList [(21,())]
      ]
 
-testAppend' = TestCase $ do
+testAppend = TestCase $ do
     let a = museq 1 [(0,"a")]
         a2 = a {_sup = 2}
         a12 = a {_sup = 1%2}
         a32 = a {_sup = 3%2}
         b = museq 1 [(0,"b")]
-    assertBool "testAppend'" $ fst (append' a b ) == museq 2 [(0,"a"),(1,"b")]
-    assertBool "testAppend'" $ fst (append' a2 b) ==
+    assertBool "testAppend" $ append a b == museq 2 [(0,"a"),(1,"b")]
+    assertBool "testAppend" $ append a2 b ==
       let m = museq 2 [(0,"a"),(1,"b"),(3,"b")] in m {_sup = 4}
-    assertBool "testAppend" $ fst (append' a12 b) ==
+    assertBool "testAppend" $ append a12 b ==
       museq 2 [(0,"a"),(1%2,"a"),(1,"b")]
-    assertBool "testAppend" $ fst (append' a32 b) ==
+    assertBool "testAppend" $ append a32 b ==
       let m = museq 2 [(0,"a"), (1,"b"), (2+1/2,"a"), (3,"b"), (5,"b")]
       in m {_sup = 6}

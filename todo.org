@@ -1,31 +1,3 @@
-* todo next >>> use `sup` in append
-** the algorithm
-lcm (dur x) (sup x) / (sup x) = how many sups for x to finish at phase 0
- call that `nToRep x`
-lcm (nToRep m) (nToRep n) = how many sups for both to finish at phase 0
-repeat both that many times
-chop each on every _dur "Rseconds"
-interleave those
-** examples
-m = dur 2, sup 4, vec [0 a, 2 b]
-n = dur 1, sup 1, vec [0 c]
-m++n = dur 3, sup 6, vec [0 a, 2 c, 3 b, 5 c]
-
-m = dur 2, sup 4, vec [0 a, 2 b]
-n = dur 1, sup 2, vec [0 c, 1 d]
-m++n = dur 3, sup 6, vec [0 a, 2 c, 3 b, 5 d]
-
-m = dur 2, sup 3, vec [0 a]
-n = dur 1, sup 1, vec [0 b]
-m++n = dur 3, sup 9, vec [0 a, 2 b, 4 a, 5 b, 8 b]
-
-m = dur 2, sup 1, vec [0 a]
-n = dur 1, sup 1, vec [0 b]
-m++n = dur 3, sup 3, vec [0 a, 1 a, 2 b]
-
-m = dur 3, sup 2, vec [0 a]
-n = dur 1, sup 1, vec [0 b]
-m++n = dur 4, sup 8, vec [0 a, 2 a, 3 b, 5 a, 7 b]
 * sparse requires a major type rewrite
 ** there should be two durations to a Museq: the glue-duration and the RTime-supremum
 ** if in Museq x the glue-duration is half the RTime-sup, and x is glued to y, then the sound is of half of x, then y, then the other half of x, then y again
