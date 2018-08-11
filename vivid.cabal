@@ -70,6 +70,7 @@ library
     , Vivid.Jbb.Random.Types
     , Vivid.Jbb.Random.Types.AbstractSignal
     , Vivid.Jbb.Random.Types.Other
+    , Vivid.Jbb.ReadHsAsGhci
     , Vivid.Jbb.Synths
     , Vivid.Jbb.Synths.Vap
     , Vivid.Jbb.Synths.Zot

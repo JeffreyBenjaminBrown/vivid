@@ -73,7 +73,7 @@ instance Functor Museq where
   fmap = over vec . V.map . over _2
 
 emptyMuseq :: Museq a
-emptyMuseq = Museq { _dur = 1, _vec = V.empty }
+emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 
 unitMuseq :: Museq a -> Museq ()
 unitMuseq = fmap $ const ()
