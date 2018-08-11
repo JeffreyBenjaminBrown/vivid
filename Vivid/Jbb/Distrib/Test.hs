@@ -116,22 +116,22 @@ testRev = TestCase $ do
                                       ,(5/3,"b")]
 
 testEarlyAndLate = TestCase $ do
-  let a = museq 10 [(0,"a"),(1%2,"b")]
+  let a = museq 10 [(0,"a"),(1,"b")]
   assertBool "early" $ _vec (early 1 a) ==
-    V.fromList [(4%10,"b"),(9%10,"a")]
+    V.fromList [(0,"b"),(9,"a")]
   assertBool "early" $ _vec (early 11 a) ==
-    V.fromList [(4%10,"b"),(9%10,"a")]
+    V.fromList [(0,"b"),(9,"a")]
   assertBool "early" $ _vec (early (-9) a) ==
-    V.fromList [(4%10,"b"),(9%10,"a")]
+    V.fromList [(0,"b"),(9,"a")]
 
   assertBool "late" $ _vec (late 19 a) ==
-    V.fromList [(4%10,"b"),(9%10,"a")]
+    V.fromList [(0,"b"),(9,"a")]
   assertBool "late" $ _vec (late 9 a) ==
-    V.fromList [(4%10,"b"),(9%10,"a")]
+    V.fromList [(0,"b"),(9,"a")]
   assertBool "late" $ _vec (late (-1) a) ==
-    V.fromList [(4%10,"b"),(9%10,"a")]
+    V.fromList [(0,"b"),(9,"a")]
   assertBool "late" $ _vec (late (-11) a) ==
-    V.fromList [(4%10,"b"),(9%10,"a")]
+    V.fromList [(0,"b"),(9,"a")]
 
 testFastAndSlow = TestCase $ do
   let a = museq 10 [(0,"a"),(1%2,"b")]

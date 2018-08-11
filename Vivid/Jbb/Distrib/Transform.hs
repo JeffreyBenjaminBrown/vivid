@@ -96,20 +96,20 @@ rev m = sortMuseq $ over vec g m
         g = V.reverse . V.map (over _1 f)
         f x = if s-x < s then s-x else 0
 
--- todo ? sorting in `early` or `late` is overkill too
+-- todo ? sorting in `early` or `late` is overkill, similar to `rev`
 early :: RDuration -> Museq a -> Museq a
 early t m = sortMuseq $ over vec (V.map $ over _1 f) m
   where t' = let pp0 = prevPhase0 0 (_dur m) t
              in t - pp0
-        f s = let s' = s - t' / _dur m
-              in if s' < 0 then s'+1 else s'
+        f s = let s' = s - t'
+              in if s' < 0 then s'+_sup m else s'
 
 late :: RDuration -> Museq a -> Museq a
 late t m = sortMuseq $ over vec (V.map $ over _1 f) m
   where t' = let pp0 = prevPhase0 0 (_dur m) t
              in t - pp0
-        f s = let s' = s + t' / _dur m
-              in if s' >= 1 then s'-1 else s'
+        f s = let s' = s + t'
+              in if s' >= _sup m then s'-_sup m else s'
 
 fast :: Rational -> Museq a -> Museq a
 fast d = over dur (/d)
