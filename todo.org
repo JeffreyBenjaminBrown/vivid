@@ -1,3 +1,4 @@
+-- todo next >>> use `sup` in findNextEvents
 * sparse requires a major type rewrite
 ** there should be two durations to a Museq: the glue-duration and the RTime-supremum
 ** if in Museq x the glue-duration is half the RTime-sup, and x is glued to y, then the sound is of half of x, then y, then the other half of x, then y again

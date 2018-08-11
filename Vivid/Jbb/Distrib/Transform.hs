@@ -17,7 +17,7 @@ append a b = let d  = _dur a + _dur b
                    f time = time * (_dur a / d)
                  vb = V.map (over _1 f) $ _vec b where
                    f time = time * (_dur b / d) + (_dur a / d)
-             in Museq {_dur = d, _vec = (V.++) va vb}
+             in Museq {_dur = d, _sup = d, _vec = (V.++) va vb}
 
 -- | TODO : speed this up dramatically by computing start times once, rather
 -- than readjusting the whole series each time a new copy is folded into it.
@@ -34,8 +34,8 @@ repeat' k = cat . replicate k
 
 stackAsIfEqualLength :: Museq a -> Museq a -> Museq a
 stackAsIfEqualLength m n =
-  sortMuseq $ Museq {_dur = _dur m,
-                      _vec = (V.++) (_vec m) (_vec n)}
+  sortMuseq $ Museq { _dur = _dur m, _sup = _sup m
+                    , _vec = (V.++) (_vec m) (_vec n)}
 
 stack :: Museq a -> Museq a -> Museq a
 stack a b = let lcm = lcmRatios (_dur a) (_dur b)
@@ -81,5 +81,6 @@ dense d m = let cd = ceiling d :: Int
                                    msq)
                             indexedMs
                 in Museq { _dur = _dur m
+                         , _sup = _sup m
                          , _vec = V.filter ((< 1) . fst)
                                   $ V.concat $ map _vec shiftedMs}

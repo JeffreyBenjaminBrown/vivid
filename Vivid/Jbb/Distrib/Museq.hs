@@ -19,12 +19,12 @@ sortMuseq = vec %~
                    sortBy compare' v'
                    V.freeze v'
 
--- | A valid Museq is sorted on start time, has (relative) duration > 0,
--- and all actions at time < 1.
+-- | A valid Museq m is sorted on start time, has (relative) duration > 0,
+-- and all actions at time < _sup m.
 museqIsValid :: Eq a => Museq a -> Bool
 museqIsValid mu = and [a,b,c,d] where
   a = if V.length (_vec mu) == 0 then True
-      else fst (V.last $ _vec mu) < 1
+      else fst (V.last $ _vec mu) < _sup mu
   b = mu == sortMuseq mu
   c = _dur mu > 0
   d = _sup mu > 0
