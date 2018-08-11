@@ -84,3 +84,4 @@ stack x y = let tx = timeToRepeat x
                 xs = unsafeExplicitReps t x
                 ys = unsafeExplicitReps t y
   in sortMuseq $ Museq {_dur = _dur x, _sup = t, _vec = V.concat $ xs ++ ys}
+
