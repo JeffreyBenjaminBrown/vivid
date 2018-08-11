@@ -1,6 +1,7 @@
 module Vivid.Jbb.Distrib.Test where
 
-import           Control.Concurrent.MVar
+import Control.Concurrent.MVar
+import qualified Control.Lens as L
 import qualified Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
@@ -22,7 +23,6 @@ tests = runTestTT $ TestList
   , TestLabel "findNextEvents" testFindNextEvents
   , TestLabel "testAllWaiting" testAllWaiting
   , TestLabel "testAppend" testAppend
-  , TestLabel "testStackAsIfEqualLength" testStackAsIfEqualLength
   , TestLabel "testStack" testStack
   , TestLabel "testRev" testRev
   , TestLabel "testEarlyAndLate" testEarlyAndLate
@@ -85,22 +85,21 @@ testAllWaiting = TestCase $ do
                            ,("b",(now+1,emptyMuseq))]
   assertBool "one is not waiting" =<< not <$> allWaiting dist
 
-testStackAsIfEqualLength = TestCase $ do
-  let a = museq 2 [(1/2,"a")]
-      z = museq (-3/0) [(2/3,"z")]
-  assertBool "stackAsIfEqualLength" $ stackAsIfEqualLength a z ==
-    museq 2 [(1/2,"a"),
-              (2/3,"z")]
-
 testStack = TestCase $ do
-  let a = museq 2 [(0,"a")]
+  let y = museq 2 [(0,"y")]
       z = museq 3 [(1,"z")]
-  assertBool "" $ stack a z == let m = museq 6 [(0,"a")
-                                               ,(1,"z")
-                                               ,(2,"a")
-                                               ,(4,"a")
-                                               ,(4,"z")]
-                               in m {_sup = 6}
+  assertBool "stack" $ stack y z ==
+    L.set dur (_dur y) ( museq 6 [(0,"y")
+                                 ,(1,"z")
+                                 ,(2,"y")
+                                 ,(4,"y")
+                                 ,(4,"z")] )
+  assertBool "stack" $ stack (L.set dur 1 y) z ==
+    L.set dur 1 ( museq 6 [(0,"y")
+                          ,(1,"z")
+                          ,(2,"y")
+                          ,(4,"y")
+                          ,(4,"z")] )
 
 testRev = TestCase $ do
   let a = museq 2 [(0,"a")

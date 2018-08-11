@@ -94,31 +94,17 @@ cat = foldl1 append
 repeat' :: Int -> Museq a -> Museq a
 repeat' k = cat . replicate k
 
--- todo next >>> make sup-aware
-stackAsIfEqualLength :: Museq a -> Museq a -> Museq a
-stackAsIfEqualLength m n =
-  sortMuseq $ Museq { _dur = _dur m, _sup = _sup m
-                    , _vec = (V.++) (_vec m) (_vec n)}
-
--- todo next >>> make sup-aware
-stack :: Museq a -> Museq a -> Museq a
-stack a b = let lcm = lcmRatios (_dur a) (_dur b)
-                a' = repeat' (round $ lcm / _dur a) a
-                b' = repeat' (round $ lcm / _dur b) b
-            in stackAsIfEqualLength a' b'
-
--- >>>
--- TODO ? stack' might waste space; see comment in `Museq.timeToRepeat`.
+-- TODO ? stack might waste space; see comment in `Museq.timeToRepeat`.
 -- | Play both at the same time.
 -- PITFALL: The choice of the resulting Museq's _dur is arbitrary.
 -- Here it's set to that of the first; for something else just use `set dur`.
-stack' :: Museq a -> Museq a -> Museq a
-stack' x y = let tx = timeToRepeat x
-                 ty = timeToRepeat y
-                 t = lcmRatios tx ty
-                 xs = unsafeExplicitReps tx x
-                 ys = unsafeExplicitReps ty y
-             in x
+stack :: Museq a -> Museq a -> Museq a
+stack x y = let tx = timeToRepeat x
+                ty = timeToRepeat y
+                t = lcmRatios tx ty
+                xs = unsafeExplicitReps t x
+                ys = unsafeExplicitReps t y
+  in sortMuseq $ Museq {_dur = _dur x, _sup = t, _vec = V.concat $ xs ++ ys}
 
 -- todo ? sorting in `rev` is overkill; faster would be to move the
 -- elements at time=1, if they exist, to time=0

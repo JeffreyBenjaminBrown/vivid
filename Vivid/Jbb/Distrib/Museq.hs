@@ -11,13 +11,16 @@ import Vivid.Jbb.Util
 import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 
 
-
 -- | The length of time a Museq must play through to regain its initial state.
 -- For example, if dur = 4 and sup = 6, 
 -- then it will be ready to start all over 3 durs later, at time 12.
 -- PITFALL ? TODO : If `sup m` divides `dur m`, it's already in the same
 -- state after `sup m`, but this will produce `sup m`. The result is that
 -- the output of `stack` can be redundant, usinig more space than necessary.
+-- SOLUTION: Really there are two ways to repeat: One is that you're going
+-- to sound the same. The other is that you've actually repeated the number
+-- of times you said you would. The first is what stack ought to use;
+-- the second is what append ought to use.
 timeToRepeat :: Museq a -> Rational
 timeToRepeat m = lcmRatios (_sup m) (_dur m)
 
