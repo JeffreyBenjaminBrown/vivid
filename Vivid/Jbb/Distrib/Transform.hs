@@ -28,10 +28,12 @@ divideAtMaxima view tops stuff = reverse $ go [] tops stuff where
     let (lt,gte) = V.partition ((< t) . view) vec
     in go (lt : acc) ts gte
 
+--timeToFinishAtPhase0 :: Museq a -> Rational
+
+
 -- | if L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
 -- See the test suite for an example.
-
 explicitReps :: forall a. Museq a -> [V.Vector (RTime,a)]
 explicitReps m = unsafeExplicitReps maxTime m
   where maxTime = lcmRatios (_sup m) (_dur m)
@@ -92,24 +94,22 @@ append x y =
            , _dur = _dur x + _dur y
            , _vec = V.concat $ interleave xs ys }
 
--- | TODO : speed this up dramatically by computing start times once, rather
+-- | todo : speed this up dramatically by computing start times once, rather
 -- than readjusting the whole series each time a new copy is folded into it.
--- It would look something like the dense algorithm, but without the ceiling,
--- and with each Museq's RTimes being adjusted as a function of that Museq's
--- duration, the duration of the whole collection, and the duration of those
--- Museq's prior to it. Data.List.scanl should help.
 cat :: [Museq a] -> Museq a
 cat = foldl1 append
 
--- | TODO : this ought to accept positive nonintegers
+-- | todo : this ought to accept positive nonintegers
 repeat' :: Int -> Museq a -> Museq a
 repeat' k = cat . replicate k
 
+-- todo next >>> make sup-aware
 stackAsIfEqualLength :: Museq a -> Museq a -> Museq a
 stackAsIfEqualLength m n =
   sortMuseq $ Museq { _dur = _dur m, _sup = _sup m
                     , _vec = (V.++) (_vec m) (_vec n)}
 
+-- todo next >>> make sup-aware
 stack :: Museq a -> Museq a -> Museq a
 stack a b = let lcm = lcmRatios (_dur a) (_dur b)
                 a' = repeat' (round $ lcm / _dur a) a
@@ -138,13 +138,13 @@ late t m = sortMuseq $ over vec (V.map $ over _1 f) m
         f s = let s' = s + t' / _dur m
               in if s' >= 1 then s'-1 else s'
 
-fast :: RDuration -> Museq a -> Museq a
+fast :: Rational -> Museq a -> Museq a
 fast d = over dur (/d)
 
-slow :: RDuration -> Museq a -> Museq a
+slow :: Rational -> Museq a -> Museq a
 slow d = over dur (*d)
 
-dense :: forall a. RDuration -> Museq a -> Museq a
+dense :: forall a. Rational -> Museq a -> Museq a
 dense d m = let cd = ceiling d :: Int
                 indexedMs = zip [0..cd-1] $ repeat m :: [(Int,Museq a)]
                 shiftedMs :: [Museq a]
