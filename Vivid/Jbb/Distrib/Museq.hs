@@ -37,13 +37,13 @@ museqIsValid mu = and [a,b,c,d] where
 findNextEvents :: Time -> Duration -> Time
                -> Museq Action -> (Duration, [Action])
 findNextEvents time0 globalPeriod now museq =
-  let period = globalPeriod * fromRational (_dur museq)
+  let period = globalPeriod * fromRational (_sup museq)
       pp0 = prevPhase0 time0 period now
       relNow = toRational $ (now - pp0) / period
       vecLen = V.length $ _vec museq
       compare' :: (RelDuration, a) -> (RelDuration, a) -> Ordering
       compare' ve ve' = compare (fst ve) (fst ve')
-      uv = _vec $ unitMuseq museq
+      uv = _vec $ unitMuseq museq :: V.Vector (RelDuration,())
       startOrOOB = firstIndexGTE  compare' uv (relNow, ())
       start = if startOrOOB < vecLen then startOrOOB else 0
       end =     lastIndexJustGTE  compare' uv (uv ! start)
@@ -54,4 +54,3 @@ findNextEvents time0 globalPeriod now museq =
         fromRational relTimeOfNextEvent * period + pp0 - now
   in ( timeUntilNextEvent
      , map snd $ V.toList $ V.slice start (end - start) $ _vec museq )
-
