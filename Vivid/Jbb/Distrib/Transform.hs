@@ -29,7 +29,8 @@ divideAtMaxima :: forall a b. Ord b
                => (a->b) -> [b] -> V.Vector a -> [V.Vector a]
 divideAtMaxima view tops stuff = reverse $ go [] tops stuff where
   go :: [V.Vector a] -> [b] -> V.Vector a -> [V.Vector a]
-  go acc _     (V.null -> True) = acc
+  -- even if `stuff` is empty, keep going, because the resulting
+  -- series of empty lists is important for the interleaving in append'
   go acc []     _               = acc
   go acc (t:ts) vec             =
     let (lt,gte) = V.partition ((< t) . view) vec
@@ -68,7 +69,11 @@ unsafeExplicitReps maxTime m =
   in reps
 
 -- | the `sup`-aware append
-append' :: forall a. Museq a -> Museq a -> Museq a
+append' :: forall a. Museq a -> Museq a -> -- Museq a
+  (Museq a,
+    (Rational, [(Int, V.Vector (RTime, a))],
+      [(Int, V.Vector (RTime, a))], [V.Vector (RTime, a)],
+      [V.Vector (RTime, a)]))
 append' x y =
   let toFinish m = lcmRatios (_dur m) (_sup m) / _dur m
         -- `toFinish` is the number of its `_dur`s a Museq must play through
@@ -95,9 +100,10 @@ append' x y =
       xs, ys :: [V.Vector (RTime,a)]
       xs = map adjustx ixs
       ys = map adjusty iys
-  in Museq { _sup = durs * (_dur x + _dur y)
-           , _dur = _dur x + _dur y
-           , _vec = V.concat $ interleave xs ys }
+  in (Museq { _sup = durs * (_dur x + _dur y)
+            , _dur = _dur x + _dur y
+            , _vec = V.concat $ interleave xs ys }
+     ,(durs,ixs,iys,xs,ys))
 
 -- | TODO : speed this up dramatically by computing start times once, rather
 -- than readjusting the whole series each time a new copy is folded into it.
