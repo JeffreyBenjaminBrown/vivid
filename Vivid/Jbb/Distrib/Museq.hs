@@ -12,6 +12,21 @@ import Vivid.Jbb.Util
 import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 
 
+
+-- | The length of time a Museq must play through to regain its initial state.
+-- For example, if dur = 4 and sup = 6, 
+-- then it will be ready to start all over 3 durs later, at time 12.
+timeToRepeat :: Museq a -> Rational
+timeToRepeat m = lcmRatios (_sup m) (_dur m)
+
+-- | The number of its `sup`s a Museq must play through
+-- to regain its initial state.
+supsToRepeat :: Museq a -> Rational
+supsToRepeat m = lcmRatios (_sup m) (_dur m) / _sup m
+
+dursToRepeat :: Museq a -> Rational
+dursToRepeat m = lcmRatios (_sup m) (_dur m) / _dur m
+
 sortMuseq :: Museq a -> Museq a
 sortMuseq = vec %~
   \v -> runST $ do v' <- V.thaw v

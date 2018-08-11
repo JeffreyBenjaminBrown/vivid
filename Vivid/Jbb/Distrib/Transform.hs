@@ -7,7 +7,7 @@ import qualified Data.Vector as V
 
 import Vivid hiding (interleave)
 import Vivid.Jbb.Util
-import Vivid.Jbb.Distrib.Museq (sortMuseq)
+import Vivid.Jbb.Distrib.Museq
 import Vivid.Jbb.Distrib.Types
 
 
@@ -28,18 +28,15 @@ divideAtMaxima view tops stuff = reverse $ go [] tops stuff where
     let (lt,gte) = V.partition ((< t) . view) vec
     in go (lt : acc) ts gte
 
---timeToFinishAtPhase0 :: Museq a -> Rational
-
 
 -- | if L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
 -- See the test suite for an example.
 explicitReps :: forall a. Museq a -> [V.Vector (RTime,a)]
-explicitReps m = unsafeExplicitReps maxTime m
-  where maxTime = lcmRatios (_sup m) (_dur m)
+explicitReps m = unsafeExplicitReps (timeToRepeat m) m
 
 -- | PITFALL: I don't know what this will do if
--- `maxTime` is not an integer multiple of `lcmRatios (_sup m) (_dur m)`
+-- `maxTime` is not an integer multiple of `timeToRepeat m`
 unsafeExplicitReps :: forall a.
   RTime -> Museq a -> [V.Vector (RTime,a)]
 unsafeExplicitReps maxTime m =
@@ -55,7 +52,7 @@ unsafeExplicitReps maxTime m =
       adjustTimes (idx,v) = V.map f v where
         f = over _1 $ (+) (fromIntegral idx * _sup m)
       spread = map adjustTimes indexed :: [V.Vector (RTime,a)]
-        -- the times in spread range from 0 to lcmRatios (_sup m) (_dur m)
+        -- the times in `spread` range from 0 to `timeToRepat m`
       concatted = V.concat spread :: V.Vector (RTime,a)
       reps = divideAtMaxima fst [fromIntegral i * _dur m
                                 | i <- [1..durs]] concatted
@@ -65,11 +62,7 @@ unsafeExplicitReps maxTime m =
 -- | the `sup`-aware append
 append :: forall a. Museq a -> Museq a -> Museq a
 append x y =
-  let toFinish m = lcmRatios (_dur m) (_sup m) / _dur m
-        -- `toFinish` is the number of its `_dur`s a Museq must play through
-        -- in order to finish at phase 0. Example: if dur = 4 and sup = 6,
-        -- then it will be ready to start all over 3 durs later, at time 12.
-      durs = lcmRatios (toFinish x) (toFinish y)
+  let durs = lcmRatios (dursToRepeat x) (dursToRepeat y)
         -- Since x and y both have to finish at the same time,
         -- they must run through this many durs.
       ixs, iys :: [(Int,V.Vector (RTime,a))]
