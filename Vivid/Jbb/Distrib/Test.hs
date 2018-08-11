@@ -159,3 +159,13 @@ testExplicitReps = TestCase $ do
                                                 , V.fromList [(8,())]
                                                 , V.fromList [(9,())]
                                                 ]
+  assertBool "unsafeExplicitReps" $ unsafeExplicitReps 24 y ==
+     [ V.fromList [(0,()), (1,())]
+     , V.fromList [(4,()), (5,())]
+     , V.fromList [(8,())]
+     , V.fromList [(9,())]
+     , V.fromList [(12,()), (13,())]
+     , V.fromList [(16,()), (17,())]
+     , V.fromList [(20,())]
+     , V.fromList [(21,())]
+     ]

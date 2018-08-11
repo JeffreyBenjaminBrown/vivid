@@ -35,16 +35,24 @@ divideAtMaxima view tops stuff = reverse $ go [] tops stuff where
     let (lt,gte) = V.partition ((< t) . view) vec
     in go (lt : acc) ts gte
 
--- | over a length L of time such that `m` finishes at phase 0,
+-- | if L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
 -- See the test suite for an example.
+
 explicitReps :: forall a. Museq a -> [V.Vector (RTime,a)]
-explicitReps m =
-  let sups = round $ lcmRatios (_sup m) (_dur m) / (_sup m)
+explicitReps m = unsafeExplicitReps maxTime m
+  where maxTime = lcmRatios (_sup m) (_dur m)
+
+-- | PITFALL: I don't know what this will do if
+-- `maxTime` is not an integer multiple of `lcmRatios (_sup m) (_dur m)`
+unsafeExplicitReps :: forall a.
+  RelDuration -> Museq a -> [V.Vector (RTime,a)]
+unsafeExplicitReps maxTime m =
+  let sups = round $ maxTime / (_sup m)
         -- It takes a duration equal to this many multiples of _sup m
         -- for m to finish at phase 0.
         -- It's already an integer; round is just to prove that to GHC.
-      durs = round $ lcmRatios (_sup m) (_dur m) / (_dur m)
+      durs = round $ maxTime / (_dur m)
       indexed = zip [0..sups-1]
         $ repeat $ _vec m :: [(Int,V.Vector (RTime,a))]
       adjustTimes :: (Int,V.Vector (RTime,a))
