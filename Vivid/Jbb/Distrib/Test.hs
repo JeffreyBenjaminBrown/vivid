@@ -134,9 +134,9 @@ testEarlyAndLate = TestCase $ do
     V.fromList [(0,"b"),(9,"a")]
 
 testFastAndSlow = TestCase $ do
-  let a = museq 10 [(0,"a"),(1%2,"b")]
-  assertBool "fast" $ (fast 2 a) == a {_dur = 5}
-  assertBool "slow" $ (slow 2 a) == a {_dur = 20}
+  let a = museq 10 [(0,"a"),(2,"b")]
+  assertBool "fast" $ (fast 2 a) == museq 5 [(0,"a"),(1,"b")]
+  assertBool "slow" $ (slow 2 a) == museq 20 [(0,"a"),(4,"b")]
 
 testDenseAndSparse = TestCase $ do
   let x = museq 10 [(0 % 1,"a"),(1 % 2,"b")]

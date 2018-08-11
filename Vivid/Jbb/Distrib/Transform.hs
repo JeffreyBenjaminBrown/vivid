@@ -112,10 +112,13 @@ late t m = sortMuseq $ over vec (V.map $ over _1 f) m
               in if s' >= _sup m then s'-_sup m else s'
 
 fast :: Rational -> Museq a -> Museq a
-fast d = over dur (/d)
+fast d m = let f = (/d)
+  in over dur f $ over sup f $ over vec (V.map $ over _1 f) $ m
 
 slow :: Rational -> Museq a -> Museq a
-slow d = over dur (*d)
+slow d m = let f = (*d)
+  in over dur f $ over sup f $ over vec (V.map $ over _1 f) $ m
+
 
 dense :: forall a. Rational -> Museq a -> Museq a
 dense d m = let cd = ceiling d :: Int
