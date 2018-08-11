@@ -11,13 +11,9 @@
 *** merge (multiplicative or additive (? per parameter))
 **** e.g., merging freq of 2 and freq of 440 gives freq of 880
 *** apply
-*** early, late, slow, fast, dense, sparse
-*** rotate t = fast t . sparse t
-*** rep n = slow n . dense n -- the name `repeat` is taken
-*** space: play a duration n < k loop over duration k. (Hard; see Tidal.epic.)
 *** onParams :: [(ParamString, Double -> Double)] -> Museq -> Museq
 *** dropParams, keepParams :: [ParamString] -> Museq -> Museq
-
+*** space: play a duration n < k loop over duration k. (Hard; see Tidal.epic.)
 ** distribute concurrent notes across synths
 *** automatically, rather than requiring the user to say which go where.
 ** scales, harmonies

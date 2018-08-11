@@ -177,3 +177,15 @@ testAppend = TestCase $ do
     assertBool "testAppend" $ append a32 b ==
       let m = museq 2 [(0,"a"), (1,"b"), (2+1/2,"a"), (3,"b"), (5,"b")]
       in m {_sup = 6}
+
+-- | I'm not really sure what rotate should do.
+testRep = TestCase $ do
+  let a = museq 6 [(0,"a")]
+  assertBool "rep int" $ rep 2 a ==
+    L.set dur 12 (museq 6 [(0,"a")])
+  assertBool "rep fraction" $ rep (3/2) a ==
+    L.set dur 9 (museq 6 [(0,"a")])
+
+  let b = museq 6 [(0,"a"),(3,"b")]
+  assertBool "rotate int" $ rotate 2 b ==
+    L.set dur 6 (museq 12 [(0,"a"),(6,"b")])

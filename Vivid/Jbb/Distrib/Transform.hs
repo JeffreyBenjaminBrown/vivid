@@ -70,12 +70,8 @@ append x y =
 
 -- | todo : speed this up dramatically by computing start times once, rather
 -- than readjusting the whole series each time a new copy is folded into it.
-cat :: [Museq a] -> Museq a
+cat :: [Museq a] -> Museq a -- the name "concat" is taken
 cat = foldl1 append
-
--- | todo : this ought to accept positive nonintegers
-repeat' :: Int -> Museq a -> Museq a
-repeat' k = cat . replicate k
 
 -- | Play both at the same time.
 -- PITFALL: The choice of the resulting Museq's _dur is arbitrary.
@@ -90,39 +86,36 @@ stack x y = let tx = timeToRepeat x
 
 -- todo ? sorting in `rev` is overkill; faster would be to move the
 -- elements at time=1, if they exist, to time=0
-rev :: Museq a -> Museq a
+rev :: Museq a -> Museq a -- the name "reverse" is taken
 rev m = sortMuseq $ over vec g m
   where s = _sup m
         g = V.reverse . V.map (over _1 f)
         f x = if s-x < s then s-x else 0
 
 -- todo ? sorting in `early` or `late` is overkill, similar to `rev`
-early :: RDuration -> Museq a -> Museq a
+early, late :: RDuration -> Museq a -> Museq a
 early t m = sortMuseq $ over vec (V.map $ over _1 f) m
   where t' = let pp0 = prevPhase0 0 (_dur m) t
              in t - pp0
         f s = let s' = s - t'
               in if s' < 0 then s'+_sup m else s'
-
-late :: RDuration -> Museq a -> Museq a
 late t m = sortMuseq $ over vec (V.map $ over _1 f) m
   where t' = let pp0 = prevPhase0 0 (_dur m) t
              in t - pp0
         f s = let s' = s + t'
               in if s' >= _sup m then s'-_sup m else s'
 
-fast :: Rational -> Museq a -> Museq a
+fast, slow, dense, sparse :: Rational -> Museq a -> Museq a
 fast d m = let f = (/d)
   in over dur f $ over sup f $ over vec (V.map $ over _1 f) $ m
-
-slow :: Rational -> Museq a -> Museq a
 slow d m = let f = (*d)
   in over dur f $ over sup f $ over vec (V.map $ over _1 f) $ m
-
-dense :: Rational -> Museq a -> Museq a
 dense d m = let f = (/d)
   in              over sup f $ over vec (V.map $ over _1 f) $ m
-
-sparse :: Rational -> Museq a -> Museq a
 sparse d m = let f = (*d)
   in              over sup f $ over vec (V.map $ over _1 f) $ m
+
+-- | I'm not sure what a fractional rotation means, so I have not tested it.
+rotate, rep :: Rational -> Museq a -> Museq a -- the name `repeat` is taken
+rotate t = fast t . sparse t
+rep n = slow n . dense n
