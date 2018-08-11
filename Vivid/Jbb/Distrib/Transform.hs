@@ -10,31 +10,14 @@ import Vivid.Jbb.Distrib.Museq
 import Vivid.Jbb.Distrib.Types
 
 
--- | example:
--- > x
--- [(1,"gobot"),(2,"gobot"),(3,"gobot"),(4,"gobot"),(5,"gobot"),(6,"gobot")]
--- > divideAtMaxima fst [3,5] $ V.fromList x
--- [[(1,"gobot"),(2,"gobot")]
--- ,[(3,"gobot"),(4,"gobot")]]
-divideAtMaxima :: forall a b. Ord b
-               => (a->b) -> [b] -> V.Vector a -> [V.Vector a]
-divideAtMaxima view tops stuff = reverse $ go [] tops stuff where
-  go :: [V.Vector a] -> [b] -> V.Vector a -> [V.Vector a]
-  -- even if `stuff` is empty, keep going, because the resulting
-  -- series of empty lists is important for the interleaving in append'
-  go acc []     _               = acc
-  go acc (t:ts) vec             =
-    let (lt,gte) = V.partition ((< t) . view) vec
-    in go (lt : acc) ts gte
-
 -- | if L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
 -- See the test suite for an example.
 explicitReps :: forall a. Museq a -> [V.Vector (RTime,a)]
-explicitReps m = unsafeExplicitReps (timeToRepeat m) m
+explicitReps m = unsafeExplicitReps (timeToPlayThrough m) m
 
 -- | PITFALL: I don't know what this will do if
--- `totalDuration` is not an integer multiple of `timeToRepeat m`
+-- `totalDuration` is not an integer multiple of `timeToPlayThrough m`
 unsafeExplicitReps :: forall a.
   RTime -> Museq a -> [V.Vector (RTime,a)]
 unsafeExplicitReps totalDuration m =
@@ -60,7 +43,7 @@ unsafeExplicitReps totalDuration m =
 -- | the `sup`-aware append
 append :: forall a. Museq a -> Museq a -> Museq a
 append x y =
-  let durs = lcmRatios (dursToRepeat x) (dursToRepeat y)
+  let durs = lcmRatios (dursToPlayThrough x) (dursToPlayThrough y)
         -- Since x and y both have to finish at the same time,
         -- they must run through this many durs.
       ixs, iys :: [(Int,V.Vector (RTime,a))]
@@ -94,10 +77,9 @@ cat = foldl1 append
 repeat' :: Int -> Museq a -> Museq a
 repeat' k = cat . replicate k
 
--- TODO ? stack might waste space; see comment in `Museq.timeToRepeat`.
 -- | Play both at the same time.
 -- PITFALL: The choice of the resulting Museq's _dur is arbitrary.
--- Here it's set to that of the first; for something else just use `set dur`.
+-- Here it's that of the first; for something else just `Lens.set dur`
 stack :: Museq a -> Museq a -> Museq a
 stack x y = let tx = timeToRepeat x
                 ty = timeToRepeat y

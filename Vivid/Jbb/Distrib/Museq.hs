@@ -11,27 +11,46 @@ import Vivid.Jbb.Util
 import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 
 
--- | The length of time a Museq must play through to regain its initial state.
--- For example, if dur = 4 and sup = 6, 
--- then it will be ready to start all over 3 durs later, at time 12.
--- PITFALL ? TODO : If `sup m` divides `dur m`, it's already in the same
--- state after `sup m`, but this will produce `sup m`. The result is that
--- the output of `stack` can be redundant, usinig more space than necessary.
--- SOLUTION: Really there are two ways to repeat: One is that you're going
--- to sound the same. The other is that you've actually repeated the number
--- of times you said you would. The first is what stack ought to use;
--- the second is what append ought to use.
-timeToRepeat :: Museq a -> Rational
-timeToRepeat m = lcmRatios (_sup m) (_dur m)
+-- | = Figuring out when a Museq will repeat.
+-- There are two senses in which a Museq can repeat. One is that
+-- it sounds like it's repeating. If _dur = 2 and _sup = 1, then
+-- it sounds like it's repeating after a single _sup.
+-- The *ToRepeat functions below use that sense.
+--
+-- The other sense is that the Museq has cycled through what it
+-- "is supposed to cycle through". (This is useful when `append`ing Museqs.)
+-- If _dur = 2 and _sup = 1, it won't have played all the way through
+-- until _dur has gone by, even though a listener hears it doing the same
+-- thing halfway through that _dur.
+-- The *ToPlayThrough functions below use that sense.
+--
+-- The results of the two families only differ when _sup divides _dur.
+--
+-- I could have used the *PlayThrough functions everywhere, but
+-- in some situations that would waste space. For an example of one,
+-- see in Tests.testStack the assertion labeled
+-- "stack, where timeToRepeat differs from timeToPlayThrough".
 
--- | The number of its `sup`s a Museq must play through
--- to regain its initial state.
+timeToPlayThrough :: Museq a -> Rational
+timeToPlayThrough m = lcmRatios (_sup m) (_dur m)
+
+supsToPlayThrough :: Museq a -> Rational
+supsToPlayThrough m = timeToPlayThrough m / _sup m
+
+dursToPlayThrough :: Museq a -> Rational
+dursToPlayThrough m = timeToPlayThrough m / _dur m
+
+timeToRepeat :: Museq a -> Rational
+timeToRepeat m = let x = lcmRatios (_sup m) (_dur m)
+  in if x == _dur m then _sup m else x
+
 supsToRepeat :: Museq a -> Rational
-supsToRepeat m = lcmRatios (_sup m) (_dur m) / _sup m
+supsToRepeat m = timeToRepeat m / _sup m
 
 dursToRepeat :: Museq a -> Rational
-dursToRepeat m = lcmRatios (_sup m) (_dur m) / _dur m
+dursToRepeat m = timeToRepeat m / _dur m
 
+-- | = Sort a Museq
 sortMuseq :: Museq a -> Museq a
 sortMuseq = vec %~
   \v -> runST $ do v' <- V.thaw v

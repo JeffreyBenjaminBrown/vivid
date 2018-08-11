@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Vivid.Jbb.Util where
 
 import Control.Monad.ST
@@ -40,6 +42,26 @@ prevPhase0 :: RealFrac a => a -> a -> a -> a
 prevPhase0 time0 period now =
   fromIntegral (floor $ (now - time0) / period ) * period + time0
 
+
+-- | == Functions on Vectors
+
+-- | example:
+-- > x
+-- [(1,"gobot"),(2,"gobot"),(3,"gobot"),(4,"gobot"),(5,"gobot"),(6,"gobot")]
+-- > divideAtMaxima fst [3,5] $ V.fromList x
+-- [[(1,"gobot"),(2,"gobot")]
+-- ,[(3,"gobot"),(4,"gobot")]]
+divideAtMaxima :: forall a b. Ord b
+               => (a->b) -> [b] -> V.Vector a -> [V.Vector a]
+divideAtMaxima view upperBounds stuff =
+  reverse $ go [] upperBounds stuff where
+  go :: [V.Vector a] -> [b] -> V.Vector a -> [V.Vector a]
+  -- even if `stuff` is empty, keep going, because the resulting
+  -- series of empty lists is important for the interleaving in append'
+  go acc []     _               = acc
+  go acc (t:ts) vec             =
+    let (lt,gte) = V.partition ((< t) . view) vec
+    in go (lt : acc) ts gte
 
 -- | = Functions to find a range of items of interest in a sorted vector.
 

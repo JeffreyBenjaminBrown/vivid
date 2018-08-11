@@ -100,6 +100,12 @@ testStack = TestCase $ do
                           ,(2,"y")
                           ,(4,"y")
                           ,(4,"z")] )
+  assertBool "stack, where timeToRepeat differs from timeToPlayThrough"
+    $ stack (L.set sup 1 y) z ==
+    L.set dur 2 ( museq 3 [(0,"y")
+                          ,(1,"y")
+                          ,(1,"z")
+                          ,(2,"y") ] )
 
 testRev = TestCase $ do
   let a = museq 2 [(0,"a")
