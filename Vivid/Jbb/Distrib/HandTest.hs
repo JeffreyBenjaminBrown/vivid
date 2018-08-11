@@ -1,4 +1,4 @@
-module Vivid.Jbb.Distrib.HandTest where
+module Vivid.Jbb.Distrib.HandTest () where
 
 import           Control.Concurrent
 import           Control.Concurrent.MVar

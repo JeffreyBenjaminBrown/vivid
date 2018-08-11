@@ -1,21 +1,23 @@
-* sparse requires a major type rewrite
-** there should be two durations to a Museq: the glue-duration and the RTime-supremum
-** if in Museq x the glue-duration is half the RTime-sup, and x is glued to y, then the sound is of half of x, then y, then the other half of x, then y again
-** if in Museq x the glueDur is twice the supDur, then gluing x to y would result in the sound of x played twice (each iteration being glueDur in length) followed by y played once
+* workflow : wishes, mysteries
+** ? changing (museqs dist): voices must appear, and must vanish not too soon
+*** make a "diffSynths" function, to see what needs creating|freeing
+*** anything disappearing: send amp=0 first, then free it
+*** ? anything appearing : make those unused synths well in advance
+*** "change (mTimeMuseqs dist)" makes synths, then waits for input to press akey, whereupon it changes the museqs
+** implicit note off
 * supercollider mysteries
 ** envelopes
 ** many voices to one distortion
 ** slow changes, e.g. for slide guitar
 * features to add, in roughly cumulative order
-** use it
 ** functions over loops
-*** merge (multiplicative or additive (? per parameter))
+*** *merge (multiplicative or additive (? per parameter))
 **** e.g., merging freq of 2 and freq of 440 gives freq of 880
 **** ? does it apply to a general Museq a, or only Museq Msg, or Museq Action?
 **** ? consider mismatched durations, sups
 **** ? allow user to specify alternative strategies for particular parameters
 ***** e.g. "merge these all with (\*), except merge amp with (+)"
-*** apply
+*** *apply
 *** onParams :: [(ParamString, Double -> Double)] -> Museq -> Museq
 *** dropParams, keepParams :: [ParamString] -> Museq -> Museq
 *** space: play a duration n < k loop over duration k. (Hard; see Tidal.epic.)
