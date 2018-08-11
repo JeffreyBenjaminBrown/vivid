@@ -29,10 +29,9 @@ museqIsValid mu = and [a,b,c,d] where
   c = _dur mu > 0
   d = _sup mu > 0
 
--- todo ? This could be made a little faster by using binarySearchRByBounds
+-- todo ? `findNextEvents` could be slightly faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid searching the first part
 -- of the vector again.
--- todo next >>> use `sup` in findNextEvents
 -- | Returns a list of actions and the time remaining until they start.
 findNextEvents :: Time -> Duration -> Time
                -> Museq Action -> (Duration, [Action])

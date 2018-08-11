@@ -1,4 +1,4 @@
-module Vivid.Jbb.Distrib.Test (tests) where
+module Vivid.Jbb.Distrib.Test where
 
 import           Control.Concurrent.MVar
 import qualified Data.Map as M
@@ -28,6 +28,7 @@ tests = runTestTT $ TestList
   , TestLabel "testEarlyAndLate" testEarlyAndLate
   , TestLabel "testFastAndSlow" testFastAndSlow
   , TestLabel "testDenseAndSparse" testDenseAndSparse
+  , TestLabel "testExplicitReps" testExplicitReps
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -149,3 +150,12 @@ testDenseAndSparse = TestCase $ do
   assertBool "dense 1.5" $ dense 1.5 x == museq 10 [(0 % 1,"a")
                                                    ,(1 % 3,"b")
                                                    ,(2 % 3,"a")]
+
+testExplicitReps = TestCase $ do
+  let y = Museq {_dur = 3, _sup = 4, _vec = V.fromList [(0,())
+                                                       ,(1,())]}
+  assertBool "explicitReps" $ explicitReps y == [ V.fromList [(0,()), (1,())]
+                                                , V.fromList [(4,()), (5,())]
+                                                , V.fromList [(8,())]
+                                                , V.fromList [(9,())]
+                                                ]
