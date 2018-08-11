@@ -29,6 +29,7 @@ tests = runTestTT $ TestList
   , TestLabel "testFastAndSlow" testFastAndSlow
   , TestLabel "testDenseAndSparse" testDenseAndSparse
   , TestLabel "testExplicitReps" testExplicitReps
+  , TestLabel "testAppend'" testAppend'
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -169,3 +170,12 @@ testExplicitReps = TestCase $ do
      , V.fromList [(20,())]
      , V.fromList [(21,())]
      ]
+
+testAppend' = TestCase $ do
+    let a = museq 1 [(0,"a")]
+        a2 = a {_sup = 2}
+        a32 = a {_sup = 3%2}
+        b = museq 1 [(0,"b")]
+    assertBool "testAppend'" $ append' a b == museq 2 [(0,"a"),(1,"b")]
+    assertBool "testAppend'" $ append' a2 b ==
+      museq 2 [(0,"a"),(1,"b"),(3,"b")]

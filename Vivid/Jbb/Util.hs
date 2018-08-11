@@ -14,14 +14,19 @@ lcmRatios x y = let (a,b) = (numerator x, denominator x)
                 in lcm (a * div l b) (c * div l d) % l
 
 
+-- | = Functions for lists
+
 -- | There's a Hackage package for this surely that's faster, but
 -- it's not compatible with the stack snapshot I'm using.
 unique :: Eq a => [a] -> [a]
 unique [] = []
 unique (a:as) = a : (unique $ filter (not . (==) a) as)
 
+interleave :: [a] -> [a] -> [a]
+interleave xs ys = concat (zipWith (\x y -> [x]++[y]) xs ys)
 
--- | = Functions for working with time
+
+-- | = Functions for time
 
 -- | time0 is the first time that had phase 0
 nextPhase0 :: RealFrac a => a -> a -> a -> a

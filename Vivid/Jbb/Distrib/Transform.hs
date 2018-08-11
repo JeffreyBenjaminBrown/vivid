@@ -5,7 +5,7 @@ module Vivid.Jbb.Distrib.Transform where
 import Control.Lens (over, _1)
 import qualified Data.Vector as V
 
-import Vivid
+import Vivid hiding (interleave)
 import Vivid.Jbb.Util
 import Vivid.Jbb.Distrib.Museq (sortMuseq)
 import Vivid.Jbb.Distrib.Types
@@ -51,7 +51,7 @@ unsafeExplicitReps maxTime m =
   let sups = round $ maxTime / (_sup m)
         -- It takes a duration equal to this many multiples of _sup m
         -- for m to finish at phase 0.
-        -- It's already an integer; round is just to prove that to GHC.
+        -- It's already an integer; `round` is just to prove that to GHC.
       durs = round $ maxTime / (_dur m)
       indexed = zip [0..sups-1]
         $ repeat $ _vec m :: [(Int,V.Vector (RTime,a))]
@@ -68,17 +68,36 @@ unsafeExplicitReps maxTime m =
   in reps
 
 -- | the `sup`-aware append
---append' :: Museq a -> Museq a -> Museq a
---append' a b = let toFinish m = lcmRatios (_dur m) (_sup m) / _sup m
---  -- `toFinish` is the number of its `sup`s a Museq must play through
---  -- in order to finish at phase 0. For instance, dur = 2 and sup = 3
---  -- imply it will be ready to start all over at (relative) time 6.
---                 total = lcmRatios (toFinish a) (toFinish b)
---                 va = V.map (over _1 f) $ _vec a where
---                   f time = time * (_dur a / d)
---                 vb = V.map (over _1 f) $ _vec b where
---                   f time = time * (_dur b / d) + (_dur a / d)
---             in Museq {_dur = d, _sup = d, _vec = (V.++) va vb}
+append' :: forall a. Museq a -> Museq a -> Museq a
+append' x y =
+  let toFinish m = lcmRatios (_dur m) (_sup m) / _dur m
+        -- `toFinish` is the number of its `_dur`s a Museq must play through
+        -- in order to finish at phase 0. Example: if dur = 4 and sup = 6,
+        -- then it will be ready to start all over 3 durs later, at time 12.
+      durs = lcmRatios (toFinish x) (toFinish y)
+        -- Since x and y both have to finish at the same time,
+        -- they must run through this many durs.
+      ixs, iys :: [(Int,V.Vector (RTime,a))]
+      ixs = zip [0..] $ unsafeExplicitReps (durs * _dur x) x
+      iys = zip [1..] $ unsafeExplicitReps (durs * _dur y) y
+        -- ixs uses a 0 because it starts with no ys before it
+        -- iys uses a 1 because it starts with 1 (_dur x) worth of x before it
+
+      -- next space out the xs to make room for the ys, and vice versa
+      adjustx :: (Int,V.Vector (RTime,a))
+              ->      V.Vector (RTime,a)
+      adjustx (idx,v) = V.map f v where
+        f = over _1 $ (+) (fromIntegral idx * _dur y)
+      adjusty :: (Int,V.Vector (RTime,a))
+              ->      V.Vector (RTime,a)
+      adjusty (idx,v) = V.map f v where
+        f = over _1 $ (+) (fromIntegral idx * _dur x)
+      xs, ys :: [V.Vector (RTime,a)]
+      xs = map adjustx ixs
+      ys = map adjusty iys
+  in Museq { _sup = durs * (_dur x + _dur y)
+           , _dur = _dur x + _dur y
+           , _vec = V.concat $ interleave xs ys }
 
 -- | TODO : speed this up dramatically by computing start times once, rather
 -- than readjusting the whole series each time a new copy is folded into it.
