@@ -5,7 +5,6 @@ module Vivid.Jbb.Distrib.Transform where
 import Control.Lens (over, _1)
 import qualified Data.Vector as V
 
-import Vivid hiding (interleave)
 import Vivid.Jbb.Util
 import Vivid.Jbb.Distrib.Museq
 import Vivid.Jbb.Distrib.Types
@@ -28,7 +27,6 @@ divideAtMaxima view tops stuff = reverse $ go [] tops stuff where
     let (lt,gte) = V.partition ((< t) . view) vec
     in go (lt : acc) ts gte
 
-
 -- | if L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
 -- See the test suite for an example.
@@ -36,15 +34,15 @@ explicitReps :: forall a. Museq a -> [V.Vector (RTime,a)]
 explicitReps m = unsafeExplicitReps (timeToRepeat m) m
 
 -- | PITFALL: I don't know what this will do if
--- `maxTime` is not an integer multiple of `timeToRepeat m`
+-- `totalDuration` is not an integer multiple of `timeToRepeat m`
 unsafeExplicitReps :: forall a.
   RTime -> Museq a -> [V.Vector (RTime,a)]
-unsafeExplicitReps maxTime m =
-  let sups = round $ maxTime / (_sup m)
+unsafeExplicitReps totalDuration m =
+  let sups = round $ totalDuration / (_sup m)
         -- It takes a duration equal to this many multiples of _sup m
         -- for m to finish at phase 0.
         -- It's already an integer; `round` is just to prove that to GHC.
-      durs = round $ maxTime / (_dur m)
+      durs = round $ totalDuration / (_dur m)
       indexed = zip [0..sups-1]
         $ repeat $ _vec m :: [(Int,V.Vector (RTime,a))]
       adjustTimes :: (Int,V.Vector (RTime,a))
@@ -108,6 +106,19 @@ stack a b = let lcm = lcmRatios (_dur a) (_dur b)
                 a' = repeat' (round $ lcm / _dur a) a
                 b' = repeat' (round $ lcm / _dur b) b
             in stackAsIfEqualLength a' b'
+
+-- >>>
+-- TODO ? stack' might waste space; see comment in `Museq.timeToRepeat`.
+-- | Play both at the same time.
+-- PITFALL: The choice of the resulting Museq's _dur is arbitrary.
+-- Here it's set to that of the first; for something else just use `set dur`.
+stack' :: Museq a -> Museq a -> Museq a
+stack' x y = let tx = timeToRepeat x
+                 ty = timeToRepeat y
+                 t = lcmRatios tx ty
+                 xs = unsafeExplicitReps tx x
+                 ys = unsafeExplicitReps ty y
+             in x
 
 -- todo ? sorting in `rev` is overkill; faster would be to move the
 -- elements at time=1, if they exist, to time=0

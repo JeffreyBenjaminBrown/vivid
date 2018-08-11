@@ -6,7 +6,6 @@ import qualified Data.Map as M
 import Data.Random
 import System.Random.MWC
 
-
 import Vivid
 import Vivid.Jbb.Distrib.Act
 import Vivid.Jbb.Distrib.Msg

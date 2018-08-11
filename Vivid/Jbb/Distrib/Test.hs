@@ -145,8 +145,7 @@ testDenseAndSparse = TestCase $ do
                                                    ,(2 % 3,"a")]
 
 testExplicitReps = TestCase $ do
-  let y = Museq {_dur = 3, _sup = 4, _vec = V.fromList [(0,())
-                                                       ,(1,())]}
+  let y = Museq {_dur = 3, _sup = 4, _vec = V.fromList [(0,()),(1,())]}
   assertBool "explicitReps" $ explicitReps y == [ V.fromList [(0,()), (1,())]
                                                 , V.fromList [(4,()), (5,())]
                                                 , V.fromList [(8,())]
