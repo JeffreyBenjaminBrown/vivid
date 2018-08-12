@@ -52,10 +52,10 @@ data Action = New  SynthDefEnum SynthName
             | Send SynthDefEnum SynthName Msg
   deriving (Show,Eq,Ord)
 
-actionSynthInfo :: Action -> (SynthDefEnum, SynthName)
-actionSynthInfo (New  s n  ) = (s,n)
-actionSynthInfo (Free s n  ) = (s,n)
-actionSynthInfo (Send s n _) = (s,n)
+actionSynths :: Action -> (SynthDefEnum, SynthName)
+actionSynths (New  s n  ) = (s,n)
+actionSynths (Free s n  ) = (s,n)
+actionSynths (Send s n _) = (s,n)
 
 data Museq a = Museq {
   _dur :: RelDuration -- ^ the play duration of the loop

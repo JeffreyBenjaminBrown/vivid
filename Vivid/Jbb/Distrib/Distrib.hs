@@ -1,3 +1,5 @@
+{-# LANGUAGE TupleSections #-}
+
 module Vivid.Jbb.Distrib.Distrib where
 
 import Control.Concurrent (forkIO, ThreadId)
@@ -98,3 +100,15 @@ distribLoop dist = do
   mapM_ (act $ reg dist) nextActions
 
   distribLoop dist
+
+put :: Distrib -> M.Map MuseqName (Museq Action) -> IO ()
+put dist mas = do
+  masOld <- M.map snd <$> (readMVar $ mTimeMuseqs dist)
+  swapMVar (mTimeMuseqs dist) $ M.map (0,) mas
+  return ()
+  -- compute difference museqsDiff
+  -- add new synths
+    -- mapM_ (act $ reg dist) $ unique $ concatMap newsFromMuseq [a1,a2]
+  -- send silence to to-go synths
+  -- wait for that silence
+  -- delete the to-go synths

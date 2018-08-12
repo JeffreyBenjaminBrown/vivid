@@ -11,6 +11,7 @@ module Vivid.Jbb.Distrib.Act (
   ) where
 
 import Control.Concurrent.MVar
+import Data.List ((\\))
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
@@ -18,20 +19,30 @@ import Vivid
 import Vivid.Jbb.Distrib.Types
 import Vivid.Jbb.Distrib.Msg
 import Vivid.Jbb.Synths
+import Vivid.Jbb.Util (unique)
 
 
 -- | = (Use `unique` when mapping these, to avoid redundancy error messages.)
 -- Given a Museq (hopefully without Sends or News),
--- create or destroy the synths it uses.
+-- make a list of actions to create or destroy all the synths it uses.
+
+museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
+museqSynths = map (actionSynths . snd) . V.toList . _vec
 
 newsFromMuseq :: Museq Action -> [Action]
-newsFromMuseq = map f . V.toList . _vec where
-  f = (\(sd,name) -> New sd name) . actionSynthInfo . snd
+newsFromMuseq = map (\(sd,name) -> New sd name) . museqSynths
 
 freesFromMuseq :: Museq Action -> [Action]
-freesFromMuseq = map f . V.toList . _vec where
-  f = (\(sd,name) -> Free sd name) . actionSynthInfo . snd
+freesFromMuseq = map (\(sd,name) -> Free sd name) . museqSynths
 
+museqsDiff :: DistribMap -> DistribMap -> ([Action],[Action])
+museqsDiff old new = (toFree,toCreate) where
+  oldMuseqs = map snd $ M.elems old :: [Museq Action]
+  newMuseqs = map snd $ M.elems new :: [Museq Action]
+  oldSynths = unique $ concatMap museqSynths oldMuseqs
+  newSynths = unique $ concatMap museqSynths newMuseqs
+  toCreate = map (uncurry New) $ newSynths \\ oldSynths
+  toFree = map (uncurry Free) $ oldSynths \\ newSynths
 
 -- | How to act on an Action:
 -- Turn it into an Action', then act' on it.
