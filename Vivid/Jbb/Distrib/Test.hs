@@ -9,6 +9,7 @@ import qualified Data.Vector as V
 import Vivid
 import Vivid.Jbb.Util
 import Vivid.Jbb.Synths
+import Vivid.Jbb.Distrib.Act
 import Vivid.Jbb.Distrib.Distrib
 import Vivid.Jbb.Distrib.Join
 import Vivid.Jbb.Distrib.Museq
@@ -30,6 +31,7 @@ tests = runTestTT $ TestList
   , TestLabel "testFastAndSlow" testFastAndSlow
   , TestLabel "testDenseAndSparse" testDenseAndSparse
   , TestLabel "testExplicitReps" testExplicitReps
+  , TestLabel "testMuseqsDiff" testMuseqsDiff
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -190,3 +192,22 @@ testRep = TestCase $ do
   let b = museq 6 [(0,"a"),(3,"b")]
   assertBool "rotate int" $ rotate 2 b ==
     L.set dur 6 (museq 12 [(0,"a"),(6,"b")])
+
+testMuseqsDiff = TestCase $ do
+  let msg = ("amp",1)
+      m1 = M.fromList [("a", museq 10 [(0, Send Boop "1" msg )])
+                      ,("b", museq 15 [(0, Send Boop "1" msg)
+                                      ,(10,Send Boop "2" msg)
+                                      ] ) ]
+      m2 = M.fromList [("a", museq 10 [(0, Send Vap "2" msg)])
+                      ,("b", museq 15 [(0, Send Boop "2" msg)
+                                      ,(10,Send Boop "3" msg)
+                                      ] ) ]
+  assertBool "museqDiff" $ museqsDiff m1 m2 == ( [ (Boop,"1") ]
+                                               , [ (Vap ,"2")
+                                                 , (Boop,"3")
+                                                 ] )
+  assertBool "museqDiff" $ museqsDiff m2 m1 == ( [ (Vap ,"2")
+                                                 , (Boop,"3") ]
+                                               , [ (Boop,"1") ]
+                                               )
