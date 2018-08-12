@@ -9,7 +9,7 @@ import qualified Data.Vector as V
 import Vivid
 import Vivid.Jbb.Util
 import Vivid.Jbb.Synths
-import Vivid.Jbb.Distrib.Act
+import Vivid.Jbb.Distrib.ActNow
 import Vivid.Jbb.Distrib.Distrib
 import Vivid.Jbb.Distrib.Join
 import Vivid.Jbb.Distrib.Museq

@@ -52,7 +52,8 @@ license:             GPL
 library
   exposed-modules:
     Vivid.Jbb
-    , Vivid.Jbb.Distrib.Act
+    , Vivid.Jbb.Distrib.ActNow
+    , Vivid.Jbb.Distrib.ActSchedule
     , Vivid.Jbb.Distrib.Distrib
     , Vivid.Jbb.Distrib.Distrib_2
     , Vivid.Jbb.Distrib.Join

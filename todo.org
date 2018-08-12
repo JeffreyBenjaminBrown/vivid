@@ -1,7 +1,3 @@
-begin writing a new distribLoop routine
-  to hand timing to SuperCollider
-Act: abstract the error message routine into writeTimeAndError
-
 * rewriting DistribLoop
 ** prerequisite: variants of act and act' that schedule
 ** algorithm

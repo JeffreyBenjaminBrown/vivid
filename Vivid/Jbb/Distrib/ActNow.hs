@@ -3,7 +3,7 @@
            , ScopedTypeVariables
            , GADTs #-}
 
-module Vivid.Jbb.Distrib.Act (
+module Vivid.Jbb.Distrib.ActNow (
   museqSynths
   , museqsDiff
   , act
@@ -84,7 +84,7 @@ newAction' :: SynthDef sdArgs
            -> M.Map SynthName (Synth sdArgs)
            -> IO (M.Map SynthName (Synth sdArgs))
 newAction' synthDef name synthMap =
-  case M.lookup name $ synthMap of
+  case M.lookup name synthMap of
     Just _ -> do writeTimeAndError
                    $ "The name " ++ name ++ " is already in use.\n"
                  return synthMap
@@ -95,7 +95,7 @@ freeAction' :: SynthName
             -> M.Map SynthName (Synth sdArgs)
             -> IO (M.Map SynthName (Synth sdArgs))
 freeAction' name synthMap =
-  case M.lookup name $ synthMap of
+  case M.lookup name synthMap of
     Nothing -> do writeTimeAndError
                     $ "The name " ++ name ++ " is already unused.\n"
                   return synthMap
