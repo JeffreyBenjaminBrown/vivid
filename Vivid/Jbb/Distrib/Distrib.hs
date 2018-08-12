@@ -102,13 +102,13 @@ distribLoop dist = do
   distribLoop dist
 
 put :: Distrib -> M.Map MuseqName (Museq Action) -> IO ()
-put dist mas = do
+put dist masNew = do
   masOld <- M.map snd <$> (readMVar $ mTimeMuseqs dist)
     :: IO (M.Map MuseqName (Museq Action))
-  let (toCreate,toFree) = museqsDiff masOld mas
+  let (toFree,toCreate) = museqsDiff masOld masNew
   mapM_ (act (reg dist) . uncurry New)                            toCreate
   mapM_ (act (reg dist) . (\(sd,name) -> Send sd name ("amp",0))) toFree
-  wait 0.03 -- wait for the silence just sent to take effect
+  wait 0.05 -- wait for the silence just sent to take effect
   mapM_ (act (reg dist) . uncurry Free)                           toFree
-  swapMVar (mTimeMuseqs dist) $ M.map (0,) mas
+  swapMVar (mTimeMuseqs dist) $ M.map (0,) masNew
   return ()
