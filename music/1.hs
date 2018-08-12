@@ -6,7 +6,7 @@ m1 = museq 2 [ (0,   ("amp",0)    )
              , (0.5, ("freq",500) )
              , (0.5, ("amp",0.4)  ) ]
 
-a2 = fmap (Send Boop "2") m1
+a2 = Send Boop "2" <$> m1
 
 dist <- newDistrib
 swapMVar (mTimeMuseqs dist) $ M.fromList [ ("1",(0,a1)),
