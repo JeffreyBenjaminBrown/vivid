@@ -1,6 +1,11 @@
 {-# LANGUAGE DataKinds #-}
 
-module Vivid.Jbb.Distrib.Msg where
+module Vivid.Jbb.Distrib.Msg (
+  set'
+  , boopMsg
+  , sqfmMsg
+  , vapMsg
+  ) where
 
 import Vivid
 import Vivid.Jbb.Synths

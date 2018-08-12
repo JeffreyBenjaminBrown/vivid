@@ -6,7 +6,28 @@
            , TemplateHaskell
            , GADTs #-}
 
-module Vivid.Jbb.Distrib.Types where
+module Vivid.Jbb.Distrib.Types (
+  SynthName
+  , ParamName
+  , MuseqName
+  , Time, Duration
+  , RTime, RDuration, RelDuration
+  , unTimestamp
+  , Msg
+  , Action(..)
+  , actionSynths
+  , Museq(..), dur, sup, vec
+  , emptyMuseq
+  , unitMuseq
+  , museq
+  , SynthRegister(..)
+  , emptySynthRegister
+  , showSynthRegister
+  , Distrib(..)
+  , newDistrib
+  , Msg'(..)
+  , Action'(..)
+  ) where
 
 import Control.Concurrent.MVar
 import Control.Lens (makeLenses, over, _2)

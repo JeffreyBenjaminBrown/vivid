@@ -1,6 +1,21 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Vivid.Jbb.Util where
+module Vivid.Jbb.Util (
+  lcmRatios
+
+  -- | = lists
+  , unique
+  , interleave
+
+  -- | = time
+  , nextPhase0
+  , prevPhase0
+
+  -- | = vectors
+  , divideAtMaxima
+  , firstIndexGTE
+  , lastIndexJustGTE
+  ) where
 
 import Control.Monad.ST
 import Data.Ratio

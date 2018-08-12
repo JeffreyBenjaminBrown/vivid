@@ -1,6 +1,15 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns #-}
 
-module Vivid.Jbb.Distrib.Join where
+module Vivid.Jbb.Distrib.Join (
+  -- | = user-facing
+  append
+  , cat
+  , stack
+
+  -- | backend
+  , explicitReps
+  , unsafeExplicitReps
+  ) where
 
 import Control.Lens (over, _1)
 import qualified Data.Vector as V
@@ -10,35 +19,7 @@ import Vivid.Jbb.Distrib.Museq
 import Vivid.Jbb.Distrib.Types
 
 
--- | if L is the length of time such that `m` finishes at phase 0,
--- divide the events of L every multiple of _dur.
--- See the test suite for an example.
-explicitReps :: forall a. Museq a -> [V.Vector (RTime,a)]
-explicitReps m = unsafeExplicitReps (timeToPlayThrough m) m
-
--- | PITFALL: I don't know what this will do if
--- `totalDuration` is not an integer multiple of `timeToPlayThrough m`
-unsafeExplicitReps :: forall a.
-  RTime -> Museq a -> [V.Vector (RTime,a)]
-unsafeExplicitReps totalDuration m =
-  let sups = round $ totalDuration / (_sup m)
-        -- It takes a duration equal to this many multiples of _sup m
-        -- for m to finish at phase 0.
-        -- It's already an integer; `round` is just to prove that to GHC.
-      durs = round $ totalDuration / (_dur m)
-      indexed = zip [0..sups-1]
-        $ repeat $ _vec m :: [(Int,V.Vector (RTime,a))]
-      adjustTimes :: (Int,V.Vector (RTime,a))
-                  ->      V.Vector (RTime,a)
-      adjustTimes (idx,v) = V.map f v where
-        f = over _1 $ (+) (fromIntegral idx * _sup m)
-      spread = map adjustTimes indexed :: [V.Vector (RTime,a)]
-        -- the times in `spread` range from 0 to `timeToRepat m`
-      concatted = V.concat spread :: V.Vector (RTime,a)
-      reps = divideAtMaxima fst [fromIntegral i * _dur m
-                                | i <- [1..durs]] concatted
-        :: [V.Vector (RTime,a)]
-  in reps
+-- | = user-facing functions
 
 -- | the `sup`-aware append
 append :: forall a. Museq a -> Museq a -> Museq a
@@ -85,3 +66,35 @@ stack x y = let tx = timeToRepeat x
                 ys = unsafeExplicitReps t y
   in sortMuseq $ Museq {_dur = _dur x, _sup = t, _vec = V.concat $ xs ++ ys}
 
+
+-- | = backend
+
+-- | if L is the length of time such that `m` finishes at phase 0,
+-- divide the events of L every multiple of _dur.
+-- See the test suite for an example.
+explicitReps :: forall a. Museq a -> [V.Vector (RTime,a)]
+explicitReps m = unsafeExplicitReps (timeToPlayThrough m) m
+
+-- | PITFALL: I don't know what this will do if
+-- `totalDuration` is not an integer multiple of `timeToPlayThrough m`
+unsafeExplicitReps :: forall a.
+  RTime -> Museq a -> [V.Vector (RTime,a)]
+unsafeExplicitReps totalDuration m =
+  let sups = round $ totalDuration / (_sup m)
+        -- It takes a duration equal to this many multiples of _sup m
+        -- for m to finish at phase 0.
+        -- It's already an integer; `round` is just to prove that to GHC.
+      durs = round $ totalDuration / (_dur m)
+      indexed = zip [0..sups-1]
+        $ repeat $ _vec m :: [(Int,V.Vector (RTime,a))]
+      adjustTimes :: (Int,V.Vector (RTime,a))
+                  ->      V.Vector (RTime,a)
+      adjustTimes (idx,v) = V.map f v where
+        f = over _1 $ (+) (fromIntegral idx * _sup m)
+      spread = map adjustTimes indexed :: [V.Vector (RTime,a)]
+        -- the times in `spread` range from 0 to `timeToRepeat m`
+      concatted = V.concat spread :: V.Vector (RTime,a)
+      reps = divideAtMaxima fst [fromIntegral i * _dur m
+                                | i <- [1..durs]] concatted
+        :: [V.Vector (RTime,a)]
+  in reps

@@ -1,6 +1,12 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns #-}
 
-module Vivid.Jbb.Distrib.Transform where
+module Vivid.Jbb.Distrib.Transform (
+  rev
+  , early, late
+  , fast, slow
+  , dense, sparse
+  , rotate, rep
+  ) where
 
 import Control.Lens (over, _1)
 import qualified Data.Vector as V

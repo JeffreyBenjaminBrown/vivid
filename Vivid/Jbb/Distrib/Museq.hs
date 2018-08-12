@@ -1,4 +1,15 @@
-module Vivid.Jbb.Distrib.Museq where
+module Vivid.Jbb.Distrib.Museq (
+  timeToPlayThrough
+  , supsToPlayThrough
+  , dursToPlayThrough
+  , timeToRepeat
+  , supsToRepeat
+  , dursToRepeat
+
+  , sortMuseq
+  , museqIsValid
+  , findNextEvents
+  ) where
 
 import Control.Lens ((^.),(.~),(%~))
 import Control.Monad.ST

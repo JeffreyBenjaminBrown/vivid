@@ -5,8 +5,6 @@
 
 module Vivid.Jbb.Distrib.Act (
   museqSynths
-  , newsFromMuseq
-  , freesFromMuseq
   , museqsDiff
   , act
   , act'
@@ -24,19 +22,12 @@ import Vivid.Jbb.Synths
 import Vivid.Jbb.Util (unique)
 
 
--- | = (Use `unique` when mapping these, to avoid redundancy error messages.)
--- Given a Museq (hopefully without Sends or News),
--- make a list of actions to create or destroy all the synths it uses.
-
+-- | Given a Museq, find the synths it uses.
 museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
 museqSynths = map (actionSynths . snd) . V.toList . _vec
 
-newsFromMuseq :: Museq Action -> [Action]
-newsFromMuseq = map (uncurry New) . museqSynths
-
-freesFromMuseq :: Museq Action -> [Action]
-freesFromMuseq = map (uncurry Free) . museqSynths
-
+-- | Given an old set of Museqs and a new one, figure out
+-- which synths need to be created, and which destroyed.
 museqsDiff :: M.Map MuseqName (Museq Action)
            -> M.Map MuseqName (Museq Action)
            -> ([(SynthDefEnum, SynthName)],

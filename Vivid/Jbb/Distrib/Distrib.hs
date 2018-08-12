@@ -1,6 +1,16 @@
 {-# LANGUAGE TupleSections #-}
 
-module Vivid.Jbb.Distrib.Distrib where
+module Vivid.Jbb.Distrib.Distrib (
+  -- | user-facing
+  put
+  , chPeriod
+  , startDistribLoop
+
+  -- | = backend
+  , distribLoop
+  , allWaiting
+  , showDist
+  ) where
 
 import Control.Concurrent (forkIO, ThreadId)
 import Control.Concurrent.MVar
@@ -15,23 +25,19 @@ import Vivid.Jbb.Distrib.Museq
 import Vivid.Jbb.Distrib.Types
 
 
--- | todo : this blocks if any MVar is empty
-showDist :: Distrib -> IO String
-showDist dist = do timeMuseqs <- readMVar $ mTimeMuseqs dist
-                   reg' <- showSynthRegister $ reg dist
-                   time0 <- readMVar $ mTime0 dist
-                   period <- readMVar $ mPeriod dist
-                   return $ "(Time,Museq)s: " ++ show timeMuseqs
-                     ++ "\nSynthRegister: " ++ show reg'
-                     ++ "\nTime 0: " ++ show time0
-                     ++ "\nPeriod: " ++ show period
+-- | = user-facing functions
 
-allWaiting :: Distrib -> IO (Bool)
-allWaiting dist = do
-  timeMuseqs <- readMVar $ mTimeMuseqs dist
-  let times = map fst $ M.elems $ timeMuseqs
-  now <- unTimestamp <$> getTime
-  return $ and $ map (> now) times
+put :: Distrib -> M.Map MuseqName (Museq Action) -> IO ()
+put dist masNew = do
+  masOld <- M.map snd <$> (readMVar $ mTimeMuseqs dist)
+    :: IO (M.Map MuseqName (Museq Action))
+  let (toFree,toCreate) = museqsDiff masOld masNew
+  mapM_ (act (reg dist) . uncurry New)                            toCreate
+  mapM_ (act (reg dist) . (\(sd,name) -> Send sd name ("amp",0))) toFree
+  wait 0.05 -- wait for the silence just sent to take effect
+  mapM_ (act (reg dist) . uncurry Free)                           toFree
+  swapMVar (mTimeMuseqs dist) $ M.map (0,) masNew
+  return ()
 
 -- | If can't change period now (because some Museq is not waiting),
 -- wait between 5 and 10 ms, then retry
@@ -54,6 +60,9 @@ startDistribLoop dist = do
   (+(-0.05)) . unTimestamp <$> getTime >>= putMVar (mTime0 dist)
     -- subtract .1 so music starts in .05 seconds, not frameDur seconds
   forkIO $ distribLoop dist
+
+
+-- | = backend
 
 distribLoop :: Distrib -> IO ()
 distribLoop dist = do
@@ -101,14 +110,20 @@ distribLoop dist = do
 
   distribLoop dist
 
-put :: Distrib -> M.Map MuseqName (Museq Action) -> IO ()
-put dist masNew = do
-  masOld <- M.map snd <$> (readMVar $ mTimeMuseqs dist)
-    :: IO (M.Map MuseqName (Museq Action))
-  let (toFree,toCreate) = museqsDiff masOld masNew
-  mapM_ (act (reg dist) . uncurry New)                            toCreate
-  mapM_ (act (reg dist) . (\(sd,name) -> Send sd name ("amp",0))) toFree
-  wait 0.05 -- wait for the silence just sent to take effect
-  mapM_ (act (reg dist) . uncurry Free)                           toFree
-  swapMVar (mTimeMuseqs dist) $ M.map (0,) masNew
-  return ()
+allWaiting :: Distrib -> IO (Bool)
+allWaiting dist = do
+  timeMuseqs <- readMVar $ mTimeMuseqs dist
+  let times = map fst $ M.elems $ timeMuseqs
+  now <- unTimestamp <$> getTime
+  return $ and $ map (> now) times
+
+-- | todo : this blocks if any MVar is empty
+showDist :: Distrib -> IO String
+showDist dist = do timeMuseqs <- readMVar $ mTimeMuseqs dist
+                   reg' <- showSynthRegister $ reg dist
+                   time0 <- readMVar $ mTime0 dist
+                   period <- readMVar $ mPeriod dist
+                   return $ "(Time,Museq)s: " ++ show timeMuseqs
+                     ++ "\nSynthRegister: " ++ show reg'
+                     ++ "\nTime 0: " ++ show time0
+                     ++ "\nPeriod: " ++ show period
