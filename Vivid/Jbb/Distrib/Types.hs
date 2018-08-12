@@ -105,12 +105,10 @@ showSynthRegister reg = do bs <- show <$> (readMVar $ boops reg)
                            ss <- show <$> (readMVar $ sqfms reg)
                            return $ bs ++ "\n" ++ vs ++ "\n" ++ ss
 
-type DistribMap = M.Map MuseqName (Time, Museq Action)
-  -- ^ Each `Time` here is the next time that Museq is scheduled to run.
-  -- Rarely, briefly, those `Time` values will be in the past.
-
 data Distrib = Distrib {
-  mTimeMuseqs :: MVar DistribMap
+  mTimeMuseqs :: MVar (M.Map MuseqName (Time, Museq Action))
+    -- ^ Each `Time` here is the next time that Museq is scheduled to run.
+    -- Rarely, briefly, those `Time` values will be in the past.
   , reg :: SynthRegister
   , mTime0 :: MVar Time
   , mPeriod :: MVar Duration -- ^ Period is the inverse of tempo.

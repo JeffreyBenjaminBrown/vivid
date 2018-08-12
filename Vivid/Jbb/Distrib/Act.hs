@@ -4,8 +4,10 @@
            , GADTs #-}
 
 module Vivid.Jbb.Distrib.Act (
-  newsFromMuseq
+  museqSynths
+  , newsFromMuseq
   , freesFromMuseq
+  , museqsDiff
   , act
   , act'
   ) where
@@ -30,19 +32,22 @@ museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
 museqSynths = map (actionSynths . snd) . V.toList . _vec
 
 newsFromMuseq :: Museq Action -> [Action]
-newsFromMuseq = map (\(sd,name) -> New sd name) . museqSynths
+newsFromMuseq = map (uncurry New) . museqSynths
 
 freesFromMuseq :: Museq Action -> [Action]
-freesFromMuseq = map (\(sd,name) -> Free sd name) . museqSynths
+freesFromMuseq = map (uncurry Free) . museqSynths
 
-museqsDiff :: DistribMap -> DistribMap -> ([Action],[Action])
+museqsDiff :: M.Map MuseqName (Museq Action)
+           -> M.Map MuseqName (Museq Action)
+           -> ([(SynthDefEnum, SynthName)],
+               [(SynthDefEnum, SynthName)])
 museqsDiff old new = (toFree,toCreate) where
-  oldMuseqs = map snd $ M.elems old :: [Museq Action]
-  newMuseqs = map snd $ M.elems new :: [Museq Action]
+  oldMuseqs = M.elems old :: [Museq Action]
+  newMuseqs = M.elems new :: [Museq Action]
   oldSynths = unique $ concatMap museqSynths oldMuseqs
   newSynths = unique $ concatMap museqSynths newMuseqs
-  toCreate = map (uncurry New) $ newSynths \\ oldSynths
-  toFree = map (uncurry Free) $ oldSynths \\ newSynths
+  toCreate = newSynths \\ oldSynths
+  toFree = oldSynths \\ newSynths
 
 -- | How to act on an Action:
 -- Turn it into an Action', then act' on it.

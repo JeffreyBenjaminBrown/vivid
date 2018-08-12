@@ -8,9 +8,18 @@ m1 = museq 2 [ (0,   ("amp",0)    )
 
 a2 = Send Boop "2" <$> m1
 
+a3 = fast 2 $ early (1/4) $ museq 1 [ (0,   Send Boop "3" ("freq",600) )
+                                    , (0,   Send Boop "3" ("amp",0.4)  )
+                                    , (0.5, Send Boop "3" ("amp",0)    ) ]
+
 dist <- newDistrib
+
+song = M.fromList [ ("1",a1), ("2",a3)]
+
+-- put dist song
 swapMVar (mTimeMuseqs dist) $ M.fromList [ ("1",(0,a1)),
                                            ("2",(0,a2))]
+swapMVar (mTimeMuseqs dist) song
 mapM_ (act $ reg dist) $ unique
   $ concatMap newsFromMuseq [a1,a2]
 tid <- startDistribLoop dist
