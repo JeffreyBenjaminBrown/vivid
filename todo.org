@@ -1,10 +1,11 @@
 * workflow : wishes, mysteries
 ** ? changing (museqs dist): voices must appear, and must vanish not too soon
 *** make a "diffSynths" function, to see what needs creating|freeing
-*** anything disappearing: send amp=0 first, then free it
+*** Museq Msg v. Museq Action
+*** anything disappearing: send amp=0 first (ideally with a smoother in the synth, and then wait for that smoothing), then free it
 *** ? anything appearing : make those unused synths well in advance
 *** "change (mTimeMuseqs dist)" makes synths, then waits for input to press akey, whereupon it changes the museqs
-** implicit note off
+** ? implicit note off
 * supercollider mysteries
 ** envelopes
 ** many voices to one distortion
