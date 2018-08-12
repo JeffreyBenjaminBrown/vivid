@@ -1,8 +1,17 @@
 * rewriting DistribLoop
-** prerequisite: variants of act and act' that schedule
-** algorithm
-*** know time0
-*** at time t, every 1/10 of a second, write the events in [t+.1,t+.2)
+** prerequesite: arc :: Museq -> (start,end) -> [(Time,Action)]
+** some global config parameters
+*** waitAfterSilence: how long to wait in replaceAl, after sending silence, before sending Free
+*** frameDuration
+*** in the new DistribLoop, won't need an epsilon wait before starting
+**** because rendering is already delayed until the next frame
+** when to create, free, send, modify 
+*** switch comes at time=t, next render period time=n, render period=p
+*** use forkIO to avoid waiting for things to finish
+*** add synths to registry immediately
+*** send silences to deleted synths at n
+*** delete synths from registry at n+p/2
+*** modify the tMuseqs immediately (at n they'll get rendered for [n+p,n+2p))
 * supercollider mysteries
 ** envelopes
 ** many voices to one distortion

@@ -79,7 +79,7 @@ museqIsValid mu = and [a,b,c,d] where
   c = _dur mu > 0
   d = _sup mu > 0
 
--- todo ? `findNextEvents` could be slightly faster by using binarySearchRByBounds
+-- todo ? `findNextEvents` could be ~2x faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid searching the first part
 -- of the vector again.
 -- | Returns a list of actions and the time remaining until they start.
@@ -90,9 +90,9 @@ findNextEvents time0 globalPeriod now museq =
       pp0 = prevPhase0 time0 period now
       relNow = toRational $ (now - pp0) / period
       vecLen = V.length $ _vec museq
+      uv = _vec $ unitMuseq museq :: V.Vector (RelDuration,())
       compare' :: (RelDuration, a) -> (RelDuration, a) -> Ordering
       compare' ve ve' = compare (fst ve) (fst ve')
-      uv = _vec $ unitMuseq museq :: V.Vector (RelDuration,())
       startOrOOB = firstIndexGTE  compare' uv (relNow, ())
       start = if startOrOOB < vecLen then startOrOOB else 0
       end =     lastIndexJustGTE  compare' uv (uv ! start)
@@ -103,3 +103,17 @@ findNextEvents time0 globalPeriod now museq =
         fromRational relTimeOfNextEvent * period + pp0 - now
   in ( timeUntilNextEvent
      , map snd $ V.toList $ V.slice start (end - start) $ _vec museq )
+
+---- todo ? `arc` could be ~2x faster by using binarySearchRByBounds
+---- instead of binarySearchR, to avoid searching the first part
+---- of the vector again.
+--arc :: Time -> Duration -> Time -> Time
+--    -> Museq Action -> (Duration, [Action])
+--arc time0 globalPeriod from to museq =
+--  let period = globalPeriod * fromRational (_sup museq)
+--      pp0 = prevPhase0 time0 period from
+--      relFrom = toRational $ (from - pp0) / period
+--      relTo   = toRational $ (to   - pp0) / period
+--      vecLen = V.length $ _vec museq
+--      uv = _vec $ unitMuseq museq :: V.Vector (RelDuration,())
+      
