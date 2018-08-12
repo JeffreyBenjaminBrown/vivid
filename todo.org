@@ -1,3 +1,12 @@
+begin writing a new distribLoop routine
+  to hand timing to SuperCollider
+Act: abstract the error message routine into writeTimeAndError
+
+* rewriting DistribLoop
+** prerequisite: variants of act and act' that schedule
+** algorithm
+*** know time0
+*** at time t, every 1/10 of a second, write the events in [t+.1,t+.2)
 * supercollider mysteries
 ** envelopes
 ** many voices to one distortion
@@ -11,7 +20,7 @@
 **** ? allow user to specify alternative strategies for particular parameters
 ***** e.g. "merge these all with (\*), except merge amp with (+)"
 *** *apply
-*** onParams :: [(ParamString, Double -> Double)] -> Museq -> Museq
+*** overParams :: [(ParamString, Double -> Double)] -> Museq -> Museq
 *** dropParams, keepParams :: [ParamString] -> Museq -> Museq
 *** space: play a duration n < k loop over duration k. (Hard; see Tidal.epic.)
 ** scales, harmonies

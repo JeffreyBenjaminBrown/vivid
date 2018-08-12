@@ -66,7 +66,7 @@ startDistribLoop :: Distrib -> IO ThreadId
 startDistribLoop dist = do
   tryTakeMVar $ mTime0 dist -- empty it, just in case
   (+(-0.05)) . unTimestamp <$> getTime >>= putMVar (mTime0 dist)
-    -- subtract .1 so music starts in .05 seconds, not frameDur seconds
+    -- add .05 so music starts in .05 seconds, not frameDur seconds
   forkIO $ distribLoop dist
 
 

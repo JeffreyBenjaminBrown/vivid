@@ -8,6 +8,7 @@ module Vivid.Jbb.Distrib.Act (
   , museqsDiff
   , act
   , act'
+  , writeTimeAndError
   ) where
 
 import Control.Concurrent.MVar
@@ -84,9 +85,8 @@ newAction' :: SynthDef sdArgs
            -> IO (M.Map SynthName (Synth sdArgs))
 newAction' synthDef name synthMap =
   case M.lookup name $ synthMap of
-    Just _ -> do now <- getTime
-                 appendFile "errors.txt" $ show now
-                   ++ " The name " ++ name ++ " is already in use.\n"
+    Just _ -> do writeTimeAndError
+                   $ "The name " ++ name ++ " is already in use.\n"
                  return synthMap
     Nothing -> do s <- synth synthDef ()
                   return $ M.insert name s synthMap
@@ -96,9 +96,8 @@ freeAction' :: SynthName
             -> IO (M.Map SynthName (Synth sdArgs))
 freeAction' name synthMap =
   case M.lookup name $ synthMap of
-    Nothing -> do now <- getTime
-                  appendFile "errors.txt" $ show now
-                    ++ " The name " ++ name ++ " is already unused.\n"
+    Nothing -> do writeTimeAndError
+                    $ "The name " ++ name ++ " is already unused.\n"
                   return synthMap
     Just s -> do free s
                  return $ M.delete name synthMap
@@ -110,7 +109,11 @@ sendAction' :: forall m sdArgs.
             -> IO ()
 sendAction' name msg synthMap =
   case M.lookup name synthMap of
-    Nothing -> do now <- getTime
-                  appendFile "errors.txt" $ show now
-                    ++ " The name " ++ name ++ " is not in use.\n"
+    Nothing -> writeTimeAndError
+      $ " The name " ++ name ++ " is not in use.\n"
     Just synth -> set' synth msg
+
+writeTimeAndError :: String -> IO ()
+writeTimeAndError msg = do now <- getTime
+                           appendFile "errors.txt"
+                             $ show now ++ ": " ++ msg

@@ -54,6 +54,7 @@ library
     Vivid.Jbb
     , Vivid.Jbb.Distrib.Act
     , Vivid.Jbb.Distrib.Distrib
+    , Vivid.Jbb.Distrib.Distrib_2
     , Vivid.Jbb.Distrib.Join
     , Vivid.Jbb.Distrib.Loop
     , Vivid.Jbb.Distrib.Msg
