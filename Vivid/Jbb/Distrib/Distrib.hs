@@ -2,7 +2,8 @@
 
 module Vivid.Jbb.Distrib.Distrib (
   -- | user-facing
-  put
+  replaceAll
+  , replace
   , chPeriod
   , startDistribLoop
 
@@ -27,9 +28,9 @@ import Vivid.Jbb.Distrib.Types
 
 -- | = user-facing functions
 
-put :: Distrib -> M.Map MuseqName (Museq Action) -> IO ()
-put dist masNew = do
-  masOld <- M.map snd <$> (readMVar $ mTimeMuseqs dist)
+replaceAll :: Distrib -> M.Map MuseqName (Museq Action) -> IO ()
+replaceAll dist masNew = do
+  masOld <- M.map snd <$> readMVar (mTimeMuseqs dist)
     :: IO (M.Map MuseqName (Museq Action))
   let (toFree,toCreate) = museqsDiff masOld masNew
   mapM_ (act (reg dist) . uncurry New)                            toCreate
@@ -38,6 +39,13 @@ put dist masNew = do
   mapM_ (act (reg dist) . uncurry Free)                           toFree
   swapMVar (mTimeMuseqs dist) $ M.map (0,) masNew
   return ()
+
+replace :: Distrib -> MuseqName -> Museq Action -> IO ()
+replace dist newName newMuseq = do
+  masOld <- M.map snd <$> readMVar (mTimeMuseqs dist)
+    :: IO (M.Map MuseqName (Museq Action))
+  let masNew = M.insert newName newMuseq masOld
+  replaceAll dist masNew
 
 -- | If can't change period now (because some Museq is not waiting),
 -- wait between 5 and 10 ms, then retry

@@ -10,8 +10,10 @@ a3 = fast 2 $ early (1/4) $ museq 1 [ (0,   Send Boop "3" ("freq",600) )
                                     , (0.5, Send Boop "3" ("amp",0)    ) ]
 
 dist <- newDistrib
-put dist $ M.fromList [ ("1",a1), ("2",a3)]
-put dist $ M.fromList [ ("1",a1), ("2",a2)]
+replaceAll dist $ M.fromList [ ("1",a1), ("2",a3)]
+replaceAll dist $ M.fromList [ ("1",a1), ("2",a2)]
+
+-- replace dist "2" a3
 
 tid <- startDistribLoop dist
 putStrLn "dist <- newDistrib\ntid <- startDistribLoop dist"

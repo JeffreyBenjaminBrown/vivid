@@ -41,8 +41,3 @@
 ***** Each `Museq` tracks when it last played
 ***** `distribLoop` tracks when it's supposed to wake up.
 ***** If, when `distribLoop` awakens, it discovers a Museq which last played before the scheduled awakening, which should have played something since, then that skipped thing gets played immediately.
-* problems, minor
-** Transform.stack wastes space
-*** stacking two Museqs without a simple duration ratio wastes lots of space
-*** alternative: a Museq is a Set of Museq's, where Museq' = the old thing
-**** but then appending two Museq's will mean ... I don't even know what
