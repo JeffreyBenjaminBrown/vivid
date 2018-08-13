@@ -211,3 +211,9 @@ testMuseqsDiff = TestCase $ do
                                                  , (Boop,"3") ]
                                                , [ (Boop,"1") ]
                                                )
+
+--testArc = TestCase $ do
+--  let m = museq 2 [(0,"a"),(1,"b")]
+--                  -- arc time0 globalPeriod from to museq =
+--  assertBool "arc" $ arc 100   10           200 220  m ==
+--    [(

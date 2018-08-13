@@ -14,7 +14,7 @@ module Vivid.Jbb.Util (
   -- | = vectors
   , divideAtMaxima
   , firstIndexGTE
-  , lastIndexJustGTE
+  , lastIndexLTE
   ) where
 
 import Control.Monad.ST
@@ -91,7 +91,7 @@ firstIndexGTE comp v a = runST $ do
 -- | 0-indexed. Returns the last index you could insert `a` and preserve
 -- sortedness (shoving whatever was there before to the right).
 -- If none such, returns length of vector.
-lastIndexJustGTE :: Comparison a -> V.Vector a -> a -> Int
-lastIndexJustGTE comp v a = runST $ do
+lastIndexLTE :: Comparison a -> V.Vector a -> a -> Int
+lastIndexLTE comp v a = runST $ do
   v' <- V.thaw v
   return =<< binarySearchRBy comp v' a

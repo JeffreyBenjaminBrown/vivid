@@ -9,9 +9,11 @@ module Vivid.Jbb.Distrib.Museq (
   , sortMuseq
   , museqIsValid
   , findNextEvents
+
+  , arc, arc'
   ) where
 
-import Control.Lens ((^.),(.~),(%~))
+import Control.Lens ((^.),(.~),(%~),_1,_2,over)
 import Control.Monad.ST
 import qualified Data.Vector as V
 import           Data.Vector ((!))
@@ -95,7 +97,7 @@ findNextEvents time0 globalPeriod now museq =
       compare' ve ve' = compare (fst ve) (fst ve')
       startOrOOB = firstIndexGTE  compare' uv (relNow, ())
       start = if startOrOOB < vecLen then startOrOOB else 0
-      end =     lastIndexJustGTE  compare' uv (uv ! start)
+      end =     lastIndexLTE  compare' uv (uv ! start)
       relTimeOfNextEvent = if startOrOOB == start
                            then        fst $ uv ! start
                            else (+1) $ fst $ uv ! 0
@@ -104,16 +106,34 @@ findNextEvents time0 globalPeriod now museq =
   in ( timeUntilNextEvent
      , map snd $ V.toList $ V.slice start (end - start) $ _vec museq )
 
----- todo ? `arc` could be ~2x faster by using binarySearchRByBounds
----- instead of binarySearchR, to avoid searching the first part
----- of the vector again.
---arc :: Time -> Duration -> Time -> Time
---    -> Museq Action -> (Duration, [Action])
---arc time0 globalPeriod from to museq =
---  let period = globalPeriod * fromRational (_sup museq)
---      pp0 = prevPhase0 time0 period from
---      relFrom = toRational $ (from - pp0) / period
---      relTo   = toRational $ (to   - pp0) / period
---      vecLen = V.length $ _vec museq
---      uv = _vec $ unitMuseq museq :: V.Vector (RelDuration,())
-      
+-- todo ? `arc` could be ~2x faster by using binarySearchRByBounds
+-- instead of binarySearchR, to avoid searching the first part
+-- of the vector again.
+-- | Finds the events in [from,to), and when they should start,
+-- in relative time units.
+arc :: Time -> Duration -> Time -> Time
+    -> Museq a -> [(RelDuration, a)]
+arc time0 globalPeriod from to museq =
+  let period = globalPeriod * fromRational (_sup museq)
+      rdv = V.map fst $ _vec $ unitMuseq museq :: V.Vector RelDuration
+  in arc' 0 period rdv time0 from to museq
+
+arc' :: Int -> Duration -> V.Vector RelDuration
+     -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
+     -> Museq a -> [(RTime, a)]
+arc' cycle period rdv time0 from to museq =
+  if from >= to then [] -- todo ? Be sure of boundary condition
+  else let
+    pp0 = prevPhase0 time0 period from
+    np0 = nextPhase0 time0 period from
+    relFrom = toRational $ (from - pp0) / period
+    relTo   = toRational $ (to   - pp0) / period
+    startOrOOB = firstIndexGTE compare rdv relFrom
+    in if startOrOOB >= V.length rdv
+       then arc' (cycle+1) period rdv time0 np0 to museq
+       else let
+    start = startOrOOB
+    end = lastIndexLTE  compare rdv relTo
+    eventsThisCycle = V.toList $ V.map (over _1 (+(_sup museq)))
+                      $ V.slice start (end-start) $ _vec museq
+  in eventsThisCycle ++ arc' (cycle+1) period rdv time0 np0 to museq
