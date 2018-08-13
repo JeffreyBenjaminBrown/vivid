@@ -21,6 +21,7 @@ import System.Random.MWC
 
 import Vivid
 import Vivid.Jbb.Distrib.ActNow
+import Vivid.Jbb.Distrib.Config
 import Vivid.Jbb.Distrib.Msg
 import Vivid.Jbb.Distrib.Museq
 import Vivid.Jbb.Distrib.Types

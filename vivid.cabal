@@ -54,6 +54,7 @@ library
     Vivid.Jbb
     , Vivid.Jbb.Distrib.ActNow
     , Vivid.Jbb.Distrib.ActSchedule
+    , Vivid.Jbb.Distrib.Config
     , Vivid.Jbb.Distrib.Distrib
     , Vivid.Jbb.Distrib.Distrib_2
     , Vivid.Jbb.Distrib.Join
