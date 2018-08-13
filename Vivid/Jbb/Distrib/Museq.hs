@@ -112,11 +112,15 @@ findNextEvents time0 globalPeriod now museq =
 -- | Finds the events in [from,to), and when they should start,
 -- in relative time units.
 arc :: Time -> Duration -> Time -> Time
-    -> Museq a -> [(RelDuration, a)]
+    -> Museq a -> [(Time, a)]
 arc time0 globalPeriod from to museq =
   let period = globalPeriod * fromRational (_sup museq)
       rdv = V.map fst $ _vec $ unitMuseq museq :: V.Vector RelDuration
-  in arc' 0 period rdv time0 from to museq
+      firstPhase0 = prevPhase0 time0 period from
+      toAbsoluteTime :: RTime -> Time
+      toAbsoluteTime rt = fromRational rt * globalPeriod + firstPhase0
+  in map (over _1 toAbsoluteTime)
+     $ arc' 0 period rdv time0 from to museq
 
 arc' :: Int -> Duration -> V.Vector RelDuration
      -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
@@ -125,15 +129,16 @@ arc' cycle period rdv time0 from to museq =
   if from >= to then [] -- todo ? Be sure of boundary condition
   else let
     pp0 = prevPhase0 time0 period from
-    np0 = nextPhase0 time0 period from
     relFrom = toRational $ (from - pp0) / period
     relTo   = toRational $ (to   - pp0) / period
     startOrOOB = firstIndexGTE compare rdv relFrom
     in if startOrOOB >= V.length rdv
-       then arc' (cycle+1) period rdv time0 np0 to museq
+       then arc' (cycle+1) period rdv time0 (pp0 + period) to museq
        else let
     start = startOrOOB
     end = lastIndexLTE  compare rdv relTo
-    eventsThisCycle = V.toList $ V.map (over _1 (+(_sup museq)))
+    eventsThisCycle = V.toList
+                      $ V.map (over _1 (+(_sup museq * fromIntegral cycle)))
                       $ V.slice start (end-start) $ _vec museq
-  in eventsThisCycle ++ arc' (cycle+1) period rdv time0 np0 to museq
+  in eventsThisCycle
+     ++ arc' (cycle+1) period rdv time0 (pp0 + period) to museq

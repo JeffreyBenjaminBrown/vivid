@@ -32,6 +32,7 @@ tests = runTestTT $ TestList
   , TestLabel "testDenseAndSparse" testDenseAndSparse
   , TestLabel "testExplicitReps" testExplicitReps
   , TestLabel "testMuseqsDiff" testMuseqsDiff
+  , TestLabel "testArc" testArc
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -212,8 +213,18 @@ testMuseqsDiff = TestCase $ do
                                                , [ (Boop,"1") ]
                                                )
 
---testArc = TestCase $ do
---  let m = museq 2 [(0,"a"),(1,"b")]
---                  -- arc time0 globalPeriod from to museq =
---  assertBool "arc" $ arc 100   10           200 220  m ==
---    [(
+testArc = TestCase $ do
+  let m = museq 2 [(0,"a"),(1,"b")]
+ -- arc time0 globalPeriod from to museq =
+  assertBool "arc 1" $
+    arc 100   10           200 220  m
+    == [(200.0,"a"),(210.0,"b")]
+  assertBool "arc 2" $
+    arc 100   10           200 221  m
+    == [(200.0,"a"),(210.0,"b"),(220.0,"a")]
+  assertBool "arc 3" $
+    arc 100   10           200 230  m
+    == [(200.0,"a"),(210.0,"b"),(220.0,"a")]
+  assertBool "arc 4" $
+    arc 100   10           199 230  m
+    == [(200.0,"a"),(210.0,"b"),(220.0,"a")]
