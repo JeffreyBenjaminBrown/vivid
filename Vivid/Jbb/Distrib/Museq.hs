@@ -10,7 +10,8 @@ module Vivid.Jbb.Distrib.Museq (
   , museqIsValid
   , findNextEvents
 
-  , arc, arc'
+  , arc
+  , arc'
   ) where
 
 import Control.Lens ((^.),(.~),(%~),_1,_2,over)
@@ -111,34 +112,51 @@ findNextEvents time0 globalPeriod now museq =
 -- of the vector again.
 -- | Finds the events in [from,to), and when they should start,
 -- in relative time units.
-arc :: Time -> Duration -> Time -> Time
-    -> Museq a -> [(Time, a)]
-arc time0 globalPeriod from to museq =
-  let period = globalPeriod * fromRational (_sup museq)
-      rdv = V.map fst $ _vec $ unitMuseq museq :: V.Vector RelDuration
+arc :: Show a -- temporary requirement
+    => Time -> Duration -> Time -> Time
+    -> Museq a -> IO [(Time, a)]
+arc time0 globalPeriod from to m = do
+  let period = globalPeriod * fromRational (_sup m)
+      rdv = V.map fst $ _vec $ unitMuseq m :: V.Vector RelDuration
       firstPhase0 = prevPhase0 time0 period from
       toAbsoluteTime :: RTime -> Time
       toAbsoluteTime rt = fromRational rt * globalPeriod + firstPhase0
-  in map (over _1 toAbsoluteTime)
-     $ arc' 0 period rdv time0 from to museq
+   in do putStrLn $ "firstPhase0: " ++ show firstPhase0
+         x <- arc' 0 period rdv time0 from to m
+         return $ map (over _1 toAbsoluteTime) x
 
-arc' :: Int -> Duration -> V.Vector RelDuration
+arc' :: Show a -- temporary requirement
+     => Int -> Duration -> V.Vector RelDuration
      -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
-     -> Museq a -> [(RTime, a)]
-arc' cycle period rdv time0 from to museq =
-  if from >= to then [] -- todo ? Be sure of boundary condition
-  else let
-    pp0 = prevPhase0 time0 period from
-    relFrom = toRational $ (from - pp0) / period
-    relTo   = toRational $ (to   - pp0) / period
-    startOrOOB = firstIndexGTE compare rdv relFrom
-    in if startOrOOB >= V.length rdv
-       then arc' (cycle+1) period rdv time0 (pp0 + period) to museq
-       else let
-    start = startOrOOB
-    end = lastIndexLTE  compare rdv relTo
-    eventsThisCycle = V.toList
-                      $ V.map (over _1 (+(_sup museq * fromIntegral cycle)))
-                      $ V.slice start (end-start) $ _vec museq
-  in eventsThisCycle
-     ++ arc' (cycle+1) period rdv time0 (pp0 + period) to museq
+     -> Museq a -> IO [(RTime, a)]
+arc' cycle period rdv time0 from to m = do
+  putStrLn $ "\ncycle: " ++ show cycle
+    ++ "\nperiod: " ++ show period
+    ++ "\nVector RelDuration: " ++ show rdv
+    ++ "\ntime0: " ++ show time0
+    ++ "\nfrom: " ++ show from
+    ++ "\nto: " ++ show to
+  if from >= to
+    then return [] -- todo ? Be sure of boundary condition
+    else do
+    let pp0 = prevPhase0 time0 period from
+        relFrom = toRational $ (from - pp0) / period
+        relTo   = toRational $ (to   - pp0) / period
+        startOrOOB = firstIndexGTE compare rdv (relFrom * _sup m)
+    putStrLn $ "pp0: " ++ show pp0
+      ++ "\nrelFrom: " ++ show relFrom
+      ++ "\nrelTo: " ++ show relTo
+      ++ "\nstartOrOOB: " ++ show startOrOOB
+    if startOrOOB >= V.length rdv
+      then arc' (cycle+1) period rdv time0 (pp0 + period) to m
+      else do
+      let start = startOrOOB
+          end = lastIndexLTE compare rdv (relTo * _sup m)
+          eventsThisCycle = V.toList
+            $ V.map (over _1 (+(_sup m * fromIntegral cycle)))
+            $ V.slice start (end-start) $ _vec m
+      do putStrLn $ "start: " ++ show start
+           ++ "\nend: " ++ show end
+           ++ "\neventsThisCycle: " ++ show eventsThisCycle
+         x <- arc' (cycle+1) period rdv time0 (pp0 + period) to m
+         return $ eventsThisCycle ++ x

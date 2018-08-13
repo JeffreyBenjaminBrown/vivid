@@ -5,4 +5,5 @@ import Control.Concurrent
 import Control.Concurrent.MVar
 import qualified Data.Map as M
 import qualified Data.Vector as V
+import Data.Ratio
 :def! . readHsAsGhci
