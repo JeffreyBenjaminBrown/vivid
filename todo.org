@@ -1,6 +1,9 @@
 * rewriting DistribLoop
+** next: act'At should schedule the MVar changes
+*** each function it calls (newAction'At, etc) might as well take the Action' rather than its pieces
+*** use takeMVar and putMVar to be sure they don't step on each other
+** chTempo might need modification
 ** some global config parameters
-*** waitAfterSilence: how long to wait in replaceAl, after sending silence, before sending Free
 *** frameDuration
 *** in the new DistribLoop, won't need an epsilon wait before starting
 **** because rendering is already delayed until the next frame

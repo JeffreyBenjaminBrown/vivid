@@ -21,14 +21,16 @@ import Vivid.Jbb.Distrib.ActNow
 
 
 -- | If you'll need some synths in the future, might as well make them now.
--- Therefore this does no scheduling. It creates a bunch of synths (of the
+-- Therefore this does no scheduling
+
+-- | This version creates a bunch of synths (of the
 -- same type) at once, because I suspect that will be faster.
-newActions :: forall sdArgs.
+newAction'sAt :: forall sdArgs.
               SynthDef sdArgs
            -> [SynthName]
            -> M.Map SynthName (Synth sdArgs)
            -> IO (M.Map SynthName (Synth sdArgs))
-newActions sd names synthMap = do
+newAction'sAt sd names synthMap = do
   let (found, notFound) =
         partition (isJust . flip M.lookup synthMap) names
   forM_ found (\name -> writeTimeAndError $ "A synth named "
@@ -40,14 +42,18 @@ newActions sd names synthMap = do
 
 freeAction'At :: SynthName
               -> M.Map SynthName (Synth sdArgs)
-              -> Time
+              -> Time -> Duration
               -> IO (M.Map SynthName (Synth sdArgs))
-freeAction'At name synthMap when =
+freeAction'At name synthMap when frameDuration =
   case M.lookup name synthMap of
     Nothing -> do writeTimeAndError
                     $ "The name " ++ name ++ " is already unused.\n"
                   return synthMap
-    Just s -> do doScheduledAt (Timestamp when) $ free s
+    Just s -> do doScheduledAt (Timestamp when)
+                   $ set s (0::I"amp")
+                 doScheduledAt (Timestamp when + frameDuration / 2)
+                   $ free s
+                 -- >>> TODO NEXT: delay map-delete until safe
                  return $ M.delete name synthMap
 
 sendAction'At :: forall m sdArgs.
