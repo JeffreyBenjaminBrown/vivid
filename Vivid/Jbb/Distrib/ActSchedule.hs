@@ -22,10 +22,21 @@ import Vivid.Jbb.Distrib.ActNow
 
 -- | If you'll need some synths in the future, might as well make them now.
 -- Therefore this does no scheduling
+newAction'At :: forall sdArgs.
+                SynthDef sdArgs
+             -> SynthName
+             -> M.Map SynthName (Synth sdArgs)
+             -> IO (M.Map SynthName (Synth sdArgs))
+newAction'At sd name synthMap = case M.lookup name synthMap of
+  Just _ -> do writeTimeAndError $ "A synth named "
+                 ++ show name ++ " already exists."
+               return synthMap
+  Nothing -> do s <- synth sd ()
+                return $ M.insert name s synthMap
 
 -- | This version creates a bunch of synths (of the
 -- same type) at once, because I suspect that will be faster.
-newAction'sAt :: forall sdArgs.
+newAction'sAt :: forall sdArgs. -- TODO : use
               SynthDef sdArgs
            -> [SynthName]
            -> M.Map SynthName (Synth sdArgs)
@@ -40,7 +51,8 @@ newAction'sAt sd names synthMap = do
   return $ foldl (\m (name,s) -> M.insert name s m)
            synthMap nameSynths
 
-freeAction'At :: SynthName
+freeAction'At :: Elem "amp" sdArgs
+              => SynthName
               -> M.Map SynthName (Synth sdArgs)
               -> Time -> Duration
               -> IO (M.Map SynthName (Synth sdArgs))
@@ -51,7 +63,7 @@ freeAction'At name synthMap when frameDuration =
                   return synthMap
     Just s -> do doScheduledAt (Timestamp when)
                    $ set s (0::I"amp")
-                 doScheduledAt (Timestamp when + frameDuration / 2)
+                 doScheduledAt (Timestamp $ when + frameDuration / 2)
                    $ free s
                  -- >>> TODO NEXT: delay map-delete until safe
                  return $ M.delete name synthMap

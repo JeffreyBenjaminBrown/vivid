@@ -3,16 +3,17 @@
 *** each function it calls (newAction'At, etc) might as well take the Action' rather than its pieces
 *** use takeMVar and putMVar to be sure they don't step on each other
 ** chTempo might need modification
-** some global config parameters
+** one global config parameter
 *** frameDuration
 *** in the new DistribLoop, won't need an epsilon wait before starting
 **** because rendering is already delayed until the next frame
 ** when to create, free, send, modify 
+*** TODO danger ? the tMuseqs could be mid-render when changed
 *** switch comes at time t, next render at time n, render period p
 *** use forkIO to avoid waiting for things to finish
 *** add synths to registry immediately
 *** send silences to deleted synths at n+p
-*** delete synths from registry at n+p/2
+*** delete synths from registry at n+1.5p
 *** modify the tMuseqs immediately (at n they'll get rendered for [n+p,n+2p))
 * supercollider mysteries
 ** envelopes
