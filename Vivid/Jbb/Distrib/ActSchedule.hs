@@ -12,6 +12,7 @@ import qualified Data.Map as M
 import qualified Data.Vector as V
 
 import Vivid
+import Vivid.Jbb.Distrib.Config (frameDuration)
 import Vivid.Jbb.Distrib.Types
 import Vivid.Jbb.Distrib.Msg
 import Vivid.Jbb.Synths
@@ -21,6 +22,10 @@ import Vivid.Jbb.Distrib.ActNow
 
 
 type SynthMap sdArgs = M.Map SynthName (Synth sdArgs)
+
+
+-- >>> TODO NEXT
+-- act'At :: Action' -> IO ()
 
 -- | If you'll need some synths in the future, might as well make them now.
 -- Therefore this does no scheduling
@@ -58,9 +63,9 @@ newAction'sAt sd names synthMap = do
 freeAction'At :: Elem "amp" sdArgs
               => SynthName
               -> SynthMap sdArgs
-              -> Time -> Duration
+              -> Time
               -> IO ( SynthMap sdArgs -> SynthMap sdArgs )
-freeAction'At name synthMap when frameDuration =
+freeAction'At name synthMap when =
   case M.lookup name synthMap of
     Nothing -> do writeTimeAndError
                     $ "The name " ++ name ++ " is already unused.\n"
