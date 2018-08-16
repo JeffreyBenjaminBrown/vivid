@@ -20,13 +20,15 @@ import Vivid.Jbb.Util (unique)
 import Vivid.Jbb.Distrib.ActNow
 
 
+type SynthMap sdArgs = M.Map SynthName (Synth sdArgs)
+
 -- | If you'll need some synths in the future, might as well make them now.
 -- Therefore this does no scheduling
 newAction'At :: forall sdArgs.
                 SynthDef sdArgs
              -> SynthName
-             -> M.Map SynthName (Synth sdArgs)
-             -> IO (M.Map SynthName (Synth sdArgs))
+             -> SynthMap sdArgs
+             -> IO (SynthMap sdArgs)
 newAction'At sd name synthMap = case M.lookup name synthMap of
   Just _ -> do writeTimeAndError $ "A synth named "
                  ++ show name ++ " already exists."
@@ -39,8 +41,8 @@ newAction'At sd name synthMap = case M.lookup name synthMap of
 newAction'sAt :: forall sdArgs. -- TODO : use
               SynthDef sdArgs
            -> [SynthName]
-           -> M.Map SynthName (Synth sdArgs)
-           -> IO (M.Map SynthName (Synth sdArgs))
+           -> SynthMap sdArgs
+           -> IO (SynthMap sdArgs)
 newAction'sAt sd names synthMap = do
   let (found, notFound) =
         partition (isJust . flip M.lookup synthMap) names
@@ -51,27 +53,28 @@ newAction'sAt sd names synthMap = do
   return $ foldl (\m (name,s) -> M.insert name s m)
            synthMap nameSynths
 
+-- | Rather than return (now) a modified SynthMap, this returns
+-- a function to apply later, when it's safe to delete the Synth.
 freeAction'At :: Elem "amp" sdArgs
               => SynthName
-              -> M.Map SynthName (Synth sdArgs)
+              -> SynthMap sdArgs
               -> Time -> Duration
-              -> IO (M.Map SynthName (Synth sdArgs))
+              -> IO ( SynthMap sdArgs -> SynthMap sdArgs )
 freeAction'At name synthMap when frameDuration =
   case M.lookup name synthMap of
     Nothing -> do writeTimeAndError
                     $ "The name " ++ name ++ " is already unused.\n"
-                  return synthMap
+                  return id
     Just s -> do doScheduledAt (Timestamp when)
                    $ set s (0::I"amp")
                  doScheduledAt (Timestamp $ when + frameDuration / 2)
                    $ free s
-                 -- >>> TODO NEXT: delay map-delete until safe
-                 return $ M.delete name synthMap
+                 return $ M.delete name
 
 sendAction'At :: forall m sdArgs.
                  SynthName
               -> Msg' sdArgs
-              -> M.Map SynthName (Synth sdArgs)
+              -> SynthMap sdArgs
               -> Time
               -> IO ()
 sendAction'At name msg synthMap when =
