@@ -63,7 +63,7 @@ testFindNextEvents = TestCase $ do
       events = [(0,bp 1),(0.25,bp 2),(0.5,bp 3),(0.5,bp 4),(0.75,bp 5)]
   assertBool "testFindNextEvents, midway" $
     (findNextEvents 1 10 29 $ museq 2 events)
-      -- findNextEvents time0 globalPeriod now museq
+      -- findNextEvents time0 tempoPeriod now museq
     == (2, Prelude.map snd $ V.toList $ V.slice 2 2 $ V.fromList events)
       -- last phase 0 was at 21s, so now (29) is 2s before halfway through
   assertBool "testFindNextEvents, end (wraparound)" $
@@ -215,7 +215,7 @@ testMuseqsDiff = TestCase $ do
 
 testArc = TestCase $ do
   let m = museq 2 [(0,"a"),(1,"b")]
- -- arc time0 globalPeriod from to museq =
+ -- arc time0 tempoPeriod from to museq =
   assertBool "arc 1" $
     arc 100   10           200 220  m
     == [(200.0,"a"),(210.0,"b")]

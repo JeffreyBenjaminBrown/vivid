@@ -88,8 +88,8 @@ museqIsValid mu = and [a,b,c,d] where
 -- | Returns a list of actions and the time remaining until they start.
 findNextEvents :: Time -> Duration -> Time
                -> Museq Action -> (Duration, [Action])
-findNextEvents time0 globalPeriod now museq =
-  let period = globalPeriod * fromRational (_sup museq)
+findNextEvents time0 tempoPeriod now museq =
+  let period = tempoPeriod * fromRational (_sup museq)
       pp0 = prevPhase0 time0 period now
       relNow = toRational $ (now - pp0) / period
       vecLen = V.length $ _vec museq
@@ -114,12 +114,12 @@ findNextEvents time0 globalPeriod now museq =
 -- in relative time units.
 arc :: Time -> Duration -> Time -> Time
     -> Museq a -> [(Time, a)]
-arc time0 globalPeriod from to m =
-  let period = globalPeriod * fromRational (_sup m)
+arc time0 tempoPeriod from to m =
+  let period = tempoPeriod * fromRational (_sup m)
       rdv = V.map fst $ _vec $ unitMuseq m :: V.Vector RelDuration
       firstPhase0 = prevPhase0 time0 period from
       toAbsoluteTime :: RTime -> Time
-      toAbsoluteTime rt = fromRational rt * globalPeriod + firstPhase0
+      toAbsoluteTime rt = fromRational rt * tempoPeriod + firstPhase0
    in map (over _1 toAbsoluteTime) $ arcFold 0 period rdv time0 from to m
 
 arcFold :: Int -> Duration -> V.Vector RelDuration
