@@ -1,6 +1,7 @@
 :set prompt "> "
 :set -XDataKinds
-import qualified Control.Lens as L
+import qualified Control.Lens as Lens
+import qualified Data.List as L
 import Control.Concurrent
 import Control.Concurrent.MVar
 import qualified Data.Map as M

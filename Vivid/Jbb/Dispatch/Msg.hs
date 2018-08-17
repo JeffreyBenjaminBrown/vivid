@@ -7,6 +7,9 @@ module Vivid.Jbb.Dispatch.Msg (
   , vapMsg
   ) where
 
+import Data.List (partition)
+import Control.Lens (_1,_2,over)
+
 import Vivid
 import Vivid.Jbb.Synths
 import Vivid.Jbb.Dispatch.Types
@@ -14,6 +17,25 @@ import Vivid.Jbb.Dispatch.Types
 
 set' :: VividAction m => Synth params -> Msg' params -> m ()
 set' synth (Msg' m) = set synth m
+
+--schedule :: SynthRegister -> [(Time,Action)] -> IO ()
+--schedule reg evs = mapM f evs where
+--  f 
+
+--scheduleSend :: SynthRegister -> [(Time,Action)] -> IO ()
+--scheduleSend reg (t, Send Boop name msg) =
+--  boops reg
+
+--sortActionsBySynth :: [(Time,Action)] -> (   [ (Time, Msg' BoopParams) ]
+--                                           , [ (Time, Msg' SqfmParams) ]
+--                                           , [ (Time, Msg' VapParams ) ] )
+--sortActionsBySynth evs =
+--  let (boops,evs') = partition ((==Boop) . fst . actionSynth . snd) evs
+--      (sqfms,vaps) = partition ((==Sqfm) . fst . actionSynth . snd) evs'
+--  in ( map (over _2 boopMsg) boops
+--     , [], [] )
+----     , map sqfmMsg sqfms
+----     , map vapMsg  vaps )
 
 
 -- | = per-synth boilerplate

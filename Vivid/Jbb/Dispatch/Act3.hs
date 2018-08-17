@@ -23,12 +23,16 @@ dispatchLoop3 dist = do
 
   let museqs = map snd $ M.elems timeMuseqs :: [Museq Action]
       np0 = nextPhase0 time0 frameDuration now
-      evs = map f museqs where
-        f = arc time0 tempoPeriod np0 $ np0 + frameDuration
+      nextRender = np0 + frameDuration
+      evs = concatMap f museqs :: [(Time,Action)] where
+        f = arc time0 tempoPeriod nextRender $ nextRender + frameDuration
 
   -- >>> TODO NEXT : render that stuff, using doSchedule
+  mapM_ (doScheduledAt $ Timestamp nextRender) []
 
   putMVar (mTime0      dist) time0
   putMVar (mPeriod     dist) tempoPeriod
   putMVar (mTimeMuseqs dist) timeMuseqs
+
+  wait $ np0 - now
   return ()
