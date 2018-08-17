@@ -119,6 +119,16 @@ emptySynthRegister = do x <- newMVar M.empty
 --                        w <- newMVar M.empty
                         return $ SynthRegister x y z -- w
 
+data SynthRegister3 = -- per-synth boilerplate
+  SynthRegister3{ boops' :: M.Map SynthName (Synth BoopParams)
+                , vaps'  :: M.Map SynthName (Synth VapParams)
+                , sqfms' :: M.Map SynthName (Synth SqfmParams)
+                } deriving (Show, Eq, Ord)
+
+emptySynthRegister3 :: SynthRegister3
+emptySynthRegister3 = SynthRegister3 M.empty M.empty M.empty
+
+
 -- | todo : this blocks if any MVar is empty
 showSynthRegister :: SynthRegister -> IO String
 showSynthRegister reg = do bs <- show <$> (readMVar $ boops reg)
@@ -144,6 +154,25 @@ newDispatch = do
   mPeriod <- newMVar 1
   return Dispatch { mTimeMuseqs = mTimeMuseqs,  reg     = reg
                  , mTime0  = mTime0         ,  mPeriod = mPeriod }
+
+data Dispatch3 = Dispatch3 {
+  mTimeMuseqs3 :: MVar (M.Map MuseqName (Time, Museq Action))
+    -- ^ Each `Time` here is the next time that Museq is scheduled to run.
+    -- Rarely, briefly, those `Time` values will be in the past.
+  , reg3 :: MVar SynthRegister3
+  , mTime03 :: MVar Time
+  , mPeriod3 :: MVar Duration -- ^ Period is the inverse of tempo.
+  }
+
+-- | "new" because it's not really empty, except for `time0`
+newDispatch3 :: IO Dispatch3
+newDispatch3 = do
+  mTimeMuseqs <- newMVar M.empty
+  reg <- newMVar emptySynthRegister3
+  mTime0 <- newEmptyMVar
+  mPeriod <- newMVar 1
+  return Dispatch3 { mTimeMuseqs3 = mTimeMuseqs,  reg3     = reg
+                   , mTime03 = mTime0           ,  mPeriod3 = mPeriod }
 
 
 -- | == The GADTs. Hopefully quarantined away from the live coding.
