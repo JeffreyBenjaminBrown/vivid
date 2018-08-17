@@ -4,7 +4,7 @@ module Vivid.Jbb.Dispatch.Dispatch (
   -- | user-facing
   replaceAll
   , replace
-  , chPeriod
+  , chTempoPeriod
   , startDispatchLoop
 
   -- | = backend
@@ -50,13 +50,13 @@ replace dist newName newMuseq = do
 
 -- | If can't change period now (because some Museq is not waiting),
 -- wait between 5 and 10 ms, then retry
-chPeriod :: Dispatch -> Duration -> IO ()
-chPeriod dist newPeriod = try where
+chTempoPeriod :: Dispatch -> Duration -> IO ()
+chTempoPeriod dist newPeriod = try where
   try = do
     waitingUntils <- map fst . M.elems <$> readMVar (mTimeMuseqs dist)
     now <- unTimestamp <$> getTime
     if and $ map (> now) waitingUntils
-      then swapMVar (mPeriod dist) newPeriod >> return ()
+      then swapMVar (mTempoPeriod dist) newPeriod >> return ()
       else do mwc <- createSystemRandom
               wait =<< (sampleFrom mwc
                         $ (*(1/1000)) . (+5) . (*5) <$> stdUniform
@@ -89,7 +89,7 @@ dispatchLoop dist = do
     -- a synth to keep doing what it's doing.
 
   time0  <- readMVar $ mTime0  dist
-  period <- readMVar $ mPeriod dist
+  tempoPeriod <- readMVar $ mTempoPeriod dist
   timeMuseqs <- readMVar $ mTimeMuseqs dist
   now <- unTimestamp <$> getTime -- get time ALAP
 
@@ -100,7 +100,7 @@ dispatchLoop dist = do
   -- find what comes next in each Museq
   let nextPlus :: M.Map MuseqName (Duration, [Action])
         -- some of these are immediately next, but maybe not all
-      nextPlus = M.map (findNextEvents time0 period now . snd) timeMuseqs
+      nextPlus = M.map (findNextEvents time0 tempoPeriod now . snd) timeMuseqs
 
   -- record (ASAP) in each Museq the time until its next Action(s)
   swapMVar (mTimeMuseqs dist) $ M.mapWithKey
@@ -131,8 +131,8 @@ showDist :: Dispatch -> IO String
 showDist dist = do timeMuseqs <- readMVar $ mTimeMuseqs dist
                    reg' <- showSynthRegister $ reg dist
                    time0 <- readMVar $ mTime0 dist
-                   period <- readMVar $ mPeriod dist
+                   tempoPeriod <- readMVar $ mTempoPeriod dist
                    return $ "(Time,Museq)s: " ++ show timeMuseqs
                      ++ "\nSynthRegister: " ++ show reg'
                      ++ "\nTime 0: " ++ show time0
-                     ++ "\nPeriod: " ++ show period
+                     ++ "\nPeriod: " ++ show tempoPeriod

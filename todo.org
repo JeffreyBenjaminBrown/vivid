@@ -1,8 +1,3 @@
-* change synthReg to be a single MVar
-** when it is used, all its fields are used at once, so that's safe
-* schedule :: SynthRegister -> [(Time,Action)] -> IO ()
-* rename (where true) period -> tempoPeriod
-* delete the (Time,) from the mTimeMuseqs
 * rewriting DistribLoop
 ** next: act'At should schedule the MVar changes
 *** each function it calls (newAction'At, etc) might as well take the Action' rather than its pieces

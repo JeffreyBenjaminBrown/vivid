@@ -146,7 +146,7 @@ data Dispatch = Dispatch {
     -- Rarely, briefly, those `Time` values will be in the past.
   , reg :: SynthRegister
   , mTime0 :: MVar Time
-  , mPeriod :: MVar Duration -- ^ Period is the inverse of tempo.
+  , mTempoPeriod :: MVar Duration
   }
 
 -- | "new" because it's not really empty, except for `time0`
@@ -155,15 +155,15 @@ newDispatch = do
   mTimeMuseqs <- newMVar M.empty
   reg <- emptySynthRegister
   mTime0 <- newEmptyMVar
-  mPeriod <- newMVar 1
-  return Dispatch { mTimeMuseqs = mTimeMuseqs,  reg     = reg
-                 , mTime0  = mTime0         ,  mPeriod = mPeriod }
+  mTempoPeriod <- newMVar 1
+  return Dispatch { mTimeMuseqs = mTimeMuseqs,  reg          = reg
+                  , mTime0  = mTime0         ,  mTempoPeriod = mTempoPeriod }
 
 data Dispatch3 = Dispatch3 {
   mTimeMuseqs3 :: MVar (M.Map MuseqName (Museq Action))
   , mReg3 :: MVar SynthRegister3
   , mTime03 :: MVar Time
-  , mPeriod3 :: MVar Duration -- ^ Period is the inverse of tempo.
+  , mTempoPeriod3 :: MVar Duration
   }
 
 -- | "new" because it's not really empty, except for `time0`
@@ -172,9 +172,10 @@ newDispatch3 = do
   mTimeMuseqs <- newMVar M.empty
   reg <- newMVar emptySynthRegister3
   mTime0 <- newEmptyMVar
-  mPeriod <- newMVar 1
-  return Dispatch3 { mTimeMuseqs3 = mTimeMuseqs,  mReg3    = reg
-                   , mTime03      = mTime0     ,  mPeriod3 = mPeriod }
+  mTempoPeriod <- newMVar 1
+  return Dispatch3
+    { mTimeMuseqs3 = mTimeMuseqs,  mReg3    = reg
+    , mTime03      = mTime0     ,  mTempoPeriod3 = mTempoPeriod }
 
 
 -- | == The GADTs. Hopefully quarantined away from the live coding.
