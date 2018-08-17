@@ -15,7 +15,7 @@ module Vivid.Jbb.Distrib.Types (
   , unTimestamp
   , Msg
   , Action(..)
-  , actionSynths
+  , actionSynth
   , Museq(..), dur, sup, vec
   , emptyMuseq
   , unitMuseq
@@ -73,10 +73,10 @@ data Action = New  SynthDefEnum SynthName
             | Send SynthDefEnum SynthName Msg
   deriving (Show,Eq,Ord)
 
-actionSynths :: Action -> (SynthDefEnum, SynthName)
-actionSynths (New  s n  ) = (s,n)
-actionSynths (Free s n  ) = (s,n)
-actionSynths (Send s n _) = (s,n)
+actionSynth :: Action -> (SynthDefEnum, SynthName)
+actionSynth (New  s n  ) = (s,n)
+actionSynth (Free s n  ) = (s,n)
+actionSynth (Send s n _) = (s,n)
 
 data Museq a = Museq {
   _dur :: RelDuration -- ^ the play duration of the loop

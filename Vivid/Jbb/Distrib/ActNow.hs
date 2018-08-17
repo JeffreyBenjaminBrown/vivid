@@ -25,7 +25,7 @@ import Vivid.Jbb.Util (unique)
 
 -- | Given a Museq, find the synths it uses.
 museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
-museqSynths = map (actionSynths . snd) . V.toList . _vec
+museqSynths = map (actionSynth . snd) . V.toList . _vec
 
 -- | Given an old set of Museqs and a new one, figure out
 -- which synths need to be created, and which destroyed.
