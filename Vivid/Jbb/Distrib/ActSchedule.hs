@@ -25,9 +25,10 @@ import Vivid.Jbb.Distrib.ActNow
 type SynthMap sdArgs = M.Map SynthName (Synth sdArgs)
 
 
--- -- >>> TODO NEXT
--- act'At :: Action' -> IO ()
--- act'At (New' sMap sd name) = 
+-- act'At :: forall sdArgs. Action' -> IO (SynthMap sdArgs -> SynthMap sdArgs)
+-- act'At (New' mvSMap (sd :: SynthDef sdArgs) name) = do
+--   sMap <- readMVar mvSMap
+--   newAction'At sd name sMap
 
 -- | If you'll need some synths in the future, might as well make them now.
 -- Therefore this does no scheduling

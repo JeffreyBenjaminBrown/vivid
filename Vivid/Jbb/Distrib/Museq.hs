@@ -11,7 +11,7 @@ module Vivid.Jbb.Distrib.Museq (
   , findNextEvents
 
   , arc
-  , arc'
+  , arcFold
   ) where
 
 import Control.Lens ((^.),(.~),(%~),_1,_2,over)
@@ -120,12 +120,12 @@ arc time0 globalPeriod from to m =
       firstPhase0 = prevPhase0 time0 period from
       toAbsoluteTime :: RTime -> Time
       toAbsoluteTime rt = fromRational rt * globalPeriod + firstPhase0
-   in map (over _1 toAbsoluteTime) $ arc' 0 period rdv time0 from to m
+   in map (over _1 toAbsoluteTime) $ arcFold 0 period rdv time0 from to m
 
-arc' :: Int -> Duration -> V.Vector RelDuration
-     -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
-     -> Museq a -> [(RTime, a)]
-arc' cycle period rdv time0 from to m = 
+arcFold :: Int -> Duration -> V.Vector RelDuration
+  -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
+  -> Museq a -> [(RTime, a)]
+arcFold cycle period rdv time0 from to m = 
   if from >= to
   then [] -- todo ? Be sure of boundary condition
   else let
@@ -134,7 +134,7 @@ arc' cycle period rdv time0 from to m =
     relTo   = toRational $ (to   - pp0) / period
     startOrOOB = firstIndexGTE compare rdv (relFrom * _sup m)
   in if startOrOOB >= V.length rdv
-     then arc' (cycle+1) period rdv time0 (pp0 + period) to m
+     then arcFold (cycle+1) period rdv time0 (pp0 + period) to m
      else let
     start = startOrOOB
     end = lastIndexLTE compare' rdv (relTo * _sup m) where
@@ -143,4 +143,4 @@ arc' cycle period rdv time0 from to m =
       $ V.map (over _1 (+(_sup m * fromIntegral cycle)))
       $ V.slice start (end-start) $ _vec m
   in eventsThisCycle
-     ++ arc' (cycle+1) period rdv time0 (pp0 + period) to m
+     ++ arcFold (cycle+1) period rdv time0 (pp0 + period) to m

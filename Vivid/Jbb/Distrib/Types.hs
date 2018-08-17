@@ -43,8 +43,8 @@ import Vivid.Jbb.Synths
 
 -- | = Kinds of name
 
-type SynthName = String
 type ParamName = String
+type SynthName = String
 type MuseqName = String
 
 
@@ -66,7 +66,7 @@ unTimestamp (Timestamp x) = x
 
 -- | = Instructions
 
-type Msg = (ParamName,Float)
+type Msg = (ParamName, Float)
 
 data Action = New  SynthDefEnum SynthName
             | Free SynthDefEnum SynthName
@@ -81,10 +81,10 @@ actionSynth (Send s n _) = (s,n)
 data Museq a = Museq {
   _dur :: RelDuration -- ^ the play duration of the loop
   , _sup :: RelDuration -- ^ the supremum of the possible RTime values
-  -- in the `Museq`'s `vec`. If this is greater than `dur`, the `Museq`
-  -- will rotate through different sections of the `vec` each time it plays.
-  -- If less than `dur`, the `Museq` will play the entire `vec` more than
-  -- once each time it plays.
+    -- in `_vec`. If this is greater than `dur`, the `Museq`will rotate
+    -- through different sections of the `vec` each time it plays.
+    -- If less than `dur`, the `Museq` will play the entire `vec` more than
+    -- once each time it plays.
   , _vec :: V.Vector (RTime, a) }
   deriving (Show,Eq)
 
@@ -150,16 +150,16 @@ newDistrib = do
 
 data Msg' sdArgs where
   Msg' :: forall params sdArgs.
-         (VarList params
-         , Subset (InnerVars params) sdArgs)
-      => params -> Msg' sdArgs
+          ( VarList params
+          , Subset (InnerVars params) sdArgs)
+       => params -> Msg' sdArgs
 
 data Action' where
   New'  :: MVar (M.Map SynthName (Synth sdArgs))
-       -> SynthDef sdArgs
-       -> SynthName -> Action'
+        -> SynthDef sdArgs
+        -> SynthName -> Action'
   Free' :: MVar (M.Map SynthName (Synth sdArgs))
-       -> SynthName -> Action'
+        -> SynthName -> Action'
   Send' :: MVar (M.Map SynthName (Synth sdArgs))
-       -> SynthName
-       -> Msg' sdArgs -> Action'
+        -> SynthName
+        -> Msg' sdArgs -> Action'
