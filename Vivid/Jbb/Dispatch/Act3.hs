@@ -1,5 +1,6 @@
 module Vivid.Jbb.Dispatch.Act3 where
 
+import Control.Concurrent (forkIO, ThreadId)
 import Control.Concurrent.MVar
 import Data.List ((\\))
 import qualified Data.Map as M
@@ -13,6 +14,14 @@ import Vivid.Jbb.Dispatch.Museq
 import Vivid.Jbb.Synths
 import Vivid.Jbb.Util
 
+
+startDispatchLoop3 :: Dispatch3 -> IO ThreadId
+startDispatchLoop3 dist = do
+  tryTakeMVar $ mTime03 dist -- empty it, just in case
+  (+(frameDuration * (-0.8))) . unTimestamp <$> getTime
+    -- subtract nearly an entire frameDuration so it starts sooner
+    >>= putMVar (mTime03 dist)
+  forkIO $ dispatchLoop3 dist
 
 dispatchLoop3 :: Dispatch3 -> IO ()
 dispatchLoop3 dist = do
@@ -36,4 +45,4 @@ dispatchLoop3 dist = do
   putMVar (mReg3 dist)         reg3
 
   wait $ np0 - now
-  return ()
+  dispatchLoop3 dist
