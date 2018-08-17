@@ -1,7 +1,8 @@
 {-# LANGUAGE DataKinds
            , ExtendedDefaultRules
            , ScopedTypeVariables
-           , GADTs #-}
+           , GADTs
+#-}
 
 module Vivid.Jbb.Distrib.ActSchedule where
 
@@ -24,9 +25,9 @@ import Vivid.Jbb.Distrib.ActNow
 type SynthMap sdArgs = M.Map SynthName (Synth sdArgs)
 
 
--- >>> TODO NEXT
+-- -- >>> TODO NEXT
 -- act'At :: Action' -> IO ()
--- act'At
+-- act'At (New' sMap sd name) = 
 
 -- | If you'll need some synths in the future, might as well make them now.
 -- Therefore this does no scheduling
@@ -34,13 +35,13 @@ newAction'At :: forall sdArgs.
                 SynthDef sdArgs
              -> SynthName
              -> SynthMap sdArgs
-             -> IO (SynthMap sdArgs)
+             -> IO (SynthMap sdArgs -> SynthMap sdArgs)
 newAction'At sd name synthMap = case M.lookup name synthMap of
   Just _ -> do writeTimeAndError $ "A synth named "
                  ++ show name ++ " already exists."
-               return synthMap
+               return id
   Nothing -> do s <- synth sd ()
-                return $ M.insert name s synthMap
+                return $ M.insert name s
 
 -- | This version creates a bunch of synths (of the
 -- same type) at once, because I suspect that will be faster.
