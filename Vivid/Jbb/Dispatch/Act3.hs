@@ -14,14 +14,14 @@ import Vivid.Jbb.Synths
 import Vivid.Jbb.Util
 
 
-dispatchLoop3 :: Dispatch -> IO ()
+dispatchLoop3 :: Dispatch3 -> IO ()
 dispatchLoop3 dist = do
-  time0  <-      takeMVar $ mTime0     dist
-  tempoPeriod <- takeMVar $ mPeriod    dist
-  timeMuseqs <-  takeMVar $ mTimeMuseqs dist
+  time0  <-      takeMVar $ mTime03      dist
+  tempoPeriod <- takeMVar $ mPeriod3     dist
+  timeMuseqs <-  takeMVar $ mTimeMuseqs3 dist
   now <- unTimestamp <$> getTime
 
-  let museqs = map snd $ M.elems timeMuseqs :: [Museq Action]
+  let museqs = M.elems timeMuseqs :: [Museq Action]
       np0 = nextPhase0 time0 frameDuration now
       nextRender = np0 + frameDuration
       evs = concatMap f museqs :: [(Time,Action)] where
@@ -30,9 +30,9 @@ dispatchLoop3 dist = do
   -- >>> TODO NEXT : render that stuff, using doSchedule
   mapM_ (doScheduledAt $ Timestamp nextRender) []
 
-  putMVar (mTime0      dist) time0
-  putMVar (mPeriod     dist) tempoPeriod
-  putMVar (mTimeMuseqs dist) timeMuseqs
+  putMVar (mTime03      dist) time0
+  putMVar (mPeriod3     dist) tempoPeriod
+  putMVar (mTimeMuseqs3 dist) timeMuseqs
 
   wait $ np0 - now
   return ()

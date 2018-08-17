@@ -23,8 +23,12 @@ module Vivid.Jbb.Dispatch.Types (
   , SynthRegister(..)
   , emptySynthRegister
   , showSynthRegister
+  , SynthRegister3(..)
+  , emptySynthRegister3
   , Dispatch(..)
   , newDispatch
+  , Dispatch3(..)
+  , newDispatch3
   , Msg'(..)
   , Action'(..)
   ) where
@@ -156,9 +160,7 @@ newDispatch = do
                  , mTime0  = mTime0         ,  mPeriod = mPeriod }
 
 data Dispatch3 = Dispatch3 {
-  mTimeMuseqs3 :: MVar (M.Map MuseqName (Time, Museq Action))
-    -- ^ Each `Time` here is the next time that Museq is scheduled to run.
-    -- Rarely, briefly, those `Time` values will be in the past.
+  mTimeMuseqs3 :: MVar (M.Map MuseqName (Museq Action))
   , reg3 :: MVar SynthRegister3
   , mTime03 :: MVar Time
   , mPeriod3 :: MVar Duration -- ^ Period is the inverse of tempo.
