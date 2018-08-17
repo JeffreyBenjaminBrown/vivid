@@ -1,7 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Vivid.Jbb.Util (
-  lcmRatios
+  writeTimeAndError
+  , lcmRatios
 
   -- | = lists
   , unique
@@ -23,6 +24,13 @@ import qualified Data.Vector as V
 import Data.Vector.Algorithms.Search
   (binarySearchLBy, binarySearchRBy, Comparison)
 
+import Vivid (getTime)
+
+
+writeTimeAndError :: String -> IO ()
+writeTimeAndError msg = do now <- getTime
+                           appendFile "errors.txt"
+                             $ show now ++ ": " ++ msg
 
 lcmRatios :: Rational -> Rational -> Rational
 lcmRatios x y = let (a,b) = (numerator x, denominator x)

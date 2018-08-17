@@ -22,9 +22,12 @@ set' synth (Msg' m) = set synth m
 --schedule reg evs = mapM f evs where
 --  f 
 
---scheduleSend :: SynthRegister -> [(Time,Action)] -> IO ()
+--scheduleSend :: SynthRegister3 -> (Time,Action) -> IO ()
 --scheduleSend reg (t, Send Boop name msg) =
---  boops reg
+--  maybe (return ()) function (M.lookup name $ boops reg) 
+--  doScheduledAt t $ set' ((M.!) 
+      
+
 
 --sortActionsBySynth :: [(Time,Action)] -> (   [ (Time, Msg' BoopParams) ]
 --                                           , [ (Time, Msg' SqfmParams) ]

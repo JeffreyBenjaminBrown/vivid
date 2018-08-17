@@ -20,7 +20,7 @@ import Vivid
 import Vivid.Jbb.Dispatch.Types
 import Vivid.Jbb.Dispatch.Msg
 import Vivid.Jbb.Synths
-import Vivid.Jbb.Util (unique)
+import Vivid.Jbb.Util (unique, writeTimeAndError)
 
 
 -- | Given a Museq, find the synths it uses.
@@ -112,8 +112,3 @@ sendAction' name msg synthMap =
     Nothing -> writeTimeAndError
       $ " The name " ++ name ++ " is not in use.\n"
     Just synth -> set' synth msg
-
-writeTimeAndError :: String -> IO ()
-writeTimeAndError msg = do now <- getTime
-                           appendFile "errors.txt"
-                             $ show now ++ ": " ++ msg
