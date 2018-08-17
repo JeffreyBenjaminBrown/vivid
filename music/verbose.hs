@@ -9,10 +9,10 @@ a3 = fast 2 $ early (1/4) $ museq 1 [ (0,   Send Boop "3" ("freq",600) )
                                     , (0,   Send Boop "3" ("amp",0.4)  )
                                     , (0.5, Send Boop "3" ("amp",0)    ) ]
 
-dist <- newDistrib
+dist <- newDispatch
 swapMVar (mTimeMuseqs dist) $ M.fromList [ ("1",(0,a1)),
                                            ("2",(0,a3))]
 mapM_ (act $ reg dist) $ unique
   $ concatMap newsFromMuseq [a1,a2,a3]
-tid <- startDistribLoop dist
+tid <- startDispatchLoop dist
 

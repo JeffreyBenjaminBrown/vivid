@@ -1,4 +1,4 @@
-module Vivid.Jbb.Distrib.Museq (
+module Vivid.Jbb.Dispatch.Museq (
   timeToPlayThrough
   , supsToPlayThrough
   , dursToPlayThrough
@@ -20,7 +20,7 @@ import qualified Data.Vector as V
 import           Data.Vector ((!))
 import Data.Vector.Algorithms.Intro (sortBy)
 
-import Vivid.Jbb.Distrib.Types
+import Vivid.Jbb.Dispatch.Types
 import Vivid.Jbb.Util
 import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 

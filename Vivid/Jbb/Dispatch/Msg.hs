@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Vivid.Jbb.Distrib.Msg (
+module Vivid.Jbb.Dispatch.Msg (
   set'
   , boopMsg
   , sqfmMsg
@@ -9,7 +9,7 @@ module Vivid.Jbb.Distrib.Msg (
 
 import Vivid
 import Vivid.Jbb.Synths
-import Vivid.Jbb.Distrib.Types
+import Vivid.Jbb.Dispatch.Types
 
 
 set' :: VividAction m => Synth params -> Msg' params -> m ()

@@ -1,14 +1,14 @@
 {-# LANGUAGE TupleSections #-}
 
-module Vivid.Jbb.Distrib.Distrib (
+module Vivid.Jbb.Dispatch.Dispatch (
   -- | user-facing
   replaceAll
   , replace
   , chPeriod
-  , startDistribLoop
+  , startDispatchLoop
 
   -- | = backend
-  , distribLoop
+  , dispatchLoop
   , allWaiting
   , showDist
   ) where
@@ -20,16 +20,16 @@ import Data.Random
 import System.Random.MWC
 
 import Vivid
-import Vivid.Jbb.Distrib.ActNow
-import Vivid.Jbb.Distrib.Config
-import Vivid.Jbb.Distrib.Msg
-import Vivid.Jbb.Distrib.Museq
-import Vivid.Jbb.Distrib.Types
+import Vivid.Jbb.Dispatch.ActNow
+import Vivid.Jbb.Dispatch.Config
+import Vivid.Jbb.Dispatch.Msg
+import Vivid.Jbb.Dispatch.Museq
+import Vivid.Jbb.Dispatch.Types
 
 
 -- | = user-facing functions
 
-replaceAll :: Distrib -> M.Map MuseqName (Museq Action) -> IO ()
+replaceAll :: Dispatch -> M.Map MuseqName (Museq Action) -> IO ()
 replaceAll dist masNew = do
   masOld <- M.map snd <$> readMVar (mTimeMuseqs dist)
     :: IO (M.Map MuseqName (Museq Action))
@@ -41,7 +41,7 @@ replaceAll dist masNew = do
   swapMVar (mTimeMuseqs dist) $ M.map (0,) masNew
   return ()
 
-replace :: Distrib -> MuseqName -> Museq Action -> IO ()
+replace :: Dispatch -> MuseqName -> Museq Action -> IO ()
 replace dist newName newMuseq = do
   masOld <- M.map snd <$> readMVar (mTimeMuseqs dist)
     :: IO (M.Map MuseqName (Museq Action))
@@ -50,7 +50,7 @@ replace dist newName newMuseq = do
 
 -- | If can't change period now (because some Museq is not waiting),
 -- wait between 5 and 10 ms, then retry
-chPeriod :: Distrib -> Duration -> IO ()
+chPeriod :: Dispatch -> Duration -> IO ()
 chPeriod dist newPeriod = try where
   try = do
     waitingUntils <- map fst . M.elems <$> readMVar (mTimeMuseqs dist)
@@ -63,18 +63,18 @@ chPeriod dist newPeriod = try where
                         :: IO Double)
               try
 
-startDistribLoop :: Distrib -> IO ThreadId
-startDistribLoop dist = do
+startDispatchLoop :: Dispatch -> IO ThreadId
+startDispatchLoop dist = do
   tryTakeMVar $ mTime0 dist -- empty it, just in case
   (+(-0.05)) . unTimestamp <$> getTime >>= putMVar (mTime0 dist)
     -- add .05 so music starts in .05 seconds, not frameDur seconds
-  forkIO $ distribLoop dist
+  forkIO $ dispatchLoop dist
 
 
 -- | = backend
 
-distribLoop :: Distrib -> IO ()
-distribLoop dist = do
+dispatchLoop :: Dispatch -> IO ()
+dispatchLoop dist = do
   let epsilon = 0.005 :: Duration -- ^ PITFALL:
     -- Events scheduled with a difference
     -- of less than epsilon seconds might play at the same time.
@@ -117,9 +117,9 @@ distribLoop dist = do
   wait leastWait
   mapM_ (act $ reg dist) nextActions
 
-  distribLoop dist
+  dispatchLoop dist
 
-allWaiting :: Distrib -> IO (Bool)
+allWaiting :: Dispatch -> IO (Bool)
 allWaiting dist = do
   timeMuseqs <- readMVar $ mTimeMuseqs dist
   let times = map fst $ M.elems $ timeMuseqs
@@ -127,7 +127,7 @@ allWaiting dist = do
   return $ and $ map (> now) times
 
 -- | todo : this blocks if any MVar is empty
-showDist :: Distrib -> IO String
+showDist :: Dispatch -> IO String
 showDist dist = do timeMuseqs <- readMVar $ mTimeMuseqs dist
                    reg' <- showSynthRegister $ reg dist
                    time0 <- readMVar $ mTime0 dist

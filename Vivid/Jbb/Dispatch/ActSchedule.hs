@@ -4,7 +4,7 @@
            , GADTs
 #-}
 
-module Vivid.Jbb.Distrib.ActSchedule where
+module Vivid.Jbb.Dispatch.ActSchedule where
 
 import Control.Concurrent.MVar
 import Data.List ((\\),partition)
@@ -13,13 +13,13 @@ import qualified Data.Map as M
 import qualified Data.Vector as V
 
 import Vivid
-import Vivid.Jbb.Distrib.Config (frameDuration)
-import Vivid.Jbb.Distrib.Types
-import Vivid.Jbb.Distrib.Msg
+import Vivid.Jbb.Dispatch.Config (frameDuration)
+import Vivid.Jbb.Dispatch.Types
+import Vivid.Jbb.Dispatch.Msg
 import Vivid.Jbb.Synths
 import Vivid.Jbb.Util (unique)
 
-import Vivid.Jbb.Distrib.ActNow
+import Vivid.Jbb.Dispatch.ActNow
 
 
 type SynthMap sdArgs = M.Map SynthName (Synth sdArgs)

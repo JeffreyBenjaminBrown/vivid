@@ -3,7 +3,7 @@
            , ScopedTypeVariables
            , GADTs #-}
 
-module Vivid.Jbb.Distrib.ActNow (
+module Vivid.Jbb.Dispatch.ActNow (
   museqSynths
   , museqsDiff
   , act
@@ -17,8 +17,8 @@ import qualified Data.Map as M
 import qualified Data.Vector as V
 
 import Vivid
-import Vivid.Jbb.Distrib.Types
-import Vivid.Jbb.Distrib.Msg
+import Vivid.Jbb.Dispatch.Types
+import Vivid.Jbb.Dispatch.Msg
 import Vivid.Jbb.Synths
 import Vivid.Jbb.Util (unique)
 

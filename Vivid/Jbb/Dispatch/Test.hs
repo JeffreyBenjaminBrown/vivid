@@ -1,4 +1,4 @@
-module Vivid.Jbb.Distrib.Test where
+module Vivid.Jbb.Dispatch.Test where
 
 import Control.Concurrent.MVar
 import qualified Control.Lens as L
@@ -9,12 +9,12 @@ import qualified Data.Vector as V
 import Vivid
 import Vivid.Jbb.Util
 import Vivid.Jbb.Synths
-import Vivid.Jbb.Distrib.ActNow
-import Vivid.Jbb.Distrib.Distrib
-import Vivid.Jbb.Distrib.Join
-import Vivid.Jbb.Distrib.Museq
-import Vivid.Jbb.Distrib.Transform
-import Vivid.Jbb.Distrib.Types
+import Vivid.Jbb.Dispatch.ActNow
+import Vivid.Jbb.Dispatch.Dispatch
+import Vivid.Jbb.Dispatch.Join
+import Vivid.Jbb.Dispatch.Museq
+import Vivid.Jbb.Dispatch.Transform
+import Vivid.Jbb.Dispatch.Types
 import Test.HUnit
 
 
@@ -80,7 +80,7 @@ testFindNextEvents = TestCase $ do
 
 testAllWaiting = TestCase $ do
   now <- unTimestamp <$> getTime
-  dist <- newDistrib
+  dist <- newDispatch
   let mm = mTimeMuseqs dist
   swapMVar mm $ M.fromList [("a",(now+1,emptyMuseq))
                            ,("b",(now+1,emptyMuseq))]

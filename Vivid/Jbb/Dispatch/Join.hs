@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns #-}
 
-module Vivid.Jbb.Distrib.Join (
+module Vivid.Jbb.Dispatch.Join (
   -- | = user-facing
   append
   , cat
@@ -15,8 +15,8 @@ import Control.Lens (over, _1)
 import qualified Data.Vector as V
 
 import Vivid.Jbb.Util
-import Vivid.Jbb.Distrib.Museq
-import Vivid.Jbb.Distrib.Types
+import Vivid.Jbb.Dispatch.Museq
+import Vivid.Jbb.Dispatch.Types
 
 
 -- | = user-facing functions

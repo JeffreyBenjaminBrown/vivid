@@ -6,7 +6,7 @@
            , TemplateHaskell
            , GADTs #-}
 
-module Vivid.Jbb.Distrib.Types (
+module Vivid.Jbb.Dispatch.Types (
   SynthName
   , ParamName
   , MuseqName
@@ -23,8 +23,8 @@ module Vivid.Jbb.Distrib.Types (
   , SynthRegister(..)
   , emptySynthRegister
   , showSynthRegister
-  , Distrib(..)
-  , newDistrib
+  , Dispatch(..)
+  , newDispatch
   , Msg'(..)
   , Action'(..)
   ) where
@@ -126,7 +126,7 @@ showSynthRegister reg = do bs <- show <$> (readMVar $ boops reg)
                            ss <- show <$> (readMVar $ sqfms reg)
                            return $ bs ++ "\n" ++ vs ++ "\n" ++ ss
 
-data Distrib = Distrib {
+data Dispatch = Dispatch {
   mTimeMuseqs :: MVar (M.Map MuseqName (Time, Museq Action))
     -- ^ Each `Time` here is the next time that Museq is scheduled to run.
     -- Rarely, briefly, those `Time` values will be in the past.
@@ -136,13 +136,13 @@ data Distrib = Distrib {
   }
 
 -- | "new" because it's not really empty, except for `time0`
-newDistrib :: IO Distrib
-newDistrib = do
+newDispatch :: IO Dispatch
+newDispatch = do
   mTimeMuseqs <- newMVar M.empty
   reg <- emptySynthRegister
   mTime0 <- newEmptyMVar
   mPeriod <- newMVar 1
-  return Distrib { mTimeMuseqs = mTimeMuseqs,  reg     = reg
+  return Dispatch { mTimeMuseqs = mTimeMuseqs,  reg     = reg
                  , mTime0  = mTime0         ,  mPeriod = mPeriod }
 
 

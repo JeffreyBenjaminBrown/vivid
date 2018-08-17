@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns #-}
 
-module Vivid.Jbb.Distrib.Transform (
+module Vivid.Jbb.Dispatch.Transform (
   rev
   , early, late
   , fast, slow
@@ -12,8 +12,8 @@ import Control.Lens (over, _1)
 import qualified Data.Vector as V
 
 import Vivid.Jbb.Util
-import Vivid.Jbb.Distrib.Museq
-import Vivid.Jbb.Distrib.Types
+import Vivid.Jbb.Dispatch.Museq
+import Vivid.Jbb.Dispatch.Types
 
 
 -- todo ? sorting in `rev` is overkill; faster would be to move the
