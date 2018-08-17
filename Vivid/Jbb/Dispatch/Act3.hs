@@ -19,6 +19,7 @@ dispatchLoop3 dist = do
   time0  <-      takeMVar $ mTime03      dist
   tempoPeriod <- takeMVar $ mPeriod3     dist
   timeMuseqs <-  takeMVar $ mTimeMuseqs3 dist
+  reg3 <-        takeMVar $ mReg3 dist
   now <- unTimestamp <$> getTime
 
   let museqs = M.elems timeMuseqs :: [Museq Action]
@@ -27,12 +28,12 @@ dispatchLoop3 dist = do
       evs = concatMap f museqs :: [(Time,Action)] where
         f = arc time0 tempoPeriod nextRender $ nextRender + frameDuration
 
-  -- >>> TODO NEXT : render that stuff, using doSchedule
-  mapM_ (doScheduledAt $ Timestamp nextRender) []
+  mapM_ (scheduleSend reg3) evs
 
   putMVar (mTime03      dist) time0
   putMVar (mPeriod3     dist) tempoPeriod
   putMVar (mTimeMuseqs3 dist) timeMuseqs
+  putMVar (mReg3 dist)        reg3
 
   wait $ np0 - now
   return ()

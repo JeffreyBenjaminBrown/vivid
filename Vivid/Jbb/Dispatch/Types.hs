@@ -161,7 +161,7 @@ newDispatch = do
 
 data Dispatch3 = Dispatch3 {
   mTimeMuseqs3 :: MVar (M.Map MuseqName (Museq Action))
-  , reg3 :: MVar SynthRegister3
+  , mReg3 :: MVar SynthRegister3
   , mTime03 :: MVar Time
   , mPeriod3 :: MVar Duration -- ^ Period is the inverse of tempo.
   }
@@ -173,8 +173,8 @@ newDispatch3 = do
   reg <- newMVar emptySynthRegister3
   mTime0 <- newEmptyMVar
   mPeriod <- newMVar 1
-  return Dispatch3 { mTimeMuseqs3 = mTimeMuseqs,  reg3     = reg
-                   , mTime03 = mTime0           ,  mPeriod3 = mPeriod }
+  return Dispatch3 { mTimeMuseqs3 = mTimeMuseqs,  mReg3    = reg
+                   , mTime03      = mTime0     ,  mPeriod3 = mPeriod }
 
 
 -- | == The GADTs. Hopefully quarantined away from the live coding.

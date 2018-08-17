@@ -2,6 +2,8 @@
 
 module Vivid.Jbb.Dispatch.Msg (
   set'
+  , scheduleSend
+
   , boopMsg
   , sqfmMsg
   , vapMsg
