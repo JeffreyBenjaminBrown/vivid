@@ -124,9 +124,9 @@ emptySynthRegister = do x <- newMVar M.empty
                         return $ SynthRegister x y z -- w
 
 data SynthRegister3 = -- per-synth boilerplate
-  SynthRegister3{ boops' :: M.Map SynthName (Synth BoopParams)
-                , vaps'  :: M.Map SynthName (Synth VapParams)
-                , sqfms' :: M.Map SynthName (Synth SqfmParams)
+  SynthRegister3{ boops3 :: M.Map SynthName (Synth BoopParams)
+                , vaps3  :: M.Map SynthName (Synth VapParams)
+                , sqfms3 :: M.Map SynthName (Synth SqfmParams)
                 } deriving (Show, Eq, Ord)
 
 emptySynthRegister3 :: SynthRegister3

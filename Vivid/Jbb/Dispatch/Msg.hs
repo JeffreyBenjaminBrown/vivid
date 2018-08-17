@@ -7,10 +7,12 @@ module Vivid.Jbb.Dispatch.Msg (
   , vapMsg
   ) where
 
+import qualified Data.Map as M
 import Data.List (partition)
 import Control.Lens (_1,_2,over)
 
 import Vivid
+import Vivid.Jbb.Util
 import Vivid.Jbb.Synths
 import Vivid.Jbb.Dispatch.Types
 
@@ -18,27 +20,20 @@ import Vivid.Jbb.Dispatch.Types
 set' :: VividAction m => Synth params -> Msg' params -> m ()
 set' synth (Msg' m) = set synth m
 
---schedule :: SynthRegister -> [(Time,Action)] -> IO ()
---schedule reg evs = mapM f evs where
---  f 
-
---scheduleSend :: SynthRegister3 -> (Time,Action) -> IO ()
---scheduleSend reg (t, Send Boop name msg) =
---  maybe (return ()) function (M.lookup name $ boops reg) 
---  doScheduledAt t $ set' ((M.!) 
-      
-
-
---sortActionsBySynth :: [(Time,Action)] -> (   [ (Time, Msg' BoopParams) ]
---                                           , [ (Time, Msg' SqfmParams) ]
---                                           , [ (Time, Msg' VapParams ) ] )
---sortActionsBySynth evs =
---  let (boops,evs') = partition ((==Boop) . fst . actionSynth . snd) evs
---      (sqfms,vaps) = partition ((==Sqfm) . fst . actionSynth . snd) evs'
---  in ( map (over _2 boopMsg) boops
---     , [], [] )
-----     , map sqfmMsg sqfms
-----     , map vapMsg  vaps )
+scheduleSend :: SynthRegister3 -> (Time,Action) -> IO ()
+  -- per-synth boilerplate
+scheduleSend reg (t, Send Boop name msg) =
+  maybe err success (M.lookup name $ boops3 reg)
+  where err = writeTimeAndError $ "No Boop is named " ++ name ++ "."
+        success s = doScheduledAt (Timestamp t) $ set' s $ boopMsg msg
+scheduleSend reg (t, Send Sqfm name msg) =
+  maybe err success (M.lookup name $ sqfms3 reg)
+  where err = writeTimeAndError $ "No Sqfm is named " ++ name ++ "."
+        success s = doScheduledAt (Timestamp t) $ set' s $ sqfmMsg msg
+scheduleSend reg (t, Send Vap name msg) =
+  maybe err success (M.lookup name $ vaps3 reg)
+  where err = writeTimeAndError $ "No Vap is named " ++ name ++ "."
+        success s = doScheduledAt (Timestamp t) $ set' s $ vapMsg msg
 
 
 -- | = per-synth boilerplate
