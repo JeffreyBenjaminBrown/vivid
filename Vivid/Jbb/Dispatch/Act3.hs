@@ -153,6 +153,8 @@ dispatchLoop3 dist = do
 
   putStrLn $ "\nNow: " ++ show rNow ++ "\nnp0: " ++ show rNp0
     ++ "\nstartRender: " ++ show rStartRender
+    ++ "\ntempoPeriod: " ++ show tempoPeriod
+    ++ "\nmuseqsMap: " ++ concatMap ((++"\n") . show) (M.toList $ museqsMap)
 
   -- it can't evaluate this
   putStrLn $ "\nlength evs: " ++ show (length evs) ++ "\nevs: "
@@ -160,7 +162,7 @@ dispatchLoop3 dist = do
     ++ "\nThat's all of them?\n"
 
   -- TODO ! even if I comment this line out, it still fails
-  mapM_ (uncurry $ actSend3 reg3) evs
+  -- mapM_ (uncurry $ actSend3 reg3) evs
 
   putMVar (mTime03       dist) time0
   putMVar (mTempoPeriod3 dist) tempoPeriod
