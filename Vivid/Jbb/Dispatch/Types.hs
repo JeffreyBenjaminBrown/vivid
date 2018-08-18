@@ -162,7 +162,7 @@ newDispatch = do
                   , mTime0  = mTime0         ,  mTempoPeriod = mTempoPeriod }
 
 data Dispatch3 = Dispatch3 {
-  mTimeMuseqs3 :: MVar (M.Map MuseqName (Museq Action))
+  mMuseqs3 :: MVar (M.Map MuseqName (Museq Action))
   , mReg3 :: MVar SynthRegister3
   , mTime03 :: MVar Time
   , mTempoPeriod3 :: MVar Duration
@@ -176,7 +176,7 @@ newDispatch3 = do
   mTime0 <- newEmptyMVar
   mTempoPeriod <- newMVar 1
   return Dispatch3
-    { mTimeMuseqs3 = mTimeMuseqs,  mReg3    = reg
+    { mMuseqs3 = mTimeMuseqs,  mReg3    = reg
     , mTime03      = mTime0     ,  mTempoPeriod3 = mTempoPeriod }
 
 

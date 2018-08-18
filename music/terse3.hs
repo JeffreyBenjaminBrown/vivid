@@ -10,7 +10,7 @@ a3 = fast 2 $ early (1/4) $ museq 1 [ (0,   Send Boop "3" ("freq",600) )
                                     , (0.5, Send Boop "3" ("amp",0)    ) ]
 
 dist <- newDispatch3
-swapMVar (mTimeMuseqs3 dist) $ M.fromList [ ("1",fast 11 a1), ("2",fast 2 a3)]
+swapMVar (mMuseqs3 dist) $ M.fromList [ ("1",fast 11 a1), ("2",fast 2 a3)]
 swapMVar (mTempoPeriod3 dist) $ 0.25
 
 s <- synth boop ()

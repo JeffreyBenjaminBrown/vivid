@@ -74,7 +74,7 @@ actSend3 _ _ (New _ _)  = error "actFree3 received a New3."
 
 --replaceAll3 :: Dispatch3 -> M.Map MuseqName (Museq Action) -> IO ()
 --replaceAll3 dist masNew = do
---  masOld <- takeMVar $ mTimeMuseqs3 dist
+--  masOld <- takeMVar $ mMuseqs3 dist
 --  reg3 <-   takeMVar $ mReg3        dist
 --
 --  let toFree, toCreate :: [(SynthDefEnum, SynthName)]
@@ -103,7 +103,7 @@ dispatchLoop3 :: Dispatch3 -> IO ()
 dispatchLoop3 dist = do
   time0  <-      takeMVar $ mTime03       dist
   tempoPeriod <- takeMVar $ mTempoPeriod3 dist
-  timeMuseqs <-  takeMVar $ mTimeMuseqs3  dist
+  timeMuseqs <-  takeMVar $ mMuseqs3  dist
   reg3 <-        takeMVar $ mReg3         dist
   now <- unTimestamp <$> getTime
 
@@ -117,7 +117,7 @@ dispatchLoop3 dist = do
 
   putMVar (mTime03       dist) time0
   putMVar (mTempoPeriod3 dist) tempoPeriod
-  putMVar (mTimeMuseqs3  dist) timeMuseqs
+  putMVar (mMuseqs3  dist) timeMuseqs
   putMVar (mReg3 dist)         reg3
 
   wait $ np0 - now
