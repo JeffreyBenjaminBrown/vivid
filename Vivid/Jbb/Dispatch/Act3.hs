@@ -17,6 +17,13 @@ import Vivid.Jbb.Synths
 import Vivid.Jbb.Util
 
 
+-- TODO ? This might never get used
+act3 :: SynthRegister3 -> Time -> Action
+     -> IO (SynthRegister3 -> SynthRegister3)
+act3 reg t a@(Send _ _ _) = actSend3 reg t a >> return id
+act3 reg t a@(Free _ _)   = actFree3 reg t a
+act3 reg t a@(New _ _)    = actNew3  reg   a
+
 actNew3 :: SynthRegister3 -> Action -> IO (SynthRegister3 -> SynthRegister3)
 actNew3 reg (New Boop name) = case M.lookup name $ _boops3 reg of
     Nothing -> do s <- synth boop ()
@@ -42,19 +49,22 @@ actFree3 reg when (Free Boop name) = case M.lookup name $ _boops3 reg of
   Nothing -> do writeTimeAndError
                   $ "There is no Boop named " ++ name ++ "to free."
                 return id
-  Just s -> do doScheduledAt (Timestamp when) $ free s
+  Just s -> do doScheduledAt (Timestamp when) $ set' s $ Msg' (0 :: I "amp")
+               doScheduledAt (Timestamp $ when + frameDuration / 2) $ free s
                return $ over boops3 $ M.delete name
 actFree3 reg when (Free Vap name) = case M.lookup name $ _vaps3 reg of
   Nothing -> do writeTimeAndError
                   $ "There is no Vap named " ++ name ++ "to free."
                 return id
-  Just s -> do doScheduledAt (Timestamp when) $ free s
+  Just s -> do doScheduledAt (Timestamp when) $ set' s $ Msg' (0 :: I "amp")
+               doScheduledAt (Timestamp $ when + frameDuration / 2) $ free s
                return $ over vaps3 $ M.delete name
 actFree3 reg when (Free Sqfm name) = case M.lookup name $ _sqfms3 reg of
   Nothing -> do writeTimeAndError
                   $ "There is no Sqfm named " ++ name ++ "to free."
                 return id
-  Just s -> do doScheduledAt (Timestamp when) $ free s
+  Just s -> do doScheduledAt (Timestamp when) $ set' s $ Msg' (0 :: I "amp")
+               doScheduledAt (Timestamp $ when + frameDuration / 2) $ free s
                return $ over sqfms3 $ M.delete name
 actFree3 _ _ (Send _ _ _) = error "actFree3 received a Send3."
 actFree3 _ _ (New _ _)    = error "actFree3 received a New3."
@@ -74,11 +84,20 @@ actSend3 _ _ (New _ _)  = error "actFree3 received a New3."
 
 --replaceAll3 :: Dispatch3 -> M.Map MuseqName (Museq Action) -> IO ()
 --replaceAll3 dist masNew = do
---  masOld <- takeMVar $ mMuseqs3 dist
---  reg3 <-   takeMVar $ mReg3        dist
+--  time0  <-      takeMVar $ mTime03       dist
+--  tempoPeriod <- takeMVar $ mTempoPeriod3 dist
+--  masOld <-      takeMVar $ mMuseqs3      dist
+--  reg3 <-        takeMVar $ mReg3         dist
+--  now <- unTimestamp <$> getTime
 --
---  let toFree, toCreate :: [(SynthDefEnum, SynthName)]
+--  let np0 = nextPhase0 time0 frameDuration now
+--      nextRender = np0 + frameDuration
+--      toFree, toCreate :: [(SynthDefEnum, SynthName)]
 --      (toFree,toCreate) = museqsDiff masOld masNew
+--
+--  newTransform  <- mapM (actNew3 reg3)  $ map (uncurry New)  toCreate
+--  freeTransform <- let t = nextRender in
+--    mapM (actNew3 reg t) $ map (uncurry Free) toFree
 --
 ----  mapM_ (act reg3 . uncurry New)                            toCreate
 ----  mapM_ (act reg3 . (\(sd,name) -> Send sd name ("amp",0))) toFree
@@ -103,7 +122,7 @@ dispatchLoop3 :: Dispatch3 -> IO ()
 dispatchLoop3 dist = do
   time0  <-      takeMVar $ mTime03       dist
   tempoPeriod <- takeMVar $ mTempoPeriod3 dist
-  timeMuseqs <-  takeMVar $ mMuseqs3  dist
+  timeMuseqs <-  takeMVar $ mMuseqs3      dist
   reg3 <-        takeMVar $ mReg3         dist
   now <- unTimestamp <$> getTime
 
