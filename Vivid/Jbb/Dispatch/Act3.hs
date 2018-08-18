@@ -113,7 +113,7 @@ dispatchLoop3 dist = do
       evs = concatMap f museqs :: [(Time,Action)] where
         f = arc time0 tempoPeriod nextRender $ nextRender + frameDuration
 
-  mapM_ (scheduleSend reg3) evs
+  mapM_ (uncurry $ actSend3 reg3) evs
 
   putMVar (mTime03       dist) time0
   putMVar (mTempoPeriod3 dist) tempoPeriod
