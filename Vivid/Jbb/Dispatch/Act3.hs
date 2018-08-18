@@ -1,3 +1,5 @@
+{-# LANGUAGE DataKinds #-}
+
 module Vivid.Jbb.Dispatch.Act3 where
 
 import Control.Concurrent (forkIO, ThreadId)

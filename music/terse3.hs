@@ -24,6 +24,7 @@ swapMVar (mReg3 dist) $ SynthRegister3 {
 -- replaceAll3 dist $ M.fromList [ ("1",a1), ("2",a2)]
 -- replaceAll3 dist $ M.fromList [ ("1",fast 11 a1), ("2",fast 2 a3)]
 -- replace3 dist "2" a3
+-- replace3 dist "2" $ fast 3 a3 -- TODO ! bug, freezes synths mid-note
 
 tid <- startDispatchLoop3 dist
 putStrLn "dist <- newDispatch\ntid <- startDispatchLoop dist"
