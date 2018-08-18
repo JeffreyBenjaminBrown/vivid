@@ -36,40 +36,41 @@ actNew3 reg (New Sqfm name) = case M.lookup name $ _sqfms3 reg of
 actNew3 _ (Send _ _ _) = error $ "actNew3 received a Send."
 actNew3 _ (Free _ _)   = error $ "actNew3 received a Free."
 
-actFree3 :: SynthRegister3 -> Action -> IO (SynthRegister3 -> SynthRegister3)
-actFree3 reg (Free Boop name) = case M.lookup name $ _boops3 reg of
+actFree3 :: SynthRegister3 -> Time -> Action
+         -> IO (SynthRegister3 -> SynthRegister3)
+actFree3 reg when (Free Boop name) = case M.lookup name $ _boops3 reg of
   Nothing -> do writeTimeAndError
                   $ "There is no Boop named " ++ name ++ "to free."
                 return id
-  Just s -> do free s
+  Just s -> do doScheduledAt (Timestamp when) $ free s
                return $ over boops3 $ M.delete name
-actFree3 reg (Free Vap name) = case M.lookup name $ _vaps3 reg of
+actFree3 reg when (Free Vap name) = case M.lookup name $ _vaps3 reg of
   Nothing -> do writeTimeAndError
                   $ "There is no Vap named " ++ name ++ "to free."
                 return id
-  Just s -> do free s
+  Just s -> do doScheduledAt (Timestamp when) $ free s
                return $ over vaps3 $ M.delete name
-actFree3 reg (Free Sqfm name) = case M.lookup name $ _sqfms3 reg of
+actFree3 reg when (Free Sqfm name) = case M.lookup name $ _sqfms3 reg of
   Nothing -> do writeTimeAndError
                   $ "There is no Sqfm named " ++ name ++ "to free."
                 return id
-  Just s -> do free s
+  Just s -> do doScheduledAt (Timestamp when) $ free s
                return $ over sqfms3 $ M.delete name
-actFree3 _ (Send _ _ _) = error "actFree3 received a Send3."
-actFree3 _ (New _ _)    = error "actFree3 received a New3."
+actFree3 _ _ (Send _ _ _) = error "actFree3 received a Send3."
+actFree3 _ _ (New _ _)    = error "actFree3 received a New3."
 
-actSend3 :: SynthRegister3 -> Action -> IO ()
-actSend3 reg (Send Boop name msg) = case M.lookup name $ _boops3 reg of
+actSend3 :: SynthRegister3 -> Time -> Action -> IO ()
+actSend3 reg when (Send Boop name msg) = case M.lookup name $ _boops3 reg of
   Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
-  Just synth -> set' synth $ boopMsg msg
-actSend3 reg (Send Vap name msg) = case M.lookup name $ _vaps3 reg of
+  Just synth -> doScheduledAt (Timestamp when) $ set' synth $ boopMsg msg
+actSend3 reg when (Send Vap name msg) = case M.lookup name $ _vaps3 reg of
   Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
-  Just synth -> set' synth $ vapMsg msg
-actSend3 reg (Send Sqfm name msg) = case M.lookup name $ _sqfms3 reg of
+  Just synth -> doScheduledAt (Timestamp when) $ set' synth $ vapMsg msg
+actSend3 reg when (Send Sqfm name msg) = case M.lookup name $ _sqfms3 reg of
   Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
-  Just synth -> set' synth $ sqfmMsg msg
-actSend3 _ (Free _ _) = error "actFree3 received a Send3."
-actSend3 _ (New _ _)  = error "actFree3 received a New3."
+  Just synth -> doScheduledAt (Timestamp when) $ set' synth $ sqfmMsg msg
+actSend3 _ _ (Free _ _) = error "actFree3 received a Send3."
+actSend3 _ _ (New _ _)  = error "actFree3 received a New3."
 
 --replaceAll3 :: Dispatch3 -> M.Map MuseqName (Museq Action) -> IO ()
 --replaceAll3 dist masNew = do
