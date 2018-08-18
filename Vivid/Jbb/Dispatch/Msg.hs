@@ -25,15 +25,15 @@ set' synth (Msg' m) = set synth m
 scheduleSend :: SynthRegister3 -> (Time,Action) -> IO ()
   -- per-synth boilerplate
 scheduleSend reg (t, Send Boop name msg) =
-  maybe err success (M.lookup name $ boops3 reg)
+  maybe err success (M.lookup name $ _boops3 reg)
   where err = writeTimeAndError $ "No Boop is named " ++ name ++ "."
         success s = doScheduledAt (Timestamp t) $ set' s $ boopMsg msg
 scheduleSend reg (t, Send Sqfm name msg) =
-  maybe err success (M.lookup name $ sqfms3 reg)
+  maybe err success (M.lookup name $ _sqfms3 reg)
   where err = writeTimeAndError $ "No Sqfm is named " ++ name ++ "."
         success s = doScheduledAt (Timestamp t) $ set' s $ sqfmMsg msg
 scheduleSend reg (t, Send Vap name msg) =
-  maybe err success (M.lookup name $ vaps3 reg)
+  maybe err success (M.lookup name $ _vaps3 reg)
   where err = writeTimeAndError $ "No Vap is named " ++ name ++ "."
         success s = doScheduledAt (Timestamp t) $ set' s $ vapMsg msg
 

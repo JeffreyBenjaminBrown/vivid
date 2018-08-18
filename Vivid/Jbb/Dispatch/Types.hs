@@ -23,7 +23,7 @@ module Vivid.Jbb.Dispatch.Types (
   , SynthRegister(..)
   , emptySynthRegister
   , showSynthRegister
-  , SynthRegister3(..)
+  , SynthRegister3(..), boops3, vaps3, sqfms3
   , emptySynthRegister3
   , Dispatch(..)
   , newDispatch
@@ -124,10 +124,12 @@ emptySynthRegister = do x <- newMVar M.empty
                         return $ SynthRegister x y z -- w
 
 data SynthRegister3 = -- per-synth boilerplate
-  SynthRegister3{ boops3 :: M.Map SynthName (Synth BoopParams)
-                , vaps3  :: M.Map SynthName (Synth VapParams)
-                , sqfms3 :: M.Map SynthName (Synth SqfmParams)
+  SynthRegister3{ _boops3 :: M.Map SynthName (Synth BoopParams)
+                , _vaps3  :: M.Map SynthName (Synth VapParams)
+                , _sqfms3 :: M.Map SynthName (Synth SqfmParams)
                 } deriving (Show, Eq, Ord)
+
+makeLenses ''SynthRegister3
 
 emptySynthRegister3 :: SynthRegister3
 emptySynthRegister3 = SynthRegister3 M.empty M.empty M.empty
