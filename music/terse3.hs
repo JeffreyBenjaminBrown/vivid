@@ -10,15 +10,16 @@ a3 = fast 2 $ early (1/4) $ museq 1 [ (0,   Send Boop "3" ("freq",600) )
                                     , (0.5, Send Boop "3" ("amp",0)    ) ]
 
 dist <- newDispatch3
-swapMVar (mTimeMuseqs3 dist) $ M.fromList [ ("1",a1), ("2",a3)]
+swapMVar (mTimeMuseqs3 dist) $ M.fromList [ ("1",fast 11 a1), ("2",fast 2 a3)]
+swapMVar (mTempoPeriod3 dist) $ 0.25
 
 s <- synth boop ()
 t <- synth boop ()
 u <- synth boop ()
 swapMVar (mReg3 dist) $ SynthRegister3 {
-  boops3 = M.fromList [("1",s),("2",t),("3",u)]
-  , vaps3 = M.empty
-  , sqfms3 = M.empty }
+  _boops3 = M.fromList [("1",s),("2",t),("3",u)]
+  , _vaps3 = M.empty
+  , _sqfms3 = M.empty }
 
 -- replaceAll3 dist $ M.fromList [ ("1",a1), ("2",a3)]
 -- replace dist "2" a3
