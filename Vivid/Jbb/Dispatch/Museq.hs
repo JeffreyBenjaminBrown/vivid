@@ -1,5 +1,5 @@
 module Vivid.Jbb.Dispatch.Museq (
-  timeToPlayThrough
+    timeToPlayThrough
   , supsToPlayThrough
   , dursToPlayThrough
   , timeToRepeat
@@ -11,7 +11,9 @@ module Vivid.Jbb.Dispatch.Museq (
   , findNextEvents
 
   , arc
-  , arcFold
+  -- , arcFold
+
+  -- , arcIO, arcFoldIO
   ) where
 
 import Control.Lens ((^.),(.~),(%~),_1,_2,over)
@@ -134,13 +136,74 @@ arcFold cycle period rdv time0 from to m =
     relTo   = toRational $ (to   - pp0) / period
     startOrOOB = firstIndexGTE compare rdv (relFrom * _sup m)
   in if startOrOOB >= V.length rdv
-     then arcFold (cycle+1) period rdv time0 (pp0 + period) to m
-     else let
-    start = startOrOOB
-    end = lastIndexLTE compare' rdv (relTo * _sup m) where
-      compare' x y = if x < y then LT else GT -- to omit the endpoint
-    eventsThisCycle = V.toList
-      $ V.map (over _1 (+(_sup m * fromIntegral cycle)))
-      $ V.slice start (end-start) $ _vec m
-  in eventsThisCycle
-     ++ arcFold (cycle+1) period rdv time0 (pp0 + period) to m
+     then let nextFrom = if pp0 + period > from
+                         then pp0 + period
+                         else pp0 + 2*period
+  -- todo ? I know `nextFrom` (above) fixes the following bug,
+  -- but why is it needed?
+  -- The bug: Evaluate the following two statements. The second hangs.
+    -- m = Museq {_dur = 1 % 6, _sup = 1 % 6, _vec = V.fromList [(1 % 24,Send Boop "3" ("amp",0.0)),(1 % 8,Send Boop "3" ("freq",600.0)),(1 % 8,Send Boop "3" ("amp",0.4))]}
+    -- arc 0 1 8 9 m
+          in arcFold (cycle+1) period rdv time0 nextFrom to m
+     else let start = startOrOOB
+              end = lastIndexLTE compare' rdv (relTo * _sup m) where
+                compare' x y
+                  = if x < y then LT else GT -- to omit the endpoint
+              eventsThisCycle = V.toList
+                $ V.map (over _1 (+(_sup m * fromIntegral cycle)))
+                $ V.slice start (end-start) $ _vec m
+          in eventsThisCycle
+             ++ arcFold (cycle+1) period rdv time0 (pp0 + period) to m
+
+-- | = Those same functions, as IO.
+-- Keeping just in case I'll need to debug it again.
+
+--arcIO :: Show a
+--      => Time -> Duration -> Time -> Time
+--      -> Museq a -> IO [(Time, a)]
+--arcIO time0 tempoPeriod from to m = do
+--  let period = tempoPeriod * fromRational (_sup m)
+--      rdv = V.map fst $ _vec $ unitMuseq m :: V.Vector RelDuration
+--      firstPhase0 = prevPhase0 time0 period from
+--      toAbsoluteTime :: RTime -> Time
+--      toAbsoluteTime rt = fromRational rt * tempoPeriod + firstPhase0
+--  map (over _1 toAbsoluteTime) <$> arcFoldIO 0 period rdv time0 from to m
+--
+--arcFoldIO :: Show a
+--  => Int -> Duration -> V.Vector RelDuration
+--  -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
+--  -> Museq a -> IO [(RTime, a)]
+--arcFoldIO cycle period rdv time0 from to m = do
+--  putStrLn $ "\n\ncycle: " ++ show cycle
+--    ++ "\nperiod: " ++ show period
+--    ++ "\nrdv: " ++ show (V.map ((+(-time0)) . fromRational) rdv)
+--    ++ "\nfrom: " ++ show (from - time0)
+--    ++ "\nto: " ++ show (to - time0)
+--    ++ "\nmuseqs: " ++ show m
+--  if from >= to 
+--    then return [] -- todo ? Be sure of boundary condition
+--    else do 
+--    let pp0 = prevPhase0 time0 period from
+--        relFrom = toRational $ (from - pp0) / period
+--        relTo   = toRational $ (to   - pp0) / period
+--        startOrOOB = firstIndexGTE compare rdv (relFrom * _sup m)
+--    putStrLn $ "\n\npp0: " ++ show pp0
+--      ++ "\nrelFrom: " ++ show relFrom
+--      ++ "\nrelTo: " ++ show relTo
+--      ++ "\nstartOrOOB: " ++ show startOrOOB
+--    if startOrOOB >= V.length rdv
+--      then do putStrLn "first branch"
+--              let nextFrom = if pp0 + period > from
+--                             then pp0 + period
+--                             else pp0 + 2*period
+--              arcFoldIO (cycle+1) period rdv time0 nextFrom to m
+--      else do
+--      let start = startOrOOB
+--          end = lastIndexLTE compare' rdv (relTo * _sup m) where
+--            compare' x y =
+--              if x < y then LT else GT -- to omit the endpoint
+--          eventsThisCycle = V.toList
+--            $ V.map (over _1 (+(_sup m * fromIntegral cycle)))
+--            $ V.slice start (end-start) $ _vec m
+--      next <- arcFoldIO (cycle+1) period rdv time0 (pp0 + period) to m
+--      return $ eventsThisCycle ++ next

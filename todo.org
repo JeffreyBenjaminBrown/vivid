@@ -1,12 +1,3 @@
-* bug! dispatchLoop3 can't evaluate all of evs when I change mMuseqs3
-** arc ! looks like the xproblem
-*** what is period in arc?
-*** why does this hang?
-m = Museq {_dur = 1 % 6, _sup = 1 % 6, _vec = V.fromList [(1 % 24,Send Boop "3" ("amp",0.0)),(1 % 8,Send Boop "3" ("freq",600.0)),(1 % 8,Send Boop "3" ("amp",0.4))]}
-arc 0 1 8 9 m
-
-** sometimes replacing an ongoing museq with the same thing at a different tempo freezes all synths mid-note
-** another strategy: rather than forkIO to delete synths from the register, add a variable to Distrib3 that's like Museqs but for one-time instructions, to be evaluated next render
 * rewriting DistribLoop
 ** maybe adding frameDuration to startRender is unnecessary.
 *** If so, adjust this function, and also replaceAll, chTempo, etc. -- maybe everything that calls getTime.
