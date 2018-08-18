@@ -101,11 +101,11 @@ replaceAll3 dist masNew = do
   putMVar (mTime03       dist) time0       -- unchnaged
   putMVar (mTempoPeriod3 dist) tempoPeriod -- unchanged
   putMVar (mMuseqs3      dist) masNew
-  putMVar (mReg3         dist) $ foldl1 (.) newTransform reg3
+  putMVar (mReg3         dist) $ foldl (.) id newTransform reg3
 
   forkIO $ do wait $ when - now
               reg3 <-takeMVar $ mReg3 dist
-              putMVar (mReg3 dist) $ foldl1 (.) freeTransform reg3
+              putMVar (mReg3 dist) $ foldl (.) id freeTransform reg3
   
   return ()
 
