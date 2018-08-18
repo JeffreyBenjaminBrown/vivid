@@ -82,33 +82,32 @@ actSend3 reg when (Send Sqfm name msg) = case M.lookup name $ _sqfms3 reg of
 actSend3 _ _ (Free _ _) = error "actFree3 received a Send3."
 actSend3 _ _ (New _ _)  = error "actFree3 received a New3."
 
---replaceAll3 :: Dispatch3 -> M.Map MuseqName (Museq Action) -> IO ()
---replaceAll3 dist masNew = do
---  time0  <-      takeMVar $ mTime03       dist
---  tempoPeriod <- takeMVar $ mTempoPeriod3 dist
---  masOld <-      takeMVar $ mMuseqs3      dist
---  reg3 <-        takeMVar $ mReg3         dist
---  now <- unTimestamp <$> getTime
---
---  let np0 = nextPhase0 time0 frameDuration now
---      nextRender = np0 + frameDuration
---      toFree, toCreate :: [(SynthDefEnum, SynthName)]
---      (toFree,toCreate) = museqsDiff masOld masNew
---
---  newTransform  <- mapM (actNew3 reg3)  $ map (uncurry New)  toCreate
---  freeTransform <- let t = nextRender in
---    mapM (actNew3 reg t) $ map (uncurry Free) toFree
---
-----  mapM_ (act reg3 . uncurry New)                            toCreate
-----  mapM_ (act reg3 . (\(sd,name) -> Send sd name ("amp",0))) toFree
-----    -- TODO: This should wait until the next Frame
-----  wait 0.05 -- wait for the silence just sent to take effect
-----  mapM_ (act reg3 . uncurry Free)                           toFree
-----
-----  putMVar (mTimeMuseqs dist) $ M.map (0,) masNew
-----  putMVar (mReg3 dist) $ reg3'
---  
---  return ()
+replaceAll3 :: Dispatch3 -> M.Map MuseqName (Museq Action) -> IO ()
+replaceAll3 dist masNew = do
+  time0  <-      takeMVar $ mTime03       dist
+  tempoPeriod <- takeMVar $ mTempoPeriod3 dist
+  masOld <-      takeMVar $ mMuseqs3      dist
+  reg3 <-        takeMVar $ mReg3         dist
+  now <- unTimestamp <$> getTime
+
+  let when = nextPhase0 time0 frameDuration now + 2 * frameDuration
+        -- that's the start of the first not-yet-rendered frame
+      toFree, toCreate :: [(SynthDefEnum, SynthName)]
+      (toFree,toCreate) = museqsDiff masOld masNew
+
+  newTransform  <- mapM (actNew3  reg3)      $ map (uncurry New)  toCreate
+  freeTransform <- mapM (actFree3 reg3 when) $ map (uncurry Free) toFree
+
+  putMVar (mTime03       dist) time0       -- unchnaged
+  putMVar (mTempoPeriod3 dist) tempoPeriod -- unchanged
+  putMVar (mMuseqs3      dist) masNew
+  putMVar (mReg3         dist) $ foldl1 (.) newTransform reg3
+
+  forkIO $ do wait $ when - now
+              reg3 <-takeMVar $ mReg3 dist
+              putMVar (mReg3 dist) $ foldl1 (.) freeTransform reg3
+  
+  return ()
 
 startDispatchLoop3 :: Dispatch3 -> IO ThreadId
 startDispatchLoop3 dist = do
@@ -128,9 +127,12 @@ dispatchLoop3 dist = do
 
   let museqs = M.elems timeMuseqs :: [Museq Action]
       np0 = nextPhase0 time0 frameDuration now
-      nextRender = np0 + frameDuration
+      startRender = np0 + frameDuration
+        -- TODO ? maybe adding frameDuration in startRender is unnecessary.
+        -- If so, adjust this function, and also replaceAll, chTempo, etc. --
+        -- maybe everything that calls getTime.
       evs = concatMap f museqs :: [(Time,Action)] where
-        f = arc time0 tempoPeriod nextRender $ nextRender + frameDuration
+        f = arc time0 tempoPeriod startRender $ startRender + frameDuration
 
   mapM_ (uncurry $ actSend3 reg3) evs
 
