@@ -82,6 +82,11 @@ actSend3 reg when (Send Sqfm name msg) = case M.lookup name $ _sqfms3 reg of
 actSend3 _ _ (Free _ _) = error "actFree3 received a Send3."
 actSend3 _ _ (New _ _)  = error "actFree3 received a New3."
 
+replace3 :: Dispatch3 -> MuseqName -> Museq Action -> IO ()
+replace3 dist newName newMuseq = do
+  masOld <- readMVar $ mMuseqs3 dist
+  replaceAll3 dist $ M.insert newName newMuseq masOld
+
 replaceAll3 :: Dispatch3 -> M.Map MuseqName (Museq Action) -> IO ()
 replaceAll3 dist masNew = do
   time0  <-      takeMVar $ mTime03       dist
@@ -103,7 +108,7 @@ replaceAll3 dist masNew = do
   putMVar (mMuseqs3      dist) masNew
   putMVar (mReg3         dist) $ foldl (.) id newTransform reg3
 
-  forkIO $ do wait $ when - now
+  forkIO $ do wait $ when - now -- delete register's synths when it's safe
               reg3 <-takeMVar $ mReg3 dist
               putMVar (mReg3 dist) $ foldl (.) id freeTransform reg3
   

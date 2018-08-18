@@ -21,9 +21,9 @@ swapMVar (mReg3 dist) $ SynthRegister3 {
   , _vaps3 = M.empty
   , _sqfms3 = M.empty }
 
--- replaceAll3 dist $ M.fromList [ ("1",a1), ("2",a3)]
+-- replaceAll3 dist $ M.fromList [ ("1",a1), ("2",a2)]
 -- replaceAll3 dist $ M.fromList [ ("1",fast 11 a1), ("2",fast 2 a3)]
--- replace dist "2" a3
+-- replace3 dist "2" a3
 
 tid <- startDispatchLoop3 dist
 putStrLn "dist <- newDispatch\ntid <- startDispatchLoop dist"
