@@ -1,4 +1,4 @@
-* bug!
+* bug! dispatchLoop3 can't evaluate all of evs when I change mMuseqs3
 ** sometimes replacing an ongoing museq with the same thing at a different tempo freezes all synths mid-note
 * rewriting DistribLoop
 ** next: act'At should schedule the MVar changes

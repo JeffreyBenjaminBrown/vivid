@@ -22,9 +22,19 @@ swapMVar (mReg3 dist) $ SynthRegister3 {
   , _sqfms3 = M.empty }
 
 -- replaceAll3 dist $ M.fromList [ ("1",a1), ("2",a2)]
--- replaceAll3 dist $ M.fromList [ ("1",fast 11 a1), ("2",fast 2 a3)]
+-- replaceAll3 dist $ M.fromList [ ("1",fast 4 a1), ("2",fast 1.5 a3)]
 -- replace3 dist "2" a3
--- replace3 dist "2" $ fast 3 a3 -- TODO ! bug, freezes synths mid-note
+
+-- TODO ! bug, freezes synths mid-note
+-- replaceAll3 dist $ M.fromList [ ("2",fast 3 a3)]
+
+tryReadMVar $ mMuseqs3 dist
+tryReadMVar $ mReg3 dist
+tryReadMVar $ mTime03 dist
+tryReadMVar $ mTempoPeriod3 dist
 
 tid <- startDispatchLoop3 dist
 putStrLn "dist <- newDispatch\ntid <- startDispatchLoop dist"
+
+off = killThread tid >> freeAll
+
