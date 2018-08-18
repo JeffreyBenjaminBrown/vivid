@@ -4,6 +4,7 @@ module Vivid.Jbb.Dispatch.Act3 where
 
 import Control.Concurrent (forkIO, ThreadId)
 import Control.Concurrent.MVar
+import Control.DeepSeq
 import Control.Lens (over, _1)
 import Data.List ((\\))
 import qualified Data.Map as M
@@ -13,6 +14,7 @@ import Vivid
 import Vivid.Jbb.Dispatch.ActNow
 import Vivid.Jbb.Dispatch.Config (frameDuration)
 import Vivid.Jbb.Dispatch.Types
+import Vivid.Jbb.Dispatch.Instances
 import Vivid.Jbb.Dispatch.Msg
 import Vivid.Jbb.Dispatch.Museq
 import Vivid.Jbb.Synths
@@ -98,7 +100,7 @@ replaceAll3 dist masNew = do
   now <- unTimestamp <$> getTime
 
   let when = nextPhase0 time0 frameDuration now + 2 * frameDuration
-        -- that's the start of the first not-yet-rendered frame
+        -- `when` = the start of the first not-yet-rendered frame
       toFree, toCreate :: [(SynthDefEnum, SynthName)]
       (toFree,toCreate) = museqsDiff masOld masNew
 
@@ -113,7 +115,7 @@ replaceAll3 dist masNew = do
   forkIO $ do wait $ when - now -- delete register's synths when it's safe
               reg3 <-takeMVar $ mReg3 dist
               putMVar (mReg3 dist) $ foldl (.) id freeTransform reg3
-  
+
   return ()
 
 startDispatchLoop3 :: Dispatch3 -> IO ThreadId
@@ -128,37 +130,42 @@ dispatchLoop3 :: Dispatch3 -> IO ()
 dispatchLoop3 dist = do
   time0  <-      takeMVar $ mTime03       dist
   tempoPeriod <- takeMVar $ mTempoPeriod3 dist
-  museqs <-  takeMVar $ mMuseqs3      dist
+  museqsMap <-   takeMVar $ mMuseqs3      dist
   reg3 <-        takeMVar $ mReg3         dist
   now <- unTimestamp <$> getTime
 
-  let museqs = M.elems museqs :: [Museq Action]
-      np0 = nextPhase0 time0 frameDuration now
+  let np0 = nextPhase0 time0 frameDuration now
       startRender = np0 + frameDuration
-        -- TODO ? maybe adding frameDuration in startRender is unnecessary.
-        -- If so, adjust this function, and also replaceAll, chTempo, etc. --
-        -- maybe everything that calls getTime.
-      evs = concatMap f museqs :: [(Time,Action)] where
+      -- TODO NEXT: read what arc does
+      evs = concatMap f $ M.elems museqsMap :: [(Time,Action)] where
+        f :: Museq a -> [(Time, a)]
         f = arc time0 tempoPeriod startRender $ startRender + frameDuration
 
-      -- TODO NEXT: add what is used to calculate evs
-      -- debugging
-      rNow = now - time0
+  deepseq (time0, tempoPeriod, museqsMap, reg3, now, np0, startRender)
+    (return evs)
+
+  -- debugging
+    -- TODO NEXT: add what is used to calculate evs
+  let rNow = now - time0
       rNp0 = np0 - time0
       rStartRender = startRender - time0
       rEvs = flip map evs $ over _1 (+(-time0))
+
   putStrLn $ "\nNow: " ++ show rNow ++ "\nnp0: " ++ show rNp0
     ++ "\nstartRender: " ++ show rStartRender
-    ++ "\nlength evs: " ++ show (length evs) ++ "\nevs: "
+
+  -- it can't evaluate this
+  putStrLn $ "\nlength evs: " ++ show (length evs) ++ "\nevs: "
     ++ concatMap (\(t,a) -> "\n" ++ show (t-time0) ++ ": " ++ show a) evs
     ++ "\nThat's all of them?\n"
 
+  -- TODO ! even if I comment this line out, it still fails
   mapM_ (uncurry $ actSend3 reg3) evs
 
   putMVar (mTime03       dist) time0
   putMVar (mTempoPeriod3 dist) tempoPeriod
-  putMVar (mMuseqs3  dist)     museqs
-  putMVar (mReg3 dist)         reg3
+  putMVar (mMuseqs3      dist) museqsMap
+  putMVar (mReg3         dist) reg3
 
   wait $ np0 - now
   dispatchLoop3 dist

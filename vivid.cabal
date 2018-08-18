@@ -58,6 +58,7 @@ library
     , Vivid.Jbb.Dispatch.Config
     , Vivid.Jbb.Dispatch.Dispatch
     , Vivid.Jbb.Dispatch.Dispatch_2
+    , Vivid.Jbb.Dispatch.Instances
     , Vivid.Jbb.Dispatch.Join
     , Vivid.Jbb.Dispatch.Loop
     , Vivid.Jbb.Dispatch.Msg
@@ -293,6 +294,7 @@ library
     , vivid-supercollider
 
     -- jbb added
+    , deepseq
     , HUnit
     , lens
     , megaparsec

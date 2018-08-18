@@ -1,6 +1,9 @@
 * bug! dispatchLoop3 can't evaluate all of evs when I change mMuseqs3
 ** sometimes replacing an ongoing museq with the same thing at a different tempo freezes all synths mid-note
 * rewriting DistribLoop
+** maybe adding frameDuration to startRender is unnecessary.
+*** If so, adjust this function, and also replaceAll, chTempo, etc. -- maybe everything that calls getTime.
+
 ** next: act'At should schedule the MVar changes
 *** each function it calls (newAction'At, etc) might as well take the Action' rather than its pieces
 *** use takeMVar and putMVar to be sure they don't step on each other

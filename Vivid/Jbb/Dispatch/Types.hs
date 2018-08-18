@@ -34,6 +34,7 @@ module Vivid.Jbb.Dispatch.Types (
   ) where
 
 import Control.Concurrent.MVar
+import Control.DeepSeq
 import Control.Lens (makeLenses, over, _2)
 import Data.Map as M
 import Data.Ratio
