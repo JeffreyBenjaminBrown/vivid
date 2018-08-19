@@ -20,7 +20,6 @@
 **** ? consider mismatched durations, sups
 **** ? allow user to specify alternative strategies for particular parameters
 ***** e.g. "merge these all with (\*), except merge amp with (+)"
-*** overParams :: [(ParamString, Double -> Double)] -> Museq -> Museq
 *** dropParams, keepParams :: [ParamString] -> Museq -> Museq
 *** space: play a duration n < k loop over duration k. (Hard; see Tidal.epic.)
 ** scales, harmonies

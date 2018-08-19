@@ -8,6 +8,7 @@ module Vivid.Jbb.Dispatch.Transform (
   , rotate, rep
 
   , overParams
+  , switchParams
   ) where
 
 import Control.Lens (over, _1, _2)
@@ -61,3 +62,9 @@ overParams fs mq = fmap change mq
         change :: Msg -> Msg
         change (param,val) = ( param
                              , maybe val ($val) $ M.lookup param mp )
+
+switchParams :: [(ParamName, ParamName)] -> Museq Msg -> Museq Msg
+switchParams fs mq = fmap change mq where
+  mp = M.fromList fs
+  change msg@(param,_) = over _1 f msg where
+    f = maybe id const $ M.lookup param mp
