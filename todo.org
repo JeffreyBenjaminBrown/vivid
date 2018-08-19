@@ -13,13 +13,13 @@
 ** slow changes, e.g. for slide guitar
 * features to add, in roughly cumulative order
 ** functions over loops
+*** *apply
 *** *merge (multiplicative or additive (? per parameter))
 **** e.g., merging freq of 2 and freq of 440 gives freq of 880
 **** ? does it apply to a general Museq a, or only Museq Msg, or Museq Action?
 **** ? consider mismatched durations, sups
 **** ? allow user to specify alternative strategies for particular parameters
 ***** e.g. "merge these all with (\*), except merge amp with (+)"
-*** *apply
 *** overParams :: [(ParamString, Double -> Double)] -> Museq -> Museq
 *** dropParams, keepParams :: [ParamString] -> Museq -> Museq
 *** space: play a duration n < k loop over duration k. (Hard; see Tidal.epic.)
