@@ -138,11 +138,12 @@ testDenseAndSparse = TestCase $ do
 
 testExplicitReps = TestCase $ do
   let y = Museq {_dur = 3, _sup = 4, _vec = V.fromList [(0,()),(1,())]}
-  assertBool "explicitReps" $ explicitReps y == [ V.fromList [(0,()), (1,())]
-                                                , V.fromList [(4,()), (5,())]
-                                                , V.fromList [(8,())]
-                                                , V.fromList [(9,())]
-                                                ]
+  assertBool "explicitReps" $ explicitReps y ==
+    [ V.fromList [(0,()), (1,())]
+    , V.fromList [(4,()), (5,())] -- starts at 3
+    , V.fromList [(8,())]         -- starts at 6
+    , V.fromList [(9,())]         -- starts at 9
+    ]
   assertBool "unsafeExplicitReps" $ unsafeExplicitReps 24 y ==
      [ V.fromList [(0,()), (1,())]
      , V.fromList [(4,()), (5,())]
@@ -192,11 +193,11 @@ testMuseqsDiff = TestCase $ do
                                       ,(10,Send Boop "3" msg)
                                       ] ) ]
   assertBool "museqDiff" $ museqsDiff m1 m2 == ( [ (Boop,"1") ]
-                                               , [ (Vap ,"2")
-                                                 , (Boop,"3")
+                                               , [ (Boop,"3")
+                                                 , (Vap ,"2")
                                                  ] )
-  assertBool "museqDiff" $ museqsDiff m2 m1 == ( [ (Vap ,"2")
-                                                 , (Boop,"3") ]
+  assertBool "museqDiff" $ museqsDiff m2 m1 == ( [ (Boop,"3")
+                                                 , (Vap ,"2") ]
                                                , [ (Boop,"1") ]
                                                )
 

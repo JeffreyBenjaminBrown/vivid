@@ -20,6 +20,7 @@ module Vivid.Jbb.Util (
 
 import Control.Monad.ST
 import Data.Ratio
+import qualified Data.Set as S
 import qualified Data.Vector as V
 import Data.Vector.Algorithms.Search
   (binarySearchLBy, binarySearchRBy, Comparison)
@@ -41,11 +42,15 @@ lcmRatios x y = let (a,b) = (numerator x, denominator x)
 
 -- | = Functions for lists
 
--- | There's a Hackage package for this surely that's faster, but
+-- | There's a Hackage package for this surely that's maybe faster, but
 -- it's not compatible with the stack snapshot I'm using.
-unique :: Eq a => [a] -> [a]
-unique [] = []
-unique (a:as) = a : (unique $ filter (not . (==) a) as)
+unique :: (Ord a, Eq a) => [a] -> [a]
+unique = S.toList . S.fromList
+
+-- | Slower, but does not require `Ord a`
+unique' :: Eq a => [a] -> [a]
+unique' [] = []
+unique' (a:as) = a : (unique' $ filter (not . (==) a) as)
 
 interleave :: [a] -> [a] -> [a]
 interleave xs ys = concat (zipWith (\x y -> [x]++[y]) xs ys)

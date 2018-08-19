@@ -76,6 +76,8 @@ museqSynths = map (actionSynth . snd) . V.toList . _vec
 
 -- | Given an old set of Museqs and a new one, figure out
 -- which synths need to be created, and which destroyed.
+-- PITFALL: Both resulting lists are ordered on the first element,
+-- likely differing from either of the input maps.
 museqsDiff :: M.Map MuseqName (Museq Action)
            -> M.Map MuseqName (Museq Action)
            -> ([(SynthDefEnum, SynthName)],

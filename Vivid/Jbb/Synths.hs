@@ -21,7 +21,11 @@ import Vivid.Jbb.Synths.Zot as X
 
 -- | == Synths
 
-data SynthDefEnum = Boop | Vap | Sqfm | Zot
+data SynthDefEnum = Boop -- PITFALL ! keep alphabetically ordered
+                    -- so that the derived Ord instance is predictable
+                  | Sqfm
+                  | Vap
+                  | Zot
   deriving (Show,Eq,Ord)
 
 -- | = Boop
