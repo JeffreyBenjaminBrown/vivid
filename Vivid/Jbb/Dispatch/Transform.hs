@@ -6,9 +6,12 @@ module Vivid.Jbb.Dispatch.Transform (
   , fast, slow
   , dense, sparse
   , rotate, rep
+
+  , overParams
   ) where
 
-import Control.Lens (over, _1)
+import Control.Lens (over, _1, _2)
+import qualified Data.Map as M
 import qualified Data.Vector as V
 
 import Vivid.Jbb.Util
@@ -51,3 +54,10 @@ sparse d m = let f = (*d)
 rotate, rep :: Rational -> Museq a -> Museq a -- the name `repeat` is taken
 rotate t = fast t . sparse t
 rep n = slow n . dense n
+
+overParams :: [(ParamName, Float -> Float)] -> Museq Msg -> Museq Msg
+overParams fs mq = fmap change mq
+  where mp = M.fromList fs
+        change :: Msg -> Msg
+        change (param,val) = ( param
+                             , maybe val ($val) $ M.lookup param mp )

@@ -30,6 +30,7 @@ tests = runTestTT $ TestList
   , TestLabel "testExplicitReps" testExplicitReps
   , TestLabel "testMuseqsDiff" testMuseqsDiff
   , TestLabel "testArc" testArc
+  , TestLabel "testOverParams" testOverParams
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -218,3 +219,9 @@ testArc = TestCase $ do
     arc 100   10           199 230  m
     == [(200.0,"a"),(210.0,"b"),(220.0,"a")]
 
+testOverParams = TestCase $ do
+  let m = museq 2 [(0,("freq",100))
+                  ,(1,("amp",0.1))]
+  assertBool "overParams" $ overParams [("freq",(+1))] m
+    == museq 2 [(0,("freq",101))
+               ,(1,("amp",0.1))]
