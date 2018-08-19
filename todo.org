@@ -1,11 +1,8 @@
 * rewriting DistribLoop
 ** maybe adding frameDuration to startRender is unnecessary.
 *** If so, adjust this function, and also replaceAll, chTempo, etc. -- maybe everything that calls getTime.
-
 ** when to create, free, send, modify 
-*** TODO danger ? the tMuseqs could be mid-render when changed
 *** switch comes at time t, next render at time n, render period p
-*** use forkIO to avoid waiting for things to finish
 *** add synths to registry immediately
 *** send silences to deleted synths at n+p
 *** delete synths from registry at n+1.5p
@@ -37,19 +34,3 @@
 *** seems much easier to make the DSL after the functions it will encode
 *** for every bit of terse punctuation, include a verbal alternative
 **** => easier to remember, easier to search for language constructs
-* safer (and better) timing
-** "change "put" for more precise start time
-*** after making synths, it could wait for the user to press a key; and then change the museqs, for a snappier response
-** Distrib.distribLoop
-*** The problem (in Distrib.distribLoop)
-**** Currently I use a "anything that plays in epsilon seconds plays now" hack.
-**** That hack is not foolproof; if GHC delayed a long time, it would skip an Action.
-**** Also it introduces inaccuracies.
-*** Two solutions, neither clearly easier (but the first clearly better)
-**** Hand the timing off to SuperCollider
-***** This would mean, rather than rendering after each collection of concurrent Actions, rendering a bunch of those in advance.
-***** If any of those Actions has an error, write the error to errors.txt immediately. Include the time it was discovered, the time it was supposed to play, and the name of the Museq it came from. 
-**** Track more stuff
-***** Each `Museq` tracks when it last played
-***** `distribLoop` tracks when it's supposed to wake up.
-***** If, when `distribLoop` awakens, it discovers a Museq which last played before the scheduled awakening, which should have played something since, then that skipped thing gets played immediately.
