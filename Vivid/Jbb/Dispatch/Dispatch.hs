@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Vivid.Jbb.Dispatch.Act where
+module Vivid.Jbb.Dispatch.Dispatch where
 
 import Control.Concurrent (forkIO, ThreadId)
 import Control.Concurrent.MVar
@@ -110,7 +110,7 @@ replaceAll disp masNew = do
   putMVar (mMuseqs      disp) masNew
   putMVar (mReg         disp) $ foldl (.) id newTransform reg
 
-  forkIO $ do wait $ when - now -- delete register's synths when it's safe
+  forkIO $ do wait $ when - now -- delete register's synths once it's safe
               reg <-takeMVar $ mReg disp
               putMVar (mReg disp) $ foldl (.) id freeTransform reg
 
