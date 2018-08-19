@@ -120,7 +120,7 @@ findNextEvents time0 tempoPeriod now museq =
       pp0 = prevPhase0 time0 period now
       relNow = toRational $ (now - pp0) / period
       vecLen = V.length $ _vec museq
-      uv = _vec $ unitMuseq museq :: V.Vector (RelDuration,())
+      uv = _vec $ const () <$> museq :: V.Vector (RelDuration,())
       compare' :: (RelDuration, a) -> (RelDuration, a) -> Ordering
       compare' ve ve' = compare (fst ve) (fst ve')
       startOrOOB = firstIndexGTE  compare' uv (relNow, ())
@@ -143,7 +143,7 @@ arc :: Time -> Duration -> Time -> Time
     -> Museq a -> [(Time, a)]
 arc time0 tempoPeriod from to m =
   let period = tempoPeriod * fromRational (_sup m)
-      rdv = V.map fst $ _vec $ unitMuseq m :: V.Vector RelDuration
+      rdv = V.map fst $ _vec $ const () <$> m :: V.Vector RelDuration
       firstPhase0 = prevPhase0 time0 period from
       toAbsoluteTime :: RTime -> Time
       toAbsoluteTime rt = fromRational rt * tempoPeriod + firstPhase0

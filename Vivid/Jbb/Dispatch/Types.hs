@@ -18,7 +18,6 @@ module Vivid.Jbb.Dispatch.Types (
   , actionSynth
   , Museq(..), dur, sup, vec
   , emptyMuseq
-  , unitMuseq
   , museq
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
@@ -47,7 +46,7 @@ type SynthName = String
 type MuseqName = String
 
 
--- | = Kinds of time
+-- | = Time
 
 type Time = Double
 type Duration = Double
@@ -94,9 +93,6 @@ instance Functor Museq where
 
 emptyMuseq :: Museq a
 emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
-
-unitMuseq :: Museq a -> Museq ()
-unitMuseq = fmap $ const ()
 
 museq :: RelDuration -> [(RTime,a)] -> Museq a
 museq d tas = Museq {_dur = d, _sup = d, _vec = V.fromList tas}

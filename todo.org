@@ -15,6 +15,7 @@
 ** functions over loops
 *** *apply
 *** *merge (multiplicative or additive (? per parameter))
+**** *Tidal's differs, in that events have a definite end time
 **** the merge strategy in Tidal.Epic
 ***** mergeEvents
 ****** partitionAndGroupEventsAtBoundaries
