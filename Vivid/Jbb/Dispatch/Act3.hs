@@ -118,6 +118,10 @@ replaceAll3 dist masNew = do
 
   return ()
 
+-- | todo ? this `chTempoPeriod3` does not offer melodic continuity
+chTempoPeriod3 :: Dispatch3 -> Duration -> IO ()
+chTempoPeriod3 disp dur = swapMVar (mTempoPeriod3 disp) dur >> return ()
+
 startDispatchLoop3 :: Dispatch3 -> IO ThreadId
 startDispatchLoop3 dist = do
   tryTakeMVar $ mTime03 dist -- empty it, just in case
@@ -136,33 +140,29 @@ dispatchLoop3 dist = do
 
   let np0 = nextPhase0 time0 frameDuration now
       startRender = np0 + frameDuration
-      -- TODO NEXT: read what arc does
       evs = concatMap f $ M.elems museqsMap :: [(Time,Action)] where
         f :: Museq a -> [(Time, a)]
         f = arc time0 tempoPeriod startRender $ startRender + frameDuration
 
-  deepseq (time0, tempoPeriod, museqsMap, reg3, now, np0, startRender)
-    (return evs)
-
   -- debugging
-    -- TODO NEXT: add what is used to calculate evs
-  let rNow = now - time0
-      rNp0 = np0 - time0
-      rStartRender = startRender - time0
-      rEvs = flip map evs $ over _1 (+(-time0))
+    --  deepseq (time0, tempoPeriod, museqsMap, reg3, now, np0, startRender)
+    --    (return evs)
 
-  putStrLn $ "\nNow: " ++ show rNow ++ "\nnp0: " ++ show rNp0
-    ++ "\nstartRender: " ++ show rStartRender
-    ++ "\ntempoPeriod: " ++ show tempoPeriod
-    ++ "\nmuseqsMap: " ++ concatMap ((++"\n") . show) (M.toList $ museqsMap)
+    --  let rNow = now - time0
+    --      rNp0 = np0 - time0
+    --      rStartRender = startRender - time0
+    --      rEvs = flip map evs $ over _1 (+(-time0))
 
-  -- it can't evaluate this
-  putStrLn $ "\nlength evs: " ++ show (length evs) ++ "\nevs: "
-    ++ concatMap (\(t,a) -> "\n" ++ show (t-time0) ++ ": " ++ show a) evs
-    ++ "\nThat's all of them?\n"
+    --  putStrLn $ "\nNow: " ++ show rNow ++ "\nnp0: " ++ show rNp0
+    --    ++ "\nstartRender: " ++ show rStartRender
+    --    ++ "\ntempoPeriod: " ++ show tempoPeriod
+    --    ++ "\nmuseqsMap: " ++ concatMap ((++"\n") . show) (M.toList $ museqsMap)
 
-  -- TODO ! even if I comment this line out, it still fails
-  -- mapM_ (uncurry $ actSend3 reg3) evs
+    --  putStrLn $ "\nlength evs: " ++ show (length evs) ++ "\nevs: "
+    --    ++ concatMap (\(t,a) -> "\n" ++ show (t-time0) ++ ": " ++ show a) evs
+    --    ++ "\nThat's all of them?\n"
+
+  mapM_ (uncurry $ actSend3 reg3) evs
 
   putMVar (mTime03       dist) time0
   putMVar (mTempoPeriod3 dist) tempoPeriod

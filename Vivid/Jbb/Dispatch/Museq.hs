@@ -11,9 +11,7 @@ module Vivid.Jbb.Dispatch.Museq (
   , findNextEvents
 
   , arc
-  -- , arcFold
-
-  -- , arcIO, arcFoldIO
+  -- , arcIO
   ) where
 
 import Control.Lens ((^.),(.~),(%~),_1,_2,over)
@@ -140,10 +138,10 @@ arcFold cycle period rdv time0 from to m =
                          then pp0 + period
                          else pp0 + 2*period
   -- todo ? I know `nextFrom` (above) fixes the following bug,
-  -- but why is it needed?
-  -- The bug: Evaluate the following two statements. The second hangs.
-    -- m = Museq {_dur = 1 % 6, _sup = 1 % 6, _vec = V.fromList [(1 % 24,Send Boop "3" ("amp",0.0)),(1 % 8,Send Boop "3" ("freq",600.0)),(1 % 8,Send Boop "3" ("amp",0.4))]}
-    -- arc 0 1 8 9 m
+    -- but why is it needed?
+    -- The bug: Evaluate the following two statements. The second hangs.
+      -- m = Museq {_dur = 1 % 6, _sup = 1 % 6, _vec = V.fromList [(1 % 24,Send Boop "3" ("amp",0.0)),(1 % 8,Send Boop "3" ("freq",600.0)),(1 % 8,Send Boop "3" ("amp",0.4))]}
+      -- arc 0 1 8 9 m
           in arcFold (cycle+1) period rdv time0 nextFrom to m
      else let start = startOrOOB
               end = lastIndexLTE compare' rdv (relTo * _sup m) where
