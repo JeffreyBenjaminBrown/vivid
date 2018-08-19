@@ -89,6 +89,12 @@ replace disp newName newMuseq = do
   masOld <- readMVar $ mMuseqs disp
   replaceAll disp $ M.insert newName newMuseq masOld
 
+-- | ASSUMES every synth has an "amp" parameter which, when 0, causes silence.
+--
+-- Strategy: Upon changing Museqs, compute which synths need deletion,
+-- and which need creation. Create the latter immediately. Wait to delete
+-- the former until it's safe, and before deleting them, send silence
+-- (set "amp" to 0).
 replaceAll :: Dispatch -> M.Map MuseqName (Museq Action) -> IO ()
 replaceAll disp masNew = do
   time0  <-      takeMVar $ mTime0       disp

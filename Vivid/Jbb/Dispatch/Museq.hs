@@ -1,3 +1,5 @@
+-- | = Mostly analysis
+
 module Vivid.Jbb.Dispatch.Museq (
     timeToPlayThrough
   , supsToPlayThrough
