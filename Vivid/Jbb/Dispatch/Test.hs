@@ -9,8 +9,6 @@ import qualified Data.Vector as V
 import Vivid
 import Vivid.Jbb.Util
 import Vivid.Jbb.Synths
-import Vivid.Jbb.Dispatch.ActNow
-import Vivid.Jbb.Dispatch.Dispatch
 import Vivid.Jbb.Dispatch.Join
 import Vivid.Jbb.Dispatch.Museq
 import Vivid.Jbb.Dispatch.Transform
@@ -23,7 +21,6 @@ tests = runTestTT $ TestList
   , TestLabel "testNextPhase0" testNextPhase0
   , TestLabel "museqIsValid" testMuseqIsValid
   , TestLabel "findNextEvents" testFindNextEvents
-  , TestLabel "testAllWaiting" testAllWaiting
   , TestLabel "testAppend" testAppend
   , TestLabel "testStack" testStack
   , TestLabel "testRev" testRev
@@ -77,17 +74,6 @@ testFindNextEvents = TestCase $ do
   assertBool "testFindNextEvents, no zero event, next cycle" $
     (findNextEvents 1 50 100 $ museq 2 events') -- next is 126
     == (26, Prelude.map snd $ V.toList $ V.slice 1 1 $ V.fromList events)
-
-testAllWaiting = TestCase $ do
-  now <- unTimestamp <$> getTime
-  dist <- newDispatch
-  let mm = mTimeMuseqs dist
-  swapMVar mm $ M.fromList [("a",(now+1,emptyMuseq))
-                           ,("b",(now+1,emptyMuseq))]
-  assertBool "all waiting" =<< allWaiting dist
-  swapMVar mm $ M.fromList [("a",(now-1,emptyMuseq))
-                           ,("b",(now+1,emptyMuseq))]
-  assertBool "one is not waiting" =<< not <$> allWaiting dist
 
 testStack = TestCase $ do
   let y = museq 2 [(0,"y")]
@@ -231,3 +217,4 @@ testArc = TestCase $ do
   assertBool "arc 4" $
     arc 100   10           199 230  m
     == [(200.0,"a"),(210.0,"b"),(220.0,"a")]
+
