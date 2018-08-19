@@ -7,23 +7,15 @@
            , GADTs #-}
 
 module Vivid.Jbb.Dispatch.Types (
-  SynthName
-  , ParamName
-  , MuseqName
-  , Time, Duration
-  , RTime, RDuration, RelDuration
-  , unTimestamp
-  , Msg
-  , Action(..)
-  , actionSynth
+  SynthName, ParamName, MuseqName
+  , Time, Duration, RTime, RDuration, RelDuration, unTimestamp
+  , Msg, Msg'(..)
+  , Action(..), actionSynth
   , Museq(..), dur, sup, vec
-  , emptyMuseq
-  , museq
+  , emptyMuseq, museq
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
-  , Dispatch(..)
-  , newDispatch
-  , Msg'(..)
+  , Dispatch(..), newDispatch
   ) where
 
 import Control.Concurrent.MVar
@@ -65,6 +57,12 @@ unTimestamp (Timestamp x) = x
 -- | = Instructions
 
 type Msg = (ParamName, Float)
+
+data Msg' sdArgs where
+  Msg' :: forall params sdArgs.
+          ( VarList params
+          , Subset (InnerVars params) sdArgs)
+       => params -> Msg' sdArgs
 
 data Action = New  SynthDefEnum SynthName
             | Free SynthDefEnum SynthName
@@ -129,12 +127,3 @@ newDispatch = do
   return Dispatch
     { mMuseqs = mTimeMuseqs,  mReg    = reg
     , mTime0      = mTime0     ,  mTempoPeriod = mTempoPeriod }
-
-
--- | == The GADTs. Hopefully quarantined away from the live coding.
-
-data Msg' sdArgs where
-  Msg' :: forall params sdArgs.
-          ( VarList params
-          , Subset (InnerVars params) sdArgs)
-       => params -> Msg' sdArgs

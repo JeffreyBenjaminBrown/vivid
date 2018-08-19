@@ -54,7 +54,6 @@ library
     Vivid.Jbb
     , Vivid.Jbb.Dispatch.Act
     , Vivid.Jbb.Dispatch.Config
-    , Vivid.Jbb.Dispatch.Instances
     , Vivid.Jbb.Dispatch.Join
     , Vivid.Jbb.Dispatch.Loop
     , Vivid.Jbb.Dispatch.Msg

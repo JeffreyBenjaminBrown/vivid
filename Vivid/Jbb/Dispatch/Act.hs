@@ -13,7 +13,6 @@ import qualified Data.Vector as V
 import Vivid
 import Vivid.Jbb.Dispatch.Config (frameDuration)
 import Vivid.Jbb.Dispatch.Types
-import Vivid.Jbb.Dispatch.Instances
 import Vivid.Jbb.Dispatch.Msg
 import Vivid.Jbb.Dispatch.Museq
 import Vivid.Jbb.Synths
