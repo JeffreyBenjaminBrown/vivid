@@ -9,10 +9,13 @@ module Vivid.Jbb.Dispatch.Transform (
 
   , overParams
   , switchParams
+  , keepParams
+  , dropParams
   ) where
 
 import Control.Lens (over, _1, _2)
 import qualified Data.Map as M
+import qualified Data.Set as S
 import qualified Data.Vector as V
 
 import Vivid.Jbb.Util
@@ -56,6 +59,8 @@ rotate, rep :: Rational -> Museq a -> Museq a -- the name `repeat` is taken
 rotate t = fast t . sparse t
 rep n = slow n . dense n
 
+
+-- | = _ -> Museq Msg -> Museq Msg
 overParams :: [(ParamName, Float -> Float)] -> Museq Msg -> Museq Msg
 overParams fs mq = fmap change mq
   where mp = M.fromList fs
@@ -68,3 +73,11 @@ switchParams fs mq = fmap change mq where
   mp = M.fromList fs
   change msg@(param,_) = over _1 f msg where
     f = maybe id const $ M.lookup param mp
+
+keepParams :: [ParamName] -> Museq Msg -> Museq Msg
+keepParams ps = over vec $ V.filter $       f . fst . snd
+  where f = flip S.member $ S.fromList ps
+
+dropParams :: [ParamName] -> Museq Msg -> Museq Msg
+dropParams ps = over vec $ V.filter $ not . f . fst . snd
+  where f = flip S.member $ S.fromList ps

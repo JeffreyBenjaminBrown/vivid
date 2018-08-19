@@ -228,3 +228,7 @@ testOverParams = TestCase $ do
   assertBool "switchParams" $ switchParams [("freq","guzzle")] m
     == museq 2 [(0,("guzzle",100))
                ,(1,("amp",0.1))]
+  assertBool "keepParams" $ keepParams ["freq"] m
+    == museq 2 [(0,("freq",100))]
+  assertBool "dropParams" $ dropParams ["freq"] m
+    == museq 2 [(1,("amp",0.1))]
