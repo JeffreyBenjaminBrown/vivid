@@ -6,6 +6,9 @@ module Vivid.Jbb.Dispatch.Museq (
   , supsToRepeat
   , dursToRepeat
 
+  , museqSynths
+  , museqsDiff
+
   , sortMuseq
   , museqIsValid
   , findNextEvents
@@ -16,6 +19,8 @@ module Vivid.Jbb.Dispatch.Museq (
 
 import Control.Lens ((^.),(.~),(%~),_1,_2,over)
 import Control.Monad.ST
+import Data.List ((\\))
+import qualified Data.Map as M
 import qualified Data.Vector as V
 import           Data.Vector ((!))
 import Data.Vector.Algorithms.Intro (sortBy)
@@ -63,6 +68,26 @@ supsToRepeat m = timeToRepeat m / _sup m
 
 dursToRepeat :: Museq a -> Rational
 dursToRepeat m = timeToRepeat m / _dur m
+
+
+-- | Given a Museq, find the synths it uses.
+museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
+museqSynths = map (actionSynth . snd) . V.toList . _vec
+
+-- | Given an old set of Museqs and a new one, figure out
+-- which synths need to be created, and which destroyed.
+museqsDiff :: M.Map MuseqName (Museq Action)
+           -> M.Map MuseqName (Museq Action)
+           -> ([(SynthDefEnum, SynthName)],
+               [(SynthDefEnum, SynthName)])
+museqsDiff old new = (toFree,toCreate) where
+  oldMuseqs = M.elems old :: [Museq Action]
+  newMuseqs = M.elems new :: [Museq Action]
+  oldSynths = unique $ concatMap museqSynths oldMuseqs
+  newSynths = unique $ concatMap museqSynths newMuseqs
+  toCreate = newSynths \\ oldSynths
+  toFree = oldSynths \\ newSynths
+
 
 -- | = Sort a Museq
 sortMuseq :: Museq a -> Museq a

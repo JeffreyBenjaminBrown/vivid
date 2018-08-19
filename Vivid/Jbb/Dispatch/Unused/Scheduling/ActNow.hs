@@ -12,7 +12,6 @@ module Vivid.Jbb.Dispatch.ActNow (
   ) where
 
 import Control.Concurrent.MVar
-import Data.List ((\\))
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
@@ -22,24 +21,6 @@ import Vivid.Jbb.Dispatch.Msg
 import Vivid.Jbb.Synths
 import Vivid.Jbb.Util (unique, writeTimeAndError)
 
-
--- | Given a Museq, find the synths it uses.
-museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
-museqSynths = map (actionSynth . snd) . V.toList . _vec
-
--- | Given an old set of Museqs and a new one, figure out
--- which synths need to be created, and which destroyed.
-museqsDiff :: M.Map MuseqName (Museq Action)
-           -> M.Map MuseqName (Museq Action)
-           -> ([(SynthDefEnum, SynthName)],
-               [(SynthDefEnum, SynthName)])
-museqsDiff old new = (toFree,toCreate) where
-  oldMuseqs = M.elems old :: [Museq Action]
-  newMuseqs = M.elems new :: [Museq Action]
-  oldSynths = unique $ concatMap museqSynths oldMuseqs
-  newSynths = unique $ concatMap museqSynths newMuseqs
-  toCreate = newSynths \\ oldSynths
-  toFree = oldSynths \\ newSynths
 
 -- | How to act on an Action:
 -- Turn it into an Action', then act' on it.
