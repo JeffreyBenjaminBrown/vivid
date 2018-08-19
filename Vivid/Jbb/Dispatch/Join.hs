@@ -59,15 +59,23 @@ cat = foldl1 append
 -- Here it's set to that of the first.
 -- For something else, just compose `Lens.set dur _` after `stack`.
 stack :: Museq a -> Museq a -> Museq a
-stack x y = let tx = timeToRepeat x
-                ty = timeToRepeat y
-                t = lcmRatios tx ty
+stack x y = let t = timeForBothToRepeat x y
                 xs = unsafeExplicitReps t x
                 ys = unsafeExplicitReps t y
-  in sortMuseq $ Museq {_dur = _dur x, _sup = t, _vec = V.concat $ xs ++ ys}
+  in sortMuseq $ Museq {_dur = _dur x
+                       , _sup = t
+                       , _vec = V.concat $ xs ++ ys}
+
+--merge :: (a -> a) -> Museq a -> Museq a -> Museq a
+--merge op x y = let let t = timeForBothToRepeat x y
+--                       xs = concat $ unsafeExplicitReps t x
+--                       ys = concat $ unsafeExplicitReps t y
 
 
 -- | = backend
+
+timeForBothToRepeat :: Museq a -> Museq a -> RTime
+timeForBothToRepeat x y = lcmRatios (timeToRepeat x) (timeToRepeat y)
 
 -- | if L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
