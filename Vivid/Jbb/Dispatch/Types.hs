@@ -20,10 +20,10 @@ module Vivid.Jbb.Dispatch.Types (
   , emptyMuseq
   , unitMuseq
   , museq
-  , SynthRegister3(..), boops3, vaps3, sqfms3
-  , emptySynthRegister3
-  , Dispatch3(..)
-  , newDispatch3
+  , SynthRegister(..), boops, vaps, sqfms
+  , emptySynthRegister
+  , Dispatch(..)
+  , newDispatch
   , Msg'(..)
   ) where
 
@@ -104,35 +104,35 @@ museq d tas = Museq {_dur = d, _sup = d, _vec = V.fromList tas}
 
 -- | The global state
 
-data SynthRegister3 = -- per-synth boilerplate
-  SynthRegister3{ _boops3 :: M.Map SynthName (Synth BoopParams)
-                , _vaps3  :: M.Map SynthName (Synth VapParams)
-                , _sqfms3 :: M.Map SynthName (Synth SqfmParams)
+data SynthRegister = -- per-synth boilerplate
+  SynthRegister{ _boops :: M.Map SynthName (Synth BoopParams)
+                , _vaps  :: M.Map SynthName (Synth VapParams)
+                , _sqfms :: M.Map SynthName (Synth SqfmParams)
                 } deriving (Show, Eq, Ord)
 
-makeLenses ''SynthRegister3
+makeLenses ''SynthRegister
 
-emptySynthRegister3 :: SynthRegister3
-emptySynthRegister3 = SynthRegister3 M.empty M.empty M.empty
+emptySynthRegister :: SynthRegister
+emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
 
-data Dispatch3 = Dispatch3 {
-  mMuseqs3 :: MVar (M.Map MuseqName (Museq Action))
-  , mReg3 :: MVar SynthRegister3
-  , mTime03 :: MVar Time
-  , mTempoPeriod3 :: MVar Duration
+data Dispatch = Dispatch {
+  mMuseqs :: MVar (M.Map MuseqName (Museq Action))
+  , mReg :: MVar SynthRegister
+  , mTime0 :: MVar Time
+  , mTempoPeriod :: MVar Duration
   }
 
 -- | "new" because it's not really empty, except for `time0`
-newDispatch3 :: IO Dispatch3
-newDispatch3 = do
+newDispatch :: IO Dispatch
+newDispatch = do
   mTimeMuseqs <- newMVar M.empty
-  reg <- newMVar emptySynthRegister3
+  reg <- newMVar emptySynthRegister
   mTime0 <- newEmptyMVar
   mTempoPeriod <- newMVar 1
-  return Dispatch3
-    { mMuseqs3 = mTimeMuseqs,  mReg3    = reg
-    , mTime03      = mTime0     ,  mTempoPeriod3 = mTempoPeriod }
+  return Dispatch
+    { mMuseqs = mTimeMuseqs,  mReg    = reg
+    , mTime0      = mTime0     ,  mTempoPeriod = mTempoPeriod }
 
 
 -- | == The GADTs. Hopefully quarantined away from the live coding.

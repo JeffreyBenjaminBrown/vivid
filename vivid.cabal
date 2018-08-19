@@ -52,7 +52,7 @@ license:             GPL
 library
   exposed-modules:
     Vivid.Jbb
-    , Vivid.Jbb.Dispatch.Act3
+    , Vivid.Jbb.Dispatch.Act
     , Vivid.Jbb.Dispatch.Config
     , Vivid.Jbb.Dispatch.Instances
     , Vivid.Jbb.Dispatch.Join

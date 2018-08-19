@@ -10,8 +10,8 @@ import Vivid.Jbb.Synths
 instance NFData (Synth a) where
   rnf s = _unNodeId (_unSynth s) `deepseq` ()
 
-instance NFData SynthRegister3 where
-  rnf r = _boops3 r `deepseq` _vaps3 r `deepseq` _sqfms3 r `deepseq` ()
+instance NFData SynthRegister where
+  rnf r = _boops r `deepseq` _vaps r `deepseq` _sqfms r `deepseq` ()
 
 instance NFData a => NFData (Museq a) where
   rnf m = _dur m `deepseq` _sup m `deepseq` _vec m `deepseq` ()
