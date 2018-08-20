@@ -191,7 +191,7 @@ arc :: Time -> Duration -> Time -> Time
     -> Museq a -> [(Time, a)]
 arc time0 tempoPeriod from to m =
   let period = tempoPeriod * fromRational (_sup m)
-      rdv = V.map fst $ _vec $ const () <$> m :: V.Vector RelDuration
+      rdv = V.map fst $ _vec $ const () <$> m :: V.Vector RTime
       firstPhase0 = prevPhase0 time0 period from
       toAbsoluteTime :: RTime -> Time
       toAbsoluteTime rt = fromRational rt * tempoPeriod + firstPhase0
@@ -200,30 +200,31 @@ arc time0 tempoPeriod from to m =
 arcFold :: Int -> Duration -> V.Vector RelDuration
   -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
   -> Museq a -> [(RTime, a)]
-arcFold cycle period rdv time0 from to m = 
-  if from >= to
-  then [] -- todo ? Be sure of boundary condition
+arcFold cycle period rdv time0 from to m =
+  if from >= to then [] -- todo ? Be sure of boundary condition
   else let
     pp0 = prevPhase0 time0 period from
-    relFrom = toRational $ (from - pp0) / period
-    relTo   = toRational $ (to   - pp0) / period
-    startOrOOB = firstIndexGTE compare rdv (relFrom * _sup m)
-  in if startOrOOB >= V.length rdv
+    fromInCycles = toRational $ (from - pp0) / period
+    toInCycles   = toRational $ (to   - pp0) / period
+    startOrOOBIndex = firstIndexGTE compare rdv (fromInCycles * _sup m)
+  in if startOrOOBIndex >= V.length rdv
+     -- WEIRD, todo ? `nextFrom` should be unnecessary; see comment below
      then let nextFrom = if pp0 + period > from
                          then pp0 + period
                          else pp0 + 2*period
-  -- todo ? I know `nextFrom` (above) fixes the following bug,
-    -- but why is it needed?
-    -- The bug: Evaluate the following two statements. The second hangs.
+          in arcFold (cycle+1) period rdv time0 nextFrom to m
+     else
+       let startIndex = startOrOOBIndex
+           endIndex = lastIndexLTE compare' rdv (toInCycles * _sup m) where
+             compare' x y = if x < y then LT else GT -- to omit the endpoint
+           eventsThisCycle = V.toList
+             $ V.map (over _1 (+(_sup m * fromIntegral cycle)))
+             $ V.slice startIndex (endIndex-startIndex) $ _vec m
+       in eventsThisCycle
+          ++ arcFold (cycle+1) period rdv time0 (pp0 + period) to m
+  -- I know `nextFrom` (above) fixes the following bug,
+    -- but why is it needed? How can pp0 + period be <= from?
+    -- The bug: Evaluate the following two statements.
+    -- Using (pp0 + period) instead of nextFrom, the second statement hangs.
       -- m = Museq {_dur = 1 % 6, _sup = 1 % 6, _vec = V.fromList [(1 % 24,Send Boop "3" ("amp",0.0)),(1 % 8,Send Boop "3" ("freq",600.0)),(1 % 8,Send Boop "3" ("amp",0.4))]}
       -- arc 0 1 8 9 m
-          in arcFold (cycle+1) period rdv time0 nextFrom to m
-     else let start = startOrOOB
-              end = lastIndexLTE compare' rdv (relTo * _sup m) where
-                compare' x y
-                  = if x < y then LT else GT -- to omit the endpoint
-              eventsThisCycle = V.toList
-                $ V.map (over _1 (+(_sup m * fromIntegral cycle)))
-                $ V.slice start (end-start) $ _vec m
-          in eventsThisCycle
-             ++ arcFold (cycle+1) period rdv time0 (pp0 + period) to m
