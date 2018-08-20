@@ -223,3 +223,19 @@ arcFold cycle period rdv time0 from to m =
        in eventsThisCycle
           ++ arcFold (cycle+1) period rdv time0 (pp0 + period) to m
 
+arc' :: forall a. Time -> Duration -> Time -> Time
+    -> Museq' a -> [((Time,Time), a)]
+arc' time0 tempoPeriod from to m =
+  let period = tempoPeriod * fromRational (_sup' m)
+      rdv = V.map fst $ _vec' $ const () <$> m :: V.Vector (RTime,RTime)
+      firstPhase0 = prevPhase0 time0 period from
+      toAbsoluteTime :: (RTime,RTime) -> (Time,Time)
+      toAbsoluteTime (a,b) = (f a, f b) where
+        f rt = fromRational rt * tempoPeriod + firstPhase0
+   in map (over _1 toAbsoluteTime) $ arcFold' 0 period rdv time0 from to m
+
+-- TODO >>>
+arcFold' :: Int -> Duration -> V.Vector (RTime,RTime)
+  -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc'`
+  -> Museq' a -> [((RTime,RTime), a)]
+arcFold' cycle period rdv time0 from to m = []
