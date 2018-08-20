@@ -1,6 +1,12 @@
 * *merge (multiplicative or additive (? per parameter))
 ** problem ! messages don't end
-*** *Tidal's merge differs, in that events have a definite end time
+*** an option: add a redundant end time to Museq events
+**** problem: another Museq might send the same kind of message.
+***** (to the same synth). How would the first Museq know, then, when the instruction ends?
+*** an option: parameterize Museq over the time tag on events
+*** things that will get merged
+**** two (Museq Double)s : works without end times
+**** two (Museq Msg)s : works without end times
 ** the merge strategy in Tidal.Epic
 *** mergeEvents
 **** partitionAndGroupEventsAtBoundaries

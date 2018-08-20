@@ -54,6 +54,7 @@ library
     Vivid.Jbb
     , Vivid.Jbb.Dispatch.Config
     , Vivid.Jbb.Dispatch.Dispatch
+    , Vivid.Jbb.Dispatch.HasStart
     , Vivid.Jbb.Dispatch.Join
     , Vivid.Jbb.Dispatch.Loop
     , Vivid.Jbb.Dispatch.Msg

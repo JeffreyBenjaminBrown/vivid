@@ -4,7 +4,8 @@
            , ExtendedDefaultRules
            , ScopedTypeVariables
            , TemplateHaskell
-           , GADTs #-}
+           , GADTs
+#-}
 
 module Vivid.Jbb.Dispatch.Types (
   SynthName, ParamName, MuseqName
@@ -25,6 +26,7 @@ import Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
 
+import Vivid.Jbb.Dispatch.HasStart
 import Vivid
 import Vivid.Jbb.Synths
 
@@ -94,6 +96,27 @@ emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 
 museq :: RelDuration -> [(RTime,a)] -> Museq a
 museq d tas = Museq {_dur = d, _sup = d, _vec = V.fromList tas}
+
+data Museq' t a = Museq' {
+  _dur' :: RelDuration -- ^ the play duration of the loop
+  , _sup' :: RelDuration -- ^ the supremum of the possible RTime values
+    -- in `_vec`. If this is greater than `dur`, the `Museq`will rotate
+    -- through different sections of the `vec` each time it plays.
+    -- If less than `dur`, the `Museq` will play the entire `vec` more than
+    -- once each time it plays.
+  , _vec' :: V.Vector (t, a) }
+  deriving (Show,Eq)
+
+makeLenses ''Museq'
+
+instance Functor (Museq' t) where
+  fmap = over vec' . V.map . over _2
+
+emptyMuseq' :: Museq' t a
+emptyMuseq' = Museq' { _dur' = 1, _sup' = 1, _vec' = V.empty }
+
+museq' :: RelDuration -> [(t,a)] -> Museq' t a
+museq' d tas = Museq' {_dur' = d, _sup' = d, _vec' = V.fromList tas}
 
 
 -- | The global state
