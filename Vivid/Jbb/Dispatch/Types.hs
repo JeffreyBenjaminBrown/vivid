@@ -14,6 +14,8 @@ module Vivid.Jbb.Dispatch.Types (
   , Action(..), actionSynth
   , Museq(..), dur, sup, vec
   , emptyMuseq, museq
+  , Museq'(..), dur', sup', vec'
+  , emptyMuseq', museq'
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
   , Dispatch(..), newDispatch
@@ -96,6 +98,27 @@ emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 
 museq :: RelDuration -> [(RTime,a)] -> Museq a
 museq d tas = Museq {_dur = d, _sup = d, _vec = V.fromList tas}
+
+data Museq' a = Museq' {
+  _dur' :: RelDuration -- ^ the play duration of the loop
+  , _sup' :: RelDuration -- ^ the supremum of the possible RTime values
+    -- in `_vec`. If this is greater than `dur`, the `Museq`will rotate
+    -- through different sections of the `vec` each time it plays.
+    -- If less than `dur`, the `Museq` will play the entire `vec` more than
+    -- once each time it plays.
+  , _vec' :: V.Vector ((RTime,RTime), a) }
+  deriving (Show,Eq)
+
+makeLenses ''Museq'
+
+instance Functor Museq' where
+  fmap = over vec' . V.map . over _2
+
+emptyMuseq' :: Museq' a
+emptyMuseq' = Museq' { _dur' = 1, _sup' = 1, _vec' = V.empty }
+
+museq' :: RelDuration -> [((RTime,RTime),a)] -> Museq' a
+museq' d tas = Museq' {_dur' = d, _sup' = d, _vec' = V.fromList tas}
 
 
 -- | The global state

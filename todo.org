@@ -1,4 +1,5 @@
 * *merge (see debating-endpoints.md)
+** museqIsValid: test that endpoints do not lead starts
 * use museqIsValid in join|transform tests
 * rewriting DistribLoop
 ** maybe adding frameDuration to startRender is unnecessary.
