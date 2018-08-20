@@ -17,7 +17,6 @@ module Vivid.Jbb.Dispatch.Museq (
   , museqIsValid
 
   , arc
-  , arc'
   ) where
 
 import Control.Lens ((^.),(.~),(%~),_1,_2,over,view)
@@ -158,56 +157,3 @@ arcFold cycle period rdv time0 from to m =
                 $ V.slice start (end-start) $ _vec m
           in eventsThisCycle
              ++ arcFold (cycle+1) period rdv time0 (pp0 + period) to m
-
--- TODO : for polymorphic Museq t n, will another version of arcFold:
--- this for things with only a start, the other for things with a start and
--- an end. That's because the other will need to take the minimum
--- of each event's end and the end of the arc being asked for.
-arc' :: forall t s a. (HasStart t s, Real s, Fractional s)
-     => Time -> Duration -> Time -> Time
-     -> Museq' t a -> [(t, a)]
-arc' time0 tempoPeriod from to m =
-  let period = tempoPeriod * fromRational (_sup' m)
-      rdv = V.map (view start . fst)
-        $ _vec' $ const () <$> m :: V.Vector s
-      firstPhase0 = prevPhase0 time0 period from
-      toAbsoluteTime :: s -> s
-      toAbsoluteTime t = t * realToFrac tempoPeriod
-                         + realToFrac firstPhase0
-   in map (over (_1.start) toAbsoluteTime)
-      $ arcFold' 0 period rdv time0 from to m
-
-arcFold' :: forall t s a. (HasStart t s, Fractional s, Ord s)
-  => Int -> Duration -> V.Vector s
-  -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
-  -> Museq' t a -> [(t, a)]
-arcFold' cycle period rdv time0 from to m =
-  if from >= to
-  then [] -- todo ? Be sure of boundary condition
-  else let
-    pp0 = prevPhase0 time0 period from
-    relFrom = toRational $ (from - pp0) / period
-    relTo   = toRational $ (to   - pp0) / period
-    startOrOOB = firstIndexGTE compare rdv $ fromRational (relFrom * _sup' m)
-  in if startOrOOB >= V.length rdv
-     then let nextFrom = if pp0 + period > from
-                         then pp0 + period
-                         else pp0 + 2*period
-  -- todo ? I know `nextFrom` (above) fixes the following bug,
-    -- but why is it needed?
-    -- The bug: Evaluate the following two statements. The second hangs.
-      -- m = Museq {_dur = 1 % 6, _sup = 1 % 6, _vec = V.fromList [(1 % 24,Send Boop "3" ("amp",0.0)),(1 % 8,Send Boop "3" ("freq",600.0)),(1 % 8,Send Boop "3" ("amp",0.4))]}
-      -- arc 0 1 8 9 m
-          in arcFold' (cycle+1) period rdv time0 nextFrom to m
-     else let startIndex = startOrOOB
-              endIndex = lastIndexLTE compare' rdv
-                    (fromRational $ relTo * _sup' m) where
-                compare' x y
-                  = if x < y then LT else GT -- to omit the endpoint
-              eventsThisCycle = V.toList
-                $ V.map (over (_1 . start)
-                         (+(fromRational $ _sup' m * fromIntegral cycle)))
-                $ V.slice startIndex (endIndex-startIndex)
-                $ _vec' m
-          in eventsThisCycle
-             ++ arcFold' (cycle+1) period rdv time0 (pp0 + period) to m
