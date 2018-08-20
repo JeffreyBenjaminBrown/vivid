@@ -1,0 +1,44 @@
+* ? better than HasStart: Museq has just a start, EMuseq has start and end
+** and both of them only use Rational time values in their events
+** and maybe then define a class to give access to the lenses into both, so that I can still write a bunch of Museq functions polymorphically
+-- | = For instance, below the lenses into `X` and `Y` are accessible polymorphically via `val`
+{-# LANGUAGE MultiParamTypeClasses
+           , FunctionalDependencies
+-#}
+
+data X = X {_x :: Float}
+makeLenses ''X
+
+data Y = Y {_y :: Int}
+makeLenses ''Y
+
+class HasVal x v | x -> v where
+  val :: Lens' x v
+
+instance HasVal X Float where
+  val = x
+
+instance HasVal Y Int where
+  val = y
+* *merge (multiplicative or additive (? per parameter))
+** problem ! messages don't end
+*** an option: add a redundant end time to Museq events
+**** problem: another Museq might send the same kind of message.
+***** (to the same synth). How would the first Museq know, then, when the instruction ends?
+*** an option: parameterize Museq over the time tag on events
+*** things that will get merged
+**** two (Museq Double)s : works without end times
+**** two (Museq Msg)s : works without end times
+** the merge strategy in Tidal.Epic
+*** mergeEvents
+**** partitionAndGroupEventsAtBoundaries
+***** partitionEv
+***** partitionArcAtTimes
+**** boundaries
+***** _doubleTheDurationZeroBoundaries
+** what it is
+*** e.g., merging freq of 2 and freq of 440 gives freq of 880
+*** ? does it apply to a general Museq a, or only Museq Msg, or Museq Action?
+*** ? consider mismatched durations, sups
+*** ? allow user to specify alternative strategies for particular parameters
+*** e.g. "merge these all with (\*), except merge amp with (+)"
