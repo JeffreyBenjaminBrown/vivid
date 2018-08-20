@@ -224,18 +224,41 @@ arcFold cycle period rdv time0 from to m =
           ++ arcFold (cycle+1) period rdv time0 (pp0 + period) to m
 
 arc' :: forall a. Time -> Duration -> Time -> Time
-    -> Museq' a -> [((Time,Time), a)]
+     -> Museq' a -> [((Time,Time), a)]
 arc' time0 tempoPeriod from to m =
   let period = tempoPeriod * fromRational (_sup' m)
-      rdv = V.map fst $ _vec' $ const () <$> m :: V.Vector (RTime,RTime)
+      rdv = V.map (fst . fst) $ _vec' $ const () <$> m :: V.Vector RTime
       firstPhase0 = prevPhase0 time0 period from
       toAbsoluteTime :: (RTime,RTime) -> (Time,Time)
       toAbsoluteTime (a,b) = (f a, f b) where
         f rt = fromRational rt * tempoPeriod + firstPhase0
    in map (over _1 toAbsoluteTime) $ arcFold' 0 period rdv time0 from to m
 
--- TODO >>>
-arcFold' :: Int -> Duration -> V.Vector (RTime,RTime)
-  -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc'`
+arcFold' :: forall a. Int -> Duration -> V.Vector RTime
+  -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
   -> Museq' a -> [((RTime,RTime), a)]
-arcFold' cycle period rdv time0 from to m = []
+arcFold' cycle period rdv time0 from to m =
+  if from >= to then [] -- todo ? Be sure of boundary condition
+  else let
+    pp0 = prevPhase0 time0 period from
+    fromInCycles = toRational $ (from - pp0) / period
+    toInCycles   = toRational $ (to   - pp0) / period
+    startOrOOBIndex = firstIndexGTE compare rdv (fromInCycles * _sup' m)
+  in if startOrOOBIndex >= V.length rdv
+     then let nextFrom = if pp0 + period > from
+          -- If from = pp0 + period - epsilon, maybe pp0 + period <= from.
+                then pp0 + period -- Thus floating point error makes this
+                else pp0 + 2*period -- else statement necessary.
+          in arcFold' (cycle+1) period rdv time0 nextFrom to m
+     else
+       let startIndex = startOrOOBIndex
+           endIndex = lastIndexLTE compare' rdv (toInCycles * _sup' m) where
+             compare' x y = if x < y then LT else GT -- to omit the endpoint
+           eventsThisCycle = V.toList
+             $ V.map (over (_1._2) $ (min $ toInCycles * _sup' m) .
+                      (+(_sup' m * fromIntegral cycle))
+                     )
+             $ V.map (over (_1._1) (+(_sup' m * fromIntegral cycle)))
+             $ V.slice startIndex (endIndex-startIndex) $ _vec' m
+       in eventsThisCycle
+          ++ arcFold' (cycle+1) period rdv time0 (pp0 + period) to m
