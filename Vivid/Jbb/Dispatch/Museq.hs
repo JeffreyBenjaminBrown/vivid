@@ -10,11 +10,23 @@ module Vivid.Jbb.Dispatch.Museq (
   , supsToRepeat
   , dursToRepeat
 
+  , timeToPlayThrough'
+  , supsToPlayThrough'
+  , dursToPlayThrough'
+  , timeToRepeat'
+  , supsToRepeat'
+  , dursToRepeat'
+
   , museqSynths
+  , museqSynths'
   , museqsDiff
+  , museqsDiff'
 
   , sortMuseq
+  , sortMuseq'
+
   , museqIsValid
+  , museqIsValid'
 
   , arc
   ) where
@@ -72,10 +84,34 @@ supsToRepeat m = timeToRepeat m / _sup m
 dursToRepeat :: Museq a -> Rational
 dursToRepeat m = timeToRepeat m / _dur m
 
+-- | = Museq' versions
+timeToPlayThrough' :: Museq' a -> Rational
+timeToPlayThrough' m = lcmRatios (_sup' m) (_dur' m)
+
+supsToPlayThrough' :: Museq' a -> Rational
+supsToPlayThrough' m = timeToPlayThrough' m / _sup' m
+
+dursToPlayThrough' :: Museq' a -> Rational
+dursToPlayThrough' m = timeToPlayThrough' m / _dur' m
+
+timeToRepeat' :: Museq' a -> Rational
+timeToRepeat' m = let x = lcmRatios (_sup' m) (_dur' m)
+  in if x == _dur' m then _sup' m else x
+
+supsToRepeat' :: Museq' a -> Rational
+supsToRepeat' m = timeToRepeat' m / _sup' m
+
+dursToRepeat' :: Museq' a -> Rational
+dursToRepeat' m = timeToRepeat' m / _dur' m
+
 
 -- | Given a Museq, find the synths it uses.
 museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
 museqSynths = map (actionSynth . snd) . V.toList . _vec
+
+museqSynths' :: Museq' Action -> [(SynthDefEnum, SynthName)]
+museqSynths' = map (actionSynth . snd) . V.toList . _vec'
+
 
 -- | Given an old set of Museqs and a new one, figure out
 -- which synths need to be created, and which destroyed.
@@ -93,6 +129,18 @@ museqsDiff old new = (toFree,toCreate) where
   toCreate = newSynths \\ oldSynths
   toFree = oldSynths \\ newSynths
 
+museqsDiff' :: M.Map MuseqName (Museq' Action)
+            -> M.Map MuseqName (Museq' Action)
+            -> ([(SynthDefEnum, SynthName)],
+               [(SynthDefEnum, SynthName)])
+museqsDiff' old new = (toFree,toCreate) where
+  oldMuseqs = M.elems old :: [Museq' Action]
+  newMuseqs = M.elems new :: [Museq' Action]
+  oldSynths = unique $ concatMap museqSynths' oldMuseqs
+  newSynths = unique $ concatMap museqSynths' newMuseqs
+  toCreate = newSynths \\ oldSynths
+  toFree = oldSynths \\ newSynths
+
 
 -- | = Sort a Museq
 sortMuseq :: Museq a -> Museq a
@@ -101,6 +149,14 @@ sortMuseq = vec %~
                    let compare' ve ve' = compare (fst ve) (fst ve')
                    sortBy compare' v'
                    V.freeze v'
+
+sortMuseq' :: Museq' a -> Museq' a
+sortMuseq' = vec' %~
+  \v -> runST $ do v' <- V.thaw v
+                   let compare' ve ve' = compare (fst ve) (fst ve')
+                   sortBy compare' v'
+                   V.freeze v'
+
 
 -- | A valid Museq m is sorted on start time, has (relative) duration > 0,
 -- and all actions at time < _sup m.
@@ -111,6 +167,20 @@ museqIsValid mu = and [a,b,c,d] where
   b = mu == sortMuseq mu
   c = _dur mu > 0
   d = _sup mu > 0
+
+-- | A valid Museq' m is sorted on start and then end times,
+-- has (relative) duration > 0, and all actions at time < _sup m.
+-- (todo ? I'm not sure the end-time sort helps.)
+-- PITFALL : The end times are permitted to be greater than the _sup.
+museqIsValid' :: Eq a => Museq' a -> Bool
+museqIsValid' mu = and [a,b,c,d,e] where
+  v = _vec' mu
+  a = if V.length v == 0 then True
+      else (fst $ fst $ V.last v) < _sup' mu
+  b = mu == sortMuseq' mu
+  c = _dur' mu > 0
+  d = _sup' mu > 0
+  e = V.all (uncurry (<=) . fst) v
 
 -- todo ? `arc` could be ~2x faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid searching the first part
