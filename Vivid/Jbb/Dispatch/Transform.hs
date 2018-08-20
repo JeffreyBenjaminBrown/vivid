@@ -2,6 +2,7 @@
 
 module Vivid.Jbb.Dispatch.Transform (
   rev
+  , rev'
   , early, late
   , fast, slow
   , dense, sparse
@@ -11,6 +12,11 @@ module Vivid.Jbb.Dispatch.Transform (
   , switchParams
   , keepParams
   , dropParams
+
+  , overParams'
+  , switchParams'
+  , keepParams'
+  , dropParams'
   ) where
 
 import Control.Lens (over, _1, _2)
@@ -29,7 +35,15 @@ rev :: Museq a -> Museq a -- the name "reverse" is taken
 rev m = sortMuseq $ over vec g m
   where s = _sup m
         g = V.reverse . V.map (over _1 f)
-        f x = if s-x < s then s-x else 0
+        f x = if x > 0 then s-x else 0
+
+rev' :: Museq' a -> Museq' a -- the name "reverse" is taken
+rev' m = sortMuseq' $ over vec' g m where
+  g = V.reverse . V.map (over _1 f) where
+    s = _sup' m
+    f (x,y) = if x > 0
+              then (s-x, (s-x) + (y-x))
+              else (x,y)
 
 -- todo ? sorting in `early` or `late` is overkill, similar to `rev`
 early, late :: RDuration -> Museq a -> Museq a
@@ -80,4 +94,27 @@ keepParams ps = over vec $ V.filter $       f . fst . snd
 
 dropParams :: [ParamName] -> Museq Msg -> Museq Msg
 dropParams ps = over vec $ V.filter $ not . f . fst . snd
+  where f = flip S.member $ S.fromList ps
+
+
+-- | = _ -> Museq' Msg -> Museq' Msg
+overParams' :: [(ParamName, Float -> Float)] -> Museq' Msg -> Museq' Msg
+overParams' fs mq = fmap change mq
+  where mp = M.fromList fs
+        change :: Msg -> Msg
+        change (param,val) = ( param
+                             , maybe val ($val) $ M.lookup param mp )
+
+switchParams' :: [(ParamName, ParamName)] -> Museq' Msg -> Museq' Msg
+switchParams' fs mq = fmap change mq where
+  mp = M.fromList fs
+  change msg@(param,_) = over _1 f msg where
+    f = maybe id const $ M.lookup param mp
+
+keepParams' :: [ParamName] -> Museq' Msg -> Museq' Msg
+keepParams' ps = over vec' $ V.filter $       f . fst . snd
+  where f = flip S.member $ S.fromList ps
+
+dropParams' :: [ParamName] -> Museq' Msg -> Museq' Msg
+dropParams' ps = over vec' $ V.filter $ not . f . fst . snd
   where f = flip S.member $ S.fromList ps

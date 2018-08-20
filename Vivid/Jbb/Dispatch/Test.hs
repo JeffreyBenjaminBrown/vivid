@@ -23,6 +23,7 @@ tests = runTestTT $ TestList
   , TestLabel "testAppend" testAppend
   , TestLabel "testStack" testStack
   , TestLabel "testRev" testRev
+  , TestLabel "testRev'" testRev'
   , TestLabel "testEarlyAndLate" testEarlyAndLate
   , TestLabel "testFastAndSlow" testFastAndSlow
   , TestLabel "testDenseAndSparse" testDenseAndSparse
@@ -85,6 +86,14 @@ testRev = TestCase $ do
   assertBool "rev" $ rev a == museq 2 [(0,"a")
                                       ,(3/2,"c")
                                       ,(5/3,"b")]
+
+testRev' = TestCase $ do
+  let a = museq' 2 [((0,   1),"a")
+                   ,((1/3, 3),"b")
+                   ,((1/2, 1/2),"c")]
+  assertBool "rev" $ rev' a == museq' 2 [((0  , 1),"a")
+                                        ,((3/2, 3/2),"c")
+                                        ,((5/3, 13/3),"b")]
 
 testEarlyAndLate = TestCase $ do
   let a = museq 10 [(0,"a"),(1,"b")]
