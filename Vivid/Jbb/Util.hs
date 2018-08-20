@@ -20,6 +20,7 @@ module Vivid.Jbb.Util (
 
 import Control.Monad.ST
 import Data.Ratio
+import Control.Lens
 import qualified Data.Set as S
 import qualified Data.Vector as V
 import Data.Vector.Algorithms.Search
@@ -40,7 +41,15 @@ lcmRatios x y = let (a,b) = (numerator x, denominator x)
                 in lcm (a * div l b) (c * div l d) % l
 
 
--- | = Functions for lists
+-- | = Lenses
+
+-- "Illegal polymorphic type: Lens' a b
+--    GHC doesn't yet support impredicative polymorphism"
+--overAll :: [Lens' a b] -> (b -> b) -> a -> a
+--overAll ls f = foldl (.) (map (flip over f) ls) id ls
+
+
+-- | = Lists
 
 -- | There's a Hackage package for this surely that's maybe faster, but
 -- it's not compatible with the stack snapshot I'm using.
@@ -56,7 +65,7 @@ interleave :: [a] -> [a] -> [a]
 interleave xs ys = concat (zipWith (\x y -> [x]++[y]) xs ys)
 
 
--- | = Functions for time
+-- | = Time
 
 -- | time0 is the first time that had phase 0
 nextPhase0 :: RealFrac a => a -> a -> a -> a
@@ -71,7 +80,7 @@ prevPhase0 time0 period now =
   fromIntegral (floor $ (now - time0) / period ) * period + time0
 
 
--- | == Functions on Vectors
+-- | == Vectors
 
 -- | example:
 -- > x

@@ -29,7 +29,7 @@ module Vivid.Jbb.Dispatch.Museq (
   , museqIsValid'
 
   , arc
-  , arc', arcIO'
+  , arc'
   ) where
 
 import Control.Lens ((^.),(.~),(%~),_1,_2,over,view)
