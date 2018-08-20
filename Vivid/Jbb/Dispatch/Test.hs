@@ -27,7 +27,9 @@ tests = runTestTT $ TestList
   , TestLabel "testEarlyAndLate" testEarlyAndLate
   , TestLabel "testEarlyAndLate'" testEarlyAndLate'
   , TestLabel "testFastAndSlow" testFastAndSlow
+  , TestLabel "testFastAndSlow'" testFastAndSlow'
   , TestLabel "testDenseAndSparse" testDenseAndSparse
+  , TestLabel "testDenseAndSparse'" testDenseAndSparse'
   , TestLabel "testExplicitReps" testExplicitReps
   , TestLabel "testMuseqsDiff" testMuseqsDiff
   , TestLabel "testArc" testArc
@@ -128,12 +130,24 @@ testFastAndSlow = TestCase $ do
   assertBool "fast" $ (fast 2 a) == museq 5 [(0,"a"),(1,"b")]
   assertBool "slow" $ (slow 2 a) == museq 20 [(0,"a"),(4,"b")]
 
+testFastAndSlow' = TestCase $ do
+  let a = museq' 10 [((0,20),"a"),((2,2),"b")]
+  assertBool "fast" $ (fast' 2 a) == museq' 5 [((0,10),"a"),((1,1),"b")]
+  assertBool "slow" $ (slow' 2 a) == museq' 20 [((0,40),"a"),((4,4),"b")]
+
 testDenseAndSparse = TestCase $ do
   let x = museq 10 [(0 % 1,"a"),(2,"b")]
   assertBool "dense" $ dense 2 x ==
     L.set dur 10 (museq 5 [(0 % 1,"a"),(1,"b")])
   assertBool "sparse" $ sparse 2 x ==
     L.set dur 10 (museq 20 [(0 % 1,"a"),(4,"b")])
+
+testDenseAndSparse' = TestCase $ do
+  let x = museq' 10 [((0,15),"a"),((2,2),"b")]
+  assertBool "dense'" $ dense' 2 x ==
+    L.set dur' 10 (museq' 5 [((0,15/2),"a"),((1,1),"b")])
+  assertBool "sparse'" $ sparse' 2 x ==
+    L.set dur' 10 (museq' 20 [((0,30),"a"),((4,4),"b")])
 
 testExplicitReps = TestCase $ do
   let y = Museq {_dur = 3, _sup = 4, _vec = V.fromList [(0,()),(1,())]}

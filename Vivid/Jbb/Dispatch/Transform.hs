@@ -6,7 +6,9 @@ module Vivid.Jbb.Dispatch.Transform (
   , early, late
   , early', late'
   , fast, slow
+  , fast', slow'
   , dense, sparse
+  , dense', sparse'
   , rotate, rep
 
   , overParams
@@ -85,6 +87,20 @@ dense d m = let f = (/d)
   in              over sup f $ over vec (V.map $ over _1 f) $ m
 sparse d m = let f = (*d)
   in              over sup f $ over vec (V.map $ over _1 f) $ m
+
+fast',slow',dense',sparse' :: Rational -> Museq' a -> Museq' a
+fast' d m = let f = (/d)
+                g (x,y) = (f x, f y)
+  in over dur' f $ over sup' f $ over vec' (V.map $ over _1 g) $ m
+slow' d m = let f = (*d)
+                g (x,y) = (f x, f y)
+  in over dur' f $ over sup' f $ over vec' (V.map $ over _1 g) $ m
+dense' d m = let f = (/d)
+                 g (x,y) = (f x, f y)
+  in              over sup' f $ over vec' (V.map $ over _1 g) $ m
+sparse' d m = let f = (*d)
+                  g (x,y) = (f x, f y)
+  in              over sup' f $ over vec' (V.map $ over _1 g) $ m
 
 -- | I'm not sure what a fractional rotation means, so I have not tested it.
 rotate, rep :: Rational -> Museq a -> Museq a -- the name `repeat` is taken
