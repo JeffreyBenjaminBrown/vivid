@@ -4,6 +4,7 @@ module Vivid.Jbb.Dispatch.Transform (
   rev
   , rev'
   , early, late
+  , early', late'
   , fast, slow
   , dense, sparse
   , rotate, rep
@@ -57,6 +58,23 @@ late t m = sortMuseq $ over vec (V.map $ over _1 f) m
              in t - pp0
         f s = let s' = s + t'
               in if s' >= _sup m then s'-_sup m else s'
+
+-- TODO : early, late don't handle negative numbers correctly
+early' :: RDuration -> Museq' a -> Museq' a
+early' t m = sortMuseq' $ over vec' (V.map $ over _1 f) m
+  where t' = let pp0 = prevPhase0 0 (_dur' m) t
+             in t - pp0
+        f (x,y) = let x' = x - t'
+                      y' = y - t'
+                  in if x' < 0 then (x'+_sup' m, y'+_sup' m)
+                     else (x',y')
+late' t m = sortMuseq' $ over vec' (V.map $ over _1 f) m
+  where t' = let pp0 = prevPhase0 0 (_dur' m) t
+             in t - pp0
+        f (x,y) = let x' = x + t'
+                      y' = y + t'
+                  in if x' >= _sup' m then (x'-_sup' m, y'-_sup' m)
+                     else (x',y')
 
 fast, slow, dense, sparse :: Rational -> Museq a -> Museq a
 fast d m = let f = (/d)

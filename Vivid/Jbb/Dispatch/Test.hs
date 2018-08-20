@@ -25,6 +25,7 @@ tests = runTestTT $ TestList
   , TestLabel "testRev" testRev
   , TestLabel "testRev'" testRev'
   , TestLabel "testEarlyAndLate" testEarlyAndLate
+  , TestLabel "testEarlyAndLate'" testEarlyAndLate'
   , TestLabel "testFastAndSlow" testFastAndSlow
   , TestLabel "testDenseAndSparse" testDenseAndSparse
   , TestLabel "testExplicitReps" testExplicitReps
@@ -112,6 +113,15 @@ testEarlyAndLate = TestCase $ do
     V.fromList [(0,"b"),(9,"a")]
   assertBool "late" $ _vec (late (-11) a) ==
     V.fromList [(0,"b"),(9,"a")]
+
+testEarlyAndLate' = TestCase $ do
+  let a = museq' 10 [((0,11),"a"),((1,2),"b")]
+  assertBool "early" $ _vec' (early' 1 a) ==
+    V.fromList [((0,1),"b"),((9,20),"a")]
+
+  let a = museq' 10 [((0,11),"a"),((1,2),"b")]
+  assertBool "late" $ _vec' (late' 1 a) ==
+    V.fromList [((1,12),"a"),((2,3),"b")]
 
 testFastAndSlow = TestCase $ do
   let a = museq 10 [(0,"a"),(2,"b")]
