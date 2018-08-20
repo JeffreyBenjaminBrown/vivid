@@ -208,10 +208,10 @@ arcFold cycle period rdv time0 from to m =
     toInCycles   = toRational $ (to   - pp0) / period
     startOrOOBIndex = firstIndexGTE compare rdv (fromInCycles * _sup m)
   in if startOrOOBIndex >= V.length rdv
-     -- WEIRD, todo ? `nextFrom` should be unnecessary; see comment below
      then let nextFrom = if pp0 + period > from
-                         then pp0 + period
-                         else pp0 + 2*period
+          -- If from = pp0 + period - epsilon, maybe pp0 + period <= from.
+                then pp0 + period -- Thus floating point error makes this
+                else pp0 + 2*period -- else statement necessary.
           in arcFold (cycle+1) period rdv time0 nextFrom to m
      else
        let startIndex = startOrOOBIndex
@@ -222,9 +222,4 @@ arcFold cycle period rdv time0 from to m =
              $ V.slice startIndex (endIndex-startIndex) $ _vec m
        in eventsThisCycle
           ++ arcFold (cycle+1) period rdv time0 (pp0 + period) to m
-  -- I know `nextFrom` (above) fixes the following bug,
-    -- but why is it needed? How can pp0 + period be <= from?
-    -- The bug: Evaluate the following two statements.
-    -- Using (pp0 + period) instead of nextFrom, the second statement hangs.
-      -- m = Museq {_dur = 1 % 6, _sup = 1 % 6, _vec = V.fromList [(1 % 24,Send Boop "3" ("amp",0.0)),(1 % 8,Send Boop "3" ("freq",600.0)),(1 % 8,Send Boop "3" ("amp",0.4))]}
-      -- arc 0 1 8 9 m
+
