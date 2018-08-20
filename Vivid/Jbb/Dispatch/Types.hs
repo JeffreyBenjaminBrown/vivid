@@ -14,6 +14,8 @@ module Vivid.Jbb.Dispatch.Types (
   , Action(..), actionSynth
   , Museq(..), dur, sup, vec
   , emptyMuseq, museq
+  , Museq'(..), dur', sup', vec'
+  , emptyMuseq', museq'
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
   , Dispatch(..), newDispatch
