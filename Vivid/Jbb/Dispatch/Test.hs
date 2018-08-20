@@ -29,6 +29,7 @@ tests = runTestTT $ TestList
   , TestLabel "testExplicitReps" testExplicitReps
   , TestLabel "testMuseqsDiff" testMuseqsDiff
   , TestLabel "testArc" testArc
+  , TestLabel "testArc'" testArc'
   , TestLabel "testOverParams" testOverParams
   ]
 
@@ -198,6 +199,17 @@ testArc = TestCase $ do
   assertBool "arc 4" $
     arc 100   10           199 230  m
     == [(200.0,"a"),(210.0,"b"),(220.0,"a")]
+
+testArc' = TestCase $ do
+  let m = museq' 5 [((0,6),"a"),((2,4),"b")]
+  -- arcIO' time0 tempoPeriod from to museq =
+  assertBool "arc 1" $ arc' 100 2  200 210  m ==
+    [((200,210),"a"),((204,208),"b")]
+  assertBool "arc 1" $ arc' 101 2  200 210  m ==
+    [((201,210),"a"),((205,209),"b")]
+  assertBool "arc 1" $ arc' 101 2  200 220  m ==
+    [((201,213),"a"),((205,209),"b")
+    ,((211,220),"a"),((215,219),"b")]
 
 testOverParams = TestCase $ do
   let m = museq 2 [ (0,("freq",100))

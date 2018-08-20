@@ -29,6 +29,7 @@ module Vivid.Jbb.Dispatch.Museq (
   , museqIsValid'
 
   , arc
+  , arc', arcIO'
   ) where
 
 import Control.Lens ((^.),(.~),(%~),_1,_2,over,view)
@@ -232,7 +233,10 @@ arc' time0 tempoPeriod from to m =
       toAbsoluteTime :: (RTime,RTime) -> (Time,Time)
       toAbsoluteTime (a,b) = (f a, f b) where
         f rt = fromRational rt * tempoPeriod + firstPhase0
-   in map (over _1 toAbsoluteTime) $ arcFold' 0 period rdv time0 from to m
+      chopEnds :: (Time,Time) -> (Time,Time)
+      chopEnds = over _2 $ min to
+   in map (over _1 $ chopEnds . toAbsoluteTime)
+      $ arcFold' 0 period rdv time0 from to m
 
 arcFold' :: forall a. Int -> Duration -> V.Vector RTime
   -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
@@ -255,9 +259,7 @@ arcFold' cycle period rdv time0 from to m =
            endIndex = lastIndexLTE compare' rdv (toInCycles * _sup' m) where
              compare' x y = if x < y then LT else GT -- to omit the endpoint
            eventsThisCycle = V.toList
-             $ V.map (over (_1._2) $ (min $ toInCycles * _sup' m) .
-                      (+(_sup' m * fromIntegral cycle))
-                     )
+             $ V.map (over (_1._2) (+(_sup' m * fromIntegral cycle)))
              $ V.map (over (_1._1) (+(_sup' m * fromIntegral cycle)))
              $ V.slice startIndex (endIndex-startIndex) $ _vec' m
        in eventsThisCycle
