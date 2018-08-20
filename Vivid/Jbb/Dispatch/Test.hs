@@ -21,6 +21,8 @@ tests = runTestTT $ TestList
   , TestLabel "testNextPhase0" testNextPhase0
   , TestLabel "museqIsValid" testMuseqIsValid
   , TestLabel "testAppend" testAppend
+  , TestLabel "testRep" testRep
+  , TestLabel "testRep'" testRep'
   , TestLabel "testStack" testStack
   , TestLabel "testRev" testRev
   , TestLabel "testRev'" testRev'
@@ -183,7 +185,7 @@ testAppend = TestCase $ do
       let m = museq 2 [(0,"a"), (1,"b"), (2+1/2,"a"), (3,"b"), (5,"b")]
       in m {_sup = 6}
 
--- | I'm not really sure what rotate should do.
+-- | I'm not really sure what rotate should do, so it's not in these tests.
 testRep = TestCase $ do
   let a = museq 6 [(0,"a")]
   assertBool "rep int" $ rep 2 a ==
@@ -191,9 +193,12 @@ testRep = TestCase $ do
   assertBool "rep fraction" $ rep (3/2) a ==
     L.set dur 9 (museq 6 [(0,"a")])
 
-  let b = museq 6 [(0,"a"),(3,"b")]
-  assertBool "rotate int" $ rotate 2 b ==
-    L.set dur 6 (museq 12 [(0,"a"),(6,"b")])
+testRep' = TestCase $ do
+  let a = museq' 6 [((0,7),"a")]
+  assertBool "rep int" $ rep' 2 a ==
+    L.set dur' 12 (museq' 6 [((0,7),"a")])
+  assertBool "rep fraction" $ rep' (3/2) a ==
+    L.set dur' 9 (museq' 6 [((0,7),"a")])
 
 testMuseqsDiff = TestCase $ do
   let msg = ("amp",1)

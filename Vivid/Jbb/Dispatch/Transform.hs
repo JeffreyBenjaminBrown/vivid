@@ -10,6 +10,7 @@ module Vivid.Jbb.Dispatch.Transform (
   , dense, sparse
   , dense', sparse'
   , rotate, rep
+  , rotate', rep'
 
   , overParams
   , switchParams
@@ -106,6 +107,10 @@ sparse' d m = let f = (*d)
 rotate, rep :: Rational -> Museq a -> Museq a -- the name `repeat` is taken
 rotate t = fast t . sparse t
 rep n = slow n . dense n
+
+rotate', rep' :: Rational -> Museq' a -> Museq' a -- name `repeat` is taken
+rotate' t = fast' t . sparse' t
+rep' n = slow' n . dense' n
 
 
 -- | = _ -> Museq Msg -> Museq Msg
