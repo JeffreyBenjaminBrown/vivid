@@ -1,3 +1,25 @@
+* better than HasStart: Museq has just a start, EMuseq has start and end
+** and both of them only use Rational time values in their events
+** and maybe then define a class to give access to the lenses into both, so that I can still write a bunch of Museq functions polymorphically
+-- | = For instance, below the lenses into `X` and `Y` are accessible polymorphically via `val`
+{-# LANGUAGE MultiParamTypeClasses
+           , FunctionalDependencies
+-#}
+
+data X = X {_x :: Float}
+makeLenses ''X
+
+data Y = Y {_y :: Int}
+makeLenses ''Y
+
+class HasVal x v | x -> v where
+  val :: Lens' x v
+
+instance HasVal X Float where
+  val = x
+
+instance HasVal Y Int where
+  val = y
 * *merge (multiplicative or additive (? per parameter))
 ** problem ! messages don't end
 *** an option: add a redundant end time to Museq events
