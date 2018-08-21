@@ -4,7 +4,6 @@
 ** ? consider mismatched durations, sups
 ** ? allow user to specify alternative strategies for particular parameters
 ** e.g. "merge these all with (\*), except merge amp with (+)"
-
 * the philosophical truth is also convenient to program
 ** all events have start and end times; sometimes they are equal
 ** => only one type, no typeclass

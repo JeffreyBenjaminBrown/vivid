@@ -1,6 +1,7 @@
 * *merge (see debating-endpoints.md)
-** museqIsValid: test that endpoints do not lead starts
+* museqIsValid: test that endpoints do not lead starts
 * use museqIsValid in join|transform tests
+** and test the new museqIsValid's extra clauses
 * rewriting DistribLoop
 ** maybe adding frameDuration to startRender is unnecessary.
 *** If so, adjust this function, and also replaceAll, chTempo, etc. -- maybe everything that calls getTime.

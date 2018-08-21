@@ -122,45 +122,10 @@ replaceAll disp masNew = do
 
   return ()
 
-replace' :: Dispatch' -> MuseqName -> Museq' Action -> IO ()
-replace' disp newName newMuseq = do
-  masOld <- readMVar $ mMuseqs' disp
-  replaceAll' disp $ M.insert newName newMuseq masOld
 
-replaceAll' :: Dispatch' -> M.Map MuseqName (Museq' Action) -> IO ()
-replaceAll' disp masNew = do
-  time0  <-      takeMVar $ mTime0'       disp
-  tempoPeriod <- takeMVar $ mTempoPeriod' disp
-  masOld <-      takeMVar $ mMuseqs'      disp
-  reg <-         takeMVar $ mReg'         disp
-  now <- unTimestamp <$> getTime
-
-  let when = nextPhase0 time0 frameDuration now + 2 * frameDuration
-        -- `when` = the start of the first not-yet-rendered frame
-      toFree, toCreate :: [(SynthDefEnum, SynthName)]
-      (toFree,toCreate) = museqsDiff' masOld masNew
-
-  newTransform  <- mapM (actNew  reg)      $ map (uncurry New)  toCreate
-  freeTransform <- mapM (actFree reg when) $ map (uncurry Free) toFree
-
-  putMVar (mTime0'       disp) time0       -- unchnaged
-  putMVar (mTempoPeriod' disp) tempoPeriod -- unchanged
-  putMVar (mMuseqs'      disp) masNew
-  putMVar (mReg'         disp) $ foldl (.) id newTransform reg
-
-  forkIO $ do wait $ when - now -- delete register's synths once it's safe
-              reg <-takeMVar $ mReg' disp
-              putMVar (mReg' disp) $ foldl (.) id freeTransform reg
-
-  return ()
-
-
--- | todo ? this `chTempoPeriod` does not offer melodic continuity
+-- TODO : this `chTempoPeriod` does not offer melodic continuity
 chTempoPeriod :: Dispatch -> Duration -> IO ()
 chTempoPeriod disp dur = swapMVar (mTempoPeriod disp) dur >> return ()
-
-chTempoPeriod' :: Dispatch' -> Duration -> IO ()
-chTempoPeriod' disp dur = swapMVar (mTempoPeriod' disp) dur >> return ()
 
 startDispatchLoop :: Dispatch -> IO ThreadId
 startDispatchLoop disp = do
@@ -180,9 +145,10 @@ dispatchLoop disp = do
 
   let np0 = nextPhase0 time0 frameDuration now
       startRender = np0 + frameDuration
-      evs = concatMap f $ M.elems museqsMap :: [(Time,Action)] where
-        f :: Museq a -> [(Time, a)]
-        f = arc time0 tempoPeriod startRender $ startRender + frameDuration
+      evs = concatMap f $ M.elems museqsMap :: [(Time, Action)] where
+        f :: Museq Action -> [(Time, Action)]
+        f m = map (over _1 fst)  -- to send a message, ignore end time
+          $ arc time0 tempoPeriod startRender (startRender + frameDuration) m
 
   mapM_ (uncurry $ actSend reg) evs
 
@@ -193,38 +159,5 @@ dispatchLoop disp = do
 
   wait $ np0 - now
   dispatchLoop disp
-
-startDispatchLoop' :: Dispatch' -> IO ThreadId
-startDispatchLoop' disp = do
-  tryTakeMVar $ mTime0' disp -- empty it, just in case
-  (+(frameDuration * (-0.8))) . unTimestamp <$> getTime
-    -- subtract nearly an entire frameDuration so it starts sooner
-    >>= putMVar (mTime0' disp)
-  forkIO $ dispatchLoop' disp
-
-dispatchLoop' :: Dispatch' -> IO ()
-dispatchLoop' disp = do
-  time0  <-      takeMVar $ mTime0'       disp
-  tempoPeriod <- takeMVar $ mTempoPeriod' disp
-  museqsMap <-   takeMVar $ mMuseqs'      disp
-  reg <-         takeMVar $ mReg'         disp
-  now <- unTimestamp <$> getTime
-
-  let np0 = nextPhase0 time0 frameDuration now
-      startRender = np0 + frameDuration
-      evs = concatMap f $ M.elems museqsMap :: [(Time, Action)] where
-        f :: Museq' Action -> [(Time, Action)]
-        f m = map (over _1 fst)  -- to send a message, ignore end time
-          $ arc' time0 tempoPeriod startRender (startRender + frameDuration) m
-
-  mapM_ (uncurry $ actSend reg) evs
-
-  putMVar (mTime0'       disp) time0
-  putMVar (mTempoPeriod' disp) tempoPeriod
-  putMVar (mMuseqs'      disp) museqsMap
-  putMVar (mReg'         disp) reg
-
-  wait $ np0 - now
-  dispatchLoop' disp
 
 showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs

@@ -13,13 +13,10 @@ module Vivid.Jbb.Dispatch.Types (
   , Msg, Msg'(..)
   , Action(..), actionSynth
   , Museq(..), dur, sup, vec
-  , emptyMuseq, museq
-  , Museq'(..), dur', sup', vec'
-  , emptyMuseq', museq', museq''
+  , emptyMuseq, museq, museq'
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
   , Dispatch(..), newDispatch
-  , Dispatch'(..), newDispatch'
   ) where
 
 import Control.Concurrent.MVar
@@ -29,7 +26,6 @@ import qualified Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
 
-import Vivid.Jbb.Dispatch.HasStart
 import Vivid
 import Vivid.Jbb.Synths
 
@@ -86,7 +82,7 @@ data Museq a = Museq {
     -- through different sections of the `vec` each time it plays.
     -- If less than `dur`, the `Museq` will play the entire `vec` more than
     -- once each time it plays.
-  , _vec :: V.Vector (RTime, a) }
+  , _vec :: V.Vector ((RTime,RTime), a) }
   deriving (Show,Eq)
 
 makeLenses ''Museq
@@ -97,34 +93,13 @@ instance Functor Museq where
 emptyMuseq :: Museq a
 emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 
-museq :: RelDuration -> [(RTime,a)] -> Museq a
+museq :: RelDuration -> [((RTime,RTime),a)] -> Museq a
 museq d tas = Museq {_dur = d, _sup = d, _vec = V.fromList tas}
 
-data Museq' a = Museq' {
-  _dur' :: RelDuration -- ^ the play duration of the loop
-  , _sup' :: RelDuration -- ^ the supremum of the possible RTime values
-    -- in `_vec`. If this is greater than `dur`, the `Museq`will rotate
-    -- through different sections of the `vec` each time it plays.
-    -- If less than `dur`, the `Museq` will play the entire `vec` more than
-    -- once each time it plays.
-  , _vec' :: V.Vector ((RTime,RTime), a) }
-  deriving (Show,Eq)
-
-makeLenses ''Museq'
-
-instance Functor Museq' where
-  fmap = over vec' . V.map . over _2
-
-emptyMuseq' :: Museq' a
-emptyMuseq' = Museq' { _dur' = 1, _sup' = 1, _vec' = V.empty }
-
-museq' :: RelDuration -> [((RTime,RTime),a)] -> Museq' a
-museq' d tas = Museq' {_dur' = d, _sup' = d, _vec' = V.fromList tas}
-
--- | When the events of a Museq' are all duration 0, museq''
+-- | When the events of a Museq are all duration 0, museq'
 -- lets you simply write t instead of (t,t) for the start and end times.
-museq'' :: RelDuration -> [(RTime,a)] -> Museq' a
-museq'' d tas = Museq' {_dur' = d, _sup' = d, _vec' = V.fromList $ map f tas}
+museq' :: RelDuration -> [(RTime,a)] -> Museq a
+museq' d tas = Museq {_dur = d, _sup = d, _vec = V.fromList $ map f tas}
   where f (t,val) = ((t,t),val)
 
 
@@ -158,22 +133,4 @@ newDispatch = do
   mTempoPeriod <- newMVar 1
   return Dispatch
     { mMuseqs = mTimeMuseqs,  mReg    = reg
-    , mTime0      = mTime0     ,  mTempoPeriod = mTempoPeriod }
-
-data Dispatch' = Dispatch' {
-  mMuseqs' :: MVar (M.Map MuseqName (Museq' Action))
-  , mReg' :: MVar SynthRegister
-  , mTime0' :: MVar Time
-  , mTempoPeriod' :: MVar Duration
-  }
-
--- | "new" because it's not really empty, except for `time0`
-newDispatch' :: IO Dispatch'
-newDispatch' = do
-  mTimeMuseqs <- newMVar M.empty
-  reg <- newMVar emptySynthRegister
-  mTime0 <- newEmptyMVar
-  mTempoPeriod <- newMVar 1
-  return Dispatch'
-    { mMuseqs' = mTimeMuseqs,  mReg'    = reg
-    , mTime0'  = mTime0     ,  mTempoPeriod' = mTempoPeriod }
+    , mTime0  = mTime0     ,  mTempoPeriod = mTempoPeriod }
