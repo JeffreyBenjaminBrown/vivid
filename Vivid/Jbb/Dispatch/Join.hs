@@ -9,6 +9,8 @@ module Vivid.Jbb.Dispatch.Join (
   -- | backend
   , explicitReps
   , unsafeExplicitReps
+  , explicitReps'
+  , unsafeExplicitReps'
   ) where
 
 import Control.Lens (over, _1)
@@ -105,4 +107,30 @@ unsafeExplicitReps totalDuration m =
       reps = divideAtMaxima fst [fromIntegral i * _dur m
                                 | i <- [1..durs]] concatted
         :: [V.Vector (RTime,a)]
+  in reps
+
+explicitReps' :: forall a. Museq' a -> [V.Vector ((RTime,RTime),a)]
+explicitReps' m = unsafeExplicitReps' (timeToPlayThrough' m) m
+
+unsafeExplicitReps' :: forall a.
+  RTime -> Museq' a -> [V.Vector ((RTime,RTime),a)]
+unsafeExplicitReps' totalDuration m =
+  let sups = round $ totalDuration / (_sup' m)
+        -- It takes a duration equal to this many multiples of _sup m
+        -- for m to finish at phase 0.
+        -- It's already an integer; `round` is just to prove that to GHC.
+      durs = round $ totalDuration / (_dur' m)
+      indexed = zip [0..sups-1]
+        $ repeat $ _vec' m :: [(Int,V.Vector ((RTime,RTime),a))]
+      adjustTimes :: (Int,V.Vector ((RTime,RTime),a))
+                  ->      V.Vector ((RTime,RTime),a)
+      adjustTimes (idx,v) = V.map f v where
+        f = over _1 (\(x,y) -> (f x, f y)) where
+          f = (+) $ fromIntegral idx * _sup' m
+      spread = V.concat $ map adjustTimes indexed
+        :: V.Vector ((RTime,RTime),a)
+        -- the times in `spread` range from 0 to `timeToRepeat m`
+      maixima = [fromIntegral i * _dur' m | i <- [1..durs]]
+      reps = divideAtMaxima (fst . fst) maixima spread
+        :: [V.Vector ((RTime,RTime),a)]
   in reps

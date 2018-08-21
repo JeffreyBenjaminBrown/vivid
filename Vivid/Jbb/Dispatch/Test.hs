@@ -33,6 +33,7 @@ tests = runTestTT $ TestList
   , TestLabel "testDenseAndSparse" testDenseAndSparse
   , TestLabel "testDenseAndSparse'" testDenseAndSparse'
   , TestLabel "testExplicitReps" testExplicitReps
+  , TestLabel "testExplicitReps'" testExplicitReps'
   , TestLabel "testMuseqsDiff" testMuseqsDiff
   , TestLabel "testArc" testArc
   , TestLabel "testArc'" testArc'
@@ -169,6 +170,25 @@ testExplicitReps = TestCase $ do
      , V.fromList [(20,())]
      , V.fromList [(21,())]
      ]
+
+testExplicitReps' = TestCase $ do
+  let y = Museq' {_dur' = 3, _sup' = 4, _vec' = V.fromList [((0,3),()), ((1,1),())]}
+  assertBool "explicitReps" $ explicitReps' y ==
+    [ V.fromList [((0,3),()), ((1,1),())]
+    , V.fromList [((4,7),()), ((5,5),())] -- starts at 3
+    , V.fromList [((8,11),())]         -- starts at 6
+    , V.fromList [((9,9),())]         -- starts at 9
+    ]
+  assertBool "unsafeExplicitReps" $ unsafeExplicitReps' 24 y ==
+    [ V.fromList [((0,3),()), ((1,1),())]
+    , V.fromList [((4,7),()), ((5,5),())]
+    , V.fromList [((8,11),())]
+    , V.fromList [((9,9),())]
+    , V.fromList [((12,15),()), ((13,13),())]
+    , V.fromList [((16,19),()), ((17,17),())]
+    , V.fromList [((20,23),())]
+    , V.fromList [((21,21),())]
+    ]
 
 testAppend = TestCase $ do
     let a = museq 1 [(0,"a")]
