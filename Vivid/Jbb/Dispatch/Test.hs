@@ -21,6 +21,7 @@ tests = runTestTT $ TestList
   , TestLabel "testNextPhase0" testNextPhase0
   , TestLabel "museqIsValid" testMuseqIsValid
   , TestLabel "testAppend" testAppend
+  , TestLabel "testAppend'" testAppend'
   , TestLabel "testRep" testRep
   , TestLabel "testRep'" testRep'
   , TestLabel "testStack" testStack
@@ -227,6 +228,24 @@ testAppend = TestCase $ do
     assertBool "testAppend" $ append a32 b ==
       let m = museq 2 [(0,"a"), (1,"b"), (2+1/2,"a"), (3,"b"), (5,"b")]
       in m {_sup = 6}
+
+testAppend' = TestCase $ do
+    let a = museq' 1 [((0,1),"a")]
+        a2  = a {_sup' = 2}
+        a12 = a {_sup' = 1%2}
+        a32 = a {_sup' = 3%2}
+        b = museq' 1 [((0,0),"b")]
+    assertBool "testAppend" $ append' a b ==
+      museq' 2 [((0,1),"a"),((1,1),"b")]
+    assertBool "testAppend" $ append' a2 b ==
+      let m = museq' 2 [((0,1),"a"),((1,1),"b"),((3,3),"b")]
+      in m {_sup' = 4}
+    assertBool "testAppend" $ append' a12 b ==
+      museq' 2 [((0,1),"a"),((1%2,3%2),"a"),((1,1),"b")]
+    assertBool "testAppend" $ append' a32 b ==
+      let m = museq' 2 [((0,1),"a"), ((1,1),"b"), ((2+1/2,3+1/2),"a")
+                       , ((3,3),"b"), ((5,5),"b")]
+      in m {_sup' = 6}
 
 -- | I'm not really sure what rotate should do, so it's not in these tests.
 testRep = TestCase $ do
