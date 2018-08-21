@@ -15,7 +15,7 @@ module Vivid.Jbb.Dispatch.Types (
   , Museq(..), dur, sup, vec
   , emptyMuseq, museq
   , Museq'(..), dur', sup', vec'
-  , emptyMuseq', museq'
+  , emptyMuseq', museq', museq''
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
   , Dispatch(..), newDispatch
@@ -25,7 +25,7 @@ module Vivid.Jbb.Dispatch.Types (
 import Control.Concurrent.MVar
 import Control.DeepSeq
 import Control.Lens (makeLenses, over, _2)
-import Data.Map as M
+import qualified Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
 
@@ -120,6 +120,12 @@ emptyMuseq' = Museq' { _dur' = 1, _sup' = 1, _vec' = V.empty }
 
 museq' :: RelDuration -> [((RTime,RTime),a)] -> Museq' a
 museq' d tas = Museq' {_dur' = d, _sup' = d, _vec' = V.fromList tas}
+
+-- | When the events of a Museq' are all duration 0, museq''
+-- lets you simply write t instead of (t,t) for the start and end times.
+museq'' :: RelDuration -> [(RTime,a)] -> Museq' a
+museq'' d tas = Museq' {_dur' = d, _sup' = d, _vec' = V.fromList $ map f tas}
+  where f (t,val) = ((t,t),val)
 
 
 -- | The global state
