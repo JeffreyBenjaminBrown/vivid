@@ -24,6 +24,7 @@ tests = runTestTT $ TestList
   , TestLabel "testRep" testRep
   , TestLabel "testRep'" testRep'
   , TestLabel "testStack" testStack
+  , TestLabel "testStack'" testStack'
   , TestLabel "testRev" testRev
   , TestLabel "testRev'" testRev'
   , TestLabel "testEarlyAndLate" testEarlyAndLate
@@ -84,6 +85,28 @@ testStack = TestCase $ do
                           ,(1,"y")
                           ,(1,"z")
                           ,(2,"y") ] )
+
+testStack' = TestCase $ do
+  let y = museq' 2 [((0,3),"y")]
+      z = museq' 3 [((1,2),"z")]
+  assertBool "stack" $ stack' y z ==
+    L.set dur' (_dur' y) ( museq' 6 [((0,3),"y")
+                                    ,((1,2),"z")
+                                    ,((2,5),"y")
+                                    ,((4,5),"z")
+                                    ,((4,7),"y") ] )
+  assertBool "stack" $ stack' (L.set dur' 1 y) z ==
+    L.set dur' 1 ( museq' 6 [((0,3),"y")
+                            ,((1,2),"z")
+                            ,((2,5),"y")
+                            ,((4,5),"z")
+                            ,((4,7),"y") ] )
+  assertBool "stack, where timeToRepeat differs from timeToPlayThrough"
+    $ stack' (L.set sup' 1 y) z ==
+    L.set dur' 2 ( museq' 3 [((0,3),"y")
+                            ,((1,2),"z")
+                            ,((1,4),"y")
+                            ,((2,5),"y") ] )
 
 testRev = TestCase $ do
   let a = museq 2 [(0,"a")

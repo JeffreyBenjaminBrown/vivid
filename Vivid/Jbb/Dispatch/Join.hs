@@ -5,6 +5,7 @@ module Vivid.Jbb.Dispatch.Join (
   append
   , cat
   , stack
+  , stack'
 
   -- | backend
   , explicitReps
@@ -68,7 +69,15 @@ stack x y = let t = timeForBothToRepeat x y
                        , _sup = t
                        , _vec = V.concat $ xs ++ ys}
 
---merge :: (a -> a) -> Museq a -> Museq a -> Museq a
+stack' :: Museq' a -> Museq' a -> Museq' a
+stack' x y = let t = timeForBothToRepeat' x y
+                 xs = unsafeExplicitReps' t x
+                 ys = unsafeExplicitReps' t y
+  in sortMuseq' $ Museq' {_dur' = _dur' x
+                         , _sup' = t
+                         , _vec' = V.concat $ xs ++ ys}
+
+--merge :: (a -> a) -> Museq a -> Museq a -> Museq a -- TODO
 --merge op x y = let let t = timeForBothToRepeat x y
 --                       xs = concat $ unsafeExplicitReps t x
 --                       ys = concat $ unsafeExplicitReps t y
@@ -78,6 +87,9 @@ stack x y = let t = timeForBothToRepeat x y
 
 timeForBothToRepeat :: Museq a -> Museq a -> RTime
 timeForBothToRepeat x y = lcmRatios (timeToRepeat x) (timeToRepeat y)
+
+timeForBothToRepeat' :: Museq' a -> Museq' a -> RTime
+timeForBothToRepeat' x y = lcmRatios (timeToRepeat' x) (timeToRepeat' y)
 
 -- | if L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
