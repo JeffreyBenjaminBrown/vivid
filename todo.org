@@ -1,4 +1,4 @@
-* problem ! arc' (a,b) won't notice events that started before a
+* problem ! arc (a,b) won't notice events that started before a
 * architecture mysteries
 ** Museq Action vs. Museq Msg
 *** should separate(not part of the same GHC-evaluated expression) Museqs control the same synth?
