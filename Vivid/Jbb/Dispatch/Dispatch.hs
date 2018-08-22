@@ -122,10 +122,25 @@ replaceAll disp masNew = do
 
   return ()
 
-
 -- TODO : this `chTempoPeriod` does not offer melodic continuity
 chTempoPeriod :: Dispatch -> Duration -> IO ()
 chTempoPeriod disp dur = swapMVar (mTempoPeriod disp) dur >> return ()
+
+-- TODO : this `chTempoPeriod` would offer melodic continuity, but it's buggy
+chTempoPeriod' :: Dispatch -> Duration -> IO ()
+chTempoPeriod' disp newTempoPeriod = do
+  time0       <- takeMVar $ mTime0       disp
+  tempoPeriod <- takeMVar $ mTempoPeriod disp
+  now         <- unTimestamp <$> getTime
+  let np0 = nextPhase0 time0 frameDuration now
+      startRender = np0 + 2 * frameDuration
+        -- np0 and startRender are defined similar to dispatchLoop,
+        -- EXCEPT: multiply frameDuration by 2, because np0 is one period less
+        -- than it will be the next time dispatchLoop runs
+      startRenderInCycles = (startRender - time0) / tempoPeriod
+      newTime0 = startRender - startRenderInCycles * newTempoPeriod
+  putMVar (mTempoPeriod disp) newTempoPeriod
+  putMVar (mTime0       disp) newTime0
 
 startDispatchLoop :: Dispatch -> IO ThreadId
 startDispatchLoop disp = do
@@ -147,7 +162,7 @@ dispatchLoop disp = do
       startRender = np0 + frameDuration
       evs = concatMap f $ M.elems museqsMap :: [(Time, Action)] where
         f :: Museq Action -> [(Time, Action)]
-        f m = map (over _1 fst)  -- to send a message, ignore end time
+        f m = map (over _1 fst)  -- use `fst` to ignore message's end time
           $ arc time0 tempoPeriod startRender (startRender + frameDuration) m
 
   mapM_ (uncurry $ actSend reg) evs
