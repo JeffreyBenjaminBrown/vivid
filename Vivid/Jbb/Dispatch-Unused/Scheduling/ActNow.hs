@@ -34,8 +34,8 @@ findNextEvents time0 tempoPeriod now museq =
       pp0 = prevPhase0 time0 period now
       relNow = toRational $ (now - pp0) / period
       vecLen = V.length $ _vec museq
-      uv = _vec $ const () <$> museq :: V.Vector (RelDuration,())
-      compare' :: (RelDuration, a) -> (RelDuration, a) -> Ordering
+      uv = _vec $ const () <$> museq :: V.Vector (RDuration,())
+      compare' :: (RDuration, a) -> (RDuration, a) -> Ordering
       compare' ve ve' = compare (fst ve) (fst ve')
       startOrOOB = firstIndexGTE  compare' uv (relNow, ())
       start = if startOrOOB < vecLen then startOrOOB else 0

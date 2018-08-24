@@ -48,39 +48,45 @@ actNew _ (Free _ _)   = error $ "actNew received a Free."
 actFree :: SynthRegister -> Time -> Action
          -> IO (SynthRegister -> SynthRegister)
 actFree reg when (Free Boop name) = case M.lookup name $ _boops reg of
-  Nothing -> do writeTimeAndError
-                  $ "There is no Boop named " ++ name ++ "to free."
-                return id
-  Just s -> do doScheduledAt (Timestamp when) $ set' s $ Msg' (0 :: I "amp")
-               doScheduledAt (Timestamp $ when + frameDuration / 2) $ free s
-               return $ over boops $ M.delete name
+  Nothing -> do
+    writeTimeAndError $ "There is no Boop named " ++ name ++ "to free."
+    return id
+  Just s -> let fr = fromRational in
+    do doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
+       doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
+       return $ over boops $ M.delete name
 actFree reg when (Free Vap name) = case M.lookup name $ _vaps reg of
-  Nothing -> do writeTimeAndError
-                  $ "There is no Vap named " ++ name ++ "to free."
-                return id
-  Just s -> do doScheduledAt (Timestamp when) $ set' s $ Msg' (0 :: I "amp")
-               doScheduledAt (Timestamp $ when + frameDuration / 2) $ free s
-               return $ over vaps $ M.delete name
+  Nothing -> do
+    writeTimeAndError $ "There is no Vap named " ++ name ++ "to free."
+    return id
+  Just s -> let fr = fromRational in
+    do doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
+       doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
+       return $ over vaps $ M.delete name
 actFree reg when (Free Sqfm name) = case M.lookup name $ _sqfms reg of
-  Nothing -> do writeTimeAndError
-                  $ "There is no Sqfm named " ++ name ++ "to free."
-                return id
-  Just s -> do doScheduledAt (Timestamp when) $ set' s $ Msg' (0 :: I "amp")
-               doScheduledAt (Timestamp $ when + frameDuration / 2) $ free s
-               return $ over sqfms $ M.delete name
+  Nothing -> do
+    writeTimeAndError $ "There is no Sqfm named " ++ name ++ "to free."
+    return id
+  Just s -> let fr = fromRational in
+    do doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
+       doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
+       return $ over sqfms $ M.delete name
 actFree _ _ (Send _ _ _) = error "actFree received a Send."
 actFree _ _ (New _ _)    = error "actFree received a New."
 
 actSend :: SynthRegister -> Time -> Action -> IO ()
 actSend reg when (Send Boop name msg) = case M.lookup name $ _boops reg of
   Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
-  Just synth -> doScheduledAt (Timestamp when) $ set' synth $ boopMsg msg
+  Just synth -> doScheduledAt (Timestamp $ fromRational when)
+    $ set' synth $ boopMsg msg
 actSend reg when (Send Vap name msg) = case M.lookup name $ _vaps reg of
   Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
-  Just synth -> doScheduledAt (Timestamp when) $ set' synth $ vapMsg msg
+  Just synth -> doScheduledAt (Timestamp $ fromRational when)
+    $ set' synth $ vapMsg msg
 actSend reg when (Send Sqfm name msg) = case M.lookup name $ _sqfms reg of
   Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
-  Just synth -> doScheduledAt (Timestamp when) $ set' synth $ sqfmMsg msg
+  Just synth -> doScheduledAt (Timestamp $ fromRational when)
+    $ set' synth $ sqfmMsg msg
 actSend _ _ (Free _ _) = error "actFree received a Send."
 actSend _ _ (New _ _)  = error "actFree received a New."
 
@@ -172,7 +178,7 @@ dispatchLoop disp = do
   putMVar (mMuseqs      disp) museqsMap
   putMVar (mReg         disp) reg
 
-  wait $ np0 - now
+  wait $ fromRational np0 - now
   dispatchLoop disp
 
 showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs

@@ -57,10 +57,9 @@ library
     , Vivid.Jbb.Dispatch.Join
     , Vivid.Jbb.Dispatch.Msg
     , Vivid.Jbb.Dispatch.Museq
-    , Vivid.Jbb.Dispatch.Test
-    , Vivid.Jbb.Dispatch.TestScheduling
+    , Vivid.Jbb.Dispatch.Test.Auto
+    , Vivid.Jbb.Dispatch.Test.Scheduling_and_CSV
     , Vivid.Jbb.Dispatch.Transform
-    , Vivid.Jbb.Dispatch.TestScheduling
     , Vivid.Jbb.Dispatch.Types
     , Vivid.Jbb.Random.MentionsSig
     , Vivid.Jbb.Random.RandomSignal

@@ -143,11 +143,14 @@ arcFold cycle period rdv time0 from to m =
     toInCycles   = toRational $ (to   - pp0) / period
     startOrOOBIndex = firstIndexGTE compare rdv (fromInCycles * _sup m)
   in if startOrOOBIndex >= V.length rdv
-     then let nextFrom = if pp0 + period > from
-          -- If from = pp0 + period - epsilon, maybe pp0 + period <= from.
-                then pp0 + period -- Thus floating point error makes this
-                else pp0 + 2*period -- else statement necessary.
-          in arcFold (cycle+1) period rdv time0 nextFrom to m
+--     then let nextFrom = if pp0 + period > from
+-- -- If `from = pp0 + period - epsilon`, maybe `pp0 + period <= from`.
+-- -- Thus floating point error used to make this if-then statement necessary
+-- -- Now that all times are Rational, it's probably unnecessary.
+--                         then pp0 + period
+--                         else pp0 + 2*period
+--          in arcFold (cycle+1) period rdv time0 nextFrom to m
+     then arcFold (cycle+1) period rdv time0 (pp0 + period) to m
      else
        let startIndex = startOrOOBIndex
            endIndex = lastIndexLTE compare' rdv (toInCycles * _sup m) where

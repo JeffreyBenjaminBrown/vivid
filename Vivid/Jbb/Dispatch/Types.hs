@@ -9,7 +9,7 @@
 
 module Vivid.Jbb.Dispatch.Types (
   SynthName, ParamName, MuseqName
-  , Time, Duration, RTime, RDuration, RelDuration, unTimestamp
+  , Time, Duration, RTime, RDuration, unTimestamp
   , Msg, Msg'(..)
   , Action(..), actionSynth
   , Museq(..), dur, sup, vec
@@ -39,20 +39,16 @@ type SynthName = String
 type MuseqName = String
 
 
--- | = Time
+-- | = Time. Some durations are relative to something,
+-- e.g. the global cycle duration.
 
-type Time = Double
-type Duration = Double
-
+type Time = Rational
+type Duration = Rational
 type RTime = Rational
 type RDuration = Rational
 
-type RelDuration = Rational
-  -- ^ Some durations are expressed relative to the global cycle duration.
-  -- (An "R" prefix here would be redundant.)
-
-unTimestamp :: Timestamp -> Double
-unTimestamp (Timestamp x) = x
+unTimestamp :: Timestamp -> Time
+unTimestamp (Timestamp x) = toRational x
 
 
 -- | = Instructions
@@ -76,8 +72,8 @@ actionSynth (Free s n  ) = (s,n)
 actionSynth (Send s n _) = (s,n)
 
 data Museq a = Museq {
-  _dur :: RelDuration -- ^ the play duration of the loop
-  , _sup :: RelDuration -- ^ the supremum of the possible RTime values
+  _dur :: RDuration -- ^ the play duration of the loop
+  , _sup :: RDuration -- ^ the supremum of the possible RTime values
     -- in `_vec`. If this is greater than `dur`, the `Museq`will rotate
     -- through different sections of the `vec` each time it plays.
     -- If less than `dur`, the `Museq` will play the entire `vec` more than
@@ -93,12 +89,12 @@ instance Functor Museq where
 emptyMuseq :: Museq a
 emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 
-museq :: RelDuration -> [((RTime,RTime),a)] -> Museq a
+museq :: RDuration -> [((RTime,RTime),a)] -> Museq a
 museq d tas = Museq {_dur = d, _sup = d, _vec = V.fromList tas}
 
 -- | When the events of a Museq are all duration 0, museq'
 -- lets you simply write t instead of (t,t) for the start and end times.
-museq' :: RelDuration -> [(RTime,a)] -> Museq a
+museq' :: RDuration -> [(RTime,a)] -> Museq a
 museq' d tas = Museq {_dur = d, _sup = d, _vec = V.fromList $ map f tas}
   where f (t,val) = ((t,t),val)
 

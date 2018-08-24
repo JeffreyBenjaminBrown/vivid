@@ -1,4 +1,4 @@
-module Vivid.Jbb.Dispatch.Test where
+module Vivid.Jbb.Dispatch.Test.Auto where
 
 import Control.Concurrent.MVar
 import qualified Control.Lens as L
