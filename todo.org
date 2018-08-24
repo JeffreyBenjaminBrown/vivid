@@ -1,3 +1,4 @@
+* bug ! melodies get mangled if tempo is near 1 but not 1
 * problem ! arc (a,b) won't notice events that started before a
 * architecture mysteries
 ** Museq Action vs. Museq Msg

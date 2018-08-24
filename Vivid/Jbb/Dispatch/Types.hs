@@ -128,9 +128,9 @@ data Dispatch = Dispatch {
 newDispatch :: IO Dispatch
 newDispatch = do
   mTimeMuseqs <- newMVar M.empty
-  reg <- newMVar emptySynthRegister
+  mReg <- newMVar emptySynthRegister
   mTime0 <- newEmptyMVar
   mTempoPeriod <- newMVar 1
   return Dispatch
-    { mMuseqs = mTimeMuseqs,  mReg    = reg
+    { mMuseqs = mTimeMuseqs,  mReg    = mReg
     , mTime0  = mTime0     ,  mTempoPeriod = mTempoPeriod }
