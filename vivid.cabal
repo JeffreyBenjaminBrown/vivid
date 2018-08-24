@@ -59,6 +59,7 @@ library
     , Vivid.Jbb.Dispatch.Museq
     , Vivid.Jbb.Dispatch.Test
     , Vivid.Jbb.Dispatch.Transform
+    , Vivid.Jbb.Dispatch.TestScheduling
     , Vivid.Jbb.Dispatch.Types
     , Vivid.Jbb.Random.MentionsSig
     , Vivid.Jbb.Random.RandomSignal
@@ -288,12 +289,14 @@ library
     , vivid-supercollider
 
     -- jbb added
+    , cassava
     , deepseq
     , HUnit
     , lens
     , megaparsec
     , mwc-random
     , parser-combinators
+    , split
     , random-fu
     -- , Unique -- can't, for some reason; stack won't build it
     , vector
