@@ -58,6 +58,7 @@ library
     , Vivid.Jbb.Dispatch.Msg
     , Vivid.Jbb.Dispatch.Museq
     , Vivid.Jbb.Dispatch.Test
+    , Vivid.Jbb.Dispatch.TestScheduling
     , Vivid.Jbb.Dispatch.Transform
     , Vivid.Jbb.Dispatch.TestScheduling
     , Vivid.Jbb.Dispatch.Types

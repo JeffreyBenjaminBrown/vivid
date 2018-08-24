@@ -21,11 +21,14 @@ m = museq 5 [((0,6),"a"),((2,4),"b")]
 
 show' things = forM things $ putStrLn . show
 
-arcTest1 = show' $ arc 0   0.99 0   10  m
-arcTest2 = show' $ arc 100 0.99 100 110 m
-arcTest3 = show' $ arc 0   1.01 0   10  m
-arcTest4 = show' $ arc 100 1.01 100 110 m -- TODO BUG
+arcTest1 = arcIO 0   0.99 0   10  m
+arcTest2 = arcIO 100 0.99 100 110 m
+arcTest3 = arcIO 0   1.01 0   10  m
+arcTest4 = arcIO 100 1.01 100 110 m -- TODO BUG
+  -- The bug: Again, floating point error:
+  -- pp0 is sometimes off by one.
 
+firstIndexGTE compare (V.fromList [0,2]) 5
 
 testChTempoPeriod :: Dispatch -> Duration -> IO Frame
 testChTempoPeriod disp newTempoPeriod = do
