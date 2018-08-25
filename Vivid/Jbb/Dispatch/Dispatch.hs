@@ -155,6 +155,9 @@ mapChTempoPeriod disp newTempoPeriod = do
 mapStartDispatchLoop :: MapDispatch -> IO ThreadId
 mapStartDispatchLoop disp = do
   tryTakeMVar $ mapMTime0 disp -- empty it, just in case
+  mbTempo <- tryReadMVar $ mapMTempoPeriod disp
+  maybe (putMVar (mapMTempoPeriod disp) 1) (const $ return ()) mbTempo
+  
   (+(frameDuration * (-0.8))) . unTimestamp <$> getTime
     -- subtract nearly an entire frameDuration so it starts sooner
     >>= putMVar (mapMTime0 disp)

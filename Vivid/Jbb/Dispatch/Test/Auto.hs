@@ -30,6 +30,7 @@ tests = runTestTT $ TestList
   , TestLabel "testDenseAndSparse" testDenseAndSparse
   , TestLabel "testExplicitReps" testExplicitReps
   , TestLabel "testMuseqsDiff" testMuseqsDiff
+  , TestLabel "testMapMuseqsDiff" testMapMuseqsDiff
   , TestLabel "testArc" testArc
   , TestLabel "testOverParams" testOverParams
   , TestLabel "testBoundaries" testBoundaries
@@ -176,6 +177,25 @@ testMuseqsDiff = TestCase $ do
                                                  , (Vap ,"2") ]
                                                , [ (Boop,"1") ]
                                                )
+
+testMapMuseqsDiff = TestCase $ do
+  let msg = M.singleton "amp" 1
+      m1 = M.fromList [("a", museq' 10 [(0, MapSend Boop "1" msg )])
+                      ,("b", museq' 15 [(0, MapSend Boop "1" msg)
+                                       ,(10,MapSend Boop "2" msg)
+                                      ] ) ]
+      m2 = M.fromList [("a", museq' 10 [(0, MapSend Vap "2" msg)])
+                      ,("b", museq' 15 [(0, MapSend Boop "2" msg)
+                                       ,(10,MapSend Boop "3" msg)
+                                      ] ) ]
+  assertBool "museqDiff" $ mapMuseqsDiff m1 m2 == ( [ (Boop,"1") ]
+                                                  , [ (Boop,"3")
+                                                    , (Vap ,"2")
+                                                    ] )
+  assertBool "museqDiff" $ mapMuseqsDiff m2 m1 == ( [ (Boop,"3")
+                                                    , (Vap ,"2") ]
+                                                  , [ (Boop,"1") ]
+                                                  )
 
 testArc = TestCase $ do
   let m = museq 5 [((0,6),"a"),((2,4),"b")]

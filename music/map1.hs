@@ -11,8 +11,7 @@ a3 = fast 2 $ early (1/4)
              , (0.5, MapSend Boop "3" $ M.singleton "amp" 0 ) ]
 
 disp <- mapNewDispatch
-swapMVar (mapMMuseqs disp) $ M.fromList [ ("1",fast 11 a1), ("2",fast 2 a3)]
-swapMVar (mapMTempoPeriod disp) 2
+-- swapMVar (mapMTempoPeriod disp) 2
 
 s <- synth boop ()
 t <- synth boop ()
