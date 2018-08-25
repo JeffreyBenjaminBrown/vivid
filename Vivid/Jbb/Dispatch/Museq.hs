@@ -21,6 +21,7 @@ where
 
 import Control.Lens ((^.),(.~),(%~),_1,_2,over,view)
 import Control.Monad.ST
+import Data.Fixed (div')
 import Data.List ((\\))
 import qualified Data.Map as M
 import qualified Data.Vector as V
@@ -130,20 +131,24 @@ arc :: forall a. Time -> Duration -> Time -> Time
 arc time0 tempoPeriod from to m =
   let period = tempoPeriod * tr (_sup m) :: Duration
       rdv = V.map (fst . fst) $ _vec $ const () <$> m :: V.Vector RTime
-      firstPhase0 = prevPhase0 time0 period from :: Time
-      earlierFrom = tr (longestDur m) * tempoPeriod :: Time
-      firstCycle = - floor (earlierFrom / period) :: Int
+      latestPhase0 = prevPhase0 time0 period from :: Time
+        -- it would be natural to start here, but long events from
+        -- earlier cycles could carry into now, so we must back up
+      earlierFrom = latestPhase0 - tr (longestDur m) * tempoPeriod :: Time
+      oldestRelevantCycle = div' (earlierFrom - latestPhase0) period :: Int
       toAbsoluteTime :: (RTime,RTime) -> (Time,Time)
       toAbsoluteTime (a,b) = (f a, f b) where
-        f rt = tr rt * tempoPeriod + firstPhase0
+        f rt = tr rt * tempoPeriod + latestPhase0
       chopStarts :: (Time,Time) -> (Time,Time)
       chopStarts = over _1 $ max from
       chopEnds :: (Time,Time) -> (Time,Time)
       chopEnds = over _2 $ min to
-   in map (over _1 $ chopEnds . chopStarts . toAbsoluteTime)
-      $ arcFold 0 period rdv time0 from to m
-      -- TODO : once arc looks backward, replace prev line with next
-      -- $ arcFold firstCycle period rdv time0 earlierFrom to m
+      dropImpossibles :: [((Time,Time),a)] -> [((Time,Time),a)]
+        -- Because chopStarts can leave an old event starting after it ended.
+      dropImpossibles = filter $ uncurry (<=) . fst
+   in dropImpossibles
+      $ map (over _1 $ chopEnds . chopStarts . toAbsoluteTime)
+      $ arcFold oldestRelevantCycle period rdv time0 earlierFrom to m
 
 arcFold :: forall a. Int -> Duration -> V.Vector RTime
   -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`

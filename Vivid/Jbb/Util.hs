@@ -76,6 +76,7 @@ lcmRatios x y = let (a,b) = (numerator x, denominator x)
                 in lcm (a * div l b) (c * div l d) % l
 
 -- | `time0` is the first time that had phase 0
+-- | TODO ? rewrite using div', mod' from Data.Fixed
 nextPhase0 :: RealFrac a => a -> a -> a -> a
 nextPhase0 time0 period now =
   fromIntegral (ceiling $ (now - time0) / period ) * period + time0
@@ -83,6 +84,7 @@ nextPhase0 time0 period now =
 -- | PITFALL ? if lastPhase0 or nextPhase0 was called precisely at phase0,
 -- both would yield the same result. Since time is measured in microseconds
 -- there is exactly a one in a million chance of that.
+-- | TODO ? rewrite using div', mod' from Data.Fixed
 prevPhase0 :: RealFrac a => a -> a -> a -> a
 prevPhase0 time0 period now =
   fromIntegral (floor $ (now - time0) / period ) * period + time0

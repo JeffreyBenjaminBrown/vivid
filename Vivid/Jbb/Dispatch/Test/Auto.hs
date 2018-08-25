@@ -174,18 +174,20 @@ testMuseqsDiff = TestCase $ do
 testArc = TestCase $ do
   let m = museq 5 [((0,6),"a"),((2,4),"b")]
   -- arguments to arc : time0 tempoPeriod from to museq
-  assertBool "arc 1" $ arc 100 2  200 210  m ==
-    [((200,210),"a"),((204,208),"b")]
-  -- once arc looks backward, do this instead of that
---  assertBool "arc 0" $ arc 100 2  200 210  m ==
---    [ ((200,202),"a")
---    , ((200,210),"a")
---    , ((204,208),"b")]
-  assertBool "arc 1" $ arc 101 2  200 210  m ==
-    [((201,210),"a"),((205,209),"b")]
-  assertBool "arc 1" $ arc 101 2  200 220  m ==
-    [((201,213),"a"),((205,209),"b")
-    ,((211,220),"a"),((215,219),"b")]
+  assertBool "arc 0" $ arc 100 2  200 210  m
+    == [ ((200,202),"a")
+       , ((200,210),"a")
+       , ((204,208),"b")]
+  assertBool "arc 1" $ arc 101 2  200 210  m
+    == [ ((200,203),"a")
+       , ((201,210),"a")
+       , ((205,209),"b")]
+  assertBool "arc 1" $ arc 101 2  200 220  m
+    == [ ((200,203),"a")
+       , ((201,213),"a")
+       , ((205,209),"b")
+       , ((211,220),"a")
+       , ((215,219),"b")]
 
 testOverParams = TestCase $ do
   let m = museq' 2 [ (0,("freq",100))
