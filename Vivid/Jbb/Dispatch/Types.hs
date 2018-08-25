@@ -9,7 +9,7 @@
 
 module Vivid.Jbb.Dispatch.Types (
   SynthName, ParamName, MuseqName
-  , Time, Duration, RTime, RDuration, unTimestamp
+  , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
   , Action(..), actionSynth
   , Museq(..), dur, sup, vec
@@ -28,6 +28,7 @@ import qualified Data.Vector as V
 
 import Vivid
 import Vivid.Jbb.Synths
+import Vivid.Jbb.Util
 
 
 -- | == The easy types
@@ -44,8 +45,28 @@ type MuseqName = String
 
 type Time = Rational
 type Duration = Rational
-type RTime = Rational
-type RDuration = Rational
+newtype RTime = RTime Rational deriving Ord
+type RDuration = RTime
+
+instance Show RTime where show (RTime t) = show t
+instance Eq RTime where(==) (RTime t) (RTime s) = t == s
+instance Num RTime where (+) (RTime t) (RTime s) = RTime (t + s)
+                         (-) (RTime t) (RTime s) = RTime (t - s)
+                         (*) (RTime t) (RTime s) = RTime (t * s)
+                         negate (RTime t) = RTime (negate t)
+                         abs (RTime t) = RTime (abs t)
+                         signum (RTime t) = RTime (signum t)
+                         fromInteger int = RTime (fromInteger int)
+instance Fractional RTime where (/) (RTime t) (RTime s) = RTime (t / s)
+                                recip (RTime t) = RTime (recip t)
+                                fromRational rat = RTime rat
+instance Real RTime where toRational (RTime t) = t
+instance RealFrac RTime where
+  properFraction (RTime r) = let (i,r) = properFraction r in (i,RTime r)
+  truncate (RTime r) = truncate r
+  round (RTime r) = round r
+  ceiling (RTime r) = ceiling r
+  floor (RTime r) = floor r
 
 unTimestamp :: Timestamp -> Time
 unTimestamp (Timestamp x) = toRational x
@@ -89,8 +110,9 @@ instance Functor Museq where
 emptyMuseq :: Museq a
 emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 
-museq :: RDuration -> [((RTime,RTime),a)] -> Museq a
-museq d tas = Museq {_dur = d, _sup = d, _vec = V.fromList tas}
+museq :: RDuration -> [((Rational,Rational),a)] -> Museq a
+museq d tas = Museq {_dur = d, _sup = d, _vec = V.fromList $ map f tas}
+  where f ((start,end),x) = ((fr start, fr end),x)
 
 -- | When the events of a Museq are all duration 0, museq'
 -- lets you simply write t instead of (t,t) for the start and end times.

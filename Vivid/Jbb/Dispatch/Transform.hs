@@ -1,6 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns #-}
 
-module Vivid.Jbb.Dispatch.Transform (
+module Vivid.Jbb.Dispatch.Transform
+  (
   rev
   , early, late
   , fast, slow
@@ -11,7 +12,9 @@ module Vivid.Jbb.Dispatch.Transform (
   , switchParams
   , keepParams
   , dropParams
-  ) where
+  )
+where
+
 
 import Control.Lens (over, _1, _2)
 import qualified Data.Map as M
@@ -52,16 +55,16 @@ late t m = sortMuseq $ over vec (V.map $ over _1 f) m
                      else (x',y')
 
 fast,slow,dense,sparse :: Rational -> Museq a -> Museq a
-fast d m = let f = (/d)
+fast d m = let f = (/ (RTime d))
                g (x,y) = (f x, f y)
   in over dur f $ over sup f $ over vec (V.map $ over _1 g) $ m
-slow d m = let f = (*d)
+slow d m = let f = (* (RTime d))
                g (x,y) = (f x, f y)
   in over dur f $ over sup f $ over vec (V.map $ over _1 g) $ m
-dense d m = let f = (/d)
+dense d m = let f = (/ (RTime d))
                 g (x,y) = (f x, f y)
   in              over sup f $ over vec (V.map $ over _1 g) $ m
-sparse d m = let f = (*d)
+sparse d m = let f = (* (RTime d))
                  g (x,y) = (f x, f y)
   in              over sup f $ over vec (V.map $ over _1 g) $ m
 
@@ -92,3 +95,4 @@ keepParams ps = over vec $ V.filter $       f . fst . snd
 dropParams :: [ParamName] -> Museq Msg -> Museq Msg
 dropParams ps = over vec $ V.filter $ not . f . fst . snd
   where f = flip S.member $ S.fromList ps
+

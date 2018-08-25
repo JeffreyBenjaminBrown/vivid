@@ -9,10 +9,6 @@
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14, 
 * fix
 ** arc (a,b) won't notice events that started before a
-
-** chTempo: continuity
-*** when changing tempo, figure out how many cycles have passed since time0
-*** rewrite time0 so it's still true at the new tempo
 ** rewriting DistribLoop
 *** maybe adding frameDuration to startRender is unnecessary.
 **** If so, adjust this function, and also replaceAll, chTempo, etc. -- maybe everything that calls getTime.
@@ -37,3 +33,6 @@
 * problems that seem solved
 ** bug ! melodies get mangled if tempo is near 1 but not 1
 *** the problem was floating point error in `arc`, solved by using only Rationals as times
+** chTempo: continuity
+*** when changing tempo, figure out how many cycles have passed since time0
+*** rewrite time0 so it's still true at the new tempo

@@ -2,8 +2,8 @@
 
 -- | = Mostly analysis
 
-module Vivid.Jbb.Dispatch.Museq (
-    timeToPlayThrough
+module Vivid.Jbb.Dispatch.Museq
+  ( timeToPlayThrough
   , supsToPlayThrough
   , dursToPlayThrough
   , timeToRepeat
@@ -16,7 +16,8 @@ module Vivid.Jbb.Dispatch.Museq (
   , museqIsValid
   , longestDur
   , arc
-  ) where
+  )
+where
 
 import Control.Lens ((^.),(.~),(%~),_1,_2,over,view)
 import Control.Monad.ST
@@ -51,23 +52,23 @@ import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 -- see in Tests.testStack the assertion labeled
 -- "stack, where timeToRepeat differs from timeToPlayThrough".
 
-timeToPlayThrough :: Museq a -> Rational
-timeToPlayThrough m = lcmRatios (_sup m) (_dur m)
+timeToPlayThrough :: Museq a -> RTime
+timeToPlayThrough m = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)
 
-supsToPlayThrough :: Museq a -> Rational
-supsToPlayThrough m = timeToPlayThrough m / _sup m
+supsToPlayThrough :: Museq a -> RTime
+supsToPlayThrough m = timeToPlayThrough m / (_sup m)
 
-dursToPlayThrough :: Museq a -> Rational
-dursToPlayThrough m = timeToPlayThrough m / _dur m
+dursToPlayThrough :: Museq a -> RTime
+dursToPlayThrough m = timeToPlayThrough m / (_dur m)
 
-timeToRepeat :: Museq a -> Rational
-timeToRepeat m = let x = lcmRatios (_sup m) (_dur m)
+timeToRepeat :: Museq a -> RTime
+timeToRepeat m = let x = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)
   in if x == _dur m then _sup m else x
 
-supsToRepeat :: Museq a -> Rational
+supsToRepeat :: Museq a -> RTime
 supsToRepeat m = timeToRepeat m / _sup m
 
-dursToRepeat :: Museq a -> Rational
+dursToRepeat :: Museq a -> RTime
 dursToRepeat m = timeToRepeat m / _dur m
 
 
@@ -127,21 +128,21 @@ longestDur m = let eventDur ((start,end),_) = end - start
 arc :: forall a. Time -> Duration -> Time -> Time
      -> Museq a -> [((Time,Time), a)]
 arc time0 tempoPeriod from to m =
-  let period = tempoPeriod * fromRational (_sup m)
+  let period = tempoPeriod * tr (_sup m) :: Duration
       rdv = V.map (fst . fst) $ _vec $ const () <$> m :: V.Vector RTime
-      firstPhase0 = prevPhase0 time0 period from
-      earlierFrom = longestDur m * tempoPeriod
-      firstCycle = - floor (earlierFrom / period)
+      firstPhase0 = prevPhase0 time0 period from :: Time
+      earlierFrom = tr (longestDur m) * tempoPeriod :: Time
+      firstCycle = - floor (earlierFrom / period) :: Int
       toAbsoluteTime :: (RTime,RTime) -> (Time,Time)
       toAbsoluteTime (a,b) = (f a, f b) where
-        f rt = fromRational rt * tempoPeriod + firstPhase0
+        f rt = tr rt * tempoPeriod + firstPhase0
       chopStarts :: (Time,Time) -> (Time,Time)
       chopStarts = over _1 $ max from
       chopEnds :: (Time,Time) -> (Time,Time)
       chopEnds = over _2 $ min to
    in map (over _1 $ chopEnds . chopStarts . toAbsoluteTime)
       $ arcFold 0 period rdv time0 from to m
-      -- once arc looks backward, replace prev line with next
+      -- TODO : once arc looks backward, replace prev line with next
       -- $ arcFold firstCycle period rdv time0 earlierFrom to m
 
 arcFold :: forall a. Int -> Duration -> V.Vector RTime
@@ -150,12 +151,13 @@ arcFold :: forall a. Int -> Duration -> V.Vector RTime
 arcFold cycle period rdv time0 from to m =
   if from >= to then [] -- todo ? Be sure of boundary condition
   else let
-    pp0 = prevPhase0 time0 period from
-    fromInCycles = toRational $ (from - pp0) / period
-    toInCycles   = toRational $ (to   - pp0) / period
-    startOrOOBIndex = firstIndexGTE compare rdv (fromInCycles * _sup m)
+    pp0 = prevPhase0 time0 period from :: Time
+    fromInCycles = fr $ (from - pp0) / period :: RTime
+    toInCycles   = fr $ (to   - pp0) / period :: RTime
+    startOrOOBIndex = firstIndexGTE compare rdv $ fromInCycles * _sup m :: Int
   in if startOrOOBIndex >= V.length rdv
 --     then let nextFrom = if pp0 + period > from
+--    TODO ? delete
 -- -- If `from = pp0 + period - epsilon`, maybe `pp0 + period <= from`.
 -- -- Thus floating point error used to make this if-then statement necessary
 -- -- Now that all times are Rational, it's probably unnecessary.
@@ -164,8 +166,9 @@ arcFold cycle period rdv time0 from to m =
 --          in arcFold (cycle+1) period rdv time0 nextFrom to m
      then arcFold (cycle+1) period rdv time0 (pp0 + period) to m
      else
-       let startIndex = startOrOOBIndex
-           endIndex = lastIndexLTE compare' rdv (toInCycles * _sup m) where
+       let startIndex = startOrOOBIndex :: Int
+           endIndex = lastIndexLTE compare' rdv (toInCycles * _sup m) :: Int
+             where 
              compare' x y = if x < y then LT else GT -- to omit the endpoint
            eventsThisCycle = V.toList
              $ V.map (over (_1._2) (+(_sup m * fromIntegral cycle)))

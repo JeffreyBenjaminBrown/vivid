@@ -129,9 +129,9 @@ testExplicitReps = TestCase $ do
 
 testAppend = TestCase $ do
     let a = museq 1 [((0,1),"a")]
-        a2  = a {_sup = 2}
-        a12 = a {_sup = 1%2}
-        a32 = a {_sup = 3%2}
+        a2  = a {_sup = RTime $ 2}
+        a12 = a {_sup = RTime $ 1%2}
+        a32 = a {_sup = RTime $ 3%2}
         b = museq 1 [((0,0),"b")]
     assertBool "testAppend" $ append a b ==
       museq 2 [((0,1),"a"),((1,1),"b")]

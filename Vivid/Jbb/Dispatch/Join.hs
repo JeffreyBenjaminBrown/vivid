@@ -1,6 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns #-}
 
-module Vivid.Jbb.Dispatch.Join (
+module Vivid.Jbb.Dispatch.Join
+  (
   -- | = user-facing
   append
   , cat
@@ -9,7 +10,8 @@ module Vivid.Jbb.Dispatch.Join (
   -- | = backend
   , explicitReps
   , unsafeExplicitReps
-  ) where
+  )
+where
 
 import Control.Lens (over, _1)
 import qualified Data.Vector as V
@@ -23,7 +25,8 @@ import Vivid.Jbb.Dispatch.Types
 
 append :: forall a. Museq a -> Museq a -> Museq a
 append x y =
-  let durs = lcmRatios (dursToPlayThrough x) (dursToPlayThrough y)
+  let durs = RTime
+        $ lcmRatios (tr $ dursToPlayThrough x) (tr $ dursToPlayThrough y)
         -- Since x and y both have to finish at the same time,
         -- they must run through this many durs.
       ixs, iys :: [(Int,V.Vector ((RTime,RTime),a))]
@@ -44,7 +47,7 @@ append x y =
       xs, ys :: [V.Vector ((RTime,RTime),a)]
       xs = map adjustx ixs
       ys = map adjusty iys
-  in Museq { _sup = durs * (_dur x + _dur y)
+  in Museq {  _sup = durs * (_dur x + _dur y)
             , _dur =         _dur x + _dur y
             , _vec = V.concat $ interleave xs ys }
 
@@ -62,9 +65,9 @@ stack :: Museq a -> Museq a -> Museq a
 stack x y = let t = timeForBothToRepeat x y
                 xs = unsafeExplicitReps t x
                 ys = unsafeExplicitReps t y
-  in sortMuseq $ Museq {_dur = _dur x
-                         , _sup = t
-                         , _vec = V.concat $ xs ++ ys}
+  in sortMuseq $ Museq { _dur = _dur x
+                       , _sup = t
+                       , _vec = V.concat $ xs ++ ys}
 
 --merge :: (a -> a) -> Museq a -> Museq a -> Museq a -- TODO
 --merge op x y = let let t = timeForBothToRepeat x y
@@ -75,7 +78,8 @@ stack x y = let t = timeForBothToRepeat x y
 -- | = backend
 
 timeForBothToRepeat :: Museq a -> Museq a -> RTime
-timeForBothToRepeat x y = lcmRatios (timeToRepeat x) (timeToRepeat y)
+timeForBothToRepeat x y =
+  RTime $ lcmRatios (tr $ timeToRepeat x) (tr $ timeToRepeat y)
 
 -- | if L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
@@ -88,11 +92,11 @@ explicitReps m = unsafeExplicitReps (timeToPlayThrough m) m
 unsafeExplicitReps :: forall a.
   RTime -> Museq a -> [V.Vector ((RTime,RTime),a)]
 unsafeExplicitReps totalDuration m =
-  let sups = round $ totalDuration / (_sup m)
+  let sups = round $ totalDuration / _sup m
         -- It takes a duration equal to this many multiples of _sup m
         -- for m to finish at phase 0.
         -- It's already an integer; `round` is just to prove that to GHC.
-      durs = round $ totalDuration / (_dur m)
+      durs = round $ totalDuration / _dur m
       indexed = zip [0..sups-1]
         $ repeat $ _vec m :: [(Int,V.Vector ((RTime,RTime),a))]
       adjustTimes :: (Int,V.Vector ((RTime,RTime),a))

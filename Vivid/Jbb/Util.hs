@@ -1,7 +1,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Vivid.Jbb.Util (
-  writeTimeAndError
+  fr -- ^ fromRational
+  , tr -- ^ toRational
+  , writeTimeAndError
   , lcmRatios
 
   -- | = lists
@@ -28,6 +30,12 @@ import Data.Vector.Algorithms.Search
 
 import Vivid (getTime)
 
+
+fr :: Fractional a => Rational -> a
+fr = fromRational
+
+tr :: Real a => a -> Rational
+tr = toRational
 
 writeTimeAndError :: String -> IO ()
 writeTimeAndError msg = do now <- getTime
