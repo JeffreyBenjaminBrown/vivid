@@ -176,6 +176,11 @@ testArc = TestCase $ do
   -- arguments to arc : time0 tempoPeriod from to museq
   assertBool "arc 1" $ arc 100 2  200 210  m ==
     [((200,210),"a"),((204,208),"b")]
+  -- once arc looks backward, do this instead of that
+--  assertBool "arc 0" $ arc 100 2  200 210  m ==
+--    [ ((200,202),"a")
+--    , ((200,210),"a")
+--    , ((204,208),"b")]
   assertBool "arc 1" $ arc 101 2  200 210  m ==
     [((201,210),"a"),((205,209),"b")]
   assertBool "arc 1" $ arc 101 2  200 220  m ==

@@ -14,6 +14,7 @@ module Vivid.Jbb.Dispatch.Museq (
   , museqsDiff
   , sortMuseq
   , museqIsValid
+  , longestDur
   , arc
   ) where
 
@@ -101,6 +102,7 @@ sortMuseq = vec %~
                    V.freeze v'
 
 -- | A valid Museq' m is sorted on start and then end times,
+-- with all end times >= the corresponding start times,
 -- has (relative) duration > 0, and all actions at time < _sup m.
 -- (todo ? I'm not sure the end-time sort helps.)
 -- PITFALL : The end times are permitted to be greater than the _sup.
@@ -114,6 +116,10 @@ museqIsValid mu = and [a,b,c,d,e] where
   d = _sup mu > 0
   e = V.all (uncurry (<=) . fst) v
 
+longestDur :: Museq a -> RDuration
+longestDur m = let eventDur ((start,end),_) = end - start
+               in V.maximum $ V.map eventDur $ _vec m
+
 -- todo ? `arc` could be ~2x faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid searching the first part
 -- of the vector again.
@@ -124,13 +130,19 @@ arc time0 tempoPeriod from to m =
   let period = tempoPeriod * fromRational (_sup m)
       rdv = V.map (fst . fst) $ _vec $ const () <$> m :: V.Vector RTime
       firstPhase0 = prevPhase0 time0 period from
+      earlierFrom = longestDur m * tempoPeriod
+      firstCycle = - floor (earlierFrom / period)
       toAbsoluteTime :: (RTime,RTime) -> (Time,Time)
       toAbsoluteTime (a,b) = (f a, f b) where
         f rt = fromRational rt * tempoPeriod + firstPhase0
+      chopStarts :: (Time,Time) -> (Time,Time)
+      chopStarts = over _1 $ max from
       chopEnds :: (Time,Time) -> (Time,Time)
       chopEnds = over _2 $ min to
-   in map (over _1 $ chopEnds . toAbsoluteTime)
+   in map (over _1 $ chopEnds . chopStarts . toAbsoluteTime)
       $ arcFold 0 period rdv time0 from to m
+      -- once arc looks backward, replace prev line with next
+      -- $ arcFold firstCycle period rdv time0 earlierFrom to m
 
 arcFold :: forall a. Int -> Duration -> V.Vector RTime
   -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
