@@ -19,6 +19,7 @@ module Vivid.Jbb.Dispatch.Types (
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
   , Dispatch(..), newDispatch
+  , MapDispatch(..), mapNewDispatch
   ) where
 
 import Control.Concurrent.MVar

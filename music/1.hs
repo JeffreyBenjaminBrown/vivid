@@ -28,9 +28,9 @@ swapMVar (mReg disp) $ SynthRegister {
 -- TODO ! bug, freezes synths mid-note
 -- replaceAll disp $ M.fromList [ ("2",fast 3 a3)]
 
--- testing chTempoPeriod'
+-- testing chTempoPeriod
 -- replaceAll disp $ M.fromList [ ("1", a1), ("2",  a2)]
--- chTempoPeriod' disp 1.05
+-- chTempoPeriod disp 1.05
 
 tryReadMVar $ mMuseqs disp
 tryReadMVar $ mReg disp
