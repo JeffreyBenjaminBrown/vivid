@@ -66,43 +66,20 @@ rotate t = fast t . sparse t
 rep n = slow n . dense n
 
 
--- | = _ -> Museq Msg -> Museq Msg
-overParams :: [(ParamName, Float -> Float)] -> Museq Msg -> Museq Msg
-overParams fs mq = fmap change mq
-  where mp = M.fromList fs
-        change :: Msg -> Msg
-        change (param,val) = ( param
-                             , maybe val ($val) $ M.lookup param mp )
-
-switchParams :: [(ParamName, ParamName)] -> Museq Msg -> Museq Msg
-switchParams fs mq = fmap change mq where
-  mp = M.fromList fs
-  change msg@(param,_) = over _1 f msg where
-    f = maybe id const $ M.lookup param mp
-
-keepParams :: [ParamName] -> Museq Msg -> Museq Msg
-keepParams ps = over vec $ V.filter $       f . fst . snd
-  where f = flip S.member $ S.fromList ps
-
-dropParams :: [ParamName] -> Museq Msg -> Museq Msg
-dropParams ps = over vec $ V.filter $ not . f . fst . snd
-  where f = flip S.member $ S.fromList ps
-
-
 -- | = _ -> Museq MapMsg -> Museq MapMsg
-mapOverParams :: [(ParamName, Float -> Float)] -> Museq MapMsg -> Museq MapMsg
-mapOverParams fs = fmap $ M.mapWithKey g
+overParams :: [(ParamName, Float -> Float)] -> Museq MapMsg -> Museq MapMsg
+overParams fs = fmap $ M.mapWithKey g
   where g k v = maybe v ($v) $ M.lookup k $ M.fromList fs
 
-mapSwitchParams :: [(ParamName, ParamName)] -> Museq MapMsg -> Museq MapMsg
-mapSwitchParams fs = fmap $ M.mapKeys g where
+switchParams :: [(ParamName, ParamName)] -> Museq MapMsg -> Museq MapMsg
+switchParams fs = fmap $ M.mapKeys g where
   g :: ParamName -> ParamName
   g k = maybe k id $ M.lookup k $ M.fromList fs
 
-mapKeepParams :: [ParamName] -> Museq MapMsg -> Museq MapMsg
-mapKeepParams ps = over vec $ V.map
-  $ over _2 $ flip M.restrictKeys $ S.fromList ps
+keepParams :: [ParamName] -> Museq MapMsg -> Museq MapMsg
+keepParams ps = over vec $ V.filter (not . null . snd)
+                . (V.map $ over _2 $ flip M.restrictKeys $ S.fromList ps)
 
-mapDropParams :: [ParamName] -> Museq MapMsg -> Museq MapMsg
-mapDropParams ps = over vec $ V.map
-  $ over _2 $ flip M.withoutKeys $ S.fromList ps
+dropParams :: [ParamName] -> Museq MapMsg -> Museq MapMsg
+dropParams ps = over vec $ V.filter (not . null . snd)
+                . (V.map $ over _2 $ flip M.withoutKeys $ S.fromList ps)

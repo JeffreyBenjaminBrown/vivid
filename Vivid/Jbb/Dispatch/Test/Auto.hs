@@ -195,19 +195,22 @@ testArc = TestCase $ do
        , ((211,220),"a")
        , ((215,219),"b")]
 
+m = museq' 2 [ (0, M.singleton "freq" 100)
+             , (1, M.singleton "amp"  0.1) ] :: Museq MapMsg
+
 testOverParams = TestCase $ do
-  let m = museq' 2 [ (0,("freq",100))
-                   , (1,("amp", 0.1)) ]
+  let m = museq' 2 [ (0, M.singleton "freq" 100)
+                   , (1, M.singleton "amp"  0.1) ]
   assertBool "overParams" $ overParams [("freq",(+1))] m
-    == museq' 2 [(0,("freq",101))
-               ,(1,("amp",0.1))]
+    == museq' 2 [ (0, M.singleton "freq" 101)
+                , (1, M.singleton "amp" 0.1)]
   assertBool "switchParams" $ switchParams [("freq","guzzle")] m
-    == museq' 2 [(0,("guzzle",100))
-               ,(1,("amp",0.1))]
+    == museq' 2 [ (0, M.singleton "guzzle" 100)
+                , (1, M.singleton "amp" 0.1)]
   assertBool "keepParams" $ keepParams ["freq"] m
-    == museq' 2 [(0,("freq",100))]
+    == museq' 2 [(0, M.singleton "freq" 100)]
   assertBool "dropParams" $ dropParams ["freq"] m
-    == museq' 2 [(1,("amp",0.1))]
+    == museq' 2 [(1, M.singleton "amp" 0.1)]
 
 testBoundaries = TestCase $ do
   assertBool "boundaries" $ boundaries [(0,1),(1,1),(2,3)]
