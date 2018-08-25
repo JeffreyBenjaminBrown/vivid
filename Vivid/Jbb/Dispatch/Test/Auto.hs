@@ -34,6 +34,8 @@ tests = runTestTT $ TestList
   , TestLabel "testOverParams" testOverParams
   , TestLabel "testBoundaries" testBoundaries
   , TestLabel "testPartitionArcAtTimes" testPartitionArcAtTimes
+  , TestLabel "testPartitionAndGroupEventsAtBoundaries"
+    testPartitionAndGroupEventsAtBoundaries
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -213,3 +215,15 @@ testBoundaries = TestCase $ do
 testPartitionArcAtTimes = TestCase $ do
   assertBool "partitionArcAtTimes" $ partitionArcAtTimes [0,2,2,5,10] (0,5)
     == [(0,2),(2,2),(2,5)]
+
+testPartitionAndGroupEventsAtBoundaries = TestCase $ do
+  assertBool "partitionAndGroupEventsAtBoundaries" $
+    partitionAndGroupEventsAtBoundaries [0, 1, 1, 2, 3, 4] [ ((0,3),"a")
+                                                           , ((2,4),"b") ]
+    == [((0,1),"a")
+       ,((1,1),"a")
+       ,((1,2),"a")
+       ,((2,3),"a")
+       ,((2,3),"b")
+       ,((3,4),"b")
+       ]

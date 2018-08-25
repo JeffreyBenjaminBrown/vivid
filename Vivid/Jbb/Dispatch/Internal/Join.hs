@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables, ViewPatterns #-}
+{-# LANGUAGE ScopedTypeVariables, ViewPatterns, TupleSections #-}
 
 module Vivid.Jbb.Dispatch.Internal.Join
 where
@@ -61,10 +61,19 @@ boundaries arcs = doubleTheDurationZeroBoundaries arcs
     instants = S.fromList $ map fst $ filter (\(s,e) -> s == e) arcs
     f t = if S.member t instants then [t,t] else [t]
 
--- | ASSUMES times are sorted, uniqe, and include the endpoints of `arc`
--- (which if they come from `boundaries`, they will include.)
+-- | ASSUMES list of times is sorted, uniqe, and includes endpoints of `arc`.
+-- (If the times come from `boundaries`, they will include those.)
 partitionArcAtTimes :: Real a => [a] -> (a,a) -> [(a,a)]
 partitionArcAtTimes (a:b:ts) (c,d)
   | c > a = partitionArcAtTimes (b:ts) (c,d)
   | b == d = [(a,b)]
   | otherwise = (a,b) : partitionArcAtTimes (b:ts) (b,d)
+
+-- | ASSUMES the first input includes each value in the second.
+-- (If the first list comes from `boundaries`, it will include those.)
+partitionAndGroupEventsAtBoundaries :: forall a v. Real a
+  => [a] -> [((a,a),v)] -> [((a,a),v)]
+partitionAndGroupEventsAtBoundaries bs evs =
+  let partitionEv :: ((a,a),v) -> [((a,a),v)]
+      partitionEv (arc,x) = map (,x) $ partitionArcAtTimes bs arc
+  in L.sortOn fst $ concatMap partitionEv evs
