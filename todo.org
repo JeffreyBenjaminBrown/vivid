@@ -1,5 +1,3 @@
-* bug ! melodies get mangled if tempo is near 1 but not 1
-* problem ! arc (a,b) won't notice events that started before a
 * architecture mysteries
 ** Museq Action vs. Museq Msg
 *** should separate(not part of the same GHC-evaluated expression) Museqs control the same synth?
@@ -10,6 +8,8 @@
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14, 
 * fix
+** arc (a,b) won't notice events that started before a
+
 ** chTempo: continuity
 *** when changing tempo, figure out how many cycles have passed since time0
 *** rewrite time0 so it's still true at the new tempo
@@ -34,3 +34,6 @@
 ** envelopes
 ** many voices to one distortion
 ** slow changes, e.g. for slide guitar
+* problems that seem solved
+** bug ! melodies get mangled if tempo is near 1 but not 1
+*** the problem was floating point error in `arc`, solved by using only Rationals as times
