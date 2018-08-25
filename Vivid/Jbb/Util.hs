@@ -1,16 +1,16 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Vivid.Jbb.Util (
-  fr -- ^ fromRational
-  , tr -- ^ toRational
-  , writeTimeAndError
-  , lcmRatios
+  writeTimeAndError
 
   -- | = lists
   , unique
   , interleave
 
-  -- | = time
+  -- | = numbers & time
+  , fr -- ^ fromRational
+  , tr -- ^ toRational
+  , lcmRatios
   , nextPhase0
   , prevPhase0
 
@@ -31,22 +31,10 @@ import Data.Vector.Algorithms.Search
 import Vivid (getTime)
 
 
-fr :: Fractional a => Rational -> a
-fr = fromRational
-
-tr :: Real a => a -> Rational
-tr = toRational
-
 writeTimeAndError :: String -> IO ()
 writeTimeAndError msg = do now <- getTime
                            appendFile "errors.txt"
                              $ show now ++ ": " ++ msg
-
-lcmRatios :: Rational -> Rational -> Rational
-lcmRatios x y = let (a,b) = (numerator x, denominator x)
-                    (c,d) = (numerator y, denominator y)
-                    l = lcm b d
-                in lcm (a * div l b) (c * div l d) % l
 
 
 -- | = Lenses
@@ -75,7 +63,19 @@ interleave xs ys = concat (zipWith (\x y -> [x]++[y]) xs ys)
 
 -- | = Time
 
--- | time0 is the first time that had phase 0
+fr :: Fractional a => Rational -> a
+fr = fromRational
+
+tr :: Real a => a -> Rational
+tr = toRational
+
+lcmRatios :: Rational -> Rational -> Rational
+lcmRatios x y = let (a,b) = (numerator x, denominator x)
+                    (c,d) = (numerator y, denominator y)
+                    l = lcm b d
+                in lcm (a * div l b) (c * div l d) % l
+
+-- | `time0` is the first time that had phase 0
 nextPhase0 :: RealFrac a => a -> a -> a -> a
 nextPhase0 time0 period now =
   fromIntegral (ceiling $ (now - time0) / period ) * period + time0
