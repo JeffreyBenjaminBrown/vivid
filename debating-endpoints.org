@@ -3,10 +3,7 @@
 ** ? does it apply to a general Museq a, or only Museq Msg, or Museq Action?
 ** ? consider mismatched durations, sups
 ** ? allow user to specify alternative strategies for particular parameters
-** e.g. "merge these all with (\*), except merge amp with (+)"
-* the philosophical truth is also convenient to program
-** all events have start and end times; sometimes they are equal
-** => only one type, no typeclass
+*** e.g. "merge these all with (\*), except merge amp with (+)"
 * the merge strategy in Tidal.Epic
 ** mergeEvents
 *** partitionAndGroupEventsAtBoundaries
@@ -14,36 +11,3 @@
 **** partitionArcAtTimes
 *** boundaries
 **** _doubleTheDurationZeroBoundaries
-* obsolete worries
-** merge (multiplicative or additive (? per parameter))
-** two classes, Museq and EMuseq
-*** ? better than HasStart: Museq has just a start, EMuseq has start and end
-*** and both of them only use Rational time values in their events
-*** and then define a (multi param, fundep) class to give access to the lenses into both, so that I can still write a bunch of Museq functions polymorphically
- -- | = For instance, below the lenses into `X` and `Y` are accessible polymorphically via `val`
- {-# LANGUAGE MultiParamTypeClasses
-            , FunctionalDependencies
- -#}
-
- data X = X {_x :: Float}
- makeLenses ''X
-
- data Y = Y {_y :: Int}
- makeLenses ''Y
-
- class HasVal x v | x -> v where
-   val :: Lens' x v
-
- instance HasVal X Float where
-   val = x
-
- instance HasVal Y Int where
- val = y
-** an option: add a redundant end time to Museq events
-*** problem: another Museq might send the same kind of message.
-**** (to the same synth). How would the first Museq know, then, when the instruction ends?
-** the problem ! messages don't end
-*** an option: parameterize Museq over the time tag on events
-*** things that will get merged
-**** two (Museq Double)s : works without end times
-**** two (Museq Msg)s : works without end times

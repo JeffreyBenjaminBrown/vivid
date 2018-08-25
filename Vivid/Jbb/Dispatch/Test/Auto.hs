@@ -10,6 +10,7 @@ import Vivid
 import Vivid.Jbb.Util
 import Vivid.Jbb.Synths
 import Vivid.Jbb.Dispatch.Join
+import Vivid.Jbb.Dispatch.Internal.Join
 import Vivid.Jbb.Dispatch.Museq
 import Vivid.Jbb.Dispatch.Transform
 import Vivid.Jbb.Dispatch.Types

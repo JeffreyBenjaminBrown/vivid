@@ -2,6 +2,7 @@
 ** Museq Action vs. Museq Msg
 *** should separate(not part of the same GHC-evaluated expression) Museqs control the same synth?
 *** will harmony be a function of multiple Museq Actions?
+** Many voices to one harmonizer
 ** Distribute concurrent notes across synths
 *** automatically, rather than requiring the user to say which go where.
 ** [dubious] Represent a Museq in more than one way

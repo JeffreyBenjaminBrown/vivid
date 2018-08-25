@@ -55,6 +55,7 @@ library
     , Vivid.Jbb.Dispatch.Config
     , Vivid.Jbb.Dispatch.Dispatch
     , Vivid.Jbb.Dispatch.Join
+    , Vivid.Jbb.Dispatch.Internal.Join
     , Vivid.Jbb.Dispatch.Msg
     , Vivid.Jbb.Dispatch.Museq
     , Vivid.Jbb.Dispatch.Test.Auto
