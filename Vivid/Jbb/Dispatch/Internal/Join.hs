@@ -60,3 +60,11 @@ boundaries arcs = doubleTheDurationZeroBoundaries arcs
     instants :: S.Set a
     instants = S.fromList $ map fst $ filter (\(s,e) -> s == e) arcs
     f t = if S.member t instants then [t,t] else [t]
+
+-- | ASSUMES times are sorted, uniqe, and include the endpoints of `arc`
+-- (which if they come from `boundaries`, they will include.)
+partitionArcAtTimes :: Real a => [a] -> (a,a) -> [(a,a)]
+partitionArcAtTimes (a:b:ts) (c,d)
+  | c > a = partitionArcAtTimes (b:ts) (c,d)
+  | b == d = [(a,b)]
+  | otherwise = (a,b) : partitionArcAtTimes (b:ts) (b,d)

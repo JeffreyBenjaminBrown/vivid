@@ -33,6 +33,7 @@ tests = runTestTT $ TestList
   , TestLabel "testArc" testArc
   , TestLabel "testOverParams" testOverParams
   , TestLabel "testBoundaries" testBoundaries
+  , TestLabel "testPartitionArcAtTimes" testPartitionArcAtTimes
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -206,5 +207,9 @@ testOverParams = TestCase $ do
     == museq' 2 [(1,("amp",0.1))]
 
 testBoundaries = TestCase $ do
-  assertBool "testBoundaries" $ boundaries [(0,1),(1,1),(2,3)]
+  assertBool "boundaries" $ boundaries [(0,1),(1,1),(2,3)]
     == [0,1,1,2,3]
+
+testPartitionArcAtTimes = TestCase $ do
+  assertBool "partitionArcAtTimes" $ partitionArcAtTimes [0,2,2,5,10] (0,5)
+    == [(0,2),(2,2),(2,5)]
