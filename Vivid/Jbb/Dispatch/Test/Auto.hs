@@ -32,6 +32,7 @@ tests = runTestTT $ TestList
   , TestLabel "testMuseqsDiff" testMuseqsDiff
   , TestLabel "testArc" testArc
   , TestLabel "testOverParams" testOverParams
+  , TestLabel "testBoundaries" testBoundaries
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -203,3 +204,7 @@ testOverParams = TestCase $ do
     == museq' 2 [(0,("freq",100))]
   assertBool "dropParams" $ dropParams ["freq"] m
     == museq' 2 [(1,("amp",0.1))]
+
+testBoundaries = TestCase $ do
+  assertBool "testBoundaries" $ boundaries [(0,1),(1,1),(2,3)]
+    == [0,1,1,2,3]

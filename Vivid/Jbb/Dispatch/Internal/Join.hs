@@ -4,6 +4,8 @@ module Vivid.Jbb.Dispatch.Internal.Join
 where
 
 import Control.Lens (over, _1)
+import qualified Data.List as L
+import qualified Data.Set as S
 import qualified Data.Vector as V
 
 import Vivid.Jbb.Util
@@ -45,3 +47,16 @@ unsafeExplicitReps totalDuration m =
       reps = divideAtMaxima (fst . fst) maixima spread
         :: [V.Vector ((RTime,RTime),a)]
   in reps
+
+-- | = Merge-related functions.
+
+-- | Produces a sorted list of arc endpoints.
+-- If `arcs` includes `(x,x)`, then `x` will appear twice in the output.
+boundaries :: forall a. Real a => [(a,a)] -> [a]
+boundaries arcs = doubleTheDurationZeroBoundaries arcs
+                  $ L.sort $ unique $ map fst arcs ++ map snd arcs where
+  doubleTheDurationZeroBoundaries :: [(a,a)] -> [a] -> [a]
+  doubleTheDurationZeroBoundaries arcs bounds = concatMap f bounds where
+    instants :: S.Set a
+    instants = S.fromList $ map fst $ filter (\(s,e) -> s == e) arcs
+    f t = if S.member t instants then [t,t] else [t]
