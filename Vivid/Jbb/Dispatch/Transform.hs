@@ -88,3 +88,21 @@ dropParams :: [ParamName] -> Museq Msg -> Museq Msg
 dropParams ps = over vec $ V.filter $ not . f . fst . snd
   where f = flip S.member $ S.fromList ps
 
+
+-- | = _ -> Museq MapMsg -> Museq MapMsg
+mapOverParams :: [(ParamName, Float -> Float)] -> Museq MapMsg -> Museq MapMsg
+mapOverParams fs = fmap $ M.mapWithKey g
+  where g k v = maybe v ($v) $ M.lookup k $ M.fromList fs
+
+mapSwitchParams :: [(ParamName, ParamName)] -> Museq MapMsg -> Museq MapMsg
+mapSwitchParams fs = fmap $ M.mapKeys g where
+  g :: ParamName -> ParamName
+  g k = maybe k id $ M.lookup k $ M.fromList fs
+
+mapKeepParams :: [ParamName] -> Museq MapMsg -> Museq MapMsg
+mapKeepParams ps = over vec $ V.map
+  $ over _2 $ flip M.restrictKeys $ S.fromList ps
+
+mapDropParams :: [ParamName] -> Museq MapMsg -> Museq MapMsg
+mapDropParams ps = over vec $ V.map
+  $ over _2 $ flip M.withoutKeys $ S.fromList ps
