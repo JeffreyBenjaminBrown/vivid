@@ -51,7 +51,7 @@ append x y =
             , _dur =         _dur x + _dur y
             , _vec = V.concat $ interleave xs ys }
 
--- | todo : speed this up dramatically by computing start times once, rather
+-- | todo ? speed this up dramatically by computing start times once, rather
 -- than readjusting the whole series each time a new copy is folded into it.
 cat :: [Museq a] -> Museq a -- the name "concat" is taken
 cat = foldl1 append

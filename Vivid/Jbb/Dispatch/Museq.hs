@@ -149,7 +149,7 @@ arcFold :: forall a. Int -> Duration -> V.Vector RTime
   -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
   -> Museq a -> [((RTime,RTime), a)]
 arcFold cycle period rdv time0 from to m =
-  if from >= to then [] -- todo ? Be sure of boundary condition
+  if from >= to then [] -- todo ? Be sure of `arc` boundary condition
   else let
     pp0 = prevPhase0 time0 period from :: Time
     fromInCycles = fr $ (from - pp0) / period :: RTime
@@ -157,7 +157,7 @@ arcFold cycle period rdv time0 from to m =
     startOrOOBIndex = firstIndexGTE compare rdv $ fromInCycles * _sup m :: Int
   in if startOrOOBIndex >= V.length rdv
 --     then let nextFrom = if pp0 + period > from
---    TODO ? delete
+--    todo ? delete
 -- -- If `from = pp0 + period - epsilon`, maybe `pp0 + period <= from`.
 -- -- Thus floating point error used to make this if-then statement necessary
 -- -- Now that all times are Rational, it's probably unnecessary.

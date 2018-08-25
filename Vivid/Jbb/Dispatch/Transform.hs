@@ -17,6 +17,7 @@ where
 
 
 import Control.Lens (over, _1, _2)
+import Data.Fixed (div',mod')
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Data.Vector as V
@@ -37,22 +38,13 @@ rev m = sortMuseq $ over vec g m where
               else (x,y)
 
 -- todo ? sorting in `early` or `late` is overkill, similar to `rev`
--- TODO : early, late don't handle negative numbers correctly
 early :: RDuration -> Museq a -> Museq a
-early t m = sortMuseq $ over vec (V.map $ over _1 f) m
-  where t' = let pp0 = prevPhase0 0 (_dur m) t
-             in t - pp0
-        f (x,y) = let x' = x - t'
-                      y' = y - t'
-                  in if x' < 0 then (x'+_sup m, y'+_sup m)
-                     else (x',y')
-late t m = sortMuseq $ over vec (V.map $ over _1 f) m
-  where t' = let pp0 = prevPhase0 0 (_dur m) t
-             in t - pp0
-        f (x,y) = let x' = x + t'
-                      y' = y + t'
-                  in if x' >= _sup m then (x'-_sup m, y'-_sup m)
-                     else (x',y')
+early t m = sortMuseq $ over vec (V.map $ over _1 shift) m
+  where shiftStart :: RTime -> RTime
+        shiftStart rt = mod' (rt - t) (_sup m)
+        shift :: (RTime,RTime) -> (RTime,RTime)
+        shift (x,y) = let x' = shiftStart x in (x',x' + (y-x))
+late t = early (-t)
 
 fast,slow,dense,sparse :: Rational -> Museq a -> Museq a
 fast d m = let f = (/ (RTime d))

@@ -19,7 +19,7 @@ import Vivid.Jbb.Synths
 import Vivid.Jbb.Util
 
 
--- TODO ? `act` might never get used
+-- todo ? `act` might never get used
 act :: SynthRegister -> Time -> Action
      -> IO (SynthRegister -> SynthRegister)
 act reg t a@(Send _ _ _) = actSend reg t a >> return id
@@ -128,11 +128,6 @@ replaceAll disp masNew = do
 
   return ()
 
--- TODO : this `chTempoPeriod` does not offer melodic continuity
-chTempoPeriod :: Dispatch -> Duration -> IO ()
-chTempoPeriod disp dur = swapMVar (mTempoPeriod disp) dur >> return ()
-
--- TODO : this `chTempoPeriod` would offer melodic continuity, but it's buggy
 chTempoPeriod' :: Dispatch -> Duration -> IO ()
 chTempoPeriod' disp newTempoPeriod = do
   time0       <- takeMVar $ mTime0       disp
