@@ -6,7 +6,12 @@ module Vivid.Jbb.Dispatch.Msg (
   , boopMsg
   , sqfmMsg
   , vapMsg
-  ) where
+
+  , boopMapMsg
+  , sqfmMapMsg
+  , vapMapMsg
+  )
+where
 
 import qualified Data.Map as M
 import Data.List (partition)
@@ -46,3 +51,13 @@ vapMsg ("fm-amp",n) = Msg' (toI n :: I "fm-amp")
 vapMsg ("fm2-freq",n) = Msg' (toI n :: I "fm2-freq")
 vapMsg ("fm2-amp",n) = Msg' (toI n :: I "fm2-amp")
 vapMsg ("nz-lpf",n) = Msg' (toI n :: I "nz-lpf")
+
+-- | = MapMsg versions
+boopMapMsg :: MapMsg -> [Msg' BoopParams]
+boopMapMsg = map boopMsg . M.toList
+
+sqfmMapMsg :: MapMsg -> [Msg' SqfmParams]
+sqfmMapMsg = map sqfmMsg . M.toList
+
+vapMapMsg :: MapMsg -> [Msg' VapParams]
+vapMapMsg = map vapMsg . M.toList
