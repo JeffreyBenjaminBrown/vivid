@@ -89,7 +89,7 @@ alignAndMerge op aEvs@((arcA,_):aEvsRest)  bEvs@((arcB,_):bEvsRest)
   | arcA <  arcB = alignAndMerge op aEvsRest bEvs
   | arcB <  arcA = alignAndMerge op aEvs bEvsRest
   | arcA == arcB = mergeEvents op aEvs bEvs
-mergeEvents op ((arc,a):aEvs) bEvs = 
+mergeEvents op ((arc,a):aEvs) bEvs =
   merged ++ alignAndMerge op aEvs bEvs
   where bEvsMatch = takeWhile ((== arc) . fst) bEvs
         merged = over _2 (op a) <$> bEvsMatch

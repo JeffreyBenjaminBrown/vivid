@@ -230,16 +230,10 @@ testPartitionAndGroupEventsAtBoundaries = TestCase $ do
        ]
 
 testMerge = TestCase $ do
-  let a  = Museq {_dur = 2, _sup = 6, _vec = V.fromList [ ((0,1),"a") ] }
-      bc = Museq {_dur = 3, _sup = 6, _vec = V.fromList [ ((0,1),"b")
+  let a  = Museq {_dur = 2, _sup = 2, _vec = V.fromList [ ((0,1),"a") ] }
+      bc = Museq {_dur = 3, _sup = 3, _vec = V.fromList [ ((0,1),"b")
                                                         , ((1,2),"c") ] }
-  assertBool "merge" $ merge (++) a bc
+  assertBool "merge 0" $ merge (++) a bc
     == Museq {_dur = 2, _sup = 6,
-               _vec = V.fromList [ ((0,1),"ab")
-                                 , ((4,5),"ac") ] }
-
--- TODO delete once merge is working
-a  = Museq {_dur = 2, _sup = 6, _vec = V.fromList [ ((0,1),"a") ] }
-bc = Museq {_dur = 3, _sup = 6, _vec = V.fromList [ ((0,1),"b")
-                                                  , ((1,2),"c") ] }
-test = merge (++) a bc
+              _vec = V.fromList [ ((0,1),"ab")
+                                , ((4,5),"ac") ] }
