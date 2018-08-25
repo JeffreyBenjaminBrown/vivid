@@ -10,8 +10,9 @@
 module Vivid.Jbb.Dispatch.Types (
   SynthName, ParamName, MuseqName
   , Time, Duration, RTime(..), RDuration, unTimestamp
-  , Msg, Msg'(..)
+  , Msg, MapMsg, Msg'(..)
   , Action(..), actionSynth
+  , MapAction(..), mapActionSynth
   , Ev
   , Museq(..), dur, sup, vec
   , emptyMuseq, museq, museq'
@@ -77,6 +78,8 @@ unTimestamp (Timestamp x) = toRational x
 
 type Msg = (ParamName, Float)
 
+type MapMsg = M.Map ParamName Float
+
 data Msg' sdArgs where
   Msg' :: forall params sdArgs.
           ( VarList params
@@ -92,6 +95,17 @@ actionSynth :: Action -> (SynthDefEnum, SynthName)
 actionSynth (New  s n  ) = (s,n)
 actionSynth (Free s n  ) = (s,n)
 actionSynth (Send s n _) = (s,n)
+
+data MapAction = MapNew  SynthDefEnum SynthName
+               | MapFree SynthDefEnum SynthName
+               | MapSend SynthDefEnum SynthName MapMsg
+  deriving (Show,Eq,Ord)
+
+mapActionSynth :: MapAction -> (SynthDefEnum, SynthName)
+mapActionSynth (MapNew  s n  ) = (s,n)
+mapActionSynth (MapFree s n  ) = (s,n)
+mapActionSynth (MapSend s n _) = (s,n)
+
 
 type Ev a = ((RTime,RTime),a)
 
@@ -129,7 +143,7 @@ museq' d tas = Museq {_dur = d, _sup = d, _vec = V.fromList $ map f tas}
 -- | The global state
 
 data SynthRegister = -- per-synth boilerplate
-  SynthRegister{ _boops :: M.Map SynthName (Synth BoopParams)
+  SynthRegister{  _boops :: M.Map SynthName (Synth BoopParams)
                 , _vaps  :: M.Map SynthName (Synth VapParams)
                 , _sqfms :: M.Map SynthName (Synth SqfmParams)
                 } deriving (Show, Eq, Ord)
@@ -155,5 +169,23 @@ newDispatch = do
   mTime0 <- newEmptyMVar
   mTempoPeriod <- newMVar 1
   return Dispatch
-    { mMuseqs = mTimeMuseqs,  mReg    = mReg
+    { mMuseqs = mTimeMuseqs,  mReg         = mReg
     , mTime0  = mTime0     ,  mTempoPeriod = mTempoPeriod }
+
+data MapDispatch = MapDispatch {
+    mapMMuseqs :: MVar (M.Map MuseqName (Museq MapAction))
+  , mapMReg :: MVar SynthRegister
+  , mapMTime0 :: MVar Time
+  , mapMTempoPeriod :: MVar Duration
+  }
+
+-- | "new" because it's not really empty, except for `time0`
+mapNewDispatch :: IO MapDispatch
+mapNewDispatch = do
+  mTimeMuseqs <- newMVar M.empty
+  mReg <- newMVar emptySynthRegister
+  mTime0 <- newEmptyMVar
+  mTempoPeriod <- newMVar 1
+  return MapDispatch
+    { mapMMuseqs = mTimeMuseqs,  mapMReg         = mReg
+    , mapMTime0  = mTime0     ,  mapMTempoPeriod = mTempoPeriod }
