@@ -36,6 +36,7 @@ tests = runTestTT $ TestList
   , TestLabel "testPartitionArcAtTimes" testPartitionArcAtTimes
   , TestLabel "testPartitionAndGroupEventsAtBoundaries"
     testPartitionAndGroupEventsAtBoundaries
+  , TestLabel "testMerge" testMerge
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -227,3 +228,18 @@ testPartitionAndGroupEventsAtBoundaries = TestCase $ do
        ,((2,3),"b")
        ,((3,4),"b")
        ]
+
+testMerge = TestCase $ do
+  let a  = Museq {_dur = 2, _sup = 6, _vec = V.fromList [ ((0,1),"a") ] }
+      bc = Museq {_dur = 3, _sup = 6, _vec = V.fromList [ ((0,1),"b")
+                                                        , ((1,2),"c") ] }
+  assertBool "merge" $ merge (++) a bc
+    == Museq {_dur = 2, _sup = 6,
+               _vec = V.fromList [ ((0,1),"ab")
+                                 , ((4,5),"ac") ] }
+
+-- TODO delete once merge is working
+a  = Museq {_dur = 2, _sup = 6, _vec = V.fromList [ ((0,1),"a") ] }
+bc = Museq {_dur = 3, _sup = 6, _vec = V.fromList [ ((0,1),"b")
+                                                  , ((1,2),"c") ] }
+test = merge (++) a bc

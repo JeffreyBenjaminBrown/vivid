@@ -5,10 +5,11 @@ module Vivid.Jbb.Dispatch.Join
   append
   , cat
   , stack
+  , merge
   )
 where
 
-import Control.Lens (over, _1)
+import Control.Lens (over, _1, _2)
 import qualified Data.Vector as V
 
 import Vivid.Jbb.Util
@@ -64,7 +65,31 @@ stack x y = let t = timeForBothToRepeat x y
                        , _sup = t
                        , _vec = V.concat $ xs ++ ys}
 
---merge :: (a -> a) -> Museq a -> Museq a -> Museq a -- TODO
---merge op x y = let let t = timeForBothToRepeat x y
---                       xs = concat $ unsafeExplicitReps t x
---                       ys = concat $ unsafeExplicitReps t y
+-- | Makes a hybrid.
+-- PITFALL: The choice of the resulting Museq's _dur is arbitrary.
+-- Here it's set to that of the first.
+-- For something else, just compose `Lens.set dur _` after `stack`.
+merge :: forall a. (a -> a -> a) -> Museq a -> Museq a -> Museq a
+merge op x y = Museq { _dur = _dur x -- arbitrary
+                     , _sup = tbr
+                     , _vec = V.fromList $ alignAndMerge op xps yps }
+  where tbr = timeForBothToRepeat x y
+        xs, ys, xps, yps :: [((RTime,RTime),a)]
+        xs = concatMap V.toList $ unsafeExplicitReps tbr x
+        ys = concatMap V.toList $ unsafeExplicitReps tbr y
+        bs = boundaries $ map fst $ xs ++ ys :: [RTime]
+        xps = partitionAndGroupEventsAtBoundaries bs xs
+        yps = partitionAndGroupEventsAtBoundaries bs ys
+
+alignAndMerge,mergeEvents :: forall a.
+  (a -> a -> a) -> [Ev a] -> [Ev a] -> [Ev a]
+alignAndMerge _ [] _ = []
+alignAndMerge _ _ [] = []
+alignAndMerge op aEvs@((arcA,_):aEvsRest)  bEvs@((arcB,_):bEvsRest)
+  | arcA <  arcB = alignAndMerge op aEvsRest bEvs
+  | arcB <  arcA = alignAndMerge op aEvs bEvsRest
+  | arcA == arcB = mergeEvents op aEvs bEvs
+mergeEvents op ((arc,a):aEvs) bEvs = 
+  merged ++ alignAndMerge op aEvs bEvs
+  where bEvsMatch = takeWhile ((== arc) . fst) bEvs
+        merged = over _2 (op a) <$> bEvsMatch

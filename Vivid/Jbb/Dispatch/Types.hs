@@ -12,6 +12,7 @@ module Vivid.Jbb.Dispatch.Types (
   , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
   , Action(..), actionSynth
+  , Ev
   , Museq(..), dur, sup, vec
   , emptyMuseq, museq, museq'
   , SynthRegister(..), boops, vaps, sqfms
@@ -21,7 +22,7 @@ module Vivid.Jbb.Dispatch.Types (
 
 import Control.Concurrent.MVar
 import Control.DeepSeq
-import Control.Lens (makeLenses, over, _2)
+import Control.Lens (makeLenses, over, _1, _2)
 import qualified Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
@@ -92,6 +93,8 @@ actionSynth (New  s n  ) = (s,n)
 actionSynth (Free s n  ) = (s,n)
 actionSynth (Send s n _) = (s,n)
 
+type Ev a = ((RTime,RTime),a)
+
 data Museq a = Museq {
   _dur :: RDuration -- ^ the play duration of the loop
   , _sup :: RDuration -- ^ the supremum of the possible RTime values
@@ -99,7 +102,7 @@ data Museq a = Museq {
     -- through different sections of the `vec` each time it plays.
     -- If less than `dur`, the `Museq` will play the entire `vec` more than
     -- once each time it plays.
-  , _vec :: V.Vector ((RTime,RTime), a) }
+  , _vec :: V.Vector (Ev a) }
   deriving (Show,Eq)
 
 makeLenses ''Museq
@@ -111,8 +114,10 @@ emptyMuseq :: Museq a
 emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 
 museq :: RDuration -> [((Rational,Rational),a)] -> Museq a
-museq d tas = Museq {_dur = d, _sup = d, _vec = V.fromList $ map f tas}
-  where f ((start,end),x) = ((fr start, fr end),x)
+museq d tas = Museq { _dur = d
+                    , _sup = d
+                    , _vec = V.fromList $ map (over _1 f) tas }
+  where f (start,end) = (fr start, fr end)
 
 -- | When the events of a Museq are all duration 0, museq'
 -- lets you simply write t instead of (t,t) for the start and end times.
