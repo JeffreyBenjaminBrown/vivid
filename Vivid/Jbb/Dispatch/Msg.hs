@@ -6,10 +6,6 @@ module Vivid.Jbb.Dispatch.Msg (
   , boopMsg
   , sqfmMsg
   , vapMsg
-
-  , boopMapMsg
-  , sqfmMapMsg
-  , vapMapMsg
   )
 where
 
@@ -27,37 +23,40 @@ set' :: VividAction m => Synth params -> Msg' params -> m ()
 set' synth (Msg' m) = set synth m
 
 
--- | = per-synth boilerplate
+-- | == per-synth boilerplate
 
-boopMsg :: Msg -> Msg' BoopParams
-boopMsg ("freq",n) = Msg' (toI n :: I "freq")
-boopMsg ("amp",n) = Msg' (toI n :: I "amp")
+-- | = send a Map full of messages
+boopMsg :: MapMsg -> [Msg' BoopParams]
+boopMsg = map boopOneMsg . M.toList
 
-sqfmMsg :: Msg -> Msg' SqfmParams
-sqfmMsg ("freq",n) = Msg' (toI n :: I "freq")
-sqfmMsg ("amp",n) = Msg' (toI n :: I "amp")
-sqfmMsg ("width",n) = Msg' (toI n :: I "width")
-sqfmMsg ("width-vib-amp",n) = Msg' (toI n :: I "width-vib-amp")
-sqfmMsg ("width-vib-freq",n) = Msg' (toI n :: I "width-vib-freq")
+sqfmMsg :: MapMsg -> [Msg' SqfmParams]
+sqfmMsg = map sqfmOneMsg . M.toList
 
-vapMsg :: Msg -> Msg' VapParams
-vapMsg ("freq",n) = Msg' (toI n :: I "freq")
-vapMsg ("amp",n) = Msg' (toI n :: I "amp")
-vapMsg ("saw",n) = Msg' (toI n :: I "saw")
-vapMsg ("delay-freq",n) = Msg' (toI n :: I "delay-freq")
-vapMsg ("delay-amp",n) = Msg' (toI n :: I "delay-amp")
-vapMsg ("fm-freq",n) = Msg' (toI n :: I "fm-freq")
-vapMsg ("fm-amp",n) = Msg' (toI n :: I "fm-amp")
-vapMsg ("fm2-freq",n) = Msg' (toI n :: I "fm2-freq")
-vapMsg ("fm2-amp",n) = Msg' (toI n :: I "fm2-amp")
-vapMsg ("nz-lpf",n) = Msg' (toI n :: I "nz-lpf")
+vapMsg :: MapMsg -> [Msg' VapParams]
+vapMsg = map vapOneMsg . M.toList
 
--- | = MapMsg versions
-boopMapMsg :: MapMsg -> [Msg' BoopParams]
-boopMapMsg = map boopMsg . M.toList
 
-sqfmMapMsg :: MapMsg -> [Msg' SqfmParams]
-sqfmMapMsg = map sqfmMsg . M.toList
+-- | = send a message regarding a single parameter
 
-vapMapMsg :: MapMsg -> [Msg' VapParams]
-vapMapMsg = map vapMsg . M.toList
+boopOneMsg :: Msg -> Msg' BoopParams
+boopOneMsg ("freq",n) = Msg' (toI n :: I "freq")
+boopOneMsg ("amp",n) = Msg' (toI n :: I "amp")
+
+sqfmOneMsg :: Msg -> Msg' SqfmParams
+sqfmOneMsg ("freq",n) = Msg' (toI n :: I "freq")
+sqfmOneMsg ("amp",n) = Msg' (toI n :: I "amp")
+sqfmOneMsg ("width",n) = Msg' (toI n :: I "width")
+sqfmOneMsg ("width-vib-amp",n) = Msg' (toI n :: I "width-vib-amp")
+sqfmOneMsg ("width-vib-freq",n) = Msg' (toI n :: I "width-vib-freq")
+
+vapOneMsg :: Msg -> Msg' VapParams
+vapOneMsg ("freq",n) = Msg' (toI n :: I "freq")
+vapOneMsg ("amp",n) = Msg' (toI n :: I "amp")
+vapOneMsg ("saw",n) = Msg' (toI n :: I "saw")
+vapOneMsg ("delay-freq",n) = Msg' (toI n :: I "delay-freq")
+vapOneMsg ("delay-amp",n) = Msg' (toI n :: I "delay-amp")
+vapOneMsg ("fm-freq",n) = Msg' (toI n :: I "fm-freq")
+vapOneMsg ("fm-amp",n) = Msg' (toI n :: I "fm-amp")
+vapOneMsg ("fm2-freq",n) = Msg' (toI n :: I "fm2-freq")
+vapOneMsg ("fm2-amp",n) = Msg' (toI n :: I "fm2-amp")
+vapOneMsg ("nz-lpf",n) = Msg' (toI n :: I "nz-lpf")

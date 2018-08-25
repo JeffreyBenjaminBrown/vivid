@@ -79,17 +79,17 @@ mapActSend reg when (MapSend Boop name msgs) =
   case M.lookup name $ _boops reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just synth -> doScheduledAt (Timestamp $ fromRational when)
-      $ mapM_ (set' synth) $ boopMapMsg msgs
+      $ mapM_ (set' synth) $ boopMsg msgs
 mapActSend reg when (MapSend Sqfm name msgs) =
   case M.lookup name $ _sqfms reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just synth -> doScheduledAt (Timestamp $ fromRational when)
-      $ mapM_ (set' synth) $ sqfmMapMsg msgs
+      $ mapM_ (set' synth) $ sqfmMsg msgs
 mapActSend reg when (MapSend Vap name msgs) =
   case M.lookup name $ _vaps reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just synth -> doScheduledAt (Timestamp $ fromRational when)
-      $ mapM_ (set' synth) $ vapMapMsg msgs
+      $ mapM_ (set' synth) $ vapMsg msgs
 mapActSend _ _ (MapFree _ _) = error "mapActFree received a MapSend."
 mapActSend _ _ (MapNew _ _)  = error "mapActFree received a MapNew."
 
