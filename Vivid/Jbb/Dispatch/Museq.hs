@@ -11,7 +11,9 @@ module Vivid.Jbb.Dispatch.Museq
   , dursToRepeat
 
   , museqSynths
+  , mapMuseqSynths
   , museqsDiff
+  , mapMuseqsDiff
   , sortMuseq
   , museqIsValid
   , longestDur
@@ -77,6 +79,9 @@ dursToRepeat m = timeToRepeat m / _dur m
 museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
 museqSynths = map (actionSynth . snd) . V.toList . _vec
 
+mapMuseqSynths :: Museq MapAction -> [(SynthDefEnum, SynthName)]
+mapMuseqSynths = map (mapActionSynth . snd) . V.toList . _vec
+
 
 -- | Given an old set of Museqs and a new one, figure out
 -- which synths need to be created, and which destroyed.
@@ -94,6 +99,18 @@ museqsDiff old new = (toFree,toCreate) where
   toCreate = newSynths \\ oldSynths
   toFree = oldSynths \\ newSynths
 
+mapMuseqsDiff :: M.Map MuseqName (Museq MapAction)
+              -> M.Map MuseqName (Museq MapAction)
+              -> ([(SynthDefEnum, SynthName)],
+                  [(SynthDefEnum, SynthName)])
+mapMuseqsDiff old new = (toFree,toCreate) where
+  oldMuseqs = M.elems old :: [Museq MapAction]
+  newMuseqs = M.elems new :: [Museq MapAction]
+  oldSynths = unique $ concatMap mapMuseqSynths oldMuseqs
+  newSynths = unique $ concatMap mapMuseqSynths newMuseqs
+  toCreate = newSynths \\ oldSynths
+  toFree = oldSynths \\ newSynths
+
 
 -- | = Sort a Museq
 sortMuseq :: Museq a -> Museq a
@@ -105,7 +122,7 @@ sortMuseq = vec %~
 
 -- | A valid Museq' m is sorted on start and then end times,
 -- with all end times >= the corresponding start times,
--- has (relative) duration > 0, and all actions at time < _sup m.
+-- has (relative) duration > 0, and all events at time < _sup m.
 -- (todo ? I'm not sure the end-time sort helps.)
 -- PITFALL : The end times are permitted to be greater than the _sup.
 museqIsValid :: Eq a => Museq a -> Bool
