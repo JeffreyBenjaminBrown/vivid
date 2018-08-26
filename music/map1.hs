@@ -11,12 +11,12 @@ a3 = fast 2 $ early (1/4)
              , (0.5, MapSend Boop "3" $ M.singleton "amp" 0 ) ]
 
 disp <- mapNewDispatch
--- swapMVar (mapMTempoPeriod disp) 2
+-- swapMVar (mTempoPeriod disp) 2
 
 s <- synth boop ()
 t <- synth boop ()
 u <- synth boop ()
-swapMVar (mapMReg disp) $ SynthRegister {
+swapMVar (mReg disp) $ SynthRegister {
   _boops = M.fromList [("1",s),("2",t),("3",u)]
   , _vaps = M.empty
   , _sqfms = M.empty }
@@ -33,9 +33,9 @@ swapMVar (mapMReg disp) $ SynthRegister {
 -- mapChTempoPeriod disp 1.05
 
 tryReadMVar $ mapMMuseqs disp
-tryReadMVar $ mapMReg disp
-tryReadMVar $ mapMTime0 disp
-tryReadMVar $ mapMTempoPeriod disp
+tryReadMVar $ mReg disp
+tryReadMVar $ mTime0 disp
+tryReadMVar $ mTempoPeriod disp
 
 tid <- mapStartDispatchLoop disp
 putStrLn "disp <- newDispatch\ntid <- startDispatchLoop disp"

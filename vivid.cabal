@@ -59,7 +59,6 @@ library
     , Vivid.Jbb.Dispatch.Msg
     , Vivid.Jbb.Dispatch.Museq
     , Vivid.Jbb.Dispatch.Test.Auto
-    , Vivid.Jbb.Dispatch.Test.Scheduling_and_CSV
     , Vivid.Jbb.Dispatch.Transform
     , Vivid.Jbb.Dispatch.Types
     , Vivid.Jbb.Random.MentionsSig

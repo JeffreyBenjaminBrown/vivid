@@ -96,9 +96,9 @@ mapActSend _ _ (MapNew _ _)  = error "mapActFree received a MapNew."
 
 -- | = Change the music
 
-mapReplace :: MapDispatch -> MuseqName -> Museq MapAction -> IO ()
+mapReplace :: Dispatch -> MuseqName -> Museq MapAction -> IO ()
 mapReplace disp newName newMuseq = do
-  masOld <- readMVar $ mapMMuseqs disp
+  masOld <- readMVar $ mMuseqs disp
   mapReplaceAll disp $ M.insert newName newMuseq masOld
 
 -- | ASSUMES every synth has an "amp" parameter which, when 0, causes silence.
@@ -107,12 +107,12 @@ mapReplace disp newName newMuseq = do
 -- and which need creation. Create the latter immediately. Wait to delete
 -- the former until it's safe, and before deleting them, send silence
 -- (set "amp" to 0).
-mapReplaceAll :: MapDispatch -> M.Map MuseqName (Museq MapAction) -> IO ()
+mapReplaceAll :: Dispatch -> M.Map MuseqName (Museq MapAction) -> IO ()
 mapReplaceAll disp masNew = do
-  time0  <-      takeMVar $ mapMTime0       disp
-  tempoPeriod <- takeMVar $ mapMTempoPeriod disp
-  masOld <-      takeMVar $ mapMMuseqs      disp
-  reg <-         takeMVar $ mapMReg         disp
+  time0  <-      takeMVar $ mTime0       disp
+  tempoPeriod <- takeMVar $ mTempoPeriod disp
+  masOld <-      takeMVar $ mMuseqs      disp
+  reg <-         takeMVar $ mReg         disp
   now <- unTimestamp <$> getTime
 
   let when = nextPhase0 time0 frameDuration now + 2 * frameDuration
@@ -123,21 +123,21 @@ mapReplaceAll disp masNew = do
   newTransform  <- mapM (mapActNew  reg)      $ map (uncurry MapNew)  toCreate
   freeTransform <- mapM (mapActFree reg when) $ map (uncurry MapFree) toFree
 
-  putMVar (mapMTime0       disp) time0       -- unchnaged
-  putMVar (mapMTempoPeriod disp) tempoPeriod -- unchanged
-  putMVar (mapMMuseqs      disp) masNew
-  putMVar (mapMReg         disp) $ foldl (.) id newTransform reg
+  putMVar (mTime0       disp) time0       -- unchnaged
+  putMVar (mTempoPeriod disp) tempoPeriod -- unchanged
+  putMVar (mMuseqs      disp) masNew
+  putMVar (mReg         disp) $ foldl (.) id newTransform reg
 
   forkIO $ do wait $ when - now -- delete register's synths once it's safe
-              reg <-takeMVar $ mapMReg disp
-              putMVar (mapMReg disp) $ foldl (.) id freeTransform reg
+              reg <-takeMVar $ mReg disp
+              putMVar (mReg disp) $ foldl (.) id freeTransform reg
 
   return ()
 
-mapChTempoPeriod :: MapDispatch -> Duration -> IO ()
+mapChTempoPeriod :: Dispatch -> Duration -> IO ()
 mapChTempoPeriod disp newTempoPeriod = do
-  time0       <- takeMVar $ mapMTime0       disp
-  tempoPeriod <- takeMVar $ mapMTempoPeriod disp
+  time0       <- takeMVar $ mTime0       disp
+  tempoPeriod <- takeMVar $ mTempoPeriod disp
   now         <- unTimestamp <$> getTime
   let np0 = nextPhase0 time0 frameDuration now
       startRender = np0 + 2 * frameDuration
@@ -146,29 +146,29 @@ mapChTempoPeriod disp newTempoPeriod = do
         -- than it will be the next time dispatchLoop runs
       startRenderInCycles = (startRender - time0) / tempoPeriod
       newTime0 = startRender - startRenderInCycles * newTempoPeriod
-  putMVar (mapMTempoPeriod disp) newTempoPeriod
-  putMVar (mapMTime0       disp) newTime0
+  putMVar (mTempoPeriod disp) newTempoPeriod
+  putMVar (mTime0       disp) newTime0
 
 
 -- | = The Dispatch loop
 
-mapStartDispatchLoop :: MapDispatch -> IO ThreadId
+mapStartDispatchLoop :: Dispatch -> IO ThreadId
 mapStartDispatchLoop disp = do
-  tryTakeMVar $ mapMTime0 disp -- empty it, just in case
-  mbTempo <- tryReadMVar $ mapMTempoPeriod disp
-  maybe (putMVar (mapMTempoPeriod disp) 1) (const $ return ()) mbTempo
+  tryTakeMVar $ mTime0 disp -- empty it, just in case
+  mbTempo <- tryReadMVar $ mTempoPeriod disp
+  maybe (putMVar (mTempoPeriod disp) 1) (const $ return ()) mbTempo
   
   (+(frameDuration * (-0.8))) . unTimestamp <$> getTime
     -- subtract nearly an entire frameDuration so it starts sooner
-    >>= putMVar (mapMTime0 disp)
+    >>= putMVar (mTime0 disp)
   forkIO $ mapDispatchLoop disp
 
-mapDispatchLoop :: MapDispatch -> IO ()
+mapDispatchLoop :: Dispatch -> IO ()
 mapDispatchLoop disp = do
-  time0  <-      takeMVar $ mapMTime0       disp
-  tempoPeriod <- takeMVar $ mapMTempoPeriod disp
-  museqsMap <-   takeMVar $ mapMMuseqs      disp
-  reg <-         takeMVar $ mapMReg         disp
+  time0  <-      takeMVar $ mTime0       disp
+  tempoPeriod <- takeMVar $ mTempoPeriod disp
+  museqsMap <-   takeMVar $ mMuseqs      disp
+  reg <-         takeMVar $ mReg         disp
   now <- unTimestamp <$> getTime
 
   let np0 = nextPhase0 time0 frameDuration now
@@ -180,10 +180,10 @@ mapDispatchLoop disp = do
 
   mapM_ (uncurry $ mapActSend reg) evs
 
-  putMVar (mapMTime0       disp) time0
-  putMVar (mapMTempoPeriod disp) tempoPeriod
-  putMVar (mapMMuseqs      disp) museqsMap
-  putMVar (mapMReg         disp) reg
+  putMVar (mTime0       disp) time0
+  putMVar (mTempoPeriod disp) tempoPeriod
+  putMVar (mMuseqs      disp) museqsMap
+  putMVar (mReg         disp) reg
 
   wait $ fromRational np0 - now
   mapDispatchLoop disp

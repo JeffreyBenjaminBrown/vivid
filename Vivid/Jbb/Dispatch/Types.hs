@@ -19,7 +19,6 @@ module Vivid.Jbb.Dispatch.Types (
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
   , Dispatch(..), newDispatch
-  , MapDispatch(..), mapNewDispatch
   ) where
 
 import Control.Concurrent.MVar
@@ -154,9 +153,8 @@ makeLenses ''SynthRegister
 emptySynthRegister :: SynthRegister
 emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
-
 data Dispatch = Dispatch {
-  mMuseqs :: MVar (M.Map MuseqName (Museq Action))
+    mMuseqs :: MVar (M.Map MuseqName (Museq MapAction))
   , mReg :: MVar SynthRegister
   , mTime0 :: MVar Time
   , mTempoPeriod :: MVar Duration
@@ -172,21 +170,3 @@ newDispatch = do
   return Dispatch
     { mMuseqs = mTimeMuseqs,  mReg         = mReg
     , mTime0  = mTime0     ,  mTempoPeriod = mTempoPeriod }
-
-data MapDispatch = MapDispatch {
-    mapMMuseqs :: MVar (M.Map MuseqName (Museq MapAction))
-  , mapMReg :: MVar SynthRegister
-  , mapMTime0 :: MVar Time
-  , mapMTempoPeriod :: MVar Duration
-  }
-
--- | "new" because it's not really empty, except for `time0`
-mapNewDispatch :: IO MapDispatch
-mapNewDispatch = do
-  mTimeMuseqs <- newMVar M.empty
-  mReg <- newMVar emptySynthRegister
-  mTime0 <- newEmptyMVar
-  mTempoPeriod <- newMVar 1
-  return MapDispatch
-    { mapMMuseqs = mTimeMuseqs,  mapMReg         = mReg
-    , mapMTime0  = mTime0     ,  mapMTempoPeriod = mTempoPeriod }
