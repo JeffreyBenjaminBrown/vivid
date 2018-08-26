@@ -5,13 +5,14 @@ module Vivid.Jbb.Dispatch.Join
   append
   , cat
   , stack
-  , merge
+  , merge, mergea, merge0, merge1
   , meta
   )
 where
 
 import Control.Lens (set, over, _1, _2)
 import qualified Data.List as L
+import qualified Data.Map as M
 import qualified Data.Vector as V
 
 import Vivid.Jbb.Util
@@ -96,6 +97,16 @@ merge op x y = Museq { _dur = _dur y -- arbitrary
   xps = partitionAndGroupEventsAtBoundaries bs xs
   yps = partitionAndGroupEventsAtBoundaries bs ys
 
+-- | Some ways to merge `Museq Msg`s.
+-- So named because in math, the additive identity is 0,
+-- the mutliplicative identity = 1, and "amp" starts with an "a".
+mergea, merge0, merge1 :: Museq Msg -> Museq Msg -> Museq Msg
+merge0 = merge $ M.unionWithKey $ const (+)
+merge1 = merge $ M.unionWithKey $ const (*)
+mergea = merge $ M.unionWithKey f where
+  f "amp" = (+) -- ^ add amplitudes, multiply anything else
+  f _ = (*)
+
 instance Applicative Museq where
   (<*>) = merge ($)
   pure x = Museq { _dur=1, _sup=1
@@ -111,3 +122,4 @@ meta x y = sortMuseq $ Museq { _dur = _dur y -- arbitrary
         evs = map (over _1 $ \(s,t) -> (RTime s, RTime t))
           $ concat [arc 0 1 (tr start) (tr finish) (op y)
                    | ((start,finish),op) <- xs]
+

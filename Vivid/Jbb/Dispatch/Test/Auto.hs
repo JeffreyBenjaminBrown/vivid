@@ -247,6 +247,18 @@ testMerge = TestCase $ do
               _vec = V.fromList [ ((0,1),  " b")
                                 , ((1.5,2)," c")
                                 ] }
+  let a' = Museq {_dur = 2, _sup = 2,
+                 _vec = V.fromList [ ((0,1), M.fromList [("amp",2)
+                                                        ,("freq",2)] ) ] }
+      bc' = Museq {_dur = 3, _sup = 3,
+                 _vec = V.fromList [ ((0,1), M.singleton "amp" 0)
+                                   , ((1,2), M.singleton "freq" 0) ] }
+  assertBool "mergea" $ mergea a' bc'
+    == Museq {_dur = 3, _sup = 6,
+              _vec = V.fromList [ ((0,1),M.fromList [("amp",2)
+                                                    ,("freq",2)])
+                                , ((4,5),M.fromList [("amp",2)
+                                                    ,("freq",0)]) ] }
 
 testMeta = TestCase $ do
   let a = Museq {_dur = 2, _sup = 2, _vec = V.fromList [ ((0,1),"a") ] }
