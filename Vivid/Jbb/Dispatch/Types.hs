@@ -12,7 +12,6 @@ module Vivid.Jbb.Dispatch.Types (
   , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
   , Action(..), actionSynth
-  , MapAction(..), mapActionSynth
   , Ev
   , Museq(..), dur, sup, vec
   , emptyMuseq, museq, museq'
@@ -85,24 +84,14 @@ data Msg' sdArgs where
        => params -> Msg' sdArgs
 
 data Action = New  SynthDefEnum SynthName
-            | Free SynthDefEnum SynthName
-            | Send SynthDefEnum SynthName Msg
+               | Free SynthDefEnum SynthName
+               | Send SynthDefEnum SynthName Msg
   deriving (Show,Eq,Ord)
 
 actionSynth :: Action -> (SynthDefEnum, SynthName)
 actionSynth (New  s n  ) = (s,n)
 actionSynth (Free s n  ) = (s,n)
 actionSynth (Send s n _) = (s,n)
-
-data MapAction = MapNew  SynthDefEnum SynthName
-               | MapFree SynthDefEnum SynthName
-               | MapSend SynthDefEnum SynthName Msg
-  deriving (Show,Eq,Ord)
-
-mapActionSynth :: MapAction -> (SynthDefEnum, SynthName)
-mapActionSynth (MapNew  s n  ) = (s,n)
-mapActionSynth (MapFree s n  ) = (s,n)
-mapActionSynth (MapSend s n _) = (s,n)
 
 
 type Ev a = ((RTime,RTime),a)
@@ -152,7 +141,7 @@ emptySynthRegister :: SynthRegister
 emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
 data Dispatch = Dispatch {
-    mMuseqs :: MVar (M.Map MuseqName (Museq MapAction))
+    mMuseqs :: MVar (M.Map MuseqName (Museq Action))
   , mReg :: MVar SynthRegister
   , mTime0 :: MVar Time
   , mTempoPeriod :: MVar Duration
