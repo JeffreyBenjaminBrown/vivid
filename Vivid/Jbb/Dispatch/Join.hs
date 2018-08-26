@@ -64,7 +64,7 @@ stack x y = let t = timeForBothToRepeat x y
                        , _sup = t
                        , _vec = V.concat $ xs ++ ys}
 
--- | Makes a hybrid.
+-- | `merge`` creates a hybrid.
 -- At any time when one of the inputs has nothing happening,
 -- the output has nothing happening.
 -- When merging parameters, you'll probably usually want to use * or +,
@@ -74,27 +74,33 @@ stack x y = let t = timeForBothToRepeat x y
 -- PITFALL: The choice of the resulting Museq's _dur is arbitrary.
 -- Here it's set to that of the first.
 -- For something else, just compose `Lens.set dur _` after `stack`.
+
 merge :: forall a. (a -> a -> a) -> Museq a -> Museq a -> Museq a
 merge op x y = Museq { _dur = _dur x -- arbitrary
                      , _sup = tbr
-                     , _vec = V.fromList $ alignAndMerge op xps yps }
-  where tbr = timeForBothToRepeat x y
-        xs, ys, xps, yps :: [Ev a]
-        xs = concatMap V.toList $ unsafeExplicitReps tbr x
-        ys = concatMap V.toList $ unsafeExplicitReps tbr y
-        bs = boundaries $ map fst $ xs ++ ys :: [RTime]
-        xps = partitionAndGroupEventsAtBoundaries bs xs
-        yps = partitionAndGroupEventsAtBoundaries bs ys
+                     , _vec = V.fromList $ alignAndMerge op xps yps } where
+  tbr = timeForBothToRepeat x y
+  xs, ys, xps, yps :: [Ev a]
+  xs = concatMap V.toList $ unsafeExplicitReps tbr x
+  ys = concatMap V.toList $ unsafeExplicitReps tbr y
+  bs = boundaries $ map fst $ xs ++ ys :: [RTime]
+  xps = partitionAndGroupEventsAtBoundaries bs xs
+  yps = partitionAndGroupEventsAtBoundaries bs ys
 
-alignAndMerge,mergeEvents :: forall a.
-  (a -> a -> a) -> [Ev a] -> [Ev a] -> [Ev a]
-alignAndMerge _ [] _ = []
-alignAndMerge _ _ [] = []
-alignAndMerge op aEvs@((arcA,_):aEvsRest)  bEvs@((arcB,_):bEvsRest)
-  | arcA <  arcB = alignAndMerge op aEvsRest bEvs
-  | arcB <  arcA = alignAndMerge op aEvs bEvsRest
-  | arcA == arcB = mergeEvents op aEvs bEvs
-mergeEvents op ((arc,a):aEvs) bEvs =
-  merged ++ alignAndMerge op aEvs bEvs
-  where bEvsMatch = takeWhile ((== arc) . fst) bEvs
-        merged = over _2 (op a) <$> bEvsMatch
+  alignAndMerge,mergeEvents :: forall a. -- mutually recursive
+    (a -> a -> a) -> [Ev a] -> [Ev a] -> [Ev a]
+  -- `alignAndMerge` checks whether events are aligned;
+  -- if so, hands work off to `mergeEvents`
+  alignAndMerge _ [] _ = []
+  alignAndMerge _ _ [] = []
+  alignAndMerge op aEvs@((arcA,_):aRest)  bEvs@((arcB,_):bRest)
+    | arcA <  arcB = alignAndMerge op aRest bEvs
+    | arcB <  arcA = alignAndMerge op aEvs bRest
+    | arcA == arcB = mergeEvents op aEvs bEvs
+
+  -- `mergeEvents` finds events in the second input aligned with first event
+  -- in first input, merges them, and hands off work to `mergeEvents`
+  mergeEvents op ((arc,a):aEvs) bEvs =
+    merged ++ alignAndMerge op aEvs bEvs
+    where bEvsMatch = takeWhile ((== arc) . fst) bEvs
+          merged = over _2 (op a) <$> bEvsMatch
