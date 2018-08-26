@@ -3,7 +3,7 @@
 module Vivid.Jbb.Dispatch.Internal.Join
 where
 
-import Control.Lens (over, _1)
+import Control.Lens (over, _1, _2)
 import qualified Data.List as L
 import qualified Data.Set as S
 import qualified Data.Vector as V
@@ -13,7 +13,7 @@ import Vivid.Jbb.Dispatch.Museq
 import Vivid.Jbb.Dispatch.Types
 
 
-timeForBothToRepeat :: Museq a -> Museq a -> RTime
+timeForBothToRepeat :: Museq a -> Museq b -> RTime
 timeForBothToRepeat x y =
   RTime $ lcmRatios (tr $ timeToRepeat x) (tr $ timeToRepeat y)
 
@@ -46,7 +46,7 @@ unsafeExplicitReps totalDuration m =
       reps = divideAtMaxima (fst . fst) maixima spread :: [V.Vector (Ev a)]
   in reps
 
--- | = Merge-related functions.
+-- | = Merge-ish (`merge`, `<*>` and `meta`) functions.
 
 -- | Produces a sorted list of arc endpoints.
 -- If `arcs` includes `(x,x)`, then `x` will appear twice in the output.
@@ -75,3 +75,23 @@ partitionAndGroupEventsAtBoundaries bs evs =
   let partitionEv :: ((a,a),v) -> [((a,a),v)]
       partitionEv (arc,x) = map (,x) $ partitionArcAtTimes bs arc
   in L.sortOn fst $ concatMap partitionEv evs
+
+-- | `alignAndJoin`  and `joinEvents` are mutually recursive
+-- `alignAndJoin` checks whether events are aligned;
+-- if so, hands work off to `joinEvents`
+-- `joinEvents` finds events in the second input aligned with first event
+-- in first input, joins them, and hands off work to `joinEvents`
+alignAndJoin,joinEvents :: forall a b c.
+  (a -> b -> c) -> [Ev a] -> [Ev b] -> [Ev c]
+
+alignAndJoin _ [] _ = []
+alignAndJoin _ _ [] = []
+alignAndJoin op aEvs@((arcA,_):aRest)  bEvs@((arcB,_):bRest)
+  | arcA <  arcB = alignAndJoin op aRest bEvs
+  | arcB <  arcA = alignAndJoin op aEvs bRest
+  | arcA == arcB = joinEvents op aEvs bEvs
+
+joinEvents op ((arc,a):aEvs) bEvs =
+  joined ++ alignAndJoin op aEvs bEvs
+  where bEvsMatch = takeWhile ((== arc) . fst) bEvs
+        joined = over _2 (op a) <$> bEvsMatch

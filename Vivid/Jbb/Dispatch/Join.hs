@@ -75,32 +75,15 @@ stack x y = let t = timeForBothToRepeat x y
 -- Here it's set to that of the first.
 -- For something else, just compose `Lens.set dur _` after `stack`.
 
-merge :: forall a. (a -> a -> a) -> Museq a -> Museq a -> Museq a
+merge :: forall a b c. (a -> b -> c) -> Museq a -> Museq b -> Museq c
 merge op x y = Museq { _dur = _dur x -- arbitrary
                      , _sup = tbr
-                     , _vec = V.fromList $ alignAndMerge op xps yps } where
+                     , _vec = V.fromList $ alignAndJoin op xps yps } where
   tbr = timeForBothToRepeat x y
-  xs, ys, xps, yps :: [Ev a]
+  xs, xps :: [Ev a]
+  ys, yps :: [Ev b]
   xs = concatMap V.toList $ unsafeExplicitReps tbr x
   ys = concatMap V.toList $ unsafeExplicitReps tbr y
-  bs = boundaries $ map fst $ xs ++ ys :: [RTime]
+  bs = boundaries $ map fst xs ++ map fst ys :: [RTime]
   xps = partitionAndGroupEventsAtBoundaries bs xs
   yps = partitionAndGroupEventsAtBoundaries bs ys
-
-  alignAndMerge,mergeEvents :: forall a. -- mutually recursive
-    (a -> a -> a) -> [Ev a] -> [Ev a] -> [Ev a]
-  -- `alignAndMerge` checks whether events are aligned;
-  -- if so, hands work off to `mergeEvents`
-  alignAndMerge _ [] _ = []
-  alignAndMerge _ _ [] = []
-  alignAndMerge op aEvs@((arcA,_):aRest)  bEvs@((arcB,_):bRest)
-    | arcA <  arcB = alignAndMerge op aRest bEvs
-    | arcB <  arcA = alignAndMerge op aEvs bRest
-    | arcA == arcB = mergeEvents op aEvs bEvs
-
-  -- `mergeEvents` finds events in the second input aligned with first event
-  -- in first input, merges them, and hands off work to `mergeEvents`
-  mergeEvents op ((arc,a):aEvs) bEvs =
-    merged ++ alignAndMerge op aEvs bEvs
-    where bEvsMatch = takeWhile ((== arc) . fst) bEvs
-          merged = over _2 (op a) <$> bEvsMatch
