@@ -152,7 +152,7 @@ arc time0 tempoPeriod from to m =
 
 arcFold :: forall a. Int -> Duration -> V.Vector RTime
   -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
-  -> Museq a -> [((RTime,RTime), a)]
+  -> Museq a -> [Ev a]
 arcFold cycle period rdv time0 from to m =
   if from >= to then [] -- todo ? Be sure of `arc` boundary condition
   else let

@@ -25,22 +25,21 @@ append x y =
         $ lcmRatios (tr $ dursToPlayThrough x) (tr $ dursToPlayThrough y)
         -- Since x and y both have to finish at the same time,
         -- they must run through this many durs.
-      ixs, iys :: [(Int,V.Vector ((RTime,RTime),a))]
+      ixs, iys :: [(Int,V.Vector (Ev a))]
       ixs = zip [0..] $ unsafeExplicitReps (durs * _dur x) x
       iys = zip [1..] $ unsafeExplicitReps (durs * _dur y) y
         -- ixs uses a 0 because it starts with no ys before it
         -- iys uses a 1 because it starts with 1 (_dur x) worth of x before it
 
       -- next, space out the xs to make room for the ys, and vice versa
-      adjustx, adjusty :: (Int,V.Vector ((RTime,RTime),a))
-                       ->      V.Vector ((RTime,RTime),a)
+      adjustx, adjusty :: (Int,V.Vector (Ev a)) -> V.Vector (Ev a)
       adjustx (idx,v) = V.map f v where
         f = over _1 (\(x,y) -> (g x, g y)) where
           g = (+) $ fromIntegral idx * _dur y
       adjusty (idx,v) = V.map f v where
         f = over _1 (\(x,y) -> (g x, g y)) where
           g = (+) $ fromIntegral idx * _dur x
-      xs, ys :: [V.Vector ((RTime,RTime),a)]
+      xs, ys :: [V.Vector (Ev a)]
       xs = map adjustx ixs
       ys = map adjusty iys
   in Museq {  _sup = durs * (_dur x + _dur y)
@@ -66,6 +65,12 @@ stack x y = let t = timeForBothToRepeat x y
                        , _vec = V.concat $ xs ++ ys}
 
 -- | Makes a hybrid.
+-- At any time when one of the inputs has nothing happening,
+-- the output has nothing happening.
+-- When merging parameters, you'll probably usually want to use * or +,
+-- on a per-parameter basis. For instance, you might want merging
+-- frequencies 2 and 440 to produce a frequency of 880, but merging
+-- amplitudes 1 and 2 to give an amplitude of 3.
 -- PITFALL: The choice of the resulting Museq's _dur is arbitrary.
 -- Here it's set to that of the first.
 -- For something else, just compose `Lens.set dur _` after `stack`.
@@ -74,7 +79,7 @@ merge op x y = Museq { _dur = _dur x -- arbitrary
                      , _sup = tbr
                      , _vec = V.fromList $ alignAndMerge op xps yps }
   where tbr = timeForBothToRepeat x y
-        xs, ys, xps, yps :: [((RTime,RTime),a)]
+        xs, ys, xps, yps :: [Ev a]
         xs = concatMap V.toList $ unsafeExplicitReps tbr x
         ys = concatMap V.toList $ unsafeExplicitReps tbr y
         bs = boundaries $ map fst $ xs ++ ys :: [RTime]

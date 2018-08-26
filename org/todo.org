@@ -17,8 +17,9 @@
 ** use museqIsValid in join|transform tests
 *** and test the new museqIsValid's extra clauses
 * add
-** *merge (see debating-endpoints.md)
 ** apply
+** merge : specialize to Museq Msg
+*** (see debating-endpoints.md)
 ** scales, harmonies
 ** parse a DSL for it
 *** seems much easier to make the DSL after the functions it will encode
