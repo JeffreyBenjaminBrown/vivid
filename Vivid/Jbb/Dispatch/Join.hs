@@ -65,18 +65,24 @@ stack x y = let t = timeForBothToRepeat x y
                        , _vec = V.concat $ xs ++ ys}
 
 -- | `merge`` creates a hybrid.
+--
 -- At any time when one of the inputs has nothing happening,
 -- the output has nothing happening.
+--
 -- When merging parameters, you'll probably usually want to use * or +,
 -- on a per-parameter basis. For instance, you might want merging
 -- frequencies 2 and 440 to produce a frequency of 880, but merging
 -- amplitudes 1 and 2 to give an amplitude of 3.
+--
+-- `merge` is abstract. For instance, it specializes to the signature
+-- `Museq (a->b) -> Museq a -> Museq b` in the `Applicative Museq` instance.
+--
 -- PITFALL: The choice of the resulting Museq's _dur is arbitrary.
--- Here it's set to that of the first.
+-- Here it's set to that of the second.
 -- For something else, just compose `Lens.set dur _` after `stack`.
 
 merge :: forall a b c. (a -> b -> c) -> Museq a -> Museq b -> Museq c
-merge op x y = Museq { _dur = _dur x -- arbitrary
+merge op x y = Museq { _dur = _dur y -- arbitrary
                      , _sup = tbr
                      , _vec = V.fromList $ alignAndJoin op xps yps } where
   tbr = timeForBothToRepeat x y
@@ -87,3 +93,9 @@ merge op x y = Museq { _dur = _dur x -- arbitrary
   bs = boundaries $ map fst xs ++ map fst ys :: [RTime]
   xps = partitionAndGroupEventsAtBoundaries bs xs
   yps = partitionAndGroupEventsAtBoundaries bs ys
+
+instance Applicative Museq where
+  (<*>) = merge ($)
+  pure x = Museq { _dur=1, _sup=1
+                 , _vec = V.singleton ((0,1),x) }
+

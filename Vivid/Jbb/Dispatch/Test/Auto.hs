@@ -236,7 +236,19 @@ testMerge = TestCase $ do
   let a  = Museq {_dur = 2, _sup = 2, _vec = V.fromList [ ((0,1),"a") ] }
       bc = Museq {_dur = 3, _sup = 3, _vec = V.fromList [ ((0,1),"b")
                                                         , ((1,2),"c") ] }
-  assertBool "merge 0" $ merge (++) a bc
-    == Museq {_dur = 2, _sup = 6,
+      op = Museq {_dur = 3, _sup = 1.5, _vec = V.singleton ((0,1),(++) " ") }
+  assertBool "merge" $ merge (++) a bc
+    == Museq {_dur = 3, _sup = 6,
               _vec = V.fromList [ ((0,1),"ab")
                                 , ((4,5),"ac") ] }
+  assertBool "apply" $ (op <*> bc)
+    == Museq {_dur = 3, _sup = 3,
+              _vec = V.fromList [ ((0,1),  " b")
+                                , ((1.5,2)," c")
+                                ] }
+
+
+a  = Museq {_dur = 2, _sup = 2, _vec = V.fromList [ ((0,1),"a") ] }
+bc = Museq {_dur = 3, _sup = 3, _vec = V.fromList [ ((0,1),"b")
+                                                  , ((1,2),"c") ] }
+op = Museq {_dur = 3, _sup = 1.5, _vec = V.singleton ((0,1),(++) " ") }
