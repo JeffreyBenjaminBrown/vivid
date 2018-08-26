@@ -10,7 +10,7 @@ a3 = fast 2 $ early (1/4)
                                                    , ("amp",0.4) ] )
              , (0.5, Send Boop "3" $ M.singleton "amp" 0 ) ]
 
-disp <- mapNewDispatch
+disp <- newDispatch
 -- swapMVar (mTempoPeriod disp) 2
 
 s <- synth boop ()
@@ -21,23 +21,23 @@ swapMVar (mReg disp) $ SynthRegister {
   , _vaps = M.empty
   , _sqfms = M.empty }
 
--- mapReplaceAll disp $ M.fromList [ ("1",fast 3 a1), ("2",fast 2 a2)]
--- mapReplaceAll disp $ M.fromList [ ("1",early 1 $ fast 4 a1), ("2",rev $ fast 1.5 a3)]
--- mapReplace disp "2" a3
+-- replaceAll disp $ M.fromList [ ("1",fast 3 a1), ("2",fast 2 a2)]
+-- replaceAll disp $ M.fromList [ ("1",early 1 $ fast 4 a1), ("2",rev $ fast 1.5 a3)]
+-- replace disp "2" a3
 
 -- TODO ! bug, freezes synths mid-note
--- mapReplaceAll disp $ M.fromList [ ("2",fast 3 a3)]
+-- replaceAll disp $ M.fromList [ ("2",fast 3 a3)]
 
 -- -- testing chTempoPeriod
--- mapReplaceAll disp $ M.fromList [ ("1", a1), ("2",  a2)]
--- mapChTempoPeriod disp 1.05
+-- replaceAll disp $ M.fromList [ ("1", a1), ("2",  a2)]
+-- chTempoPeriod disp 1.05
 
-tryReadMVar $ mapMMuseqs disp
+tryReadMVar $ mMuseqs disp
 tryReadMVar $ mReg disp
 tryReadMVar $ mTime0 disp
 tryReadMVar $ mTempoPeriod disp
 
-tid <- mapStartDispatchLoop disp
+tid <- startDispatchLoop disp
 putStrLn "disp <- newDispatch\ntid <- startDispatchLoop disp"
 
 off = killThread tid >> freeAll

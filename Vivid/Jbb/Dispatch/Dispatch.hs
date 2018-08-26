@@ -22,32 +22,32 @@ import Vivid.Jbb.Util
 -- | = Act on a Msg
 
 -- todo ? `act` might never get used
-mapAct :: SynthRegister -> Time -> Action
+act :: SynthRegister -> Time -> Action
      -> IO (SynthRegister -> SynthRegister)
-mapAct reg t a@(Send _ _ _) = mapActSend reg t a >> return id
-mapAct reg t a@(Free _ _)   = mapActFree reg t a
-mapAct reg t a@(New _ _)    = mapActNew  reg   a
+act reg t a@(Send _ _ _) = actSend reg t a >> return id
+act reg t a@(Free _ _)   = actFree reg t a
+act reg t a@(New _ _)    = actNew  reg   a
 
-mapActNew :: SynthRegister -> Action -> IO (SynthRegister -> SynthRegister)
-mapActNew reg (New Boop name) = case M.lookup name $ _boops reg of
+actNew :: SynthRegister -> Action -> IO (SynthRegister -> SynthRegister)
+actNew reg (New Boop name) = case M.lookup name $ _boops reg of
     Nothing -> do s <- synth boop ()
                   return $ over boops $ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Boop named " ++ name
             return id
-mapActNew reg (New Vap name) = case M.lookup name $ _vaps reg of
+actNew reg (New Vap name) = case M.lookup name $ _vaps reg of
     Nothing -> do s <- synth vap ()
                   return $ over vaps $ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Vap named " ++ name
             return id
-mapActNew reg (New Sqfm name) = case M.lookup name $ _sqfms reg of
+actNew reg (New Sqfm name) = case M.lookup name $ _sqfms reg of
     Nothing -> do s <- synth sqfm ()
                   return $ over sqfms $ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Sqfm named " ++ name
             return id
-mapActNew _ (Send _ _ _) = error $ "mapActNew received a Send."
-mapActNew _ (Free _ _)   = error $ "mapActNew received a Free."
+actNew _ (Send _ _ _) = error $ "actNew received a Send."
+actNew _ (Free _ _)   = error $ "actNew received a Free."
 
-mapActFree reg when (Free Boop name) = case M.lookup name $ _boops reg of
+actFree reg when (Free Boop name) = case M.lookup name $ _boops reg of
   Nothing -> do
     writeTimeAndError $ "There is no Boop named " ++ name ++ "to free."
     return id
@@ -55,7 +55,7 @@ mapActFree reg when (Free Boop name) = case M.lookup name $ _boops reg of
     do doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
        doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
        return $ over boops $ M.delete name
-mapActFree reg when (Free Vap name) = case M.lookup name $ _vaps reg of
+actFree reg when (Free Vap name) = case M.lookup name $ _vaps reg of
   Nothing -> do
     writeTimeAndError $ "There is no Vap named " ++ name ++ "to free."
     return id
@@ -63,7 +63,7 @@ mapActFree reg when (Free Vap name) = case M.lookup name $ _vaps reg of
     do doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
        doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
        return $ over vaps $ M.delete name
-mapActFree reg when (Free Sqfm name) = case M.lookup name $ _sqfms reg of
+actFree reg when (Free Sqfm name) = case M.lookup name $ _sqfms reg of
   Nothing -> do
     writeTimeAndError $ "There is no Sqfm named " ++ name ++ "to free."
     return id
@@ -71,35 +71,35 @@ mapActFree reg when (Free Sqfm name) = case M.lookup name $ _sqfms reg of
     do doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
        doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
        return $ over sqfms $ M.delete name
-mapActFree _ _ (Send _ _ _) = error "mapActFree received a Send."
-mapActFree _ _ (New _ _)    = error "mapActFree received a New."
+actFree _ _ (Send _ _ _) = error "actFree received a Send."
+actFree _ _ (New _ _)    = error "actFree received a New."
 
-mapActSend :: SynthRegister -> Time -> Action -> IO ()
-mapActSend reg when (Send Boop name msg) =
+actSend :: SynthRegister -> Time -> Action -> IO ()
+actSend reg when (Send Boop name msg) =
   case M.lookup name $ _boops reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just synth -> doScheduledAt (Timestamp $ fromRational when)
       $ mapM_ (set' synth) $ boopMsg msg
-mapActSend reg when (Send Sqfm name msg) =
+actSend reg when (Send Sqfm name msg) =
   case M.lookup name $ _sqfms reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just synth -> doScheduledAt (Timestamp $ fromRational when)
       $ mapM_ (set' synth) $ sqfmMsg msg
-mapActSend reg when (Send Vap name msg) =
+actSend reg when (Send Vap name msg) =
   case M.lookup name $ _vaps reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just synth -> doScheduledAt (Timestamp $ fromRational when)
       $ mapM_ (set' synth) $ vapMsg msg
-mapActSend _ _ (Free _ _) = error "mapActFree received a Send."
-mapActSend _ _ (New _ _)  = error "mapActFree received a New."
+actSend _ _ (Free _ _) = error "actFree received a Send."
+actSend _ _ (New _ _)  = error "actFree received a New."
 
 
 -- | = Change the music
 
-mapReplace :: Dispatch -> MuseqName -> Museq Action -> IO ()
-mapReplace disp newName newMuseq = do
+replace :: Dispatch -> MuseqName -> Museq Action -> IO ()
+replace disp newName newMuseq = do
   masOld <- readMVar $ mMuseqs disp
-  mapReplaceAll disp $ M.insert newName newMuseq masOld
+  replaceAll disp $ M.insert newName newMuseq masOld
 
 -- | ASSUMES every synth has an "amp" parameter which, when 0, causes silence.
 --
@@ -107,8 +107,8 @@ mapReplace disp newName newMuseq = do
 -- and which need creation. Create the latter immediately. Wait to delete
 -- the former until it's safe, and before deleting them, send silence
 -- (set "amp" to 0).
-mapReplaceAll :: Dispatch -> M.Map MuseqName (Museq Action) -> IO ()
-mapReplaceAll disp masNew = do
+replaceAll :: Dispatch -> M.Map MuseqName (Museq Action) -> IO ()
+replaceAll disp masNew = do
   time0  <-      takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
   masOld <-      takeMVar $ mMuseqs      disp
@@ -120,8 +120,8 @@ mapReplaceAll disp masNew = do
       toFree, toCreate :: [(SynthDefEnum, SynthName)]
       (toFree,toCreate) = mapMuseqsDiff masOld masNew
 
-  newTransform  <- mapM (mapActNew  reg)      $ map (uncurry New)  toCreate
-  freeTransform <- mapM (mapActFree reg when) $ map (uncurry Free) toFree
+  newTransform  <- mapM (actNew  reg)      $ map (uncurry New)  toCreate
+  freeTransform <- mapM (actFree reg when) $ map (uncurry Free) toFree
 
   putMVar (mTime0       disp) time0       -- unchnaged
   putMVar (mTempoPeriod disp) tempoPeriod -- unchanged
@@ -134,8 +134,8 @@ mapReplaceAll disp masNew = do
 
   return ()
 
-mapChTempoPeriod :: Dispatch -> Duration -> IO ()
-mapChTempoPeriod disp newTempoPeriod = do
+chTempoPeriod :: Dispatch -> Duration -> IO ()
+chTempoPeriod disp newTempoPeriod = do
   time0       <- takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
   now         <- unTimestamp <$> getTime
@@ -152,8 +152,8 @@ mapChTempoPeriod disp newTempoPeriod = do
 
 -- | = The Dispatch loop
 
-mapStartDispatchLoop :: Dispatch -> IO ThreadId
-mapStartDispatchLoop disp = do
+startDispatchLoop :: Dispatch -> IO ThreadId
+startDispatchLoop disp = do
   tryTakeMVar $ mTime0 disp -- empty it, just in case
   mbTempo <- tryReadMVar $ mTempoPeriod disp
   maybe (putMVar (mTempoPeriod disp) 1) (const $ return ()) mbTempo
@@ -161,10 +161,10 @@ mapStartDispatchLoop disp = do
   (+(frameDuration * (-0.8))) . unTimestamp <$> getTime
     -- subtract nearly an entire frameDuration so it starts sooner
     >>= putMVar (mTime0 disp)
-  forkIO $ mapDispatchLoop disp
+  forkIO $ dispatchLoop disp
 
-mapDispatchLoop :: Dispatch -> IO ()
-mapDispatchLoop disp = do
+dispatchLoop :: Dispatch -> IO ()
+dispatchLoop disp = do
   time0  <-      takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
   museqsMap <-   takeMVar $ mMuseqs      disp
@@ -178,7 +178,7 @@ mapDispatchLoop disp = do
         f m = map (over _1 fst)  -- use `fst` to ignore message's end time
           $ arc time0 tempoPeriod startRender (startRender + frameDuration) m
 
-  mapM_ (uncurry $ mapActSend reg) evs
+  mapM_ (uncurry $ actSend reg) evs
 
   putMVar (mTime0       disp) time0
   putMVar (mTempoPeriod disp) tempoPeriod
@@ -186,6 +186,6 @@ mapDispatchLoop disp = do
   putMVar (mReg         disp) reg
 
   wait $ fromRational np0 - now
-  mapDispatchLoop disp
+  dispatchLoop disp
 
 showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs
