@@ -75,21 +75,21 @@ mapActFree _ _ (MapSend _ _ _) = error "mapActFree received a MapSend."
 mapActFree _ _ (MapNew _ _)    = error "mapActFree received a MapNew."
 
 mapActSend :: SynthRegister -> Time -> MapAction -> IO ()
-mapActSend reg when (MapSend Boop name msgs) =
+mapActSend reg when (MapSend Boop name msg) =
   case M.lookup name $ _boops reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just synth -> doScheduledAt (Timestamp $ fromRational when)
-      $ mapM_ (set' synth) $ boopMsg msgs
-mapActSend reg when (MapSend Sqfm name msgs) =
+      $ mapM_ (set' synth) $ boopMsg msg
+mapActSend reg when (MapSend Sqfm name msg) =
   case M.lookup name $ _sqfms reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just synth -> doScheduledAt (Timestamp $ fromRational when)
-      $ mapM_ (set' synth) $ sqfmMsg msgs
-mapActSend reg when (MapSend Vap name msgs) =
+      $ mapM_ (set' synth) $ sqfmMsg msg
+mapActSend reg when (MapSend Vap name msg) =
   case M.lookup name $ _vaps reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just synth -> doScheduledAt (Timestamp $ fromRational when)
-      $ mapM_ (set' synth) $ vapMsg msgs
+      $ mapM_ (set' synth) $ vapMsg msg
 mapActSend _ _ (MapFree _ _) = error "mapActFree received a MapSend."
 mapActSend _ _ (MapNew _ _)  = error "mapActFree received a MapNew."
 

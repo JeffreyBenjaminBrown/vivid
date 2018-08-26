@@ -10,7 +10,7 @@
 module Vivid.Jbb.Dispatch.Types (
   SynthName, ParamName, MuseqName
   , Time, Duration, RTime(..), RDuration, unTimestamp
-  , Msg, MapMsg, Msg'(..)
+  , Msg, Msg'(..)
   , Action(..), actionSynth
   , MapAction(..), mapActionSynth
   , Ev
@@ -76,9 +76,7 @@ unTimestamp (Timestamp x) = toRational x
 
 -- | = Instructions
 
-type Msg = (ParamName, Float)
-
-type MapMsg = M.Map ParamName Float
+type Msg = M.Map ParamName Float
 
 data Msg' sdArgs where
   Msg' :: forall params sdArgs.
@@ -98,7 +96,7 @@ actionSynth (Send s n _) = (s,n)
 
 data MapAction = MapNew  SynthDefEnum SynthName
                | MapFree SynthDefEnum SynthName
-               | MapSend SynthDefEnum SynthName MapMsg
+               | MapSend SynthDefEnum SynthName Msg
   deriving (Show,Eq,Ord)
 
 mapActionSynth :: MapAction -> (SynthDefEnum, SynthName)

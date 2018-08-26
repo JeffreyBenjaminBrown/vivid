@@ -196,7 +196,7 @@ testArc = TestCase $ do
        , ((215,219),"b")]
 
 m = museq' 2 [ (0, M.singleton "freq" 100)
-             , (1, M.singleton "amp"  0.1) ] :: Museq MapMsg
+             , (1, M.singleton "amp"  0.1) ] :: Museq Msg
 
 testOverParams = TestCase $ do
   let m = museq' 2 [ (0, M.singleton "freq" 100)

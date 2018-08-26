@@ -26,30 +26,30 @@ set' synth (Msg' m) = set synth m
 -- | == per-synth boilerplate
 
 -- | = send a Map full of messages
-boopMsg :: MapMsg -> [Msg' BoopParams]
+boopMsg :: Msg -> [Msg' BoopParams]
 boopMsg = map boopOneMsg . M.toList
 
-sqfmMsg :: MapMsg -> [Msg' SqfmParams]
+sqfmMsg :: Msg -> [Msg' SqfmParams]
 sqfmMsg = map sqfmOneMsg . M.toList
 
-vapMsg :: MapMsg -> [Msg' VapParams]
+vapMsg :: Msg -> [Msg' VapParams]
 vapMsg = map vapOneMsg . M.toList
 
 
 -- | = send a message regarding a single parameter
 
-boopOneMsg :: Msg -> Msg' BoopParams
+boopOneMsg :: (ParamName, Float) -> Msg' BoopParams
 boopOneMsg ("freq",n) = Msg' (toI n :: I "freq")
 boopOneMsg ("amp",n) = Msg' (toI n :: I "amp")
 
-sqfmOneMsg :: Msg -> Msg' SqfmParams
+sqfmOneMsg :: (ParamName, Float) -> Msg' SqfmParams
 sqfmOneMsg ("freq",n) = Msg' (toI n :: I "freq")
 sqfmOneMsg ("amp",n) = Msg' (toI n :: I "amp")
 sqfmOneMsg ("width",n) = Msg' (toI n :: I "width")
 sqfmOneMsg ("width-vib-amp",n) = Msg' (toI n :: I "width-vib-amp")
 sqfmOneMsg ("width-vib-freq",n) = Msg' (toI n :: I "width-vib-freq")
 
-vapOneMsg :: Msg -> Msg' VapParams
+vapOneMsg :: (ParamName, Float) -> Msg' VapParams
 vapOneMsg ("freq",n) = Msg' (toI n :: I "freq")
 vapOneMsg ("amp",n) = Msg' (toI n :: I "amp")
 vapOneMsg ("saw",n) = Msg' (toI n :: I "saw")
