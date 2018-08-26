@@ -6,10 +6,12 @@ module Vivid.Jbb.Dispatch.Join
   , cat
   , stack
   , merge
+  , meta
   )
 where
 
-import Control.Lens (over, _1, _2)
+import Control.Lens (set, over, _1, _2)
+import qualified Data.List as L
 import qualified Data.Vector as V
 
 import Vivid.Jbb.Util
@@ -99,3 +101,13 @@ instance Applicative Museq where
   pure x = Museq { _dur=1, _sup=1
                  , _vec = V.singleton ((0,1),x) }
 
+meta :: forall a b c. Museq (Museq a -> Museq b) -> Museq a -> Museq b
+meta x y = sortMuseq $ Museq { _dur = _dur y -- arbitrary
+                             , _sup = tbr
+                             , _vec = V.fromList evs }
+  where tbr = timeForBothToRepeat x y
+        xs :: [Ev (Museq a -> Museq b)]
+        xs = concatMap V.toList $ unsafeExplicitReps tbr x
+        evs = map (over _1 $ \(s,t) -> (RTime s, RTime t))
+          $ concat [arc 0 1 (tr start) (tr finish) (op y)
+                   | ((start,finish),op) <- xs]

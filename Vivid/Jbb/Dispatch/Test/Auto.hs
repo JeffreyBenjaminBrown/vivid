@@ -37,6 +37,7 @@ tests = runTestTT $ TestList
   , TestLabel "testPartitionAndGroupEventsAtBoundaries"
     testPartitionAndGroupEventsAtBoundaries
   , TestLabel "testMerge" testMerge
+  , TestLabel "testMeta" testMeta
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -247,8 +248,14 @@ testMerge = TestCase $ do
                                 , ((1.5,2)," c")
                                 ] }
 
-
-a  = Museq {_dur = 2, _sup = 2, _vec = V.fromList [ ((0,1),"a") ] }
-bc = Museq {_dur = 3, _sup = 3, _vec = V.fromList [ ((0,1),"b")
-                                                  , ((1,2),"c") ] }
-op = Museq {_dur = 3, _sup = 1.5, _vec = V.singleton ((0,1),(++) " ") }
+testMeta = TestCase $ do
+  let a = Museq {_dur = 2, _sup = 2, _vec = V.fromList [ ((0,1),"a") ] }
+      f = Museq {_dur = 3, _sup = 3, _vec = V.fromList [ ((0,1), fast 2)
+                                                       , ((2,3), early $ 1/4)
+                                                       ] }
+  assertBool "meta" $ meta f a
+    == Museq {_dur = 2, _sup = 6,
+              _vec = V.fromList [((0,    0.5),"a")
+                                ,((2,    2.75),"a")
+                                ,((3,    3.5),"a")
+                                ,((5.75, 6),"a")]}
