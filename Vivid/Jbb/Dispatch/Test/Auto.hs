@@ -168,11 +168,11 @@ testMapMuseqsDiff = TestCase $ do
                       ,("b", museq' 15 [(0, Send Boop "2" msg)
                                        ,(10,Send Boop "3" msg)
                                       ] ) ]
-  assertBool "museqDiff" $ mapMuseqsDiff m1 m2 == ( [ (Boop,"1") ]
+  assertBool "museqDiff" $ museqsDiff m1 m2 == ( [ (Boop,"1") ]
                                                   , [ (Boop,"3")
                                                     , (Vap ,"2")
                                                     ] )
-  assertBool "museqDiff" $ mapMuseqsDiff m2 m1 == ( [ (Boop,"3")
+  assertBool "museqDiff" $ museqsDiff m2 m1 == ( [ (Boop,"3")
                                                     , (Vap ,"2") ]
                                                   , [ (Boop,"1") ]
                                                   )
