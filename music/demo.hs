@@ -24,8 +24,8 @@ hush = replaceAll disp M.empty
 off = killThread tid >> freeAll -- run "off" to stop the program
 
 
--- | = This defines a simple `Museq`: a pattern that goes note-note-silence.
--- It could control any parameters; here it only uses "freq" and "amp".
+-- | = `p f1 f2` defines a simple `Museq`, a note-note-silence pattern.
+-- It could control more parameters, but here it only uses "freq" and "amp".
 let p :: Float -> Float -> Museq Msg
     p f1 f2 = museq' 1 -- 1 is the `Museq`'s duration
       [ (0 -- when the first note (bunch of messages) is sent

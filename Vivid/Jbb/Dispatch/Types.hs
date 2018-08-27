@@ -12,7 +12,7 @@ module Vivid.Jbb.Dispatch.Types (
   , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
   , Action(..), actionSynth
-  , Ev
+  , Ev, showEvs
   , Museq(..), dur, sup, vec
   , emptyMuseq, museq, museq'
   , SynthRegister(..), boops, vaps, sqfms
@@ -95,6 +95,9 @@ actionSynth (Send s n _) = (s,n)
 
 
 type Ev a = ((RTime,RTime),a)
+
+showEvs :: (Foldable t, Show a) => t (Ev a) -> String
+showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs
 
 data Museq a = Museq {
   _dur :: RDuration -- ^ the play duration of the loop

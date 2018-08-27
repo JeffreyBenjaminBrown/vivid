@@ -21,10 +21,6 @@
 *** ? what do I want to be able to ask for
 *** ? should I bury Msgs inside a more muscail type
 * fix
-** where are those "already a boop" errors coming from?
-** rewriting DistribLoop
-*** maybe adding frameDuration to startRender is unnecessary.
-**** If so, adjust this function, and also replaceAll, chTempo, etc. -- maybe everything that calls getTime.
 ** museqIsValid: test that endpoints do not lead starts
 ** use museqIsValid in join|transform tests
 *** and test the new museqIsValid's extra clauses

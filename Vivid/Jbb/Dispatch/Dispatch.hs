@@ -120,7 +120,7 @@ replaceAll disp masNew = do
   reg <-         takeMVar $ mReg         disp
   now <- unTimestamp <$> getTime
 
-  let when = nextPhase0 time0 frameDuration now + 2 * frameDuration
+  let when = nextPhase0 time0 frameDuration now + frameDuration -- DONE
         -- `when` = the start of the first not-yet-rendered frame
       toFree, toCreate :: [(SynthDefEnum, SynthName)]
       (toFree,toCreate) = museqsDiff masOld masNew
@@ -144,13 +144,12 @@ chTempoPeriod disp newTempoPeriod = do
   time0       <- takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
   now         <- unTimestamp <$> getTime
-  let np0 = nextPhase0 time0 frameDuration now
-      startRender = np0 + 2 * frameDuration
-        -- np0 and startRender are defined similar to dispatchLoop,
-        -- EXCEPT: multiply frameDuration by 2, because np0 is one period less
-        -- than it will be the next time dispatchLoop runs
-      startRenderInCycles = (startRender - time0) / tempoPeriod
-      newTime0 = startRender - startRenderInCycles * newTempoPeriod
+  let when = nextPhase0 time0 frameDuration now + frameDuration -- DONE
+        -- `when` here is defined similar to `when` in `dispatchLoop`,
+        -- EXCEPT: add `frameDuration`, because `when` is one period
+        -- less than it will be the next time `dispatchLoop` runs
+      whenInCycles = (when - time0) / tempoPeriod
+      newTime0 = when - whenInCycles * newTempoPeriod
   putMVar (mTempoPeriod disp) newTempoPeriod
   putMVar (mTime0       disp) newTime0
 
@@ -163,8 +162,8 @@ startDispatchLoop disp = do
   mbTempo <- tryReadMVar $ mTempoPeriod disp
   maybe (putMVar (mTempoPeriod disp) 1) (const $ return ()) mbTempo
   
-  (+(frameDuration * (-0.8))) . unTimestamp <$> getTime
-    -- subtract nearly an entire frameDuration so it starts sooner
+  ((-) (0.8 * frameDuration)) . unTimestamp <$> getTime -- DONE
+    -- subtract nearly an entire frameDuration so it starts soon
     >>= putMVar (mTime0 disp)
   forkIO $ dispatchLoop disp
 
@@ -176,8 +175,7 @@ dispatchLoop disp = do
   reg <-         takeMVar $ mReg         disp
   now <- unTimestamp <$> getTime
 
-  let np0 = nextPhase0 time0 frameDuration now
-      startRender = np0 + frameDuration
+  let startRender = nextPhase0 time0 frameDuration now -- DONE
       evs = concatMap f $ M.elems museqsMap :: [(Time, Action)] where
         f :: Museq Action -> [(Time, Action)]
         f m = map (over _1 fst)  -- use `fst` to ignore message's end time
@@ -190,7 +188,5 @@ dispatchLoop disp = do
   putMVar (mMuseqs      disp) museqsMap
   putMVar (mReg         disp) reg
 
-  wait $ fromRational np0 - now
+  wait $ fromRational startRender - now -- DONE
   dispatchLoop disp
-
-showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs
