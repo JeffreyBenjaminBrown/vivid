@@ -14,7 +14,7 @@ module Vivid.Jbb.Dispatch.Types (
   , Action(..), actionSynth
   , Ev, showEvs
   , Museq(..), dur, sup, vec
-  , emptyMuseq, museq, museq'
+  , emptyMuseq
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
   , Dispatch(..), newDispatch
@@ -116,18 +116,6 @@ instance Functor Museq where
 
 emptyMuseq :: Museq a
 emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
-
-museq :: RDuration -> [((Rational,Rational),a)] -> Museq a
-museq d tas = Museq { _dur = d
-                    , _sup = d
-                    , _vec = V.fromList $ map (over _1 f) tas }
-  where f (start,end) = (fr start, fr end)
-
--- | When the events of a Museq are all duration 0, museq'
--- lets you simply write t instead of (t,t) for the start and end times.
-museq' :: RDuration -> [(RTime,a)] -> Museq a
-museq' d tas = Museq {_dur = d, _sup = d, _vec = V.fromList $ map f tas}
-  where f (t,val) = ((t,t),val)
 
 
 -- | The global state

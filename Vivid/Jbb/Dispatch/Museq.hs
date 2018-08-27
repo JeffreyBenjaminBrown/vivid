@@ -11,6 +11,7 @@ module Vivid.Jbb.Dispatch.Museq
   , dursToRepeat
 
   , museqSynths
+  , museq, museq'
   , museqsDiff
   , sortMuseq
   , museqIsValid
@@ -76,6 +77,19 @@ dursToRepeat m = timeToRepeat m / _dur m
 -- | Given a Museq, find the synths it uses.
 museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
 museqSynths = map (actionSynth . snd) . V.toList . _vec
+
+-- | Make a Museq, specifying start and end times
+museq :: RDuration -> [((Rational,Rational),a)] -> Museq a
+museq d tas = sortMuseq $ Museq { _dur = d
+                                , _sup = d
+                                , _vec = V.fromList $ map (over _1 f) tas }
+  where f (start,end) = (fr start, fr end)
+
+-- | Make a Museq of instantaneous events, specifying only start times
+museq' :: RDuration -> [(RTime,a)] -> Museq a
+museq' d tas = sortMuseq $ Museq {_dur = d, _sup = d,
+                                  _vec = V.fromList $ map f tas}
+  where f (t,val) = ((t,t),val)
 
 
 -- | Given an old set of Museqs and a new one, figure out
