@@ -1,17 +1,19 @@
 -- | How to run this code
 --
 -- (0) You'll need Stack and SuperCollider installed.
--- (1) Clone this repo, and (in Bash) visit the root folder of it.
--- (2) From Bash, run "bash sc-start.sh" to start SuperCollider.
+-- (1) Clone this branch of this repo -- for instance, with
+--    "git clone -b jbb-update https://github.com/JeffreyBenjaminBrown/vivid/"
+--     From Bash, visit its root folder.
+-- (2) Run "bash sc-start.sh" to start SuperCollider.
 --     (Or start SuperCollider in whatever other way you prefer.)
--- (3) From Bash, start GHCI by running "stack ghci". 
--- (4) From GHCI, run ":s init.hs"
--- (5) From GHCI, run ":. music/demo"
+-- (3) Start GHCI by running "stack ghci".
+-- (4) Run ":s init.hs" to set up the environment.
+-- (5) Run ":. music/demo" to execute this file.
 --
--- If at any point there's a bunch of code that you want to evaluate
+-- If at any point there's some multi-line code that you want to evaluate
 -- without interrupting the ongoing GHCI context,
 -- you can put it in a file and evaluate ":. path/to/file", just like
--- in step 5 above.
+-- in step 5 above. (Omit the file extension when doing that.)
 
 
 -- | = Some boilerplate to start the program
