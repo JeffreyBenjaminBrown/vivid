@@ -1,17 +1,29 @@
--- | == If you've cloned this repo and started GHCI from the root
--- directory using `stack ghci`, you can run this code by executing
--- ":. music/demo" (without the quotation marks).
+-- | How to run this code
+--
+-- (0) You'll need Stack and SuperCollider installed.
+-- (1) Clone this repo, and (in Bash) visit the root folder of it.
+-- (2) From Bash, run "bash sc-start.sh" to start SuperCollider.
+--     (Or start SuperCollider in whatever other way you prefer.)
+-- (3) From Bash, start GHCI by running "stack ghci". 
+-- (4) From GHCI, run ":s init.hs"
+-- (5) From GHCI, run ":. music/demo"
+--
+-- If at any point there's a bunch of code that you want to evaluate
+-- without interrupting the ongoing GHCI context,
+-- you can put it in a file and evaluate ":. path/to/file", just like
+-- in step 5 above.
 
 
 -- | = Some boilerplate to start the program
 disp <- newDispatch
 tid <- startDispatchLoop disp
-off = killThread tid >> freeAll -- later, to stop everything, run `off`
-hush = replaceAll disp M.empty -- later, to silence everything, run `hush`
+hush = replaceAll disp M.empty
+  -- run "hush" to stop and delete all ongoing loops
+off = killThread tid >> freeAll -- run "off" to stop the program
 
 
--- | = Define a simple `Museq`, a pattern that goes note-note-silence.
--- This only controls "freq" and "amp", but it could involve more parameters.
+-- | = This defines a simple `Museq`: a pattern that goes note-note-silence.
+-- It could control any parameters; here it only uses "freq" and "amp".
 let p :: Float -> Float -> Museq Msg
     p f1 f2 = museq' 1 -- 1 is the `Museq`'s duration
       [ (0 -- when the first note (bunch of messages) is sent
@@ -44,7 +56,7 @@ replace disp "a faster one" $ Send Boop "2" <$>
   -- see Transform.hs for more ways to transform `Museq`s
 
 stop disp "nope" -- Stop and delete the Museq named "nope", if it exists.
-  -- (It doesn't, so this does nothing.)
+  -- (In this case it doesn't, so nothing happens.)
 
 -- `append` and `merge` `Museq`s. (You can also `stack` them, but until
 -- polyphonic `Museq`s become more convenient, I can't recommend that.)
