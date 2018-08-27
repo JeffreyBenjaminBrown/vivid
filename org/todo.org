@@ -8,6 +8,18 @@
 ** [dubious] Represent a Museq in more than one way
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14, 
+* ! polyphonic is hard
+** the problem
+*** Suppose pattern p has two freqs at one point, and later two amps. 
+*** Should it render as four melodies? 
+*** If it's only two melodies, which freq matches to which amp?
+*** Should the bifurcation caused by a double-instruction persist after it ends? Precede it?
+*** What happens when you merge or meta a polyphonic pattern with another?
+*** Is stack useless on Msgs, and only useful on Actions?
+** misc thoughts|questions
+*** a Msg can have a duration
+*** ? what do I want to be able to ask for
+*** ? should I bury Msgs inside a more muscail type
 * fix
 ** where are those "already a boop" errors coming from?
 ** rewriting DistribLoop

@@ -96,6 +96,11 @@ actSend _ _ (New _ _)  = error "actFree received a New."
 
 -- | = Change the music
 
+stop :: Dispatch -> MuseqName -> IO ()
+stop disp name = do
+  masOld <- readMVar $ mMuseqs disp
+  replaceAll disp $ M.delete name masOld
+
 replace :: Dispatch -> MuseqName -> Museq Action -> IO ()
 replace disp newName newMuseq = do
   masOld <- readMVar $ mMuseqs disp
