@@ -11,8 +11,8 @@
 * ! polyphonic is hard
 ** ideas|questions
 *** How to generate names, and avoid name conflict, when voices bifurcate?
+*** Should number of voices be robust to reversal?
 *** use an "on" parameter, just like amp, so that amp is not forgotten
-*** should number of voices be robust to reversal?
 **** e.g. consider the pattern "f f, x, f". Played forward, there would be two voices (because two f values) during the x, but backward, there would not.
 *** bury Msgs inside a more muscai type
 *** skip info if possible -- name, amp, on|off, end time
@@ -27,6 +27,8 @@
 ** use museqIsValid in join|transform tests
 *** and test the new museqIsValid's extra clauses
 * add
+** abbreviations for map functions, imported as M
+*** so that I can write M.fl or M.fromList interchangeably
 ** scales, harmonies
 ** parse a DSL for it
 *** seems much easier to make the DSL after the functions it will encode
