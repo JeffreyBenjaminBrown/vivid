@@ -9,6 +9,13 @@
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14, 
 * ! polyphonic is hard
+** ideas|questions
+*** How to generate names, and avoid name conflict, when voices bifurcate?
+*** use an "on" parameter, just like amp, so that amp is not forgotten
+*** should number of voices be robust to reversal?
+**** e.g. consider the pattern "f f, x, f". Played forward, there would be two voices (because two f values) during the x, but backward, there would not.
+*** bury Msgs inside a more muscai type
+*** skip info if possible -- name, amp, on|off, end time
 ** the problem
 *** Suppose pattern p has two freqs at one point, and later two amps. 
 *** Should it render as four melodies? 
@@ -16,12 +23,7 @@
 *** Should the bifurcation caused by a double-instruction persist after it ends? Precede it?
 *** What happens when you merge or meta a polyphonic pattern with another?
 *** Is stack useless on Msgs, and only useful on Actions?
-** misc thoughts|questions
-*** a Msg can have a duration
-*** ? what do I want to be able to ask for
-*** ? should I bury Msgs inside a more muscail type
 * fix
-** museqIsValid: test that endpoints do not lead starts
 ** use museqIsValid in join|transform tests
 *** and test the new museqIsValid's extra clauses
 * add

@@ -1,0 +1,66 @@
+Notation: (,) separates things in time, parameters are f(req),a(mp) and x, name=n, time=t followed by two numbers, and parameter values are usually omitted. (*) indicates problems.
+
+# Single sequences
+
+t 0 1 n=1 a=1 f, t 1 2 n=1 x
+
+dur=5, t 0 1 (f f)*, t 1 2 x, t 3 4 f*
+  There should be 2 voices, n=1.1 and n=1.2, until time 3.
+  The second instruction should apply to both voices.
+  The last instruction should reduce the number of voices to 1.
+      Don't delete a voice; just turn it off.
+  Silence (on=0) are implicit at times 2 and 4.
+
+t 0 1 n=1 a=1 (f 1 2)*, t 1 2 n=1 (x 1 2)*
+  There should be two voices in (0,1), four in (1,2).
+
+t 0 1 n=1 a=1 (f 1 2)*, t 1 2 n=1 (f 3 4)*
+  There should be two voices from 0 to 2.
+
+t 0 1 (f 1 x 1) (f 2 x 2)
+  Two voices.
+
+t 0 1 (f x) (f x), t 1 2 (f x) (f x)
+  Two voices.
+
+t 0 1 (f x) (f x), t 1 2 (f f)
+  Two voices, then four voices.
+
+t 0 1 (f x) (f x), t 1 2 (f f), t 2 3 (f x) (f x)
+  Two voices, then four voices, then two voices.
+  Over (0,1) there are two f-x states.
+  Over (0,2) the two f states replace the earlier ones, so
+    there are 2 x states and 2 f states.
+  Since voice just prior to time 2 is determined by an
+    f-x pair, the f-x pairs in (2,3) replace them, collapsing
+    from 4 voices to 2.
+
+
+# Joined sequences
+
+g, f f, x `merge` g, x
+  From the (f f) on, there are two voices.
+
+f1 f2 `merge` f3 f4
+  four voices: f1 f3 | f1 f4 | f2 f3 | f2 f4
+
+over f (+1), over f (+2) `apply` f1 f2
+  two voices, same effect happens to both
+
+t 0 2 (over f (+1), over f (+2)) `apply` f1 f2
+  Here the two operations are concurrent.
+  Result = four voices.
+
+
+
+-- drawing a picture is hard too
+  x freq  100  100
+  x freq       200  200
+  x amp   1    
+  x amp   2
+  
+  y freq
+  y freq
+  y amp
+  y amp
+  
