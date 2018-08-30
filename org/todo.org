@@ -9,17 +9,13 @@
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14,
 * polyphonic refactor
-** check that a Museq Note is valid: no like-named Notes overlap
-*** ignore anonymous notes
-*** group them by name
-*** sort (as vectors?) them by start,end time
-*** in that list, if nothing starts before the preceding ends, AND if the last one ends before _sup + the start of the first one, it's good
 ** add names to a Museq Note with anonymous Notes
 *** run MuseqNotesAreValid
 *** make a vector of the Nothing-named Notes
-*** sort it by start,end times
-*** tentatively name the first note 1. Add its name and end time to a list of ongoing notes.
-*** Suppose the next note starts at t. Delete all name-end pairs from `ongoing` for which end < t. Give the new note the least positive name not in `ongoing`'s names.
+*** input should be sorted by start,end times
+*** name the first note 1. Add its name and end time to a list of ongoing notes. Also save it with its start time (only the first note gets this treatment).
+*** Suppose the next note starts at t and ends at e. Delete all name-end pairs from `ongoing` for which end < t. Define `active` to be the names in `ongoing`, with the possible addition of the first note's name, if e >= _sup + start of first note. Give the new note the least positive name not in `active`'s names.
+**** handy: exclude some numbers from the set of all natural numbers: head $ (L.\\) [1..] [1..10] == 11
 *** Once all anonymous notes have names, find a prefix that ensures they do not conflict with any named notes.
 ** early, obsolete
 *** ideas|questions

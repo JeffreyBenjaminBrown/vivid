@@ -152,6 +152,16 @@ museqNamesAreValid m = and $ map goodGroup nameGroups where
                          in s + _sup m >= e
   goodGroup g = noAdjacentOverlap g && noWrappedOverlap g
 
+-- | Assign a minimal number of names (which are integers in string form), 
+-- starting from 1, so that like-named events do not overlap.
+-- ASSUMES the input list is sorted on (start,end) times.
+--nameEvents :: [Ev a] -> [Ev (Named a)]
+--nameEvents evs = 
+--
+-- The Ints below will become Names later.
+--nameEvents' :: (RTime,Int) -> [(RTime,Int)] -> [Ev a] -> [Ev (Named a)]
+--nameEvents' first ongoing evs = 
+
 longestDur :: Museq a -> RDuration
 longestDur m = let eventDur ((start,end),_) = end - start
                in V.maximum $ V.map eventDur $ _vec m
