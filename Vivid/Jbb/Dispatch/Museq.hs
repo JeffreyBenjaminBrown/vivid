@@ -149,7 +149,7 @@ museqNamesAreValid m = and $ map goodGroup nameGroups where
     s >= e && noAdjacentOverlap (b:more)
   noWrappedOverlap evs = let ((s,_),_) = head evs
                              ((_,e),_) = last evs
-                         in s + _sup m < e
+                         in s + _sup m >= e
   goodGroup g = noAdjacentOverlap g && noWrappedOverlap g
 
 longestDur :: Museq a -> RDuration

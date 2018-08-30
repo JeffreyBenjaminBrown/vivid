@@ -285,3 +285,9 @@ testMuseqNamesAreValid = TestCase $ do
   assertBool "Museq with non-overlapping like names is valid" $
     museqNamesAreValid $ museq 10 [ ((0,  4), (Just "1",()))
                                   , ((6, 10), (Just "1",())) ]
+  assertBool "Museq with overlapping unlike names is valid" $
+    museqNamesAreValid $ museq 10 [ ((0,  6), (Just "1",()))
+                                  , ((4, 10), (Just "2",())) ]
+  assertBool "Museq with wrapped overlap is not valid" $ not $
+    museqNamesAreValid $ museq 10 [ ((0,  4), (Just "1",()))
+                                  , ((6, 12), (Just "1",())) ]
