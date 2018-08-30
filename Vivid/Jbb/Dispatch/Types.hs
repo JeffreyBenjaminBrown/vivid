@@ -3,14 +3,16 @@
 {-# LANGUAGE DataKinds
            , ExtendedDefaultRules
            , ScopedTypeVariables
+           , TupleSections
            , TemplateHaskell
            , GADTs
 #-}
 
 module Vivid.Jbb.Dispatch.Types (
-  SynthName, ParamName, MuseqName
+  SynthName, NoteName, ParamName, MuseqName
   , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
+  , Note, anon
   , Action(..), actionSynth
   , Ev, showEvs
   , Museq(..), dur, sup, vec
@@ -37,6 +39,7 @@ import Vivid.Jbb.Util
 -- | = Kinds of name
 
 type ParamName = String
+type NoteName  = String
 type SynthName = String
 type MuseqName = String
 
@@ -77,6 +80,11 @@ unTimestamp (Timestamp x) = toRational x
 
 type Msg = M.Map ParamName Float
 
+type Note = (Maybe NoteName, Msg)
+
+anon :: Msg -> Note
+anon = (Nothing,)
+
 data Msg' sdArgs where
   Msg' :: forall params sdArgs.
           ( VarList params
@@ -84,8 +92,8 @@ data Msg' sdArgs where
        => params -> Msg' sdArgs
 
 data Action = New  SynthDefEnum SynthName
-               | Free SynthDefEnum SynthName
-               | Send SynthDefEnum SynthName Msg
+            | Free SynthDefEnum SynthName
+            | Send SynthDefEnum SynthName Msg
   deriving (Show,Eq,Ord)
 
 actionSynth :: Action -> (SynthDefEnum, SynthName)

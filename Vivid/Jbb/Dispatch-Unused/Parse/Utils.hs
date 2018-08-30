@@ -21,7 +21,7 @@ brackets :: Parser a -> Parser a
 brackets = between (L.symbol sc "[") (L.symbol sc "]")
 
 wordChar :: Parser Char
-wordChar = C.alphaNumChar <|> C.char '_' <|> C.char '\'' 
+wordChar = C.alphaNumChar <|> C.char '_' <|> C.char '\''
 
 -- | Succeeds only if the next character is not a word character. Examples:
 -- M.parse (word "monk") "" "monkey" -- fails

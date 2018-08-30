@@ -27,7 +27,7 @@ msgs reg = concat <$>
 
 -- | msgs all of the same type, e.g. a bunch of News, or a bunch of Frees
 homogeneousMsgs :: SynthRegister -> Parser [Action']
-homogeneousMsgs reg = L.lexeme sc $ foldl1 (<|>) 
+homogeneousMsgs reg = L.lexeme sc $ foldl1 (<|>)
   [ parseNews reg, parseFrees reg, parseSends reg ]
 
 -- everything below includes per-synth boilerplate

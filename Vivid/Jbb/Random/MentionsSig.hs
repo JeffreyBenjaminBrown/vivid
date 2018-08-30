@@ -24,8 +24,8 @@ instance MentionsSig AbFormula where
   mentionsSig name (AbSum x y)  = mentionsSig name x || mentionsSig name y
 
 instance MentionsSig AbGen where
-  mentionsSig name (AbSin x) =   mentionsSig name x 
-  mentionsSig name (AbSaw x) =   mentionsSig name x 
+  mentionsSig name (AbSin x) =   mentionsSig name x
+  mentionsSig name (AbSaw x) =   mentionsSig name x
 
 instance MentionsSig AbSinMsg where
   mentionsSig name (AbSinMsg x y) = mentionsSig name x || mentionsSig name y

@@ -1,11 +1,11 @@
 * Synth state is duplicated across segments of a glissando
   A note is an a.e. constant map from time to synth state. Call changing a note partway through "glissando". The encoding for every section of a glissando note should include all parameters, not just the ones that changed -- this permits faithful reversability. (If needed, later I can refactor `distribLoop` so that redundant messages are not sent to SuperCollider, by tracking the state of each synth.)
 
-* Museq is fundamental; MuseqL makes chords more convenient
-  A Museq is a collection of ((start,end),note) pairs. It can be generated from a MuseqL, a collection of ((start,end), [note]) pairs. Call each [note] a chord.
+* Museq is fundamental. MuseqL makes chords more convenient.
+  A Museq is a collection of ((start,end),note) pairs. It can be generated from a MuseqL, a collection of ((start,end), [note]) pairs. Call each [note] in a MuseqL a chord.
 
 * Names permit glissando. Equal names cannot time-overlap.
-  Each note in a chord has an optional user-given name. With no name, it cannot be glissandoed. To indcate that one note "continues" (is the glissando of) another note, give them the same name. When a named note ends, if another note continues it, no on=0 message will be sent to end the first, and no on=1 will be sent to start the second; otherwise they will. The set of notes with the same name cannot overlap in time.
+  Each note in a chord has an optional user-given name. With no name, it cannot be glissandoed. To indcate that one note "continues" (is another glissando segment of) some other note, give them the same name. When a named note ends, if another note continues it, no on=0 message will be sent to end the first, and no on=1 will be sent to start the second; otherwise they will. The set of notes with the same name cannot overlap in time.
 
 * Give a minimal number of random names.
   Every note goes to the synth of the same name. Nameless notes are therefore given a random name. Minimize the number of names, somehow, to minimize the number of concurrent synths required.

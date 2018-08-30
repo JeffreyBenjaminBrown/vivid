@@ -35,7 +35,7 @@ prune cs m =
 -- | Produces an AbSynth containing only the unused signals
 unused :: RandConstraints -> [AbSigName] -> AbSynth -> AbSynth
 unused cs [] all = all
-unused cs (u:used) m = 
+unused cs (u:used) m =
   let newMentions = allMentions cs u
       m' = M.delete u m
       remainingLeads = unique

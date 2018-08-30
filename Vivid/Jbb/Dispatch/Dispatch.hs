@@ -161,7 +161,7 @@ startDispatchLoop disp = do
   tryTakeMVar $ mTime0 disp -- empty it, just in case
   mbTempo <- tryReadMVar $ mTempoPeriod disp
   maybe (putMVar (mTempoPeriod disp) 1) (const $ return ()) mbTempo
-  
+
   ((-) (0.8 * frameDuration)) . unTimestamp <$> getTime -- DONE
     -- subtract nearly an entire frameDuration so it starts soon
     >>= putMVar (mTime0 disp)

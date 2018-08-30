@@ -33,7 +33,7 @@ instance RenderSig AbFormula where
   renderSig (AbSum x y) m = renderSig x m ~+ renderSig y m
 
 instance RenderSig AbGen where
-  renderSig (AbSin (AbSinMsg freq phase)) m = 
+  renderSig (AbSin (AbSinMsg freq phase)) m =
     sinOsc ( freq_ $ renderSig freq m
            , phase_ $ renderSig phase m )
   renderSig (AbSaw (AbSawMsg freq)) m =

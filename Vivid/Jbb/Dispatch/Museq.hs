@@ -187,7 +187,7 @@ arcFold cycle period rdv time0 from to m =
      else
        let startIndex = startOrOOBIndex :: Int
            endIndex = lastIndexLTE compare' rdv (toInCycles * _sup m) :: Int
-             where 
+             where
              compare' x y = if x < y then LT else GT -- to omit the endpoint
            eventsThisCycle = V.toList
              $ V.map (over (_1._2) (+(_sup m * fromIntegral cycle)))

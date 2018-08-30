@@ -5,7 +5,7 @@ module Vivid.Jbb.Random.Types.Other (
 
 type NParams = Int
 type MaxSignals = Int
-type MaxDepth = Int 
+type MaxDepth = Int
 
 -- | Without RandConstraints we would usually create invalid signal graphs
   -- For instance, we can't refer to the 5th named signal if there are only 4.

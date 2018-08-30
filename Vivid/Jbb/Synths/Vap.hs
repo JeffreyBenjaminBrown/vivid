@@ -27,7 +27,7 @@ data VapParam = VapFreq
               | VapNzLpf
 
 vap :: SynthDef VapParams
-vap = sd ( 0   :: I "freq" 
+vap = sd ( 0   :: I "freq"
          , 0.1 :: I "amp"
          , 0   :: I "saw"
          , 0   :: I "delay-freq"

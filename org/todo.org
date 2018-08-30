@@ -7,35 +7,38 @@
 *** automatically, rather than requiring the user to say which go where.
 ** [dubious] Represent a Museq in more than one way
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
-**** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14, 
-* ! polyphonic is hard
-** ideas|questions
-*** How to generate names, and avoid name conflict, when voices bifurcate?
-*** Should number of voices be robust to reversal?
-*** use an "on" parameter, just like amp, so that amp is not forgotten
-**** e.g. consider the pattern "f f, x, f". Played forward, there would be two voices (because two f values) during the x, but backward, there would not.
-*** bury Msgs inside a more muscai type
-*** skip info if possible -- name, amp, on|off, end time
-** the problem
-*** Suppose pattern p has two freqs at one point, and later two amps. 
-*** Should it render as four melodies? 
-*** If it's only two melodies, which freq matches to which amp?
-*** Should the bifurcation caused by a double-instruction persist after it ends? Precede it?
-*** What happens when you merge or meta a polyphonic pattern with another?
-*** Is stack useless on Msgs, and only useful on Actions?
+**** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14,
+* polyphonic refactor
+** A Msg includes a name.
+** early, obsolete
+*** ideas|questions
+**** How to generate names, and avoid name conflict, when voices bifurcate?
+**** Should number of voices be robust to reversal?
+**** use an "on" parameter, just like amp, so that amp is not forgotten
+***** e.g. consider the pattern "f f, x, f". Played forward, there would be two voices (because two f values) during the x, but backward, there would not.
+**** bury Msgs inside a more muscai type
+**** skip info if possible -- name, amp, on|off, end time
+*** the problem
+**** Suppose pattern p has two freqs at one point, and later two amps.
+**** Should it render as four melodies?
+**** If it's only two melodies, which freq matches to which amp?
+**** Should the bifurcation caused by a double-instruction persist after it ends? Precede it?
+**** What happens when you merge or meta a polyphonic pattern with another?
+**** Is stack useless on Msgs, and only useful on Actions?
 * fix
 ** use museqIsValid in join|transform tests
 *** and test the new museqIsValid's extra clauses
 * add
 ** abbreviations for map functions, imported as M
-*** so that I can write M.fl or M.fromList interchangeably
+*** M.fl = M.fromList
+*** M.u = M.union
 ** scales, harmonies
 ** parse a DSL for it
 *** seems much easier to make the DSL after the functions it will encode
 *** for every bit of terse punctuation, include a verbal alternative
 **** => easier to remember, easier to search for language constructs
 ** not super important
-*** space: play a duration n < k loop over duration k. 
+*** space: play a duration n < k loop over duration k.
 **** Was hard in Tidal, but maybe append makes it easy.
 * supercollider mysteries
 ** envelopes

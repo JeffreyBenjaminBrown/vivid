@@ -47,10 +47,10 @@ randomArgs = do
 
 defaultArgs = ( 0 :: I "AP1"
               , 0 :: I "AP2"
-              , 0 :: I "AP3"             
+              , 0 :: I "AP3"
               , 0 :: I "AP4"
               , 0 :: I "AP5"
-              , 0 :: I "AP6"             
+              , 0 :: I "AP6"
               , 0 :: I "AP7"
               , 0 :: I "AP8" )
 
@@ -67,7 +67,7 @@ oneSignal mwc = do
   let sd = abSigToSD a
   s <- synth sd defaultArgs
   y <- sampleFrom mwc randomArgs
-  print $ show y  
+  print $ show y
 
   set s y
   wait 1
@@ -80,7 +80,7 @@ abSynthToSD plan = sd defaultArgs $ do
 
   s1 <- renderSig ((M.!) plan AS1) m
   let m1 = M.insert AS1 s1 m
-  
+
   s2 <- renderSig ((M.!) plan AS2) m1
   let m2 = M.insert AS2 s2 m1
 
@@ -99,7 +99,7 @@ wholeSynth mwc = do
   s <- synth sd defaultArgs
 
   y <- sampleFrom mwc randomArgs
-  print $ show y  
+  print $ show y
 
   set s y
   wait 1
