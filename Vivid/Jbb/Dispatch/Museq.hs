@@ -117,6 +117,8 @@ sortMuseq = vec %~
                    sortBy compare' v'
                    V.freeze v'
 
+--museqNotesAreValid :: Museq Note -> Museq Note
+
 -- | A valid Museq' m is sorted on start and then end times,
 -- with all end times >= the corresponding start times,
 -- has (relative) duration > 0, and all events at time < _sup m.

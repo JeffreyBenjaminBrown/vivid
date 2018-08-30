@@ -9,10 +9,10 @@
 #-}
 
 module Vivid.Jbb.Dispatch.Types (
-  SynthName, NoteName, ParamName, MuseqName
+  Name, SynthName, ParamName, MuseqName
   , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
-  , Note, anon
+  , Named, anon
   , Action(..), actionSynth
   , Ev, showEvs
   , Museq(..), dur, sup, vec
@@ -38,8 +38,8 @@ import Vivid.Jbb.Util
 
 -- | = Kinds of name
 
+type Name      = String
 type ParamName = String
-type NoteName  = String
 type SynthName = String
 type MuseqName = String
 
@@ -80,9 +80,9 @@ unTimestamp (Timestamp x) = toRational x
 
 type Msg = M.Map ParamName Float
 
-type Note = (Maybe NoteName, Msg)
+type Named a = (Maybe Name, a)
 
-anon :: Msg -> Note
+anon :: a -> Named a
 anon = (Nothing,)
 
 data Msg' sdArgs where
