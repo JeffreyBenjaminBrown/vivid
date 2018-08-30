@@ -15,6 +15,7 @@ module Vivid.Jbb.Dispatch.Museq
   , museqsDiff
   , sortMuseq
   , museqIsValid
+  , museqNamesAreValid
   , longestDur
   , arc
   )
@@ -23,7 +24,8 @@ where
 import Control.Lens ((^.),(.~),(%~),_1,_2,over,view)
 import Control.Monad.ST
 import Data.Fixed (div')
-import Data.List ((\\))
+import qualified Data.List as L
+import qualified Data.Maybe as Mb
 import qualified Data.Map as M
 import qualified Data.Vector as V
 import           Data.Vector ((!))
@@ -105,8 +107,8 @@ museqsDiff old new = (toFree,toCreate) where
   newMuseqs = M.elems new :: [Museq Action]
   oldSynths = unique $ concatMap museqSynths oldMuseqs
   newSynths = unique $ concatMap museqSynths newMuseqs
-  toCreate = newSynths \\ oldSynths
-  toFree = oldSynths \\ newSynths
+  toCreate = (L.\\) newSynths oldSynths
+  toFree = (L.\\) oldSynths newSynths
 
 
 -- | = Sort a Museq
@@ -116,8 +118,6 @@ sortMuseq = vec %~
                    let compare' ve ve' = compare (fst ve) (fst ve')
                    sortBy compare' v'
                    V.freeze v'
-
---museqNotesAreValid :: Museq Note -> Museq Note
 
 -- | A valid Museq' m is sorted on start and then end times,
 -- with all end times >= the corresponding start times,
@@ -133,6 +133,24 @@ museqIsValid mu = and [a,b,c,d,e] where
   c = _dur mu > 0
   d = _sup mu > 0
   e = V.all (uncurry (<=) . fst) v
+
+-- | The names in a `Museq Name` are valid if no events with the same
+-- name overlap in time, within or across cycles.
+museqNamesAreValid :: forall a. Museq (Named a) -> Bool
+museqNamesAreValid m = and $ map goodGroup nameGroups where
+  namedEvents = filter (Mb.isJust . fst . snd) $ V.toList $ _vec m
+  nameGroups = L.groupBy eq' namedEvents :: [[Ev (Named a)]]
+    where eq' (_,(name,_)) (_,(name',_)) = name == name'
+  noAdjacentOverlap, noWrappedOverlap, goodGroup
+    :: [Ev (Named a)] -> Bool
+  noAdjacentOverlap [] = True
+  noAdjacentOverlap (a:[]) = True
+  noAdjacentOverlap (a@((_,e),_) : b@((s,_),_) : more) =
+    s >= e && noAdjacentOverlap (b:more)
+  noWrappedOverlap evs = let ((s,_),_) = head evs
+                             ((_,e),_) = last evs
+                         in s + _sup m < e
+  goodGroup g = noAdjacentOverlap g && noWrappedOverlap g
 
 longestDur :: Museq a -> RDuration
 longestDur m = let eventDur ((start,end),_) = end - start

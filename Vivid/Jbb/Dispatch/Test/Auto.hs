@@ -38,6 +38,7 @@ tests = runTestTT $ TestList
     testPartitionAndGroupEventsAtBoundaries
   , TestLabel "testMerge" testMerge
   , TestLabel "testMeta" testMeta
+  , TestLabel "testMuseqNamesAreValid" testMuseqNamesAreValid
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -271,3 +272,16 @@ testMeta = TestCase $ do
                                 ,((2,    2.75),"a")
                                 ,((3,    3.5),"a")
                                 ,((5.75, 6),"a")]}
+
+testMuseqNamesAreValid = TestCase $ do
+  assertBool "empty Museq has valid names" $
+    museqNamesAreValid $ museq 10 []
+  assertBool "Museq without names has valid names" $
+    museqNamesAreValid $ museq 10 [ ((0, 10), (Nothing,()))
+                                  , ((0, 10), (Nothing,())) ]
+  assertBool "Museq with overlapping like names is not valid" $ not $
+    museqNamesAreValid $ museq 10 [ ((0,  6), (Just "1",()))
+                                  , ((4, 10), (Just "1",())) ]
+  assertBool "Museq with non-overlapping like names is valid" $
+    museqNamesAreValid $ museq 10 [ ((0,  4), (Just "1",()))
+                                  , ((6, 10), (Just "1",())) ]
