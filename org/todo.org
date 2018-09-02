@@ -10,8 +10,7 @@
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14,
 * polyphonic refactor
 ** add names to a Museq Note with anonymous Notes
-*** run MuseqNotesAreValid
-*** make a vector of the Nothing-named Notes
+*** isolate the Nothing-named Notes
 *** input should be sorted by start,end times
 *** name the first note 1. Add its name and end time to a list of ongoing notes. Also save it with its start time (only the first note gets this treatment).
 *** Suppose the next note starts at t and ends at e. Delete all name-end pairs from `ongoing` for which end < t. Define `active` to be the names in `ongoing`, with the possible addition of the first note's name, if e >= _sup + start of first note. Give the new note the least positive name not in `active`'s names.

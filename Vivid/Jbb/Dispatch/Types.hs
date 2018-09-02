@@ -12,7 +12,7 @@ module Vivid.Jbb.Dispatch.Types (
   Name, SynthName, ParamName, MuseqName
   , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
-  , Named, named, anon
+  , NamedWith, named, anon
   , Action(..), actionSynth
   , Ev, showEvs
   , Museq(..), dur, sup, vec
@@ -80,12 +80,12 @@ unTimestamp (Timestamp x) = toRational x
 
 type Msg = M.Map ParamName Float
 
-type Named a = (Maybe Name, a)
+type NamedWith t a = (Maybe t, a)
 
-named :: Name -> a -> Named a
+named :: t -> a -> NamedWith t a
 named n a = (Just n, a)
 
-anon :: a -> Named a
+anon :: forall a t. a -> NamedWith t a
 anon = (Nothing , )
 
 data Msg' sdArgs where

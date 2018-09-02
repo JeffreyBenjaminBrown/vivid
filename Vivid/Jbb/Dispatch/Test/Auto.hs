@@ -39,6 +39,7 @@ tests = runTestTT $ TestList
   , TestLabel "testMerge" testMerge
   , TestLabel "testMeta" testMeta
   , TestLabel "testMuseqNamesAreValid" testMuseqNamesAreValid
+  , TestLabel "testNameEvents" testNameEvents
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -275,9 +276,10 @@ testMeta = TestCase $ do
 
 testMuseqNamesAreValid = TestCase $ do
   assertBool "empty Museq has valid names" $
-    museqNamesAreValid $ museq 10 []
+    museqNamesAreValid $ museq 10 ([] :: [((Rational,Rational)
+                                          , (Maybe String,()))])
   assertBool "Museq without names has valid names" $
-    museqNamesAreValid $ museq 10 [ ((0, 10), (Nothing,()))
+    museqNamesAreValid $ museq 10 [ ((0, 10), (Nothing :: Maybe String,()))
                                   , ((0, 10), (Nothing,())) ]
   assertBool "Museq with overlapping like names is not valid" $ not $
     museqNamesAreValid $ museq 10 [ ((0,  6), (Just "1",()))
@@ -291,3 +293,15 @@ testMuseqNamesAreValid = TestCase $ do
   assertBool "Museq with wrapped overlap is not valid" $ not $
     museqNamesAreValid $ museq 10 [ ((0,  4), (Just "1",()))
                                   , ((6, 12), (Just "1",())) ]
+
+testNameEvents = TestCase $ do
+  assertBool "intNameEvents" $
+    intNameEvents 10 [((0,1), ()),           ((2,3), ())]
+    ==               [((0,1), (Just 1,())),  ((2,3), (Just 1,()))]
+  assertBool "intNameEvents" $
+    intNameEvents 10 [((0,2), ()),           ((2,3), ())]
+    ==               [((0,2), (Just 1,())),  ((2,3), (Just 2,()))]
+  assertBool "intNameEvents" $
+    intNameEvents 10 [((0,2), ()),           ((5,11), ())]
+    ==               [((0,2), (Just 1,())),  ((5,11), (Just 2,()))]
+  
