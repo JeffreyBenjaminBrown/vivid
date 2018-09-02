@@ -153,7 +153,6 @@ nameAnonEvents m = let
     -- todo : learn Prisms, use _Just
   in sortMuseq $ m {_vec = V.fromList $ namedEvs' ++ namedAnons}
 
-
 -- | Assign a minimal number of names (which are integers in string form), 
 -- starting from 1, so that like-named events do not overlap.
 -- ASSUMES the input list is sorted on (start,end) times.

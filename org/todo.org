@@ -9,7 +9,8 @@
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14,
 * polyphonic refactor
-** Dispatch' needs names, not maybeNames, to compute diff when replacing
+** merges should be polymomrphic
+*** currently mergea, merge0, merge1 :: Museq Msg -> Museq Msg -> Museq Msg
 * fix
 ** it should be an error for two notes with the same name to go to two different `SynthDefEnum`s
 ** use museqIsValid in join|transform tests
