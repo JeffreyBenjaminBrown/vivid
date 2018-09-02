@@ -103,7 +103,7 @@ merge op x y = Museq { _dur = _dur y -- arbitrary
 mergea, merge0, merge1 :: Museq Msg -> Museq Msg -> Museq Msg
 merge0 = merge $ M.unionWith (+)
 merge1 = merge $ M.unionWith (*)
-mergea = merge $ M.unionWithKey f -- ^ add amplitude, multiply the rest
+mergea = merge $ M.unionWithKey f -- ^ add amplitudes, multiply others
   where  f "amp" = (+)
          f _ = (*)
 
