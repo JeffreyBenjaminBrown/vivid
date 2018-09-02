@@ -12,6 +12,7 @@
 ** String -> Museq (NamedWith String Msg) -> Museq Action
 *** prefix the String argument to each note name
 * fix
+** it should be an error for two notes with the same name to go to two different `SynthDefEnum`s
 ** use museqIsValid in join|transform tests
 *** and test the new museqIsValid's extra clauses
 * add

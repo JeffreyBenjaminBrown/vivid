@@ -20,6 +20,7 @@ module Vivid.Jbb.Dispatch.Types (
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
   , Dispatch(..), newDispatch
+  , Dispatch'(..), newDispatch'
   ) where
 
 import Control.Concurrent.MVar
@@ -159,3 +160,22 @@ newDispatch = do
   return Dispatch
     { mMuseqs = mTimeMuseqs,  mReg         = mReg
     , mTime0  = mTime0     ,  mTempoPeriod = mTempoPeriod }
+
+data Dispatch' = Dispatch' {
+    mMuseqs' :: MVar (M.Map MuseqName
+                      (Museq (NamedWith String (SynthDefEnum, Msg))))
+  , mReg' :: MVar SynthRegister
+  , mTime0' :: MVar Time
+  , mTempoPeriod' :: MVar Duration
+  }
+
+-- | "new" because it's not really empty, except for `time0`
+newDispatch' :: IO Dispatch'
+newDispatch' = do
+  mTimeMuseqs <- newMVar M.empty
+  mReg <- newMVar emptySynthRegister
+  mTime0 <- newEmptyMVar
+  mTempoPeriod <- newMVar 1
+  return Dispatch'
+    { mMuseqs' = mTimeMuseqs,  mReg'         = mReg
+    , mTime0'  = mTime0     ,  mTempoPeriod' = mTempoPeriod }
