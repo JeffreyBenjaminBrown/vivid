@@ -4,8 +4,11 @@
 
 module Vivid.Jbb.Dispatch.Museq
   (
+  -- | = Make a Museq
+  museq, museq'
+
   -- | = Timing
-    timeToPlayThrough
+  , timeToPlayThrough
   , supsToPlayThrough
   , dursToPlayThrough
   , timeToRepeat
@@ -22,7 +25,6 @@ module Vivid.Jbb.Dispatch.Museq
 
   -- | = More
   , museqSynths
-  , museq, museq'
   , museqsDiff
   , sortMuseq
   , museqIsValid
@@ -64,6 +66,22 @@ import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 -- in some situations that would waste space. For an example of one,
 -- see in Tests.testStack the assertion labeled
 -- "stack, where timeToRepeat differs from timeToPlayThrough".
+-- | = Make a Museq
+
+-- | Make a Museq, specifying start and end times
+museq :: RDuration -> [((Rational,Rational),a)] -> Museq a
+museq d tas = sortMuseq $ Museq { _dur = d
+                                , _sup = d
+                                , _vec = V.fromList $ map (over _1 f) tas }
+  where f (start,end) = (fr start, fr end)
+
+-- | Make a Museq of instantaneous events, specifying only start times
+museq' :: RDuration -> [(RTime,a)] -> Museq a
+museq' d tas = sortMuseq $ Museq {_dur = d, _sup = d,
+                                  _vec = V.fromList $ map f tas}
+  where f (t,val) = ((t,t),val)
+
+
 -- | = Timing
 timeToPlayThrough :: Museq a -> RTime
 timeToPlayThrough m = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)
@@ -164,21 +182,16 @@ intNameEvents' sup ev1@(s1,(mi1,a1)) ongoing (((s,e),a) : more) = let
 -- | = More
 -- | Given a Museq, find the synths it uses.
 
+--museqNamedMsgToMuseqAction ::
+--  String -> Museq (NamedWith String Msg) -> Museq Action
+--museqNamedMsgToMuseqAction prefix = over vec f where
+--  f :: Ev (NamedWith String Msg) -> Ev Action
+--  f = over _2 g where
+--    g :: NamedWith String Msg -> Action
+--    g (Just 
+
 museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
 museqSynths = map (actionSynth . snd) . V.toList . _vec
-
--- | Make a Museq, specifying start and end times
-museq :: RDuration -> [((Rational,Rational),a)] -> Museq a
-museq d tas = sortMuseq $ Museq { _dur = d
-                                , _sup = d
-                                , _vec = V.fromList $ map (over _1 f) tas }
-  where f (start,end) = (fr start, fr end)
-
--- | Make a Museq of instantaneous events, specifying only start times
-museq' :: RDuration -> [(RTime,a)] -> Museq a
-museq' d tas = sortMuseq $ Museq {_dur = d, _sup = d,
-                                  _vec = V.fromList $ map f tas}
-  where f (t,val) = ((t,t),val)
 
 -- | Given an old set of Museqs and a new one, figure out
 -- which synths need to be created, and which destroyed.

@@ -9,28 +9,8 @@
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14,
 * polyphonic refactor
-** add names to a Museq Note with anonymous Notes
-*** isolate the Nothing-named Notes
-*** input should be sorted by start,end times
-*** name the first note 1. Add its name and end time to a list of ongoing notes. Also save it with its start time (only the first note gets this treatment).
-*** Suppose the next note starts at t and ends at e. Delete all name-end pairs from `ongoing` for which end < t. Define `active` to be the names in `ongoing`, with the possible addition of the first note's name, if e >= _sup + start of first note. Give the new note the least positive name not in `active`'s names.
-**** handy: exclude some numbers from the set of all natural numbers: head $ (L.\\) [1..] [1..10] == 11
-*** Once all anonymous notes have names, find a prefix that ensures they do not conflict with any named notes.
-** early, obsolete
-*** ideas|questions
-**** How to generate names, and avoid name conflict, when voices bifurcate?
-**** Should number of voices be robust to reversal?
-**** use an "on" parameter, just like amp, so that amp is not forgotten
-***** e.g. consider the pattern "f f, x, f". Played forward, there would be two voices (because two f values) during the x, but backward, there would not.
-**** bury Msgs inside a more muscai type
-**** skip info if possible -- name, amp, on|off, end time
-*** the problem
-**** Suppose pattern p has two freqs at one point, and later two amps.
-**** Should it render as four melodies?
-**** If it's only two melodies, which freq matches to which amp?
-**** Should the bifurcation caused by a double-instruction persist after it ends? Precede it?
-**** What happens when you merge or meta a polyphonic pattern with another?
-**** Is stack useless on Msgs, and only useful on Actions?
+** String -> Museq (NamedWith String Msg) -> Museq Action
+*** prefix the String argument to each note name
 * fix
 ** use museqIsValid in join|transform tests
 *** and test the new museqIsValid's extra clauses
