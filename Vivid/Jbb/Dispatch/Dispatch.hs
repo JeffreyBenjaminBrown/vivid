@@ -5,7 +5,7 @@ module Vivid.Jbb.Dispatch.Dispatch where
 import Control.Concurrent (forkIO, ThreadId)
 import Control.Concurrent.MVar
 import Control.DeepSeq
-import Control.Lens (over, _1)
+import Control.Lens (over, _1, _2)
 import Data.List ((\\))
 import qualified Data.Map as M
 import qualified Data.Vector as V
@@ -93,6 +93,13 @@ actSend reg when (Send Vap name msg) =
 actSend _ _ (Free _ _) = error "actFree received a Send."
 actSend _ _ (New _ _)  = error "actFree received a New."
 
+
+-- | Convert from user type `Museq (NamedWith String Msg)`
+toMuseqAction ::
+  String -> SynthDefEnum -> Museq (NamedWith String Msg) -> Museq Action
+toMuseqAction prefix dest m = over vec (V.map $ over _2 f) m where
+  f :: NamedWith String Msg -> Action
+  f (name,msg) = Send dest (prefix ++ name) msg
 
 -- | = Change the music
 
