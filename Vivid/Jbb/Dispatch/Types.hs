@@ -19,7 +19,7 @@ module Vivid.Jbb.Dispatch.Types (
   , emptyMuseq
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
-  , SynthNote
+  , Note, MbNamedNote
   , Dispatch(..), newDispatch
   ) where
 
@@ -143,10 +143,11 @@ makeLenses ''SynthRegister
 emptySynthRegister :: SynthRegister
 emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
-type SynthNote = NamedWith String (SynthDefEnum, Msg)
+type Note = NamedWith String (SynthDefEnum, Msg)
+type MbNamedNote = NamedWith (Maybe String) (SynthDefEnum, Msg)
 
 data Dispatch = Dispatch {
-    mMuseqs :: MVar (M.Map MuseqName (Museq SynthNote))
+    mMuseqs :: MVar (M.Map MuseqName (Museq Note))
   , mReg :: MVar SynthRegister
   , mTime0 :: MVar Time
   , mTempoPeriod :: MVar Duration

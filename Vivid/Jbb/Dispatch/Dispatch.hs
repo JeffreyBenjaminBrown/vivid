@@ -108,7 +108,7 @@ stop disp name = do
   masOld <- readMVar $ mMuseqs disp
   replaceAll disp $ M.delete name masOld
 
-replace :: Dispatch -> MuseqName -> Museq SynthNote -> IO ()
+replace :: Dispatch -> MuseqName -> Museq Note -> IO ()
 replace disp newName newMuseq = do
   masOld <- readMVar $ mMuseqs disp
   replaceAll disp $ M.insert newName newMuseq masOld
@@ -119,7 +119,7 @@ replace disp newName newMuseq = do
 -- and which need creation. Create the latter immediately. Wait to delete
 -- the former until it's safe, and before deleting them, send silence
 -- (set "amp" to 0).
-replaceAll :: Dispatch -> M.Map MuseqName (Museq SynthNote) -> IO ()
+replaceAll :: Dispatch -> M.Map MuseqName (Museq Note) -> IO ()
 replaceAll disp masNew = do
   time0  <-      takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
@@ -186,7 +186,7 @@ dispatchLoop disp = do
     startRender = nextPhase0 time0 frameDuration now
     museqsMap' = M.mapWithKey g museqsMap :: M.Map String (Museq Action) where
       g museqName museq = over vec (V.map $ over _2 f) museq where
-        f :: SynthNote -> Action
+        f :: Note -> Action
         f (noteName,(sde, msg)) = Send sde (museqName ++ noteName) msg
           -- including the MuseqName guarantees different Museqs in the map
           -- will not conflict (and cannot cooperate in the same synth)

@@ -196,23 +196,23 @@ intNameEvents' sup ev1@(s1,(i1,a1)) ongoing (((s,e),a) : more) = let
 --    g :: NamedWith String Msg -> Action
 --    g (Just 
 
-museqSynths :: Museq SynthNote -> [(SynthDefEnum, SynthName)]
+museqSynths :: Museq Note -> [(SynthDefEnum, SynthName)]
 museqSynths m = map (f . snd) evs where
-  evs = V.toList $ _vec m :: [Ev SynthNote]
-  f :: SynthNote -> (SynthDefEnum, SynthName)
+  evs = V.toList $ _vec m :: [Ev Note]
+  f :: Note -> (SynthDefEnum, SynthName)
   f (name,(sde,msg)) = (sde,name)
 
 -- | Given an old set of Museqs and a new one, figure out
 -- which synths need to be created, and which destroyed.
 -- PITFALL: Both resulting lists are ordered on the first element,
 -- likely differing from either of the input maps.
-museqsDiff :: M.Map MuseqName (Museq SynthNote)
-              -> M.Map MuseqName (Museq SynthNote)
+museqsDiff :: M.Map MuseqName (Museq Note)
+              -> M.Map MuseqName (Museq Note)
               -> ([(SynthDefEnum, SynthName)],
                   [(SynthDefEnum, SynthName)])
 museqsDiff old new = (toFree,toCreate) where
-  oldMuseqs = M.elems old :: [Museq SynthNote]
-  newMuseqs = M.elems new :: [Museq SynthNote]
+  oldMuseqs = M.elems old :: [Museq Note]
+  newMuseqs = M.elems new :: [Museq Note]
   oldSynths = unique $ concatMap museqSynths oldMuseqs
   newSynths = unique $ concatMap museqSynths newMuseqs
   toCreate = (L.\\) newSynths oldSynths
