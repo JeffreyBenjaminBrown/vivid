@@ -3,21 +3,29 @@
 -- | = Mostly analysis
 
 module Vivid.Jbb.Dispatch.Museq
-  ( timeToPlayThrough
+  (
+  -- | = Timing
+    timeToPlayThrough
   , supsToPlayThrough
   , dursToPlayThrough
   , timeToRepeat
   , supsToRepeat
   , dursToRepeat
 
+  , longestDur
+
+  -- | = Naming events
+  , museqNamesAreValid
+  , nameAnonEvents
+  , unusedName
+  , intNameEvents
+
+  -- | = More
   , museqSynths
   , museq, museq'
   , museqsDiff
   , sortMuseq
   , museqIsValid
-  , museqNamesAreValid
-  , intNameEvents
-  , longestDur
   , arc
   )
 where
@@ -56,7 +64,7 @@ import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 -- in some situations that would waste space. For an example of one,
 -- see in Tests.testStack the assertion labeled
 -- "stack, where timeToRepeat differs from timeToPlayThrough".
-
+-- | = Timing
 timeToPlayThrough :: Museq a -> RTime
 timeToPlayThrough m = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)
 
@@ -77,63 +85,12 @@ dursToRepeat :: Museq a -> RTime
 dursToRepeat m = timeToRepeat m / _dur m
 
 
--- | Given a Museq, find the synths it uses.
-museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
-museqSynths = map (actionSynth . snd) . V.toList . _vec
-
--- | Make a Museq, specifying start and end times
-museq :: RDuration -> [((Rational,Rational),a)] -> Museq a
-museq d tas = sortMuseq $ Museq { _dur = d
-                                , _sup = d
-                                , _vec = V.fromList $ map (over _1 f) tas }
-  where f (start,end) = (fr start, fr end)
-
--- | Make a Museq of instantaneous events, specifying only start times
-museq' :: RDuration -> [(RTime,a)] -> Museq a
-museq' d tas = sortMuseq $ Museq {_dur = d, _sup = d,
-                                  _vec = V.fromList $ map f tas}
-  where f (t,val) = ((t,t),val)
+longestDur :: Museq a -> RDuration
+longestDur m = let eventDur ((start,end),_) = end - start
+               in V.maximum $ V.map eventDur $ _vec m
 
 
--- | Given an old set of Museqs and a new one, figure out
--- which synths need to be created, and which destroyed.
--- PITFALL: Both resulting lists are ordered on the first element,
--- likely differing from either of the input maps.
-museqsDiff :: M.Map MuseqName (Museq Action)
-              -> M.Map MuseqName (Museq Action)
-              -> ([(SynthDefEnum, SynthName)],
-                  [(SynthDefEnum, SynthName)])
-museqsDiff old new = (toFree,toCreate) where
-  oldMuseqs = M.elems old :: [Museq Action]
-  newMuseqs = M.elems new :: [Museq Action]
-  oldSynths = unique $ concatMap museqSynths oldMuseqs
-  newSynths = unique $ concatMap museqSynths newMuseqs
-  toCreate = (L.\\) newSynths oldSynths
-  toFree = (L.\\) oldSynths newSynths
-
-
--- | = Sort a Museq
-sortMuseq :: Museq a -> Museq a
-sortMuseq = vec %~
-  \v -> runST $ do v' <- V.thaw v
-                   let compare' ve ve' = compare (fst ve) (fst ve')
-                   sortBy compare' v'
-                   V.freeze v'
-
--- | A valid Museq' m is sorted on start and then end times,
--- with all end times >= the corresponding start times,
--- has (relative) duration > 0, and all events at time < _sup m.
--- (todo ? I'm not sure the end-time sort helps.)
--- PITFALL : The end times are permitted to be greater than the _sup.
-museqIsValid :: Eq a => Museq a -> Bool
-museqIsValid mu = and [a,b,c,d,e] where
-  v = _vec mu
-  a = if V.length v == 0 then True
-      else (fst $ fst $ V.last v) < _sup mu
-  b = mu == sortMuseq mu
-  c = _dur mu > 0
-  d = _sup mu > 0
-  e = V.all (uncurry (<=) . fst) v
+-- | = Naming events
 
 -- | The names in a `Museq Name` are valid if no events with the same
 -- name overlap in time, within or across cycles.
@@ -152,6 +109,26 @@ museqNamesAreValid m = and $ map goodGroup nameGroups where
                              ((_,e),_) = last evs
                          in s + _sup m >= e
   goodGroup g = noAdjacentOverlap g && noWrappedOverlap g
+
+nameAnonEvents :: forall a.
+  Museq (NamedWith String a) -> Museq (NamedWith String a)
+nameAnonEvents m = let
+  evs, namedEvs, anonEvs, namedAnons :: [Ev (NamedWith String a)]
+  evs = V.toList $ _vec m 
+  (namedEvs, anonEvs) = L.partition (Mb.isJust . fst . snd) evs
+  names = Mb.catMaybes $ map (fst . snd) namedEvs :: [String]
+  anonEvs' = map (over _2 snd) anonEvs :: [Ev a]
+  intNamedAnons = intNameEvents (_sup m) anonEvs' :: [Ev (NamedWith Int a)]
+  namedAnons = map (over (_2._1) f) intNamedAnons where
+    f = Just . ((++) $ unusedName names) . show . Mb.fromJust
+    -- The ++ ensures no name conflicts.
+    -- todo : learn Prisms, use _Just
+  in sortMuseq $ m {_vec = V.fromList $ namedEvs ++ namedAnons}
+
+unusedName :: [String] -> String
+unusedName names = head $ (L.\\) allStrings names where
+  allStrings = [ c : s | s <- "" : allStrings
+                       , c <- ['a'..'z'] ++ ['0'..'9'] ]
 
 -- | Assign a minimal number of names (which are integers in string form), 
 -- starting from 1, so that like-named events do not overlap.
@@ -183,9 +160,64 @@ intNameEvents' sup ev1@(s1,(mi1,a1)) ongoing (((s,e),a) : more) = let
   name = head $ (L.\\) [1..] $ map Mb.fromJust overlappingMaybeNames
   in ((s,e),(Just name,a)) : intNameEvents' sup ev1 ongoing' more
 
-longestDur :: Museq a -> RDuration
-longestDur m = let eventDur ((start,end),_) = end - start
-               in V.maximum $ V.map eventDur $ _vec m
+
+-- | = More
+-- | Given a Museq, find the synths it uses.
+
+museqSynths :: Museq Action -> [(SynthDefEnum, SynthName)]
+museqSynths = map (actionSynth . snd) . V.toList . _vec
+
+-- | Make a Museq, specifying start and end times
+museq :: RDuration -> [((Rational,Rational),a)] -> Museq a
+museq d tas = sortMuseq $ Museq { _dur = d
+                                , _sup = d
+                                , _vec = V.fromList $ map (over _1 f) tas }
+  where f (start,end) = (fr start, fr end)
+
+-- | Make a Museq of instantaneous events, specifying only start times
+museq' :: RDuration -> [(RTime,a)] -> Museq a
+museq' d tas = sortMuseq $ Museq {_dur = d, _sup = d,
+                                  _vec = V.fromList $ map f tas}
+  where f (t,val) = ((t,t),val)
+
+-- | Given an old set of Museqs and a new one, figure out
+-- which synths need to be created, and which destroyed.
+-- PITFALL: Both resulting lists are ordered on the first element,
+-- likely differing from either of the input maps.
+museqsDiff :: M.Map MuseqName (Museq Action)
+              -> M.Map MuseqName (Museq Action)
+              -> ([(SynthDefEnum, SynthName)],
+                  [(SynthDefEnum, SynthName)])
+museqsDiff old new = (toFree,toCreate) where
+  oldMuseqs = M.elems old :: [Museq Action]
+  newMuseqs = M.elems new :: [Museq Action]
+  oldSynths = unique $ concatMap museqSynths oldMuseqs
+  newSynths = unique $ concatMap museqSynths newMuseqs
+  toCreate = (L.\\) newSynths oldSynths
+  toFree = (L.\\) oldSynths newSynths
+
+-- | = Sort a Museq
+sortMuseq :: Museq a -> Museq a
+sortMuseq = vec %~
+  \v -> runST $ do v' <- V.thaw v
+                   let compare' ve ve' = compare (fst ve) (fst ve')
+                   sortBy compare' v'
+                   V.freeze v'
+
+-- | A valid Museq' m is sorted on start and then end times,
+-- with all end times >= the corresponding start times,
+-- has (relative) duration > 0, and all events at time < _sup m.
+-- (todo ? I'm not sure the end-time sort helps.)
+-- PITFALL : The end times are permitted to be greater than the _sup.
+museqIsValid :: Eq a => Museq a -> Bool
+museqIsValid mu = and [a,b,c,d,e] where
+  v = _vec mu
+  a = if V.length v == 0 then True
+      else (fst $ fst $ V.last v) < _sup mu
+  b = mu == sortMuseq mu
+  c = _dur mu > 0
+  d = _sup mu > 0
+  e = V.all (uncurry (<=) . fst) v
 
 -- todo ? `arc` could be ~2x faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid searching the first part

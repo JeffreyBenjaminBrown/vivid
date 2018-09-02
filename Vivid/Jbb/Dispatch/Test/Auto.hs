@@ -39,7 +39,8 @@ tests = runTestTT $ TestList
   , TestLabel "testMerge" testMerge
   , TestLabel "testMeta" testMeta
   , TestLabel "testMuseqNamesAreValid" testMuseqNamesAreValid
-  , TestLabel "testNameEvents" testNameEvents
+  , TestLabel "testIntNameEvents" testIntNameEvents
+  , TestLabel "testNameAnonEvents" testNameAnonEvents
   ]
 
 testPrevPhase0 = TestCase $ do
@@ -294,7 +295,7 @@ testMuseqNamesAreValid = TestCase $ do
     museqNamesAreValid $ museq 10 [ ((0,  4), (Just "1",()))
                                   , ((6, 12), (Just "1",())) ]
 
-testNameEvents = TestCase $ do
+testIntNameEvents = TestCase $ do
   assertBool "intNameEvents" $
     intNameEvents 10 [((0,1), ()),           ((2,3), ())]
     ==               [((0,1), (Just 1,())),  ((2,3), (Just 1,()))]
@@ -304,4 +305,10 @@ testNameEvents = TestCase $ do
   assertBool "intNameEvents" $
     intNameEvents 10 [((0,2), ()),           ((5,11), ())]
     ==               [((0,2), (Just 1,())),  ((5,11), (Just 2,()))]
-  
+
+testNameAnonEvents = TestCase $ do
+  let m = museq 10 [((0,1),(Just "1",()))
+                   ,((0,1),(Nothing, ()))]
+  assertBool "testNameAnonEvents" $ nameAnonEvents m
+    ==    museq 10 [((0,1),(Just "1",()))
+                   ,((0,1),(Just "a1",()))]
