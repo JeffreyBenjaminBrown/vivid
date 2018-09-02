@@ -127,17 +127,20 @@ replaceAll disp masNew = do
   reg <-         takeMVar $ mReg         disp
   now <- unTimestamp <$> getTime
 
-  let when = nextPhase0 time0 frameDuration now + frameDuration
+  let masNew' = M.mapWithKey f masNew where
+        f :: MuseqName -> Museq Note -> Museq Note
+        f museqName m = over vec (V.map $ over (_2._1) (museqName ++)) m
+      when = nextPhase0 time0 frameDuration now + frameDuration
         -- `when` = the start of the first not-yet-rendered frame
       toFree, toCreate :: [(SynthDefEnum, SynthName)]
-      (toFree,toCreate) = museqsDiff masOld masNew
+      (toFree,toCreate) = museqsDiff masOld masNew'
 
   newTransform  <- mapM (actNew  reg)      $ map (uncurry New)  toCreate
   freeTransform <- mapM (actFree reg when) $ map (uncurry Free) toFree
 
   putMVar (mTime0       disp) time0       -- unchnaged
   putMVar (mTempoPeriod disp) tempoPeriod -- unchanged
-  putMVar (mMuseqs      disp) masNew
+  putMVar (mMuseqs      disp) masNew'
   putMVar (mReg         disp) $ foldl (.) id newTransform reg
 
   forkIO $ do wait $ when - now -- delete register's synths once it's safe
@@ -184,10 +187,10 @@ dispatchLoop disp = do
 
   let
     startRender = nextPhase0 time0 frameDuration now
-    museqsMap' = M.mapWithKey g museqsMap :: M.Map String (Museq Action) where
-      g museqName museq = over vec (V.map $ over _2 f) museq where
+    museqsMap' = M.map g museqsMap :: M.Map String (Museq Action) where
+      g museq = over vec (V.map $ over _2 f) museq where
         f :: Note -> Action
-        f (noteName,(sde, msg)) = Send sde (museqName ++ noteName) msg
+        f (noteName,(sde, msg)) = Send sde noteName msg
           -- including the MuseqName guarantees different Museqs in the map
           -- will not conflict (and cannot cooperate in the same synth)
     evs = concatMap f $ M.elems museqsMap' :: [(Time, Action)] where

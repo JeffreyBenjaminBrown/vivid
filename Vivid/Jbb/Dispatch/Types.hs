@@ -143,7 +143,7 @@ makeLenses ''SynthRegister
 emptySynthRegister :: SynthRegister
 emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
-type Note =        NamedWith        String  (SynthDefEnum, Msg)
+type Note        = NamedWith        String  (SynthDefEnum, Msg)
 type MbNamedNote = NamedWith (Maybe String) (SynthDefEnum, Msg)
 
 data Dispatch = Dispatch {
