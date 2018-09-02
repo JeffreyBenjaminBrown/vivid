@@ -18,7 +18,7 @@ module Vivid.Jbb.Dispatch.Museq
   , longestDur
 
   -- | = Naming events
-  , museqMabeNamesAreValid
+  , museqMaybeNamesAreValid
   , nameAnonEvents
   , unusedName
   , intNameEvents
@@ -112,9 +112,9 @@ longestDur m = let eventDur ((start,end),_) = end - start
 
 -- | The names in a `Museq Name` are valid if no events with the same
 -- name overlap in time, within or across cycles.
-museqMabeNamesAreValid :: forall a t. Eq t
+museqMaybeNamesAreValid :: forall a t. Eq t
   => Museq (NamedWith (Maybe t) a) -> Bool
-museqMabeNamesAreValid m = and $ map goodGroup nameGroups where
+museqMaybeNamesAreValid m = and $ map goodGroup nameGroups where
   namedEvents = filter (Mb.isJust . fst . snd) $ V.toList $ _vec m
   nameGroups = L.groupBy eq' namedEvents :: [[Ev (NamedWith (Maybe t) a)]]
     where eq' (_,(name,_)) (_,(name',_)) = name == name'
