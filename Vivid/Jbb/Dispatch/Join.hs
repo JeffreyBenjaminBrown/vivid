@@ -101,11 +101,11 @@ merge op x y = Museq { _dur = _dur y -- arbitrary
 -- So named because in math, the additive identity is 0,
 -- the mutliplicative identity = 1, and "amp" starts with an "a".
 mergea, merge0, merge1 :: Museq Msg -> Museq Msg -> Museq Msg
-merge0 = merge $ M.unionWithKey $ const (+)
-merge1 = merge $ M.unionWithKey $ const (*)
-mergea = merge $ M.unionWithKey f where
-  f "amp" = (+) -- ^ add amplitudes, multiply anything else
-  f _ = (*)
+merge0 = merge $ M.unionWith (+)
+merge1 = merge $ M.unionWith (*)
+mergea = merge $ M.unionWithKey f -- ^ add amplitude, multiply the rest
+  where  f "amp" = (+)
+         f _ = (*)
 
 instance Applicative Museq where
   (<*>) = merge ($)
