@@ -108,7 +108,7 @@ stop disp name = do
   masOld <- readMVar $ mMuseqs disp
   replaceAll disp $ M.delete name masOld
 
-replace :: Dispatch -> MuseqName -> Museq Action -> IO ()
+replace :: Dispatch -> MuseqName -> Museq SynthNote -> IO ()
 replace disp newName newMuseq = do
   masOld <- readMVar $ mMuseqs disp
   replaceAll disp $ M.insert newName newMuseq masOld
@@ -119,7 +119,7 @@ replace disp newName newMuseq = do
 -- and which need creation. Create the latter immediately. Wait to delete
 -- the former until it's safe, and before deleting them, send silence
 -- (set "amp" to 0).
-replaceAll :: Dispatch -> M.Map MuseqName (Museq Action) -> IO ()
+replaceAll :: Dispatch -> M.Map MuseqName (Museq SynthNote) -> IO ()
 replaceAll disp masNew = do
   time0  <-      takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
@@ -182,36 +182,11 @@ dispatchLoop disp = do
   reg <-         takeMVar $ mReg         disp
   now <- unTimestamp <$> getTime
 
-  let startRender = nextPhase0 time0 frameDuration now
-      evs = concatMap f $ M.elems museqsMap :: [(Time, Action)] where
-        f :: Museq Action -> [(Time, Action)]
-        f m = map (over _1 fst)  -- use `fst` to ignore message's end time
-          $ arc time0 tempoPeriod startRender (startRender + frameDuration) m
-
-  mapM_ (uncurry $ actSend reg) evs
-
-  putMVar (mTime0       disp) time0
-  putMVar (mTempoPeriod disp) tempoPeriod
-  putMVar (mMuseqs      disp) museqsMap
-  putMVar (mReg         disp) reg
-
-  wait $ fromRational startRender - now
-  dispatchLoop disp
-
-
-dispatchLoop' :: Dispatch' -> IO ()
-dispatchLoop' disp = do
-  time0  <-      takeMVar $ mTime0'       disp
-  tempoPeriod <- takeMVar $ mTempoPeriod' disp
-  museqsMap <-   takeMVar $ mMuseqs'      disp
-  reg <-         takeMVar $ mReg'         disp
-  now <- unTimestamp <$> getTime
-
   let
     startRender = nextPhase0 time0 frameDuration now
     museqsMap' = M.mapWithKey g museqsMap :: M.Map String (Museq Action) where
       g museqName museq = over vec (V.map $ over _2 f) museq where
-        f :: NamedWith String (SynthDefEnum, Msg)-> Action
+        f :: SynthNote -> Action
         f (noteName,(sde, msg)) = Send sde (museqName ++ noteName) msg
           -- including the MuseqName guarantees different Museqs in the map
           -- will not conflict (and cannot cooperate in the same synth)
@@ -222,10 +197,10 @@ dispatchLoop' disp = do
 
   mapM_ (uncurry $ actSend reg) evs
 
-  putMVar (mTime0'       disp) time0
-  putMVar (mTempoPeriod' disp) tempoPeriod
-  putMVar (mMuseqs'      disp) museqsMap
-  putMVar (mReg'         disp) reg
+  putMVar (mTime0       disp) time0
+  putMVar (mTempoPeriod disp) tempoPeriod
+  putMVar (mMuseqs      disp) museqsMap
+  putMVar (mReg         disp) reg
 
   wait $ fromRational startRender - now
-  dispatchLoop' disp
+  dispatchLoop disp

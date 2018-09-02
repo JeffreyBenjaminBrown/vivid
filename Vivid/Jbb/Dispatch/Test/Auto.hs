@@ -164,22 +164,22 @@ testRep = TestCase $ do
 
 testMapMuseqsDiff = TestCase $ do
   let msg = M.singleton "amp" 1
-      m1 = M.fromList [("a", museq' 10 [(0, Send Boop "1" msg )])
-                      ,("b", museq' 15 [(0, Send Boop "1" msg)
-                                       ,(10,Send Boop "2" msg)
+      m1 = M.fromList [("a", museq' 10 [(0, ("1", (Boop, msg)))])
+                      ,("b", museq' 15 [(0, ("1", (Boop, msg)))
+                                       ,(10,("2", (Boop, msg)))
                                       ] ) ]
-      m2 = M.fromList [("a", museq' 10 [(0, Send Vap "2" msg)])
-                      ,("b", museq' 15 [(0, Send Boop "2" msg)
-                                       ,(10,Send Boop "3" msg)
+      m2 = M.fromList [("a", museq' 10 [(0, ("2", (Vap, msg)))])
+                      ,("b", museq' 15 [(0, ("2", (Boop, msg)))
+                                       ,(10,("3", (Boop, msg)))
                                       ] ) ]
   assertBool "museqDiff" $ museqsDiff m1 m2 == ( [ (Boop,"1") ]
-                                                  , [ (Boop,"3")
-                                                    , (Vap ,"2")
-                                                    ] )
+                                               , [ (Boop,"3")
+                                                 , (Vap ,"2")
+                                                 ] )
   assertBool "museqDiff" $ museqsDiff m2 m1 == ( [ (Boop,"3")
-                                                    , (Vap ,"2") ]
-                                                  , [ (Boop,"1") ]
-                                                  )
+                                                 , (Vap ,"2") ]
+                                               , [ (Boop,"1")
+                                                 ] )
 
 testArc = TestCase $ do
   let m = museq 5 [((0,6),"a"),((2,4),"b")]
