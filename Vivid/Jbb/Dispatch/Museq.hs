@@ -18,7 +18,7 @@ module Vivid.Jbb.Dispatch.Museq
   , longestDur
 
   -- | = Naming events
-  , museqNamesAreValid
+  , museqMabeNamesAreValid
   , nameAnonEvents
   , unusedName
   , intNameEvents
@@ -112,13 +112,14 @@ longestDur m = let eventDur ((start,end),_) = end - start
 
 -- | The names in a `Museq Name` are valid if no events with the same
 -- name overlap in time, within or across cycles.
-museqNamesAreValid :: forall a t. Eq t => Museq (NamedWith t a) -> Bool
-museqNamesAreValid m = and $ map goodGroup nameGroups where
+museqMabeNamesAreValid :: forall a t. Eq t
+  => Museq (NamedWith (Maybe t) a) -> Bool
+museqMabeNamesAreValid m = and $ map goodGroup nameGroups where
   namedEvents = filter (Mb.isJust . fst . snd) $ V.toList $ _vec m
-  nameGroups = L.groupBy eq' namedEvents :: [[Ev (NamedWith t a)]]
+  nameGroups = L.groupBy eq' namedEvents :: [[Ev (NamedWith (Maybe t) a)]]
     where eq' (_,(name,_)) (_,(name',_)) = name == name'
   noAdjacentOverlap, noWrappedOverlap, goodGroup
-    :: [Ev (NamedWith t a)] -> Bool
+    :: [Ev (NamedWith (Maybe t) a)] -> Bool
   noAdjacentOverlap [] = True
   noAdjacentOverlap (a:[]) = True
   noAdjacentOverlap (a@((_,e),_) : b@((s,_),_) : more) =
@@ -129,14 +130,16 @@ museqNamesAreValid m = and $ map goodGroup nameGroups where
   goodGroup g = noAdjacentOverlap g && noWrappedOverlap g
 
 nameAnonEvents :: forall a.
-  Museq (NamedWith String a) -> Museq (NamedWith String a)
+                  Museq (NamedWith (Maybe String) a)
+               -> Museq (NamedWith (Maybe String) a)
 nameAnonEvents m = let
-  evs, namedEvs, anonEvs, namedAnons :: [Ev (NamedWith String a)]
+  evs, namedEvs, anonEvs, namedAnons :: [Ev (NamedWith (Maybe String) a)]
   evs = V.toList $ _vec m 
   (namedEvs, anonEvs) = L.partition (Mb.isJust . fst . snd) evs
   names = Mb.catMaybes $ map (fst . snd) namedEvs :: [String]
   anonEvs' = map (over _2 snd) anonEvs :: [Ev a]
-  intNamedAnons = intNameEvents (_sup m) anonEvs' :: [Ev (NamedWith Int a)]
+  intNamedAnons = intNameEvents (_sup m) anonEvs'
+    :: [Ev (NamedWith (Maybe Int) a)]
   namedAnons = map (over (_2._1) f) intNamedAnons where
     f = Just . ((++) $ unusedName names) . show . Mb.fromJust
     -- The ++ ensures no name conflicts.
@@ -153,17 +156,17 @@ unusedName names = head $ (L.\\) allStrings names where
 -- ASSUMES the input list is sorted on (start,end) times.
 intNameEvents :: RDuration -- ^ _sup of the Museq these Evs come from
               -> [Ev a] -- ^ these are being named
-              -> [Ev (NamedWith Int a)]
+              -> [Ev (NamedWith (Maybe Int) a)]
 intNameEvents len ( ((s1,e1),a1) : more ) = 
   ((s1,e1),(Just 1,a1))
   : intNameEvents' len (s1,(Just 1, a1)) [(e1,(Just 1,a1))] more
 
 intNameEvents' :: forall a t.
   RDuration -- ^ _sup of the Museq these Evs come from
-  -> (RTime,NamedWith Int a) -- ^ (start, name) of the first event
-  -> [(RTime,NamedWith Int a)] -- ^ (end, name)s of ongoing events
+  -> (RTime,NamedWith (Maybe Int) a) -- ^ (start, name) of the first event
+  -> [(RTime,NamedWith (Maybe Int) a)] -- ^ (end, name)s of ongoing events
   -> [Ev a] -- ^ these are being named
-  -> [Ev (NamedWith Int a)]
+  -> [Ev (NamedWith (Maybe Int) a)]
 intNameEvents' _ _ _ [] = []
 intNameEvents' sup ev1@(s1,(mi1,a1)) ongoing (((s,e),a) : more) = let
   -- Handles ((s,t),a), then recurses.

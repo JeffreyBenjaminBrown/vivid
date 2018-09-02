@@ -9,6 +9,7 @@
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14,
 * polyphonic refactor
+** change NamedWith: make Maybe part of first type arg, when applicable
 ** String -> Museq (NamedWith String Msg) -> Museq Action
 *** prefix the String argument to each note name
 * fix

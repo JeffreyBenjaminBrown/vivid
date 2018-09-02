@@ -277,22 +277,22 @@ testMeta = TestCase $ do
 
 testMuseqNamesAreValid = TestCase $ do
   assertBool "empty Museq has valid names" $
-    museqNamesAreValid $ museq 10 ([] :: [((Rational,Rational)
+    museqMabeNamesAreValid $ museq 10 ([] :: [((Rational,Rational)
                                           , (Maybe String,()))])
   assertBool "Museq without names has valid names" $
-    museqNamesAreValid $ museq 10 [ ((0, 10), (Nothing :: Maybe String,()))
+    museqMabeNamesAreValid $ museq 10 [ ((0, 10), (Nothing :: Maybe String,()))
                                   , ((0, 10), (Nothing,())) ]
   assertBool "Museq with overlapping like names is not valid" $ not $
-    museqNamesAreValid $ museq 10 [ ((0,  6), (Just "1",()))
+    museqMabeNamesAreValid $ museq 10 [ ((0,  6), (Just "1",()))
                                   , ((4, 10), (Just "1",())) ]
   assertBool "Museq with non-overlapping like names is valid" $
-    museqNamesAreValid $ museq 10 [ ((0,  4), (Just "1",()))
+    museqMabeNamesAreValid $ museq 10 [ ((0,  4), (Just "1",()))
                                   , ((6, 10), (Just "1",())) ]
   assertBool "Museq with overlapping unlike names is valid" $
-    museqNamesAreValid $ museq 10 [ ((0,  6), (Just "1",()))
+    museqMabeNamesAreValid $ museq 10 [ ((0,  6), (Just "1",()))
                                   , ((4, 10), (Just "2",())) ]
   assertBool "Museq with wrapped overlap is not valid" $ not $
-    museqNamesAreValid $ museq 10 [ ((0,  4), (Just "1",()))
+    museqMabeNamesAreValid $ museq 10 [ ((0,  4), (Just "1",()))
                                   , ((6, 12), (Just "1",())) ]
 
 testIntNameEvents = TestCase $ do
