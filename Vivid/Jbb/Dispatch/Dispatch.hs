@@ -204,37 +204,3 @@ dispatchLoop disp = do
 
   wait $ fromRational startRender - now
   dispatchLoop disp
-
-
-
-dispatchLoop' :: Dispatch' -> IO ()
-dispatchLoop' disp = do
-  time0  <-      takeMVar $ mTime0'       disp
-  tempoPeriod <- takeMVar $ mTempoPeriod' disp
-  museqsMap <-   takeMVar $ mMuseqs'      disp
-  reg <-         takeMVar $ mReg'         disp
-  now <- unTimestamp <$> getTime
-
-  let
-    startRender = nextPhase0 time0 frameDuration now
-    museqsMap' = M.mapWithKey g museqsMap :: M.Map String (Museq Action) where
-      g museqName museq = over vec (V.map $ over _2 f)
-                          $ nameAnonEvents museq where
-        f :: Note -> Action
-        f (noteName,(sde, msg)) = Send sde (museqName ++ noteName) msg
-          -- including the MuseqName guarantees different Museqs in the map
-          -- will not conflict (and cannot cooperate in the same synth)
-    evs = concatMap f $ M.elems museqsMap' :: [(Time, Action)] where
-      f :: Museq Action -> [(Time, Action)]
-      f m = map (over _1 fst)  -- use `fst` to ignore message's end time
-        $ arc time0 tempoPeriod startRender (startRender + frameDuration) m
-
-  mapM_ (uncurry $ actSend reg) evs
-
-  putMVar (mTime0'       disp) time0
-  putMVar (mTempoPeriod' disp) tempoPeriod
-  putMVar (mMuseqs'      disp) museqsMap
-  putMVar (mReg'         disp) reg
-
-  wait $ fromRational startRender - now
-  dispatchLoop' disp
