@@ -297,18 +297,18 @@ testMuseqNamesAreValid = TestCase $ do
 
 testIntNameEvents = TestCase $ do
   assertBool "intNameEvents" $
-    intNameEvents 10 [((0,1), ()),           ((2,3), ())]
-    ==               [((0,1), (Just 1,())),  ((2,3), (Just 1,()))]
+    intNameEvents 10 [((0,1), ()),      ((2,3), ())]
+    ==               [((0,1), (1,())),  ((2,3), (1,()))]
   assertBool "intNameEvents" $
-    intNameEvents 10 [((0,2), ()),           ((2,3), ())]
-    ==               [((0,2), (Just 1,())),  ((2,3), (Just 2,()))]
+    intNameEvents 10 [((0,2), ()),      ((2,3), ())]
+    ==               [((0,2), (1,())),  ((2,3), (2,()))]
   assertBool "intNameEvents" $
-    intNameEvents 10 [((0,2), ()),           ((5,11), ())]
-    ==               [((0,2), (Just 1,())),  ((5,11), (Just 2,()))]
+    intNameEvents 10 [((0,2), ()),      ((5,11), ())]
+    ==               [((0,2), (1,())),  ((5,11), (2,()))]
 
 testNameAnonEvents = TestCase $ do
   let m = museq 10 [((0,1),(Just "1",()))
                    ,((0,1),(Nothing, ()))]
   assertBool "testNameAnonEvents" $ nameAnonEvents m
-    ==    museq 10 [((0,1),(Just "1",()))
-                   ,((0,1),(Just "a1",()))]
+    ==    museq 10 [((0,1),("1",()))
+                   ,((0,1),("a1",()))]
