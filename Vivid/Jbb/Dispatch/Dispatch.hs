@@ -207,17 +207,18 @@ dispatchLoop' disp = do
   reg <-         takeMVar $ mReg'         disp
   now <- unTimestamp <$> getTime
 
-  let startRender = nextPhase0 time0 frameDuration now
-      museqsMap' = M.mapWithKey g museqsMap where
-        g museqName museq = over vec (V.map $ over _2 f) museq where
-          f :: NamedWith String (SynthDefEnum, Msg)-> Action
-          f (noteName,(sde, msg)) = Send sde (museqName ++ noteName) msg
-            -- including the MuseqName guarantees different Museqs in the map
-            -- will not conflict (and cannot cooperate in the same synth)
-      evs = concatMap f $ M.elems museqsMap' :: [(Time, Action)] where
-        f :: Museq Action -> [(Time, Action)]
-        f m = map (over _1 fst)  -- use `fst` to ignore message's end time
-          $ arc time0 tempoPeriod startRender (startRender + frameDuration) m
+  let
+    startRender = nextPhase0 time0 frameDuration now
+    museqsMap' = M.mapWithKey g museqsMap :: M.Map String (Museq Action) where
+      g museqName museq = over vec (V.map $ over _2 f) museq where
+        f :: NamedWith String (SynthDefEnum, Msg)-> Action
+        f (noteName,(sde, msg)) = Send sde (museqName ++ noteName) msg
+          -- including the MuseqName guarantees different Museqs in the map
+          -- will not conflict (and cannot cooperate in the same synth)
+    evs = concatMap f $ M.elems museqsMap' :: [(Time, Action)] where
+      f :: Museq Action -> [(Time, Action)]
+      f m = map (over _1 fst)  -- use `fst` to ignore message's end time
+        $ arc time0 tempoPeriod startRender (startRender + frameDuration) m
 
   mapM_ (uncurry $ actSend reg) evs
 
