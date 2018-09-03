@@ -187,14 +187,6 @@ intNameEvents' sup ev1@(s1,(i1,a1)) ongoing (((s,e),a) : more) = let
 -- | = More
 -- | Given a Museq, find the synths it uses.
 
---museqNamedMsgToMuseqAction ::
---  String -> Museq (NamedWith String Msg) -> Museq Action
---museqNamedMsgToMuseqAction prefix = over vec f where
---  f :: Ev (NamedWith String Msg) -> Ev Action
---  f = over _2 g where
---    g :: NamedWith String Msg -> Action
---    g (Just 
-
 museqSynths :: Museq Note -> [(SynthDefEnum, SynthName)]
 museqSynths m = map (f . snd) evs where
   evs = V.toList $ _vec m :: [Ev Note]
