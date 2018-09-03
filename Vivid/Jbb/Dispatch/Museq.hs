@@ -272,7 +272,7 @@ arcFold cycle period rdv time0 from to m =
     startOrOOBIndex = firstIndexGTE compare rdv $ fromInCycles * _sup m :: Int
   in if startOrOOBIndex >= V.length rdv
 --     then let nextFrom = if pp0 + period > from
---    todo ? delete
+-- -- todo ? delete
 -- -- If `from = pp0 + period - epsilon`, maybe `pp0 + period <= from`.
 -- -- Thus floating point error used to make this if-then statement necessary
 -- -- Now that all times are Rational, it's probably unnecessary.
