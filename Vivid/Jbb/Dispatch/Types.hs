@@ -9,7 +9,7 @@
 #-}
 
 module Vivid.Jbb.Dispatch.Types (
-  Name, SynthName, ParamName, MuseqName
+  SynthName, ParamName, MuseqName
   , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
   , NamedWith, mNamed, anon
@@ -19,7 +19,7 @@ module Vivid.Jbb.Dispatch.Types (
   , emptyMuseq
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
-  , Note, MbNamedNote
+  , Note
   , Dispatch(..), newDispatch
   ) where
 
@@ -39,7 +39,6 @@ import Vivid.Jbb.Util
 
 -- | = Kinds of name
 
-type Name      = String
 type ParamName = String
 type SynthName = String
 type MuseqName = String
@@ -50,11 +49,10 @@ type MuseqName = String
 
 type Time = Rational
 type Duration = Rational
-newtype RTime = RTime Rational deriving Ord
+newtype RTime = RTime Rational deriving (Ord,Eq)
 type RDuration = RTime
 
 instance Show RTime where show (RTime t) = show t
-instance Eq RTime where(==) (RTime t) (RTime s) = t == s
 instance Num RTime where (+) (RTime t) (RTime s) = RTime (t + s)
                          (-) (RTime t) (RTime s) = RTime (t - s)
                          (*) (RTime t) (RTime s) = RTime (t * s)
@@ -144,7 +142,6 @@ emptySynthRegister :: SynthRegister
 emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
 type Note        = NamedWith        String  (SynthDefEnum, Msg)
-type MbNamedNote = NamedWith (Maybe String) (SynthDefEnum, Msg)
 
 data Dispatch = Dispatch {
     mMuseqs :: MVar (M.Map MuseqName (Museq Note))

@@ -65,7 +65,6 @@ library
     , Vivid.Jbb.Random.RandomSignal
     , Vivid.Jbb.Random.RandomSynth
     , Vivid.Jbb.Random.Render
-    , Vivid.Jbb.Random.Signal
     , Vivid.Jbb.Random.Types
     , Vivid.Jbb.Random.Types.AbstractSignal
     , Vivid.Jbb.Random.Types.Other

@@ -78,3 +78,5 @@ let f1 = museq 4 [ ((0,2),fast 2)
 
 -- Change the tempo. A bigger value = a slower tempo.
 chTempoPeriod disp 1.05
+
+replace disp "a funky one, by Tom Murphy" $ cat [fast 4 $ p 330 220, fast 4 $ p 660 440, rev $ p 440 220, rev $ fast 4 $ p 330 440, fast 4 $ p 330 440]

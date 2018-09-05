@@ -20,9 +20,10 @@
 *** Join.meta: suppose the Museq (Museq a -> Museq b) has two anonymous overlapping transformations, and the Museq a has two like-named serial operations.
 **** Give the meta-museq unique names, then just (++) names from the two args
 ** maybe every Ev should have a name
-*** I do not want to have to name each Ev
-*** ? do I want to be able to pass around Museqs with unnamed Evs
-**** it seems efficient; if you wait until the last minute to assign names to Evs, then you can join them without wasting space.
+*** Ev l a, Museq l a, where l is the label type
+*** Ev could be a type, not a synonym, with 4 fields and lenses
+*** Remember: Events in a Dispatch need not just a label but a SynthDefEnum
+*** TODO Should the SynthDefEnum be part of an Event's label?
 ** merges should be polymomrphic
 *** currently mergea, merge0, merge1 :: Museq Msg -> Museq Msg -> Museq Msg
 * fix
@@ -51,3 +52,5 @@
 ** chTempo: continuity
 *** when changing tempo, figure out how many cycles have passed since time0
 *** rewrite time0 so it's still true at the new tempo
+* once it's publishable
+** add Cabal install notes. Tom made suggestions in the seventh message of the haskell-art thread, "fVivid: Some code that parses instructions to synths polymorphically"
