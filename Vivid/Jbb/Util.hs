@@ -11,6 +11,7 @@ module Vivid.Jbb.Util (
   , fr -- ^ fromRational
   , tr -- ^ toRational
   , lcmRatios
+  , overlap
   , nextPhase0
   , prevPhase0
 
@@ -74,6 +75,18 @@ lcmRatios x y = let (a,b) = (numerator x, denominator x)
                     (c,d) = (numerator y, denominator y)
                     l = lcm b d
                 in lcm (a * div l b) (c * div l d) % l
+
+-- | ASSUMES both inputs are well-formed intervals, s.t. start <= end.
+-- PITFALL: If either event has zero duration
+-- , they must strictly not overlap. Otherwise their endpoints can meet.
+overlap :: (Num a, Ord a) => (a,a) -> (a,a) -> Bool
+overlap (a,b) (c,d) | a == b =
+                      b >= c && b <= d
+                    | c == d =
+                      c >= a && c <= b
+                    | otherwise =
+                         a <= c && b > c
+                      || c <= a && d > a
 
 -- | `time0` is the first time that had phase 0
 -- | TODO ? rewrite using div', mod' from Data.Fixed

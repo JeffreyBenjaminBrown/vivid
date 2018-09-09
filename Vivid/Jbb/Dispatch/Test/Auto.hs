@@ -18,7 +18,8 @@ import Test.HUnit
 
 
 tests = runTestTT $ TestList
-  [ TestLabel "testPrevPhase0" testPrevPhase0
+  [ TestLabel "testOverlap" testOverlap
+  , TestLabel "testPrevPhase0" testPrevPhase0
   , TestLabel "testNextPhase0" testNextPhase0
   , TestLabel "museqIsValid" testMuseqIsValid
   , TestLabel "testAppend" testAppend
@@ -43,6 +44,56 @@ tests = runTestTT $ TestList
   , TestLabel "testIntNameEvents" testIntNameEvents
   , TestLabel "testNameAnonEvents" testNameAnonEvents
   ]
+
+testOverlap = TestCase $ do
+  assertBool "no overlap" $ not
+    $ overlap (0,1) (2,3)
+  assertBool "no overlap" $ not
+    $ overlap (2,3) (0,1)
+  assertBool "one inside"
+    $ overlap (0,1) (-1,2)
+  assertBool "one inside"
+    $ overlap (-1,2) (0,1)
+  assertBool "equal"
+    $ overlap (0,2) (0,2)
+  assertBool "equal"
+    $ overlap (0,2) (0,2)
+  assertBool "left-equal"
+    $ overlap (0,1) (0,2)
+  assertBool "left-equal"
+    $ overlap (0,2) (0,1)
+  assertBool "right-equal"
+    $ overlap (1,2) (0,2)
+  assertBool "right-equal"
+    $ overlap (0,2) (1,2)
+  assertBool "instantaneous, equal"
+    $ overlap (0,0) (0,0)
+  assertBool "instantaneous, equal"
+    $ overlap (0,0) (0,0)
+  assertBool "instantaneous, not equal" $ not
+    $ overlap (0,0) (1,1)
+  assertBool "instantaneous, not equal" $ not
+    $ overlap (1,1) (0,0)
+  assertBool "one instant, left-equal"
+    $ overlap (0,0) (0,1)
+  assertBool "one instant, left-equal"
+    $ overlap (0,1) (0,0)
+  assertBool "one instant, right-equal"
+    $ overlap (1,1) (0,1)
+  assertBool "one instant, right-equal"
+    $ overlap (0,1) (1,1)
+  assertBool "one instant, inside"
+    $ overlap (1,1) (0,2)
+  assertBool "one instant, inside"
+    $ overlap (0,2) (1,1)
+  assertBool "one instant, outside on right" $ not
+    $ overlap (3,3) (0,2)
+  assertBool "one instant, outside on right" $ not
+    $ overlap (0,2) (3,3)
+  assertBool "one instant, outside on left" $ not
+    $ overlap (3,3) (10,12)
+  assertBool "one instant, outside on left" $ not
+    $ overlap (10,12) (3,3)
 
 testPrevPhase0 = TestCase $ do
   assertBool "" $ prevPhase0 0 10 11 == 10
@@ -304,7 +355,7 @@ testMuseqNamesAreValid' = TestCase $ do
   assertBool "empty Museq' has valid names" $ museqMaybeNamesAreValid' $
     museq' 10 ([] :: [(Maybe String, Rational, Rational, ())])
   assertBool "Museq' without names has valid names"
-    $ museqMaybeNamesAreValid' 
+    $ museqMaybeNamesAreValid'
     $ museq' 10 [ (Nothing :: Maybe String, 0, 10, ())
                 , (Nothing                , 0, 10, ()) ]
   assertBool "Museq' with overlapping like names is not valid" $ not $

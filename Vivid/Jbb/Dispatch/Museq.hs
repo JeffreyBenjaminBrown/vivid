@@ -198,10 +198,6 @@ museqMaybeNamesAreValid' m = and $ map goodGroup nameGroups where
     where bump (s,t) = (s + _sup' m, t + _sup' m)
   goodGroup g = not $ adjacentOverlap g || wrappedOverlap g
 
-overlap :: (RTime,RTime) -> (RTime,RTime) -> Bool
-overlap (a,b) (c,d) | a == b = b >= c
-                    | a < b  = b > c
-
 unusedName :: [String] -> String
 unusedName names = head $ (L.\\) allStrings names where
   allStrings = [ c : s | s <- "" : allStrings
