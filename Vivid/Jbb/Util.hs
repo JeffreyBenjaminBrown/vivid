@@ -11,6 +11,7 @@ module Vivid.Jbb.Util (
   , fr -- ^ fromRational
   , tr -- ^ toRational
   , lcmRatios
+  , bumpArc
   , overlap
   , nextPhase0
   , prevPhase0
@@ -75,6 +76,9 @@ lcmRatios x y = let (a,b) = (numerator x, denominator x)
                     (c,d) = (numerator y, denominator y)
                     l = lcm b d
                 in lcm (a * div l b) (c * div l d) % l
+
+bumpArc :: Num a => a -> (a,a) -> (a,a)
+bumpArc b (s,t) = (s + b, t + b)
 
 -- | ASSUMES both inputs are well-formed intervals, s.t. start <= end.
 -- PITFALL: If either event has zero duration

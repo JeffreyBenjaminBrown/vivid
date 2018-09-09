@@ -194,8 +194,8 @@ museqMaybeNamesAreValid' m = and $ map goodGroup nameGroups where
   adjacentOverlap (a:[]) = False
   adjacentOverlap (e : f : more) = overlap (e^.evArc) (f^.evArc)
                                    || adjacentOverlap (f:more)
-  wrappedOverlap evs = overlap (last evs ^. evArc) (bump $ head evs ^. evArc)
-    where bump (s,t) = (s + _sup' m, t + _sup' m)
+  wrappedOverlap evs = overlap (last evs ^. evArc)
+                       (bumpArc (_sup' m) $ head evs ^. evArc)
   goodGroup g = not $ adjacentOverlap g || wrappedOverlap g
 
 unusedName :: [String] -> String
@@ -222,6 +222,27 @@ nameAnonEvents m = let
     -- todo : learn Prisms, use _Just
   in sortMuseq $ m {_vec = V.fromList $ namedEvs' ++ namedAnons}
 
+--nameAnonEvents' :: forall a.
+--                   Museq' (Maybe String) a
+--                -> Museq' (Maybe String) a
+--nameAnonEvents' m = m
+--  -- sortMuseq $ m {_vec = V.fromList $ namedEvs' ++ namedAnons}
+--  where
+--  evs, namedEvs, anonEvs :: [Ev' (Maybe String) a]
+--  evs = V.toList $ _vec' m
+--  (namedEvs, anonEvs) = L.partition (Mb.isJust . view evLabel) evs
+--  namedEvs' = map (over evLabel Mb.fromJust) namedEvs :: [Ev' String a]
+--  names = Mb.catMaybes $ map (view evLabel) namedEvs :: [String]
+--  anonEvs' = map (over evLabel $ const ()) anonEvs :: [Ev' () a]
+-- >>>
+--  intNamedAnons = intNameEvents (_sup m) anonEvs'
+--    :: [Ev (NamedWith Int a)]
+--  namedAnons = map (over (_2._1) f) intNamedAnons :: [Ev' String a]
+-- where
+--    f = ((++) $ unusedName names) . show
+--    -- The ++ ensures no name conflicts.
+--    -- todo : learn Prisms, use _Just
+
 -- | Assign a minimal number of names (which are integers in string form),
 -- starting from 1, so that like-named events do not overlap.
 -- ASSUMES the input list is sorted on (start,end) times.
@@ -230,16 +251,16 @@ intNameEvents :: RDuration -- ^ _sup of the Museq these Evs come from
               -> [Ev (NamedWith Int a)]
 intNameEvents len ( ((s1,e1),a1) : more ) =
   ((s1,e1),(1,a1))
-  : intNameEvents' len (s1,(1, a1)) [(e1,(1,a1))] more
+  : _intNameEvents len (s1,(1, a1)) [(e1,(1,a1))] more
 
-intNameEvents' :: forall a t.
+_intNameEvents :: forall a t.
   RDuration -- ^ _sup of the Museq these Evs come from
   -> (RTime,NamedWith Int a) -- ^ (start, name) of the first event
   -> [(RTime,NamedWith Int a)] -- ^ (end, name)s of ongoing events
   -> [Ev a] -- ^ these are being named
   -> [Ev (NamedWith Int a)]
-intNameEvents' _ _ _ [] = []
-intNameEvents' sup ev1@(s1,(i1,a1)) ongoing (((s,e),a) : more) = let
+_intNameEvents _ _ _ [] = []
+_intNameEvents sup ev1@(s1,(i1,a1)) ongoing (((s,e),a) : more) = let
   -- Handles ((s,t),a), then recurses.
   -- Acronyms: s = start, e = end, mn = maybe-name, n = name
   ongoing' = filter (\(e',_) -> e' >= s) ongoing
@@ -250,7 +271,27 @@ intNameEvents' sup ev1@(s1,(i1,a1)) ongoing (((s,e),a) : more) = let
   overlappingMaybeNames = if firstOverlaps then i1 : is else is where
     is = map (fst . snd) ongoing'
   name = head $ (L.\\) [1..] overlappingMaybeNames
-  in ((s,e),(name,a)) : intNameEvents' sup ev1 ongoing' more
+  in ((s,e),(name,a)) : _intNameEvents sup ev1 ongoing' more
+
+-- _intNameEvents' :: forall a t.
+--   RDuration -- ^ _sup of the Museq these Evs come from
+--   -> (Ev' Int a) -- ^ the first event
+--   -> [Ev' Int a] -- ^ ongoing events
+--   -> [Ev' ()  a] -- ^ these are being named
+--   -> [Ev' Int a]
+-- _intNameEvents' _ _ _ [] = []
+-- -- _intNameEvents' sup ev1@(s1,(i1,a1)) ongoing (((s,e),a) : more) = let
+-- _intNameEvents' sup ev1 ongoing (ev : more) = -- handle ev, then revurse
+--   [] where -- ((s,e),(name,a)) : _intNameEvents' sup ev1 ongoing' more
+--   ongoing' = filter (\ev' -> overlap (ev ^. evArc) (ev' ^. evArc)) ongoing
+--     -- ongoing in the sense that they do not end before ev starts
+--   firstOverlaps = overlap
+--     -- todo speed ? ongoing' and `firstOverlaps` are conservative.
+--     -- For events with duration > 0, (e' > s) would work.
+-- --  overlappingMaybeNames = if firstOverlaps then i1 : is else is where
+-- --    is = map (fst . snd) ongoing'
+-- --  name = head $ (L.\\) [1..] overlappingMaybeNames
+
 
 
 -- | = More
