@@ -32,6 +32,7 @@ module Vivid.Jbb.Dispatch.Museq
   , nameAnonEvents
   , unusedName
   , intNameEvents
+  , intNameEvents'
 
   -- | = More
   , museqSynths
@@ -253,6 +254,12 @@ intNameEvents len ( ((s1,e1),a1) : more ) =
   ((s1,e1),(1,a1))
   : _intNameEvents len (s1,(1, a1)) [(e1,(1,a1))] more
 
+intNameEvents' :: RDuration -- ^ _sup of the Museq these Evs come from
+               -> [Ev' () a] -- ^ these are being named
+               -> [Ev' Int a]
+intNameEvents' sup (ev1:more) = ev1' : _intNameEvents' sup ev1' [ev1'] more
+  where ev1' = over evLabel (const 1) ev1
+
 _intNameEvents :: forall a t.
   RDuration -- ^ _sup of the Museq these Evs come from
   -> (RTime,NamedWith Int a) -- ^ (start, name) of the first event
@@ -273,25 +280,24 @@ _intNameEvents sup ev1@(s1,(i1,a1)) ongoing (((s,e),a) : more) = let
   name = head $ (L.\\) [1..] overlappingMaybeNames
   in ((s,e),(name,a)) : _intNameEvents sup ev1 ongoing' more
 
--- _intNameEvents' :: forall a t.
---   RDuration -- ^ _sup of the Museq these Evs come from
---   -> (Ev' Int a) -- ^ the first event
---   -> [Ev' Int a] -- ^ ongoing events
---   -> [Ev' ()  a] -- ^ these are being named
---   -> [Ev' Int a]
--- _intNameEvents' _ _ _ [] = []
--- -- _intNameEvents' sup ev1@(s1,(i1,a1)) ongoing (((s,e),a) : more) = let
--- _intNameEvents' sup ev1 ongoing (ev : more) = -- handle ev, then revurse
---   [] where -- ((s,e),(name,a)) : _intNameEvents' sup ev1 ongoing' more
---   ongoing' = filter (\ev' -> overlap (ev ^. evArc) (ev' ^. evArc)) ongoing
---     -- ongoing in the sense that they do not end before ev starts
---   firstOverlaps = overlap
---     -- todo speed ? ongoing' and `firstOverlaps` are conservative.
---     -- For events with duration > 0, (e' > s) would work.
--- --  overlappingMaybeNames = if firstOverlaps then i1 : is else is where
--- --    is = map (fst . snd) ongoing'
--- --  name = head $ (L.\\) [1..] overlappingMaybeNames
-
+_intNameEvents' :: forall a t.
+  RDuration -- ^ _sup of the Museq these Evs come from
+  -> (Ev' Int a) -- ^ the first event
+  -> [Ev' Int a] -- ^ ongoing events
+  -> [Ev' ()  a] -- ^ these are being named
+  -> [Ev' Int a]
+_intNameEvents' _ _ _ [] = []
+_intNameEvents' sup ev1 ongoing (ev : more) = over evLabel (const name) ev
+    : _intNameEvents' sup ev1 ongoing' more
+  where
+    ongoing' = filter (\ev' -> overlap (ev ^. evArc) (ev' ^. evArc)) ongoing
+      -- ongoing in the sense that they do not end before ev starts
+    firstOverlaps = overlap (bumpArc sup $ ev1 ^. evArc) (ev ^. evArc)
+    overlappingMaybeNames = if firstOverlaps
+                            then (ev1 ^. evLabel) : ns
+                            else                    ns
+      where ns = map (view evLabel) ongoing'
+    name = head $ (L.\\) [1..] overlappingMaybeNames
 
 
 -- | = More

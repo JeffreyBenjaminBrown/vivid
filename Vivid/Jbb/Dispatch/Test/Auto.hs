@@ -42,6 +42,7 @@ tests = runTestTT $ TestList
   , TestLabel "testMuseqNamesAreValid" testMuseqNamesAreValid
   , TestLabel "testMuseqNamesAreValid'" testMuseqNamesAreValid'
   , TestLabel "testIntNameEvents" testIntNameEvents
+  , TestLabel "testIntNameEvents'" testIntNameEvents'
   , TestLabel "testNameAnonEvents" testNameAnonEvents
   ]
 
@@ -381,6 +382,17 @@ testIntNameEvents = TestCase $ do
   assertBool "intNameEvents" $
     intNameEvents 10 [((0,2), ()),      ((5,11), ())]
     ==               [((0,2), (1,())),  ((5,11), (2,()))]
+
+testIntNameEvents' = TestCase $ do
+  assertBool "intNameEvents', no overlap" $
+    intNameEvents' 10 [Ev' () (0, 1) (),  Ev' () (2,3) ()]
+    ==                [Ev'  1 (0, 1) (),  Ev'  1 (2,3) ()]
+  assertBool "intNameEvents', ordinary overlap" $
+    intNameEvents' 10 [Ev' () (0,2) (),  Ev' () (1,3) ()]
+    ==                [Ev'  1 (0,2) (),  Ev'  2 (1,3) ()]
+  assertBool "intNameEvents', wrapped overlap" $
+    intNameEvents' 10 [Ev' () (0,2) (),  Ev' () (5,11) ()]
+    ==                [Ev'  1 (0,2) (),  Ev'  2 (5,11) ()]
 
 testNameAnonEvents = TestCase $ do
   let m = museq 10 [((0,1),(Just "1",()))
