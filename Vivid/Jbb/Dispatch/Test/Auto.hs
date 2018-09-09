@@ -44,6 +44,7 @@ tests = runTestTT $ TestList
   , TestLabel "testIntNameEvents" testIntNameEvents
   , TestLabel "testIntNameEvents'" testIntNameEvents'
   , TestLabel "testNameAnonEvents" testNameAnonEvents
+  , TestLabel "testNameAnonEvents'" testNameAnonEvents'
   ]
 
 testOverlap = TestCase $ do
@@ -354,23 +355,23 @@ testMuseqNamesAreValid = TestCase $ do
 
 testMuseqNamesAreValid' = TestCase $ do
   assertBool "empty Museq' has valid names" $ museqMaybeNamesAreValid' $
-    museq' 10 ([] :: [(Maybe String, Rational, Rational, ())])
+    museq' 10 ([] :: [Ev' (Maybe String) ()])
   assertBool "Museq' without names has valid names"
     $ museqMaybeNamesAreValid'
-    $ museq' 10 [ (Nothing :: Maybe String, 0, 10, ())
-                , (Nothing                , 0, 10, ()) ]
+    $ museq' 10 [ ev (Nothing :: Maybe String) 0 10 ()
+                , ev (Nothing :: Maybe String) 0 10 () ]
   assertBool "Museq' with overlapping like names is not valid" $ not $
-    museqMaybeNamesAreValid' $ museq' 10 [ (Just "1", 0,  6, ())
-                                         , (Just "1", 4,  10, ()) ]
+    museqMaybeNamesAreValid' $ museq' 10 [ ev (Just "1") 0  6 ()
+                                         , ev (Just "1") 4 10 () ]
   assertBool "Museq' with non-overlapping like names is valid" $
-    museqMaybeNamesAreValid' $ museq' 10 [ (Just "1", 0, 4, ())
-                                         , (Just "1", 6, 10, ()) ]
+    museqMaybeNamesAreValid' $ museq' 10 [ ev (Just "1") 0 4  ()
+                                         , ev (Just "1") 6 10 () ]
   assertBool "Museq' with overlapping unlike names is valid" $
-    museqMaybeNamesAreValid' $ museq' 10 [ (Just "1", 0,  6, ())
-                                         , (Just "2", 4, 10, ()) ]
+    museqMaybeNamesAreValid' $ museq' 10 [ ev (Just "1") 0 6 ()
+                                         , ev (Just "2") 4 10 () ]
   assertBool "Museq' with wrapped overlap is not valid" $ not $
-    museqMaybeNamesAreValid' $ museq' 10 [ (Just "1", 0,  4, ())
-                                         , (Just "1", 6, 12, ()) ]
+    museqMaybeNamesAreValid' $ museq' 10 [ ev (Just "1") 0 4 ()
+                                         , ev (Just "1") 6 12 () ]
 
 testIntNameEvents = TestCase $ do
   assertBool "intNameEvents" $
@@ -385,14 +386,14 @@ testIntNameEvents = TestCase $ do
 
 testIntNameEvents' = TestCase $ do
   assertBool "intNameEvents', no overlap" $
-    intNameEvents' 10 [Ev' () (0, 1) (),  Ev' () (2,3) ()]
-    ==                [Ev'  1 (0, 1) (),  Ev'  1 (2,3) ()]
+    intNameEvents' 10 [ev () 0  1 (),  ev () 2 3 ()]
+    ==                [ev  1 0  1 (),  ev  1 2 3 ()]
   assertBool "intNameEvents', ordinary overlap" $
-    intNameEvents' 10 [Ev' () (0,2) (),  Ev' () (1,3) ()]
-    ==                [Ev'  1 (0,2) (),  Ev'  2 (1,3) ()]
+    intNameEvents' 10 [ev () 0 2 (),  ev () 1 3 ()]
+    ==                [ev  1 0 2 (),  ev  2 1 3 ()]
   assertBool "intNameEvents', wrapped overlap" $
-    intNameEvents' 10 [Ev' () (0,2) (),  Ev' () (5,11) ()]
-    ==                [Ev'  1 (0,2) (),  Ev'  2 (5,11) ()]
+    intNameEvents' 10 [ev () 0 2 (),  ev () 5 11 ()]
+    ==                [ev  1 0 2 (),  ev  2 5 11 ()]
 
 testNameAnonEvents = TestCase $ do
   let m = museq 10 [((0,1),(Just "1",()))
@@ -400,3 +401,10 @@ testNameAnonEvents = TestCase $ do
   assertBool "testNameAnonEvents" $ nameAnonEvents m
     ==    museq 10 [((0,1),("1",()))
                    ,((0,1),("a1",()))]
+
+testNameAnonEvents' = TestCase $ do
+  let m = museq' 10 [ ev (Just "1") 0 1 ()
+                    , ev Nothing    0 1 () ]
+  assertBool "testNameAnonEvents'" $ nameAnonEvents' m
+    ==    museq' 10 [ ev "1"  0 1 ()
+                    , ev "a1" 0 1 () ]

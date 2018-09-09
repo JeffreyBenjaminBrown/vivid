@@ -15,7 +15,7 @@ module Vivid.Jbb.Dispatch.Types (
   , NamedWith, mNamed, anon
   , Action(..), actionSynth
   , Ev     , showEvs
-  , Ev'(..), showEvs'
+  , Ev'(..), showEvs', ev
   , evArc, evLabel, evData, evStart, evEnd
   , Museq(..) , dur , sup , vec
   , emptyMuseq
@@ -126,6 +126,9 @@ evEnd = evArc . _2
 showEvs' :: (Foldable t, Show a, Show label)
         => t (Ev' label a) -> String
 showEvs' = foldl (\acc ev -> acc ++ show ev) "\n"
+
+ev :: l -> Rational -> Rational -> a -> Ev' l a -- ^ use fewer parens, commas
+ev l s e a = Ev' l (fr s, fr e) a
 
 data Museq a = Museq {
   _dur :: RDuration -- ^ the play duration of the loop

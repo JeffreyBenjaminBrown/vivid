@@ -30,6 +30,7 @@ module Vivid.Jbb.Dispatch.Museq
   , museqMaybeNamesAreValid
   , museqMaybeNamesAreValid'
   , nameAnonEvents
+  , nameAnonEvents'
   , unusedName
   , intNameEvents
   , intNameEvents'
@@ -97,11 +98,10 @@ museq0 d tas = sortMuseq $ Museq {_dur = d, _sup = d,
 
 
 -- | Make a Museq', specifying start and end times
-museq' :: RDuration -> [(l, Rational, Rational, a)] -> Museq' l a
+museq' :: RDuration -> [Ev' l a] -> Museq' l a
 museq' d evs = sortMuseq' $ Museq' { _dur' = d
                                    , _sup' = d
-                                   , _vec' = V.fromList $ map g evs }
-  where g (l,s,e,a) = Ev' {_evLabel=l, _evArc=(fr s, fr e), _evData=a}
+                                   , _vec' = V.fromList $ evs }
 
 
 -- | Make a Museq' of instantaneous events, specifying only start times
@@ -223,26 +223,22 @@ nameAnonEvents m = let
     -- todo : learn Prisms, use _Just
   in sortMuseq $ m {_vec = V.fromList $ namedEvs' ++ namedAnons}
 
---nameAnonEvents' :: forall a.
---                   Museq' (Maybe String) a
---                -> Museq' (Maybe String) a
---nameAnonEvents' m = m
---  -- sortMuseq $ m {_vec = V.fromList $ namedEvs' ++ namedAnons}
---  where
---  evs, namedEvs, anonEvs :: [Ev' (Maybe String) a]
---  evs = V.toList $ _vec' m
---  (namedEvs, anonEvs) = L.partition (Mb.isJust . view evLabel) evs
---  namedEvs' = map (over evLabel Mb.fromJust) namedEvs :: [Ev' String a]
---  names = Mb.catMaybes $ map (view evLabel) namedEvs :: [String]
---  anonEvs' = map (over evLabel $ const ()) anonEvs :: [Ev' () a]
--- >>>
---  intNamedAnons = intNameEvents (_sup m) anonEvs'
---    :: [Ev (NamedWith Int a)]
---  namedAnons = map (over (_2._1) f) intNamedAnons :: [Ev' String a]
--- where
---    f = ((++) $ unusedName names) . show
---    -- The ++ ensures no name conflicts.
---    -- todo : learn Prisms, use _Just
+nameAnonEvents' :: forall a.
+                   Museq' (Maybe String) a
+                -> Museq'        String  a
+nameAnonEvents' m =
+  sortMuseq' $ m {_vec' = V.fromList $ namedEvs' ++ namedAnons}
+  where
+    evs, namedEvs, anonEvs :: [Ev' (Maybe String) a]
+    evs = V.toList $ _vec' m
+    (namedEvs, anonEvs) = L.partition (Mb.isJust . view evLabel) evs
+    namedEvs' = map (over evLabel Mb.fromJust) namedEvs :: [Ev' String a]
+    names = map (view evLabel) namedEvs' :: [String]
+    anonEvs' = map (over evLabel $ const ()) anonEvs :: [Ev' () a]
+    intNamedAnons = intNameEvents' (_sup' m) anonEvs' :: [Ev' Int a]
+    namedAnons = map (over evLabel f) intNamedAnons :: [Ev' String a]
+      where f = ((++) $ unusedName names) . show
+            -- The ++ ensures no name conflicts.
 
 -- | Assign a minimal number of names (which are integers in string form),
 -- starting from 1, so that like-named events do not overlap.
@@ -303,6 +299,7 @@ _intNameEvents' sup ev1 ongoing (ev : more) = over evLabel (const name) ev
 -- | = More
 -- | Given a Museq, find the synths it uses.
 
+-- >>>
 museqSynths :: Museq Note -> [(SynthDefEnum, SynthName)]
 museqSynths m = map (f . snd) evs where
   evs = V.toList $ _vec m :: [Ev Note]
