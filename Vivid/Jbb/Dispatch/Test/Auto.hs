@@ -58,13 +58,13 @@ testNextPhase0 = TestCase $ do
 testMuseqIsValid = TestCase $ do
   let vempty = V.empty :: V.Vector (RTime, ())
   assertBool "valid, empty"                   $ museqIsValid
-    $ (museq' 3 [] :: Museq ())
+    $ (museq0 3 [] :: Museq ())
   assertBool "invalid, zero length"     $ not $ museqIsValid
-    $ (museq' 0 [] :: Museq ())
+    $ (museq0 0 [] :: Museq ())
   assertBool "valid, nonempty"                $ museqIsValid
-    $ (museq' 1 [(0, New Boop "marge")])
+    $ (museq0 1 [(0, New Boop "marge")])
   assertBool "invalid, time > _sup" $ not $ museqIsValid
-    $ (museq' 1 [(1.5, New Boop "marge")])
+    $ (museq0 1 [(1.5, New Boop "marge")])
 
 testStack = TestCase $ do
   let y = museq 2 [((0,3),"y")]
@@ -164,12 +164,12 @@ testRep = TestCase $ do
 
 testMapMuseqsDiff = TestCase $ do
   let msg = M.singleton "amp" 1
-      m1 = M.fromList [("a", museq' 10 [(0, ("1", (Boop, msg)))])
-                      ,("b", museq' 15 [(0, ("1", (Boop, msg)))
+      m1 = M.fromList [("a", museq0 10 [(0, ("1", (Boop, msg)))])
+                      ,("b", museq0 15 [(0, ("1", (Boop, msg)))
                                        ,(10,("2", (Boop, msg)))
                                       ] ) ]
-      m2 = M.fromList [("a", museq' 10 [(0, ("2", (Vap, msg)))])
-                      ,("b", museq' 15 [(0, ("2", (Boop, msg)))
+      m2 = M.fromList [("a", museq0 10 [(0, ("2", (Vap, msg)))])
+                      ,("b", museq0 15 [(0, ("2", (Boop, msg)))
                                        ,(10,("3", (Boop, msg)))
                                       ] ) ]
   assertBool "museqDiff" $ museqsDiff m1 m2 == ( [ (Boop,"1") ]
@@ -199,22 +199,19 @@ testArc = TestCase $ do
        , ((211,220),"a")
        , ((215,219),"b")]
 
-m = museq' 2 [ (0, M.singleton "freq" 100)
-             , (1, M.singleton "amp"  0.1) ] :: Museq Msg
-
 testOverParams = TestCase $ do
-  let m = museq' 2 [ (0, M.singleton "freq" 100)
+  let m = museq0 2 [ (0, M.singleton "freq" 100)
                    , (1, M.singleton "amp"  0.1) ]
   assertBool "overParams" $ overParams [("freq",(+1))] m
-    == museq' 2 [ (0, M.singleton "freq" 101)
+    == museq0 2 [ (0, M.singleton "freq" 101)
                 , (1, M.singleton "amp" 0.1)]
   assertBool "switchParams" $ switchParams [("freq","guzzle")] m
-    == museq' 2 [ (0, M.singleton "guzzle" 100)
+    == museq0 2 [ (0, M.singleton "guzzle" 100)
                 , (1, M.singleton "amp" 0.1)]
   assertBool "keepParams" $ keepParams ["freq"] m
-    == museq' 2 [(0, M.singleton "freq" 100)]
+    == museq0 2 [(0, M.singleton "freq" 100)]
   assertBool "dropParams" $ dropParams ["freq"] m
-    == museq' 2 [(1, M.singleton "amp" 0.1)]
+    == museq0 2 [(1, M.singleton "amp" 0.1)]
 
 testBoundaries = TestCase $ do
   assertBool "boundaries" $ boundaries [(0,1),(1,1),(2,3)]

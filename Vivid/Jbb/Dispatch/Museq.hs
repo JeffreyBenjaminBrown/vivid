@@ -5,7 +5,7 @@
 module Vivid.Jbb.Dispatch.Museq
   (
   -- | = Make a Museq
-  museq, museq'
+  museq, museq0
 
   -- | = Timing
   , timeToPlayThrough
@@ -78,8 +78,8 @@ museq d tas = sortMuseq $ Museq { _dur = d
 
 
 -- | Make a Museq of instantaneous events, specifying only start times
-museq' :: RDuration -> [(RTime,a)] -> Museq a
-museq' d tas = sortMuseq $ Museq {_dur = d, _sup = d,
+museq0 :: RDuration -> [(RTime,a)] -> Museq a
+museq0 d tas = sortMuseq $ Museq {_dur = d, _sup = d,
                                   _vec = V.fromList $ map f tas}
   where f (t,val) = ((t,t),val)
 

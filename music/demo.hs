@@ -32,7 +32,7 @@ off = killThread tid >> freeAll -- run "off" to stop the program
 let p :: Float -> Float -> Museq Note
     p f1 f2 = nameAnonEvents
               $ (Nothing,) . (Boop,)
-              <$> museq' 1 -- 1 is the `Museq`'s duration
+              <$> museq0 1 -- 1 is the `Museq`'s duration
               [ (0 -- when the first note (bunch of messages) is sent
                 , M.fromList [ ("freq",f1)
                              , ("amp",0.2) ] )
