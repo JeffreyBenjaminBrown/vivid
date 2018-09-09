@@ -6,6 +6,7 @@ module Vivid.Jbb.Dispatch.Museq
   (
   -- | = Make a Museq
   museq, museq0
+  , museq', museq0'
 
   -- | = Timing
   , timeToPlayThrough
@@ -14,8 +15,15 @@ module Vivid.Jbb.Dispatch.Museq
   , timeToRepeat
   , supsToRepeat
   , dursToRepeat
-
   , longestDur
+
+  , timeToPlayThrough'
+  , supsToPlayThrough'
+  , dursToPlayThrough'
+  , timeToRepeat'
+  , supsToRepeat'
+  , dursToRepeat'
+  , longestDur'
 
   -- | = Naming events
   , museqMaybeNamesAreValid
@@ -27,6 +35,7 @@ module Vivid.Jbb.Dispatch.Museq
   , museqSynths
   , museqsDiff
   , sortMuseq
+  , sortMuseq'
   , museqIsValid
   , arc
   )
@@ -100,7 +109,7 @@ museq0' d evs = sortMuseq' $ Museq' { _dur' = d
   where g (l,s,a) = Ev' {_evLabel=l, _evArc=(fr s, fr s), _evData=a}
 
 
--- | = Timing
+-- | = Timing a Museq
 timeToPlayThrough :: Museq a -> RTime
 timeToPlayThrough m = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)
 
@@ -121,9 +130,33 @@ dursToRepeat :: Museq a -> RTime
 dursToRepeat m = timeToRepeat m / _dur m
 
 
+-- | = Timing a Museq'
+timeToPlayThrough' :: Museq' l a -> RTime
+timeToPlayThrough' m = RTime $ lcmRatios (tr $ _sup' m) (tr $ _dur' m)
+
+supsToPlayThrough' :: Museq' l a -> RTime
+supsToPlayThrough' m = timeToPlayThrough' m / (_sup' m)
+
+dursToPlayThrough' :: Museq' l a -> RTime
+dursToPlayThrough' m = timeToPlayThrough' m / (_dur' m)
+
+timeToRepeat' :: Museq' l a -> RTime
+timeToRepeat' m = let x = RTime $ lcmRatios (tr $ _sup' m) (tr $ _dur' m)
+  in if x == _dur' m then _sup' m else x
+
+supsToRepeat' :: Museq' l a -> RTime
+supsToRepeat' m = timeToRepeat' m / _sup' m
+
+dursToRepeat' :: Museq' l a -> RTime
+dursToRepeat' m = timeToRepeat' m / _dur' m
+
 longestDur :: Museq a -> RDuration
 longestDur m = let eventDur ((start,end),_) = end - start
                in V.maximum $ V.map eventDur $ _vec m
+
+longestDur' :: Museq' l a -> RDuration
+longestDur' m = let eventDur ev = (ev ^. evStart) - (ev ^. evEnd)
+                in V.maximum $ V.map eventDur $ _vec' m
 
 
 -- | = Naming events
@@ -157,7 +190,7 @@ nameAnonEvents :: forall a.
                -> Museq (NamedWith String a)
 nameAnonEvents m = let
   evs, namedEvs, anonEvs :: [Ev (NamedWith (Maybe String) a)]
-  evs = V.toList $ _vec m 
+  evs = V.toList $ _vec m
   (namedEvs, anonEvs) = L.partition (Mb.isJust . fst . snd) evs
   namedEvs', namedAnons :: [Ev (NamedWith String a)]
   namedEvs' = map (over (_2._1) Mb.fromJust) namedEvs
@@ -171,13 +204,13 @@ nameAnonEvents m = let
     -- todo : learn Prisms, use _Just
   in sortMuseq $ m {_vec = V.fromList $ namedEvs' ++ namedAnons}
 
--- | Assign a minimal number of names (which are integers in string form), 
+-- | Assign a minimal number of names (which are integers in string form),
 -- starting from 1, so that like-named events do not overlap.
 -- ASSUMES the input list is sorted on (start,end) times.
 intNameEvents :: RDuration -- ^ _sup of the Museq these Evs come from
               -> [Ev a] -- ^ these are being named
               -> [Ev (NamedWith Int a)]
-intNameEvents len ( ((s1,e1),a1) : more ) = 
+intNameEvents len ( ((s1,e1),a1) : more ) =
   ((s1,e1),(1,a1))
   : intNameEvents' len (s1,(1, a1)) [(e1,(1,a1))] more
 
