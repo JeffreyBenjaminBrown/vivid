@@ -39,6 +39,7 @@ tests = runTestTT $ TestList
   , TestLabel "testMerge" testMerge
   , TestLabel "testMeta" testMeta
   , TestLabel "testMuseqNamesAreValid" testMuseqNamesAreValid
+  , TestLabel "testMuseqNamesAreValid'" testMuseqNamesAreValid'
   , TestLabel "testIntNameEvents" testIntNameEvents
   , TestLabel "testNameAnonEvents" testNameAnonEvents
   ]
@@ -298,6 +299,26 @@ testMuseqNamesAreValid = TestCase $ do
   assertBool "Museq with wrapped overlap is not valid" $ not $
     museqMaybeNamesAreValid $ museq 10 [ ((0,  4), (Just "1",()))
                                   , ((6, 12), (Just "1",())) ]
+
+testMuseqNamesAreValid' = TestCase $ do
+  assertBool "empty Museq' has valid names" $ museqMaybeNamesAreValid' $
+    museq' 10 ([] :: [(Maybe String, Rational, Rational, ())])
+  assertBool "Museq' without names has valid names"
+    $ museqMaybeNamesAreValid' 
+    $ museq' 10 [ (Nothing :: Maybe String, 0, 10, ())
+                , (Nothing                , 0, 10, ()) ]
+  assertBool "Museq' with overlapping like names is not valid" $ not $
+    museqMaybeNamesAreValid' $ museq' 10 [ (Just "1", 0,  6, ())
+                                         , (Just "1", 4,  10, ()) ]
+  assertBool "Museq' with non-overlapping like names is valid" $
+    museqMaybeNamesAreValid' $ museq' 10 [ (Just "1", 0, 4, ())
+                                         , (Just "1", 6, 10, ()) ]
+  assertBool "Museq' with overlapping unlike names is valid" $
+    museqMaybeNamesAreValid' $ museq' 10 [ (Just "1", 0,  6, ())
+                                         , (Just "2", 4, 10, ()) ]
+  assertBool "Museq' with wrapped overlap is not valid" $ not $
+    museqMaybeNamesAreValid' $ museq' 10 [ (Just "1", 0,  4, ())
+                                         , (Just "1", 6, 12, ()) ]
 
 testIntNameEvents = TestCase $ do
   assertBool "intNameEvents" $

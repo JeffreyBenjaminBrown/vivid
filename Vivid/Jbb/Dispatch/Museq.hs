@@ -15,7 +15,6 @@ module Vivid.Jbb.Dispatch.Museq
   , timeToRepeat
   , supsToRepeat
   , dursToRepeat
-  , longestDur
 
   , timeToPlayThrough'
   , supsToPlayThrough'
@@ -23,10 +22,13 @@ module Vivid.Jbb.Dispatch.Museq
   , timeToRepeat'
   , supsToRepeat'
   , dursToRepeat'
+
+  , longestDur
   , longestDur'
 
   -- | = Naming events
   , museqMaybeNamesAreValid
+  , museqMaybeNamesAreValid'
   , nameAnonEvents
   , unusedName
   , intNameEvents
@@ -179,6 +181,26 @@ museqMaybeNamesAreValid m = and $ map goodGroup nameGroups where
                              ((_,e),_) = last evs
                          in s + _sup m >= e
   goodGroup g = noAdjacentOverlap g && noWrappedOverlap g
+
+museqMaybeNamesAreValid' :: forall l a. Eq l
+                         => Museq' (Maybe l) a -> Bool
+museqMaybeNamesAreValid' m = and $ map goodGroup nameGroups where
+  namedEvents = filter (Mb.isJust . view evLabel) $ V.toList $ _vec' m
+  nameGroups = L.groupBy ((==) `on` view evLabel) namedEvents
+    :: [[Ev' (Maybe l) a]]
+  adjacentOverlap, wrappedOverlap, goodGroup
+    :: [Ev' (Maybe l) a] -> Bool
+  adjacentOverlap [] = False
+  adjacentOverlap (a:[]) = False
+  adjacentOverlap (e : f : more) = overlap (e^.evArc) (f^.evArc)
+                                   || adjacentOverlap (f:more)
+  wrappedOverlap evs = overlap (last evs ^. evArc) (bump $ head evs ^. evArc)
+    where bump (s,t) = (s + _sup' m, t + _sup' m)
+  goodGroup g = not $ adjacentOverlap g || wrappedOverlap g
+
+overlap :: (RTime,RTime) -> (RTime,RTime) -> Bool
+overlap (a,b) (c,d) | a == b = b >= c
+                    | a < b  = b > c
 
 unusedName :: [String] -> String
 unusedName names = head $ (L.\\) allStrings names where
