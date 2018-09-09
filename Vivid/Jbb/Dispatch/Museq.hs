@@ -78,10 +78,26 @@ museq d tas = sortMuseq $ Museq { _dur = d
 
 
 -- | Make a Museq of instantaneous events, specifying only start times
-museq0 :: RDuration -> [(RTime,a)] -> Museq a
+museq0 :: RDuration -> [(Rational,a)] -> Museq a
 museq0 d tas = sortMuseq $ Museq {_dur = d, _sup = d,
                                   _vec = V.fromList $ map f tas}
-  where f (t,val) = ((t,t),val)
+  where f (t,val) = ((fr t, fr t), val)
+
+
+-- | Make a Museq', specifying start and end times
+museq' :: RDuration -> [(l, Rational, Rational, a)] -> Museq' l a
+museq' d evs = sortMuseq' $ Museq' { _dur' = d
+                                   , _sup' = d
+                                   , _vec' = V.fromList $ map g evs }
+  where g (l,s,e,a) = Ev' {_evLabel=l, _evArc=(fr s, fr e), _evData=a}
+
+
+-- | Make a Museq' of instantaneous events, specifying only start times
+museq0' :: RDuration -> [(l, Rational, a)] -> Museq' l a
+museq0' d evs = sortMuseq' $ Museq' { _dur' = d
+                                    , _sup' = d
+                                    , _vec' = V.fromList $ map g evs }
+  where g (l,s,a) = Ev' {_evLabel=l, _evArc=(fr s, fr s), _evData=a}
 
 
 -- | = Timing

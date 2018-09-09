@@ -113,8 +113,8 @@ type Ev a = ((RTime,RTime),a)
 showEvs :: (Foldable t, Show a) => t (Ev a) -> String
 showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs
 
-data Ev' label a = Ev' { _evArc :: (RTime,RTime)
-                       , _evLabel :: label
+data Ev' label a = Ev' { _evLabel :: label
+                       , _evArc :: (RTime,RTime)
                        , _evData :: a} deriving (Show, Eq, Ord)
 
 makeLenses ''Ev'
