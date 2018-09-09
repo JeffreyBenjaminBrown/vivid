@@ -16,6 +16,7 @@ module Vivid.Jbb.Dispatch.Types (
   , Action(..), actionSynth
   , Ev     , showEvs
   , Ev'(..), showEvs'
+  , evArc, evLabel, evData, evStart, evEnd
   , Museq(..) , dur , sup , vec
   , emptyMuseq
   , Museq'(..), dur', sup', vec'
@@ -28,7 +29,7 @@ module Vivid.Jbb.Dispatch.Types (
 
 import Control.Concurrent.MVar
 import Control.DeepSeq
-import Control.Lens (makeLenses, over, _1, _2)
+import Control.Lens (makeLenses, over, _1, _2, Lens')
 import qualified Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
@@ -117,6 +118,10 @@ data Ev' label a = Ev' { _evArc :: (RTime,RTime)
                        , _evData :: a} deriving (Show, Eq, Ord)
 
 makeLenses ''Ev'
+
+evStart, evEnd :: Lens' (Ev' l a) RTime
+evStart = evArc . _1
+evEnd = evArc . _2
 
 showEvs' :: (Foldable t, Show a, Show label)
         => t (Ev' label a) -> String
