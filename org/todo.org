@@ -1,7 +1,7 @@
 * architecture mysteries
 ** Museq Action vs. Museq Msg
-*** should separate(not part of the same GHC-evaluated expression) Museqs control the same synth?
-*** will harmony be a function of multiple Museq Actions?
+*** should separate Museqs control the same synth?
+*** will harmony be a function with multiple Museq Action arguments?
 ** Many voices to one harmonizer
 ** Distribute concurrent notes across synths
 *** automatically, rather than requiring the user to say which go where.
@@ -9,14 +9,21 @@
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14,
 * polyphonic refactor
+** refactor `Ev label a` to have three fields: arc, label, data
 ** TODO consider what happens to (maybe) Ev names after Join.hs ops
 *** after Transform.hs ops: nothing changes
-*** Join.append: nothing
+*** Join.append: nothing changes
 *** Join.stack: make two versions, stack' guaranteeing distinctness*
 **** in stack', the names of one argument are prefixed with the least name not among those of the second argument
 **** in both stack and stack', Nothing-named events require no extra work -- later they will be distinguished
 **** in stack, like-named events from the two arguments will interact
 *** TODO ??? Join.merge
+seq 1         = a f          , a f
+seq 2         = d    , d
+seq 1 + seq 2 = a f d, a f d
+**** assign names to everything before merge
+**** join names with (++)
+**** otherwise the same algorithm
 *** Join.meta: suppose the Museq (Museq a -> Museq b) has two anonymous overlapping transformations, and the Museq a has two like-named serial operations.
 **** Give the meta-museq unique names, then just (++) names from the two args
 ** maybe every Ev should have a name

@@ -14,9 +14,12 @@ module Vivid.Jbb.Dispatch.Types (
   , Msg, Msg'(..)
   , NamedWith, mNamed, anon
   , Action(..), actionSynth
-  , Ev, showEvs
-  , Museq(..), dur, sup, vec
+  , Ev     , showEvs
+  , Ev'(..), showEvs'
+  , Museq(..) , dur , sup , vec
   , emptyMuseq
+  , Museq'(..), dur', sup', vec'
+  , emptyMuseq'
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
   , Note
@@ -109,6 +112,16 @@ type Ev a = ((RTime,RTime),a)
 showEvs :: (Foldable t, Show a) => t (Ev a) -> String
 showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs
 
+data Ev' label a = Ev' { _evArc :: (RTime,RTime)
+                       , _evLabel :: label
+                       , _evData :: a} deriving (Show, Eq, Ord)
+
+makeLenses ''Ev'
+
+showEvs' :: (Foldable t, Show a, Show label)
+        => t (Ev' label a) -> String
+showEvs' = foldl (\acc ev -> acc ++ show ev) "\n"
+
 data Museq a = Museq {
   _dur :: RDuration -- ^ the play duration of the loop
   , _sup :: RDuration -- ^ the supremum of the possible RTime values
@@ -126,6 +139,24 @@ instance Functor Museq where
 
 emptyMuseq :: Museq a
 emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
+
+data Museq' label a = Museq' {
+  _dur' :: RDuration -- ^ the play duration of the loop
+  , _sup' :: RDuration -- ^ the supremum of the possible RTime values
+    -- in `_vec`. If this is greater than `dur`, the `Museq`will rotate
+    -- through different sections of the `vec` each time it plays.
+    -- If less than `dur`, the `Museq` will play the entire `vec` more than
+    -- once each time it plays.
+  , _vec' :: V.Vector (Ev' label a) }
+  deriving (Show,Eq)
+
+makeLenses ''Museq'
+
+instance Functor (Museq' label) where
+  fmap = over vec' . V.map . over evData
+
+emptyMuseq' :: Museq' label a
+emptyMuseq' = Museq' { _dur' = 1, _sup' = 1, _vec' = V.empty }
 
 
 -- | The global state
