@@ -35,6 +35,7 @@ where
 import Control.Lens ((^.),(.~),(%~),_1,_2,over,view)
 import Control.Monad.ST
 import Data.Fixed (div')
+import Data.Function (on)
 import qualified Data.List as L
 import qualified Data.Maybe as Mb
 import qualified Data.Map as M
@@ -74,6 +75,7 @@ museq d tas = sortMuseq $ Museq { _dur = d
                                 , _sup = d
                                 , _vec = V.fromList $ map (over _1 f) tas }
   where f (start,end) = (fr start, fr end)
+
 
 -- | Make a Museq of instantaneous events, specifying only start times
 museq' :: RDuration -> [(RTime,a)] -> Museq a
@@ -215,6 +217,12 @@ sortMuseq = vec %~
   \v -> runST $ do v' <- V.thaw v
                    let compare' ve ve' = compare (fst ve) (fst ve')
                    sortBy compare' v'
+                   V.freeze v'
+
+sortMuseq' :: Museq' l a -> Museq' l a
+sortMuseq' = vec' %~
+  \v -> runST $ do v' <- V.thaw v
+                   sortBy (compare `on` view evStart) v'
                    V.freeze v'
 
 -- | A valid Museq' m is sorted on start and then end times,
