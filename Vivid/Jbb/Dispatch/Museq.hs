@@ -299,6 +299,13 @@ museqSynths m = map (f . snd) evs where
   f :: Note -> (SynthDefEnum, SynthName)
   f (name,(sde,msg)) = (sde,name)
 
+museqSynths' :: Museq' String Note' -> [(SynthDefEnum, SynthName)]
+museqSynths' m = map f evs where
+  evs = V.toList $ _vec' m :: [Ev' String Note']
+  f :: Ev' String Note' -> (SynthDefEnum, SynthName)
+  f ev = ( view (evData . noteSd) ev
+         , view evLabel ev )
+
 
 -- | Given an old set of Museqs and a new one, figure out
 -- which synths need to be created, and which destroyed.
