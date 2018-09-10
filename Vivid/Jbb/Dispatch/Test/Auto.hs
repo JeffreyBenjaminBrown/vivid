@@ -30,7 +30,8 @@ tests = runTestTT $ TestList
   , TestLabel "testFastAndSlow" testFastAndSlow
   , TestLabel "testDenseAndSparse" testDenseAndSparse
   , TestLabel "testExplicitReps" testExplicitReps
-  , TestLabel "testMapMuseqsDiff" testMapMuseqsDiff
+  , TestLabel "testMuseqsDiff" testMuseqsDiff
+  , TestLabel "testMuseqsDiff'" testMuseqsDiff'
   , TestLabel "testArc" testArc
   , TestLabel "testOverParams" testOverParams
   , TestLabel "testBoundaries" testBoundaries
@@ -216,7 +217,7 @@ testRep = TestCase $ do
   assertBool "rep fraction" $ rep (3/2) a ==
     L.set dur 9 (museq 6 [((0,7),"a")])
 
-testMapMuseqsDiff = TestCase $ do
+testMuseqsDiff = TestCase $ do
   let msg = M.singleton "amp" 1
       m1 = M.fromList [("a", museq0 10 [(0, ("1", (Boop, msg)))])
                       ,("b", museq0 15 [(0, ("1", (Boop, msg)))
@@ -231,6 +232,25 @@ testMapMuseqsDiff = TestCase $ do
                                                  , (Vap ,"2")
                                                  ] )
   assertBool "museqDiff" $ museqsDiff m2 m1 == ( [ (Boop,"3")
+                                                 , (Vap ,"2") ]
+                                               , [ (Boop,"1")
+                                                 ] )
+
+testMuseqsDiff' = TestCase $ do
+  let msg = M.singleton "amp" 1
+      m1 = M.fromList [("a", museq' 10 [ ev0 "1" 0  (Note' Boop msg)])
+                      ,("b", museq' 15 [ ev0 "1" 0  (Note' Boop msg)
+                                       , ev0 "2" 10 (Note' Boop msg)
+                                       ] ) ]
+      m2 = M.fromList [("a", museq' 10 [ ev0 "2" 0  (Note' Vap msg) ])
+                      ,("b", museq' 15 [ ev0 "2" 0  (Note' Boop msg)
+                                       , ev0 "3" 10 (Note' Boop msg)
+                                       ] ) ]
+  assertBool "museqDiff" $ museqsDiff' m1 m2 == ( [ (Boop,"1") ]
+                                               , [ (Boop,"3")
+                                                 , (Vap ,"2")
+                                                 ] )
+  assertBool "museqDiff" $ museqsDiff' m2 m1 == ( [ (Boop,"3")
                                                  , (Vap ,"2") ]
                                                , [ (Boop,"1")
                                                  ] )

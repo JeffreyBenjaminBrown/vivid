@@ -6,7 +6,7 @@ module Vivid.Jbb.Dispatch.Museq
   (
   -- | = Make a Museq
   museq, museq0
-  , museq', museq0'
+  , museq'
 
   -- | = Timing
   , timeToPlayThrough
@@ -36,7 +36,9 @@ module Vivid.Jbb.Dispatch.Museq
 
   -- | = More
   , museqSynths
+  , museqSynths'
   , museqsDiff
+  , museqsDiff'
   , sortMuseq
   , sortMuseq'
   , museqIsValid
@@ -101,14 +103,6 @@ museq' :: RDuration -> [Ev' l a] -> Museq' l a
 museq' d evs = sortMuseq' $ Museq' { _dur' = d
                                    , _sup' = d
                                    , _vec' = V.fromList $ evs }
-
-
--- | Make a Museq' of instantaneous events, specifying only start times
-museq0' :: RDuration -> [(l, Rational, a)] -> Museq' l a
-museq0' d evs = sortMuseq' $ Museq' { _dur' = d
-                                    , _sup' = d
-                                    , _vec' = V.fromList $ map g evs }
-  where g (l,s,a) = Ev' {_evLabel=l, _evArc=(fr s, fr s), _evData=a}
 
 
 -- | = Timing a Museq
@@ -322,6 +316,19 @@ museqsDiff old new = (toFree,toCreate) where
   newSynths = unique $ concatMap museqSynths newMuseqs
   toCreate = (L.\\) newSynths oldSynths
   toFree = (L.\\) oldSynths newSynths
+
+museqsDiff' :: M.Map MuseqName (Museq' String Note')
+            -> M.Map MuseqName (Museq' String Note')
+            -> ([(SynthDefEnum, SynthName)],
+                 [(SynthDefEnum, SynthName)])
+museqsDiff' old new = (toFree,toCreate) where
+  oldMuseqs = M.elems old :: [Museq' String Note']
+  newMuseqs = M.elems new :: [Museq' String Note']
+  oldSynths = unique $ concatMap museqSynths' oldMuseqs
+  newSynths = unique $ concatMap museqSynths' newMuseqs
+  toCreate = (L.\\) newSynths oldSynths
+  toFree = (L.\\) oldSynths newSynths
+
 
 -- | = Sort a Museq
 sortMuseq :: Museq a -> Museq a

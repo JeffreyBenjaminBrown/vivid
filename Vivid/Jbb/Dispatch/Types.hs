@@ -15,7 +15,7 @@ module Vivid.Jbb.Dispatch.Types (
   , NamedWith, mNamed, anon
   , Action(..), actionSynth
   , Ev     , showEvs
-  , Ev'(..), showEvs', ev
+  , Ev'(..), showEvs', ev, ev0
   , evArc, evLabel, evData, evStart, evEnd
   , Museq(..) , dur , sup , vec
   , emptyMuseq
@@ -131,6 +131,9 @@ showEvs' = foldl (\acc ev -> acc ++ show ev) "\n"
 ev :: l -> Rational -> Rational -> a -> Ev' l a -- ^ use fewer parens, commas
 ev l s e a = Ev' l (fr s, fr e) a
 
+ev0 :: l -> Rational -> a -> Ev' l a -- ^ innstantaneous
+ev0 l t a = Ev' l (fr t, fr t) a
+
 data Museq a = Museq {
   _dur :: RDuration -- ^ the play duration of the loop
   , _sup :: RDuration -- ^ the supremum of the possible RTime values
@@ -183,8 +186,8 @@ emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
 type Note        = NamedWith String  (SynthDefEnum, Msg)
 
-data Note' = Note { _noteSd :: SynthDefEnum
-                  , _noteMsg :: Msg } deriving (Show, Eq)
+data Note' = Note' { _noteSd :: SynthDefEnum
+                   , _noteMsg :: Msg } deriving (Show, Eq)
 
 makeLenses ''Note'
 
