@@ -34,6 +34,7 @@ tests = runTestTT $ TestList
   , TestLabel "testMuseqsDiff" testMuseqsDiff
   , TestLabel "testMuseqsDiff'" testMuseqsDiff'
   , TestLabel "testArc" testArc
+  , TestLabel "testArc'" testArc'
   , TestLabel "testOverParams" testOverParams
   , TestLabel "testBoundaries" testBoundaries
   , TestLabel "testPartitionArcAtTimes" testPartitionArcAtTimes
@@ -284,6 +285,25 @@ testArc = TestCase $ do
        , ((205,209),"b")
        , ((211,220),"a")
        , ((215,219),"b")]
+
+testArc' = TestCase $ do
+  let m = museq' 5 [ Ev' () (0,6) "a"
+                   , Ev' () (2,4) "b"]
+  -- arguments to arc : time0 tempoPeriod from to museq
+  assertBool "arc 0" $ arc' 100 2  200 210  m
+    == [ ( AbsEv' () (200,202) "a" )
+       , ( AbsEv' () (200,210) "a" )
+       , ( AbsEv' () (204,208) "b" )]
+  assertBool "arc' 1" $ arc' 101 2  200 210  m
+    == [ ( AbsEv' () (200,203) "a")
+       , ( AbsEv' () (201,210) "a")
+       , ( AbsEv' () (205,209) "b")]
+  assertBool "arc' 1" $ arc' 101 2  200 220  m
+    == [ ( AbsEv' () (200,203) "a")
+       , ( AbsEv' () (201,213) "a")
+       , ( AbsEv' () (205,209) "b")
+       , ( AbsEv' () (211,220) "a")
+       , ( AbsEv' () (215,219) "b")]
 
 testOverParams = TestCase $ do
   let m = museq0 2 [ (0, M.singleton "freq" 100)

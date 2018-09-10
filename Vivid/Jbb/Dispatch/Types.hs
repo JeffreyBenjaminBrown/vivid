@@ -19,6 +19,7 @@ module Vivid.Jbb.Dispatch.Types (
   , evArc   , evLabel   , evData   , evStart   , evEnd
   , AbsEv'(..)
   , absEvArc, absEvLabel, absEvData, absEvStart, absEvEnd
+  , toAbsEv
   , Museq(..) , dur , sup , vec
   , emptyMuseq
   , Museq'(..), dur', sup', vec'
@@ -32,7 +33,7 @@ module Vivid.Jbb.Dispatch.Types (
 
 import Control.Concurrent.MVar
 import Control.DeepSeq
-import Control.Lens (makeLenses, over, _1, _2, Lens')
+import Control.Lens (makeLenses, over, _1, _2, Lens', view)
 import qualified Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
@@ -147,6 +148,12 @@ absEvStart, absEvEnd :: Lens' (AbsEv' l a) Time
 absEvStart = absEvArc . _1
 absEvEnd =   absEvArc . _2
 
+toAbsEv :: Ev' l a -> AbsEv' l a
+toAbsEv ev = AbsEv' { _absEvLabel = view evLabel ev
+                    , _absEvArc = f $ view evArc ev
+                    , _absEvData = view evData ev }
+  where f (s,t) = (tr s, tr t)
+  
 data Museq a = Museq {
   _dur :: RDuration -- ^ the play duration of the loop
   , _sup :: RDuration -- ^ the supremum of the possible RTime values

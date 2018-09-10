@@ -44,6 +44,7 @@ module Vivid.Jbb.Dispatch.Museq
   , museqIsValid
   , museqIsValid'
   , arc
+  , arc'
   )
 where
 
@@ -152,7 +153,7 @@ longestDur m = let eventDur ((start,end),_) = end - start
                in V.maximum $ V.map eventDur $ _vec m
 
 longestDur' :: Museq' l a -> RDuration
-longestDur' m = let eventDur ev = (ev ^. evStart) - (ev ^. evEnd)
+longestDur' m = let eventDur ev = (ev ^. evEnd) - (ev ^. evStart)
                 in V.maximum $ V.map eventDur $ _vec' m
 
 
@@ -378,7 +379,7 @@ arc :: forall a. Time -> Duration -> Time -> Time
      -> Museq a -> [((Time,Time), a)]
 arc time0 tempoPeriod from to m =
   let period = tempoPeriod * tr (_sup m) :: Duration
-      startVec = V.map (fst . fst) $ _vec $ const () <$> m :: V.Vector RTime
+      startVec = V.map (fst . fst) $ _vec m :: V.Vector RTime
       latestPhase0 = prevPhase0 time0 period from :: Time
         -- it would be natural to start here, but long events from
         -- earlier cycles could carry into now, so we must back up
@@ -431,3 +432,66 @@ _arcFold cycle period startVec time0 from to m =
              $ V.slice startIndex (endIndex-startIndex) $ _vec m
        in eventsThisCycle
           ++ _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
+
+arc' :: forall l a. Time -> Duration -> Time -> Time
+     -> Museq' l a -> [AbsEv' l a]
+arc' time0 tempoPeriod from to m =
+  let period = tempoPeriod * tr (_sup' m) :: Duration
+      startVec = V.map (view evStart) $ _vec' $ m :: V.Vector RTime
+      latestPhase0 = prevPhase0 time0 period from :: Time
+        -- it would be natural to start here, but long events from
+        -- earlier cycles could carry into now, so we must back up
+      earlierFrom = latestPhase0 - tr (longestDur' m) * tempoPeriod :: Time
+      oldestRelevantCycle = div' (earlierFrom - latestPhase0) period :: Int
+      correctAbsoluteTimes :: (Time,Time) -> (Time,Time)
+        -- HACK: the inputs ought to be RTimes,
+        -- but then I'd be switching types, from Ev' to AbsEv'
+      correctAbsoluteTimes (a,b) = (f a, f b) where
+        f rt = tr rt * tempoPeriod + latestPhase0
+      chopStarts :: (Time,Time) -> (Time,Time)
+      chopStarts = over _1 $ max from
+      chopEnds :: (Time,Time) -> (Time,Time)
+      chopEnds = over _2 $ min to
+      dropImpossibles :: [AbsEv' l a] -> [AbsEv' l a]
+        -- Because chopStarts can leave an old event starting after it ended.
+      dropImpossibles = filter $ uncurry (<=) . view absEvArc
+      futzTimes :: Ev' l a -> AbsEv' l a
+      futzTimes ev = over absEvArc f $ toAbsEv ev
+        where f = chopEnds . chopStarts . correctAbsoluteTimes
+   in dropImpossibles $
+      map futzTimes
+      $ _arcFold' oldestRelevantCycle period startVec time0 earlierFrom to m
+
+_arcFold' :: forall l a. Int -> Duration -> V.Vector RTime
+  -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
+  -> Museq' l a -> [Ev' l a]
+_arcFold' cycle period startVec time0 from to m =
+  if from >= to then [] -- todo ? Be sure of `arc` boundary condition
+  else let
+    pp0 = prevPhase0 time0 period from :: Time
+    fromInCycles = fr $ (from - pp0) / period :: RTime
+    toInCycles   = fr $ (to   - pp0) / period :: RTime
+    startOrOOBIndex =
+      firstIndexGTE compare startVec $ fromInCycles * _sup' m :: Int
+  in if startOrOOBIndex >= V.length startVec
+--     then let nextFrom = if pp0 + period > from
+-- -- todo ? delete
+-- -- If `from = pp0 + period - epsilon`, maybe `pp0 + period <= from`.
+-- -- Thus floating point error used to make this if-then statement necessary
+-- -- Now that all times are Rational, it's probably unnecessary.
+--                         then pp0 + period
+--                         else pp0 + 2*period
+--          in _arcFold (cycle+1) period startVec time0 nextFrom to m
+     then _arcFold' (cycle+1) period startVec time0 (pp0 + period) to m
+     else
+       let startIndex = startOrOOBIndex :: Int
+           endIndex = lastIndexLTE compare' startVec
+                      $ toInCycles * _sup' m :: Int
+             where compare' x y =
+                     if x < y then LT else GT -- to omit the endpoint
+           eventsThisCycle = V.toList
+             $ V.map (over evEnd   (+(_sup' m * fromIntegral cycle)))
+             $ V.map (over evStart (+(_sup' m * fromIntegral cycle)))
+             $ V.slice startIndex (endIndex-startIndex) $ _vec' m
+       in eventsThisCycle
+          ++ _arcFold' (cycle+1) period startVec time0 (pp0 + period) to m
