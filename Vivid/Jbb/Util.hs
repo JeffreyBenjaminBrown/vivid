@@ -3,6 +3,9 @@
 module Vivid.Jbb.Util (
   writeTimeAndError
 
+  -- | strings
+  , unusedName
+
   -- | = lists
   , unique
   , interleave
@@ -25,6 +28,7 @@ module Vivid.Jbb.Util (
 import Control.Monad.ST
 import Data.Ratio
 import Control.Lens
+import qualified Data.List as L
 import qualified Data.Set as S
 import qualified Data.Vector as V
 import Data.Vector.Algorithms.Search
@@ -37,6 +41,13 @@ writeTimeAndError :: String -> IO ()
 writeTimeAndError msg = do now <- getTime
                            appendFile "errors.txt"
                              $ show now ++ ": " ++ msg
+
+
+-- | = Strings
+unusedName :: [String] -> String
+unusedName names = head $ (L.\\) allStrings names where
+  allStrings = [ c : s | s <- "" : allStrings
+                       , c <- ['a'..'z'] ++ ['0'..'9'] ]
 
 
 -- | = Lenses

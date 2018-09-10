@@ -31,7 +31,6 @@ module Vivid.Jbb.Dispatch.Museq
   , museqMaybeNamesAreValid'
   , nameAnonEvents
   , nameAnonEvents'
-  , unusedName
   , intNameEvents
   , intNameEvents'
 
@@ -199,11 +198,6 @@ museqMaybeNamesAreValid' m = and $ map goodGroup nameGroups where
                        (bumpArc (_sup' m) $ head evs ^. evArc)
   goodGroup g = not $ adjacentOverlap g || wrappedOverlap g
 
-unusedName :: [String] -> String
-unusedName names = head $ (L.\\) allStrings names where
-  allStrings = [ c : s | s <- "" : allStrings
-                       , c <- ['a'..'z'] ++ ['0'..'9'] ]
-
 nameAnonEvents :: forall a.
                   Museq (NamedWith (Maybe String) a)
                -> Museq (NamedWith String a)
@@ -299,12 +293,12 @@ _intNameEvents' sup ev1 ongoing (ev : more) = over evLabel (const name) ev
 -- | = More
 -- | Given a Museq, find the synths it uses.
 
--- >>>
 museqSynths :: Museq Note -> [(SynthDefEnum, SynthName)]
 museqSynths m = map (f . snd) evs where
   evs = V.toList $ _vec m :: [Ev Note]
   f :: Note -> (SynthDefEnum, SynthName)
   f (name,(sde,msg)) = (sde,name)
+
 
 -- | Given an old set of Museqs and a new one, figure out
 -- which synths need to be created, and which destroyed.

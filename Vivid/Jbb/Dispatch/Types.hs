@@ -24,6 +24,7 @@ module Vivid.Jbb.Dispatch.Types (
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
   , Note
+  , Note'(..), noteSd, noteMsg
   , Dispatch(..), newDispatch
   ) where
 
@@ -180,7 +181,12 @@ makeLenses ''SynthRegister
 emptySynthRegister :: SynthRegister
 emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
-type Note        = NamedWith        String  (SynthDefEnum, Msg)
+type Note        = NamedWith String  (SynthDefEnum, Msg)
+
+data Note' = Note { _noteSd :: SynthDefEnum
+                  , _noteMsg :: Msg } deriving (Show, Eq)
+
+makeLenses ''Note'
 
 data Dispatch = Dispatch {
     mMuseqs :: MVar (M.Map MuseqName (Museq Note))
