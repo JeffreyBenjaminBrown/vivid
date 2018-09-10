@@ -16,7 +16,9 @@ module Vivid.Jbb.Dispatch.Types (
   , Action(..), actionSynth
   , Ev     , showEvs
   , Ev'(..), showEvs', ev, ev0
-  , evArc, evLabel, evData, evStart, evEnd
+  , evArc   , evLabel   , evData   , evStart   , evEnd
+  , AbsEv'(..)
+  , absEvArc, absEvLabel, absEvData, absEvStart, absEvEnd
   , Museq(..) , dur , sup , vec
   , emptyMuseq
   , Museq'(..), dur', sup', vec'
@@ -109,7 +111,7 @@ actionSynth (Free s n  ) = (s,n)
 actionSynth (Send s n _) = (s,n)
 
 
-type Ev a = ((RTime,RTime),a)
+type Ev a    = ( (RTime,RTime), a)
 
 showEvs :: (Foldable t, Show a) => t (Ev a) -> String
 showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs
@@ -133,6 +135,17 @@ ev l s e a = Ev' l (fr s, fr e) a
 
 ev0 :: l -> Rational -> a -> Ev' l a -- ^ innstantaneous
 ev0 l t a = Ev' l (fr t, fr t) a
+
+-- | Rarely, events need absolute times
+data AbsEv' label a = AbsEv' { _absEvLabel :: label
+                             , _absEvArc :: (Time,Time)
+                             , _absEvData :: a} deriving (Show, Eq, Ord)
+
+makeLenses ''AbsEv'
+
+absEvStart, absEvEnd :: Lens' (AbsEv' l a) Time
+absEvStart = absEvArc . _1
+absEvEnd =   absEvArc . _2
 
 data Museq a = Museq {
   _dur :: RDuration -- ^ the play duration of the loop
