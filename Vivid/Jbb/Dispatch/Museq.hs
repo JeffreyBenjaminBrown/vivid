@@ -42,6 +42,7 @@ module Vivid.Jbb.Dispatch.Museq
   , sortMuseq
   , sortMuseq'
   , museqIsValid
+  , museqIsValid'
   , arc
   )
 where
@@ -358,6 +359,16 @@ museqIsValid mu = and [a,b,c,d,e] where
   c = _dur mu > 0
   d = _sup mu > 0
   e = V.all (uncurry (<=) . fst) v
+
+museqIsValid' :: (Eq a, Eq l) => Museq' l a -> Bool
+museqIsValid' mu = and [a,b,c,d,e] where
+  v = _vec' mu
+  a = if V.length v == 0 then True
+      else (view evEnd $ V.last v) < _sup' mu
+  b = mu == sortMuseq' mu
+  c = _dur' mu > 0
+  d = _sup' mu > 0
+  e = V.all (uncurry (<=) . view evArc) v
 
 -- todo ? `arc` could be ~2x faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid searching the first part

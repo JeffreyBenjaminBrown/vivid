@@ -22,6 +22,7 @@ tests = runTestTT $ TestList
   , TestLabel "testPrevPhase0" testPrevPhase0
   , TestLabel "testNextPhase0" testNextPhase0
   , TestLabel "museqIsValid" testMuseqIsValid
+  , TestLabel "museqIsValid'" testMuseqIsValid'
   , TestLabel "testAppend" testAppend
   , TestLabel "testRep" testRep
   , TestLabel "testStack" testStack
@@ -120,6 +121,17 @@ testMuseqIsValid = TestCase $ do
     $ (museq0 1 [(0, New Boop "marge")])
   assertBool "invalid, time > _sup" $ not $ museqIsValid
     $ (museq0 1 [(1.5, New Boop "marge")])
+
+testMuseqIsValid' = TestCase $ do
+  let vempty = V.empty :: V.Vector (RTime, ())
+  assertBool "valid, empty"                   $ museqIsValid'
+    $ (museq' 3 [] :: Museq' String ())
+  assertBool "invalid, zero length"     $ not $ museqIsValid'
+    $ (museq' 0 [] :: Museq' String ())
+  assertBool "valid, nonempty"                $ museqIsValid'
+    $ museq' 1 [ev0 "1" 0 () ]
+  assertBool "invalid, time > _sup" $ not $ museqIsValid'
+    $ museq' 1 [ev0 "1" 2 () ]
 
 testStack = TestCase $ do
   let y = museq 2 [((0,3),"y")]
