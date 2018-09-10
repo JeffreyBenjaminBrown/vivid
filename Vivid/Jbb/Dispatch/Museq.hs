@@ -378,7 +378,7 @@ arc :: forall a. Time -> Duration -> Time -> Time
      -> Museq a -> [((Time,Time), a)]
 arc time0 tempoPeriod from to m =
   let period = tempoPeriod * tr (_sup m) :: Duration
-      rdv = V.map (fst . fst) $ _vec $ const () <$> m :: V.Vector RTime
+      startVec = V.map (fst . fst) $ _vec $ const () <$> m :: V.Vector RTime
       latestPhase0 = prevPhase0 time0 period from :: Time
         -- it would be natural to start here, but long events from
         -- earlier cycles could carry into now, so we must back up
@@ -396,19 +396,20 @@ arc time0 tempoPeriod from to m =
       dropImpossibles = filter $ uncurry (<=) . fst
    in dropImpossibles
       $ map (over _1 $ chopEnds . chopStarts . toAbsoluteTime)
-      $ arcFold oldestRelevantCycle period rdv time0 earlierFrom to m
+      $ _arcFold oldestRelevantCycle period startVec time0 earlierFrom to m
 
-arcFold :: forall a. Int -> Duration -> V.Vector RTime
+_arcFold :: forall a. Int -> Duration -> V.Vector RTime
   -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
   -> Museq a -> [Ev a]
-arcFold cycle period rdv time0 from to m =
+_arcFold cycle period startVec time0 from to m =
   if from >= to then [] -- todo ? Be sure of `arc` boundary condition
   else let
     pp0 = prevPhase0 time0 period from :: Time
     fromInCycles = fr $ (from - pp0) / period :: RTime
     toInCycles   = fr $ (to   - pp0) / period :: RTime
-    startOrOOBIndex = firstIndexGTE compare rdv $ fromInCycles * _sup m :: Int
-  in if startOrOOBIndex >= V.length rdv
+    startOrOOBIndex =
+      firstIndexGTE compare startVec $ fromInCycles * _sup m :: Int
+  in if startOrOOBIndex >= V.length startVec
 --     then let nextFrom = if pp0 + period > from
 -- -- todo ? delete
 -- -- If `from = pp0 + period - epsilon`, maybe `pp0 + period <= from`.
@@ -416,16 +417,17 @@ arcFold cycle period rdv time0 from to m =
 -- -- Now that all times are Rational, it's probably unnecessary.
 --                         then pp0 + period
 --                         else pp0 + 2*period
---          in arcFold (cycle+1) period rdv time0 nextFrom to m
-     then arcFold (cycle+1) period rdv time0 (pp0 + period) to m
+--          in _arcFold (cycle+1) period startVec time0 nextFrom to m
+     then _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
      else
        let startIndex = startOrOOBIndex :: Int
-           endIndex = lastIndexLTE compare' rdv (toInCycles * _sup m) :: Int
-             where
-             compare' x y = if x < y then LT else GT -- to omit the endpoint
+           endIndex = lastIndexLTE compare' startVec
+                      $ toInCycles * _sup m :: Int
+             where compare' x y =
+                     if x < y then LT else GT -- to omit the endpoint
            eventsThisCycle = V.toList
              $ V.map (over (_1._2) (+(_sup m * fromIntegral cycle)))
              $ V.map (over (_1._1) (+(_sup m * fromIntegral cycle)))
              $ V.slice startIndex (endIndex-startIndex) $ _vec m
        in eventsThisCycle
-          ++ arcFold (cycle+1) period rdv time0 (pp0 + period) to m
+          ++ _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
