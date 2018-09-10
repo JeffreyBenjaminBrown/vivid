@@ -8,8 +8,13 @@
 ** [dubious] Represent a Museq in more than one way
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14,
-* polyphonic refactor
-** refactor `Ev label a` to have three fields: arc, label, data
+* TODO polyphonic refactor
+** TODO merge types Ev and AbsEv
+*** data Event time label a = ...
+*** type Ev = Event RTime
+*** replace `AbsEv` with `Event Time`
+** TODO type Dispatch' uses Museq' instead of Museq
+*** work through its implications before the simpler changes Museq' implies for Transform.hs and Join.hs
 ** TODO consider what happens to (maybe) Ev names after Join.hs ops
 *** after Transform.hs ops: nothing changes
 *** Join.append: nothing changes
@@ -26,11 +31,6 @@ seq 1 + seq 2 = a f d, a f d
 **** otherwise the same algorithm
 *** Join.meta: suppose the Museq (Museq a -> Museq b) has two anonymous overlapping transformations, and the Museq a has two like-named serial operations.
 **** Give the meta-museq unique names, then just (++) names from the two args
-** maybe every Ev should have a name
-*** Ev l a, Museq l a, where l is the label type
-*** Ev could be a type, not a synonym, with 4 fields and lenses
-*** Remember: Events in a Dispatch need not just a label but a SynthDefEnum
-*** TODO Should the SynthDefEnum be part of an Event's label?
 ** merges should be polymomrphic
 *** currently mergea, merge0, merge1 :: Museq Msg -> Museq Msg -> Museq Msg
 * fix
