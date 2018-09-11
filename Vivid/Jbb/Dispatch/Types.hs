@@ -15,11 +15,10 @@ module Vivid.Jbb.Dispatch.Types (
   , NamedWith, mNamed, anon
   , Action(..), actionSynth
   , Ev     , showEvs
-  , Ev'(..), showEvs', ev, ev0
+  , Event(..), showEvs', ev, ev0
   , evArc   , evLabel   , evData   , evStart   , evEnd
-  , AbsEv'(..)
-  , absEvArc, absEvLabel, absEvData, absEvStart, absEvEnd
-  , toAbsEv
+  , toEventTime
+  , Ev'
   , Museq(..) , dur , sup , vec
   , emptyMuseq
   , Museq'(..), dur', sup', vec'
@@ -112,16 +111,22 @@ actionSynth (Free s n  ) = (s,n)
 actionSynth (Send s n _) = (s,n)
 
 
-type Ev a    = ( (RTime,RTime), a)
+type Ev a = ( (RTime,RTime), a)
 
 showEvs :: (Foldable t, Show a) => t (Ev a) -> String
 showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs
 
-data Ev' label a = Ev' { _evLabel :: label
-                       , _evArc :: (RTime,RTime)
-                       , _evData :: a} deriving (Show, Eq, Ord)
+data Event time label a = Event { _evLabel :: label
+                                , _evArc :: (time,time)
+                                , _evData :: a} deriving (Show, Eq, Ord)
 
-makeLenses ''Ev'
+type Ev' = Event RTime
+
+toEventTime :: Event RTime l a -> Event Time l a
+toEventTime ev = let (s,t) = _evArc ev
+                 in ev { _evArc = (tr s, tr t) }
+
+makeLenses ''Event
 
 evStart, evEnd :: Lens' (Ev' l a) RTime
 evStart = evArc . _1
@@ -132,27 +137,10 @@ showEvs' :: (Foldable t, Show a, Show label)
 showEvs' = foldl (\acc ev -> acc ++ show ev) "\n"
 
 ev :: l -> Rational -> Rational -> a -> Ev' l a -- ^ use fewer parens, commas
-ev l s e a = Ev' l (fr s, fr e) a
+ev l s e a = Event l (fr s, fr e) a
 
 ev0 :: l -> Rational -> a -> Ev' l a -- ^ innstantaneous
-ev0 l t a = Ev' l (fr t, fr t) a
-
--- | Rarely, events need absolute times
-data AbsEv' label a = AbsEv' { _absEvLabel :: label
-                             , _absEvArc :: (Time,Time)
-                             , _absEvData :: a} deriving (Show, Eq, Ord)
-
-makeLenses ''AbsEv'
-
-absEvStart, absEvEnd :: Lens' (AbsEv' l a) Time
-absEvStart = absEvArc . _1
-absEvEnd =   absEvArc . _2
-
-toAbsEv :: Ev' l a -> AbsEv' l a
-toAbsEv ev = AbsEv' { _absEvLabel = view evLabel ev
-                    , _absEvArc = f $ view evArc ev
-                    , _absEvData = view evData ev }
-  where f (s,t) = (tr s, tr t)
+ev0 l t a = Event l (fr t, fr t) a
   
 data Museq a = Museq {
   _dur :: RDuration -- ^ the play duration of the loop

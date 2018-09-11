@@ -434,7 +434,7 @@ _arcFold cycle period startVec time0 from to m =
           ++ _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
 
 arc' :: forall l a. Time -> Duration -> Time -> Time
-     -> Museq' l a -> [AbsEv' l a]
+     -> Museq' l a -> [Event Time l a]
 arc' time0 tempoPeriod from to m =
   let period = tempoPeriod * tr (_sup' m) :: Duration
       startVec = V.map (view evStart) $ _vec' $ m :: V.Vector RTime
@@ -452,11 +452,11 @@ arc' time0 tempoPeriod from to m =
       chopStarts = over _1 $ max from
       chopEnds :: (Time,Time) -> (Time,Time)
       chopEnds = over _2 $ min to
-      dropImpossibles :: [AbsEv' l a] -> [AbsEv' l a]
+      dropImpossibles :: [Event Time l a] -> [Event Time l a]
         -- Because chopStarts can leave an old event starting after it ended.
-      dropImpossibles = filter $ uncurry (<=) . view absEvArc
-      futzTimes :: Ev' l a -> AbsEv' l a
-      futzTimes ev = over absEvArc f $ toAbsEv ev
+      dropImpossibles = filter $ uncurry (<=) . view evArc
+      futzTimes :: Event RTime l a -> Event Time l a
+      futzTimes ev = over evArc f $ toEventTime ev
         where f = chopEnds . chopStarts . correctAbsoluteTimes
    in dropImpossibles $
       map futzTimes
