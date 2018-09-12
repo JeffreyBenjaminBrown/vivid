@@ -108,10 +108,20 @@ stop disp name = do
   masOld <- readMVar $ mMuseqs disp
   replaceAll disp $ M.delete name masOld
 
+stop' :: Dispatch' -> MuseqName -> IO ()
+stop' disp name = do
+  masOld <- readMVar $ mMuseqs' disp
+  replaceAll' disp $ M.delete name masOld
+
 replace :: Dispatch -> MuseqName -> Museq Note -> IO ()
 replace disp newName newMuseq = do
   masOld <- readMVar $ mMuseqs disp
   replaceAll disp $ M.insert newName newMuseq masOld
+
+replace' :: Dispatch' -> MuseqName -> Museq' String Note' -> IO ()
+replace' disp newName newMuseq = do
+  masOld <- readMVar $ mMuseqs' disp
+  replaceAll' disp $ M.insert newName newMuseq masOld
 
 -- | ASSUMES every synth has an "amp" parameter which, when 0, causes silence.
 --
@@ -149,6 +159,36 @@ replaceAll disp masNew = do
 
   return ()
 
+replaceAll' :: Dispatch' -> M.Map MuseqName (Museq' String Note') -> IO ()
+replaceAll' disp masNew = do
+  time0  <-      takeMVar $ mTime0'       disp
+  tempoPeriod <- takeMVar $ mTempoPeriod' disp
+  masOld <-      takeMVar $ mMuseqs'      disp
+  reg <-         takeMVar $ mReg'         disp
+  now <- unTimestamp <$> getTime
+
+  let masNew' = M.mapWithKey f masNew where
+        f :: MuseqName -> Museq' String Note' -> Museq' String Note'
+        f museqName m = over vec' (V.map $ over evLabel (museqName ++)) m
+      when = nextPhase0 time0 frameDuration now + frameDuration
+        -- `when` = the start of the first not-yet-rendered frame
+      toFree, toCreate :: [(SynthDefEnum, SynthName)]
+      (toFree,toCreate) = museqsDiff' masOld masNew'
+
+  newTransform  <- mapM (actNew  reg)      $ map (uncurry New)  toCreate
+  freeTransform <- mapM (actFree reg when) $ map (uncurry Free) toFree
+
+  putMVar (mTime0'       disp) time0       -- unchnaged
+  putMVar (mTempoPeriod' disp) tempoPeriod -- unchanged
+  putMVar (mMuseqs'      disp) masNew'
+  putMVar (mReg'         disp) $ foldl (.) id newTransform reg
+
+  forkIO $ do wait $ when - now -- delete register's synths once it's safe
+              reg <-takeMVar $ mReg' disp
+              putMVar (mReg' disp) $ foldl (.) id freeTransform reg
+
+  return ()
+
 chTempoPeriod :: Dispatch -> Duration -> IO ()
 chTempoPeriod disp newTempoPeriod = do
   time0       <- takeMVar $ mTime0       disp
@@ -163,6 +203,20 @@ chTempoPeriod disp newTempoPeriod = do
   putMVar (mTempoPeriod disp) newTempoPeriod
   putMVar (mTime0       disp) newTime0
 
+chTempoPeriod' :: Dispatch' -> Duration -> IO ()
+chTempoPeriod' disp newTempoPeriod = do
+  time0       <- takeMVar $ mTime0'       disp
+  tempoPeriod <- takeMVar $ mTempoPeriod' disp
+  now         <- unTimestamp <$> getTime
+  let when = nextPhase0 time0 frameDuration now + frameDuration
+        -- `when` here is defined similar to `when` in `dispatchLoop`,
+        -- EXCEPT: add `frameDuration`, because `when` is one period
+        -- less than it will be the next time `dispatchLoop` runs
+      whenInCycles = (when - time0) / tempoPeriod
+      newTime0 = when - whenInCycles * newTempoPeriod
+  putMVar (mTempoPeriod' disp) newTempoPeriod
+  putMVar (mTime0'       disp) newTime0
+
 
 -- | = The Dispatch loop
 
@@ -176,6 +230,17 @@ startDispatchLoop disp = do
     -- subtract nearly an entire frameDuration so it starts soon
     >>= putMVar (mTime0 disp)
   forkIO $ dispatchLoop disp
+
+startDispatchLoop' :: Dispatch' -> IO ThreadId
+startDispatchLoop' disp = do
+  tryTakeMVar $ mTime0' disp -- empty it, just in case
+  mbTempo <- tryReadMVar $ mTempoPeriod' disp
+  maybe (putMVar (mTempoPeriod' disp) 1) (const $ return ()) mbTempo
+
+  ((-) (0.8 * frameDuration)) . unTimestamp <$> getTime
+    -- subtract nearly an entire frameDuration so it starts soon
+    >>= putMVar (mTime0' disp)
+  forkIO $ dispatchLoop' disp
 
 dispatchLoop :: Dispatch -> IO ()
 dispatchLoop disp = do
@@ -207,3 +272,7 @@ dispatchLoop disp = do
 
   wait $ fromRational startRender - now
   dispatchLoop disp
+
+dispatchLoop' :: Dispatch' -> IO ()
+dispatchLoop' disp = do
+  return ()

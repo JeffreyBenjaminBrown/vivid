@@ -219,7 +219,7 @@ newDispatch = do
     , mTime0  = mTime0     ,  mTempoPeriod = mTempoPeriod }
 
 data Dispatch' = Dispatch' {
-    mMuseqs' :: MVar (M.Map MuseqName (Museq' String Note))
+    mMuseqs' :: MVar (M.Map MuseqName (Museq' String Note'))
   , mReg' :: MVar SynthRegister
   , mTime0' :: MVar Time
   , mTempoPeriod' :: MVar Duration
