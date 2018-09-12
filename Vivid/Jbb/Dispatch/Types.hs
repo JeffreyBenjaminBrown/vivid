@@ -129,7 +129,7 @@ toEventTime ev = let (s,t) = _evArc ev
 
 makeLenses ''Event
 
-evStart, evEnd :: Lens' (Ev' l a) RTime
+evStart, evEnd :: Lens' (Event t l a) t
 evStart = evArc . _1
 evEnd = evArc . _2
 

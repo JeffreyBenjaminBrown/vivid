@@ -5,12 +5,12 @@ module Vivid.Jbb.Dispatch.Dispatch where
 import Control.Concurrent (forkIO, ThreadId)
 import Control.Concurrent.MVar
 import Control.DeepSeq
-import Control.Lens (over, _1, _2)
+import Control.Lens (set, over, _1, _2, (^.))
 import Data.List ((\\))
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
-import Vivid
+import Vivid hiding (set)
 import Vivid.Jbb.Dispatch.Config (frameDuration)
 import Vivid.Jbb.Dispatch.Types
 import Vivid.Jbb.Dispatch.Msg
@@ -170,6 +170,8 @@ replaceAll' disp masNew = do
   let masNew' = M.mapWithKey f masNew where
         f :: MuseqName -> Museq' String Note' -> Museq' String Note'
         f museqName m = over vec' (V.map $ over evLabel (museqName ++)) m
+          -- including the MuseqName guarantees different Museqs in the map
+          -- will not conflict (and cannot cooperate in the same synth)
       when = nextPhase0 time0 frameDuration now + frameDuration
         -- `when` = the start of the first not-yet-rendered frame
       toFree, toCreate :: [(SynthDefEnum, SynthName)]
@@ -256,8 +258,6 @@ dispatchLoop disp = do
       g museq = over vec (V.map $ over _2 f) museq where
         f :: Note -> Action
         f (noteName,(sde, msg)) = Send sde noteName msg
-          -- including the MuseqName guarantees different Museqs in the map
-          -- will not conflict (and cannot cooperate in the same synth)
     evs = concatMap f $ M.elems museqsMap' :: [(Time, Action)] where
       f :: Museq Action -> [(Time, Action)]
       f m = map (over _1 fst)  -- use `fst` to ignore message's end time
@@ -275,4 +275,34 @@ dispatchLoop disp = do
 
 dispatchLoop' :: Dispatch' -> IO ()
 dispatchLoop' disp = do
-  return ()
+  time0  <-      takeMVar $ mTime0'       disp
+  tempoPeriod <- takeMVar $ mTempoPeriod' disp
+  museqsMap <-   takeMVar $ mMuseqs'      disp
+  reg <-         takeMVar $ mReg'         disp
+  now <- unTimestamp <$> getTime
+
+  let
+    startRender = nextPhase0 time0 frameDuration now
+    museqsMap' = M.map g museqsMap :: M.Map String(Museq' String Action) where
+      g museq = over vec' (V.map f) museq where
+        f :: Ev' String Note' -> Ev' String Action
+          -- todo ? awkward : The Ev' label gets repeated within the Action. 
+        f ev = let note = ev ^. evData
+                   ac = Send (note^.noteSd) (ev^.evLabel) (note^.noteMsg)
+               in set evData ac ev
+
+    evs = concatMap f $ M.elems museqsMap' :: [(Time, Action)] where
+      f :: Museq' String Action -> [(Time, Action)] -- start times and actions
+      f m = map (\ev -> ((ev^.evStart), (ev^.evData))) evs
+        where evs = arc' time0 tempoPeriod startRender
+                    (startRender + frameDuration) m
+
+  mapM_ (uncurry $ actSend reg) evs
+
+  putMVar (mTime0'       disp) time0
+  putMVar (mTempoPeriod' disp) tempoPeriod
+  putMVar (mMuseqs'      disp) museqsMap
+  putMVar (mReg'         disp) reg
+
+  wait $ fromRational startRender - now
+  dispatchLoop' disp
