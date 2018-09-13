@@ -3,7 +3,7 @@
 module Vivid.Jbb.Dispatch.Internal.Join
 where
 
-import Control.Lens (over, _1, _2)
+import Control.Lens (over, view, _1, _2)
 import qualified Data.List as L
 import qualified Data.Set as S
 import qualified Data.Vector as V
@@ -27,24 +27,41 @@ explicitReps m = unsafeExplicitReps (timeToPlayThrough m) m
 -- `totalDuration` is not an integer multiple of `timeToPlayThrough m`
 unsafeExplicitReps :: forall a.
   RTime -> Museq a -> [V.Vector (Ev a)]
-unsafeExplicitReps totalDuration m =
-  let sups = round $ totalDuration / _sup m
-        -- It takes a duration equal to this many multiples of _sup m
-        -- for m to finish at phase 0.
-        -- It's already an integer; `round` is just to prove that to GHC.
-      durs = round $ totalDuration / _dur m
-      indexed = zip [0..sups-1]
-        $ repeat $ _vec m :: [(Int,V.Vector (Ev a))]
-      adjustTimes :: (Int,V.Vector (Ev a)) -> V.Vector (Ev a)
-      adjustTimes (idx,v) = V.map f v where
-        f = over _1 (\(x,y) -> (f x, f y)) where
-          f = (+) $ fromIntegral idx * _sup m
-      spread = V.concat $ map adjustTimes indexed
-        :: V.Vector (Ev a)
-        -- the times in `spread` range from 0 to `timeToRepeat m`
-      maixima = [fromIntegral i * _dur m | i <- [1..durs]]
-      reps = divideAtMaxima (fst . fst) maixima spread :: [V.Vector (Ev a)]
-  in reps
+unsafeExplicitReps totalDuration m = reps where
+  sups = round $ totalDuration / _sup m
+    -- It takes a duration equal to this many multiples of _sup m
+    -- for m to finish at phase 0.
+    -- It's already an integer; `round` is just to prove that to GHC.
+  durs = round $ totalDuration / _dur m
+  indexed = zip [0..sups-1]
+    $ repeat $ _vec m :: [(Int,V.Vector (Ev a))]
+  adjustTimes :: (Int,V.Vector (Ev a)) -> V.Vector (Ev a)
+  adjustTimes (idx,v) = V.map f v where
+    f = over _1 (\(x,y) -> (f x, f y)) where
+      f = (+) $ fromIntegral idx * _sup m
+  spread = V.concat $ map adjustTimes indexed :: V.Vector (Ev a)
+    -- the times in `spread` range from 0 to `timeToRepeat m`
+  maixima = [fromIntegral i * _dur m | i <- [1..durs]]
+  reps = divideAtMaxima (fst . fst) maixima spread :: [V.Vector (Ev a)]
+
+unsafeExplicitReps' :: forall l a.
+  RTime -> Museq' l a -> [V.Vector (Ev' l a)]
+unsafeExplicitReps' totalDuration m = reps where
+  sups = round $ totalDuration / _sup' m
+    -- It takes a duration equal to this many multiples of _sup m
+    -- for m to finish at phase 0.
+    -- It's already an integer; `round` is just to prove that to GHC.
+  durs = round $ totalDuration / _dur' m
+  indexed = zip [0..sups-1]
+    $ repeat $ _vec' m :: [(Int,V.Vector (Ev' l a))]
+  adjustTimes :: (Int,V.Vector (Ev' l a)) -> V.Vector (Ev' l a)
+  adjustTimes (idx,v) = V.map f v where
+    f = over evArc (\(x,y) -> (f x, f y)) where
+      f = (+) $ fromIntegral idx * _sup' m
+  spread = V.concat $ map adjustTimes indexed :: V.Vector (Ev' l a)
+    -- the times in `spread` range from 0 to `timeToRepeat m`
+  maixima = [fromIntegral i * _dur' m | i <- [1..durs]]
+  reps = divideAtMaxima (view evStart) maixima spread :: [V.Vector (Ev' l a)]
 
 -- | = Merge-ish (`merge`, `<*>` and `meta`) functions.
 
