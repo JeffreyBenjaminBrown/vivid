@@ -17,6 +17,10 @@ timeForBothToRepeat :: Museq a -> Museq b -> RTime
 timeForBothToRepeat x y =
   RTime $ lcmRatios (tr $ timeToRepeat x) (tr $ timeToRepeat y)
 
+timeForBothToRepeat' :: Museq' l a -> Museq' m b -> RTime
+timeForBothToRepeat' x y =
+  RTime $ lcmRatios (tr $ timeToRepeat' x) (tr $ timeToRepeat' y)
+
 -- | if L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
 -- See the test suite for an example.

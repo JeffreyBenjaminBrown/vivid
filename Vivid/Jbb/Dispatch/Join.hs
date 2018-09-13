@@ -10,7 +10,7 @@ module Vivid.Jbb.Dispatch.Join
   )
 where
 
-import Control.Lens (set, over, _1, _2)
+import Control.Lens (set, over, view, _1, _2)
 import qualified Data.List as L
 import qualified Data.Map as M
 import qualified Data.Vector as V
@@ -97,6 +97,24 @@ stack x y = let t = timeForBothToRepeat x y
                        , _sup = t
                        , _vec = V.concat $ xs ++ ys}
 
+-- | Prefixes a string not in the first arg's names to the second one's
+stack' :: forall a. Museq' String a -> Museq' String a -> Museq' String a
+stack' x y = stack'' x $ over vec' (V.map f) y where
+  n = unusedName $ map (view evLabel) $ V.toList $ _vec' x
+  f :: Ev' String a -> Ev' String a
+  f = over evLabel $ (++) n
+
+-- | Allows the two arguments' namespaces to conflict
+stack'' :: Museq' l a -> Museq' l a -> Museq' l a
+stack'' x y =
+  let t = timeForBothToRepeat' x y
+      xs = unsafeExplicitReps' t x
+      ys = unsafeExplicitReps' t y
+  in sortMuseq' $ Museq' { _dur' = _dur' x
+                         , _sup' = t
+                         , _vec' = V.concat $ xs ++ ys}
+
+
 -- | `merge`` creates a hybrid.
 --
 -- At any time when one of the inputs has nothing happening,
@@ -152,4 +170,3 @@ meta x y = sortMuseq $ Museq { _dur = _dur y -- arbitrary
         evs = map (over _1 $ \(s,t) -> (RTime s, RTime t))
           $ concat [arc 0 1 (tr start) (tr finish) (op y)
                    | ((start,finish),op) <- xs]
-
