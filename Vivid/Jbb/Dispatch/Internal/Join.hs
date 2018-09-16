@@ -97,11 +97,24 @@ partitionAndGroupEventsAtBoundaries bs evs =
       partitionEv (arc,x) = map (,x) $ partitionArcAtTimes bs arc
   in L.sortOn fst $ concatMap partitionEv evs
 
--- | `alignAndJoin`  and `joinEvents` are mutually recursive
--- `alignAndJoin` checks whether events are aligned;
--- if so, hands work off to `joinEvents`
+partitionAndGroupEventsAtBoundaries' :: forall a l t v. Real t
+  => [t] -> [Event t l a] -> [Event t l a]
+partitionAndGroupEventsAtBoundaries' bs evs =
+  -- TODO ? Use Traversal to simplify
+  let partitionEv :: Event t l a -> [Event t l a]
+      partitionEv ev = map rebuild $ partitionArcAtTimes bs $ _evArc ev
+        where rebuild arc = ev {_evArc = arc}
+  in L.sortOn _evArc $ concatMap partitionEv evs
+
+-- | `alignAndJoin`  and `joinEvents` are mutually recursive.
+-- `alignAndJoin` checks whether events are aligned.
+-- If so, it hands work off to `joinEvents`.
 -- `joinEvents` finds events in the second input aligned with first event
--- in first input, joins them, and hands off work to `joinEvents`
+-- in first input, joins them, passes remaining work back to `joinEvents`.
+--
+-- In the Museq' version, Event labels from an output event's
+-- two inputs are concatenated, which prevents interference.
+-- TODO ? A version that permits interference.
 alignAndJoin,joinEvents :: forall a b c.
   (a -> b -> c) -> [Ev a] -> [Ev b] -> [Ev c]
 
@@ -133,10 +146,9 @@ alignAndJoin' op as bs
   | _evArc (head as) ==  _evArc (head bs) =
     joinEvents' op as bs
 
-joinEvents' op (a:as) bs =
-  joined ++ alignAndJoin' op as bs
-  where arc = _evArc a
-        bsMatch = takeWhile ((== arc) . _evArc) bs
-        joined = over evData (op $ _evData a)
-               . over evLabel ((++) $ _evLabel a)
-               <$> bsMatch
+joinEvents' op (a:as) bs = joined ++ alignAndJoin' op as bs where
+  arc = _evArc a
+  bsMatch = takeWhile ((== arc) . _evArc) bs
+  joined = over evData (op $ _evData a)
+         . over evLabel ((++) $ _evLabel a) -- concatenate event labels
+         <$> bsMatch

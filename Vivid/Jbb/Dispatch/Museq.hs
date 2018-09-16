@@ -27,6 +27,7 @@ module Vivid.Jbb.Dispatch.Museq
   , longestDur'
 
   -- | = Naming events
+  , labelsToStrings
   , museqMaybeNamesAreValid
   , museqMaybeNamesAreValid'
   , nameAnonEvents
@@ -83,6 +84,8 @@ import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 -- in some situations that would waste space. For an example of one,
 -- see in Tests.testStack the assertion labeled
 -- "stack, where timeToRepeat differs from timeToPlayThrough".
+
+
 -- | = Make a Museq
 
 -- | Make a Museq, specifying start and end times
@@ -158,6 +161,9 @@ longestDur' m = let eventDur ev = (ev ^. evEnd) - (ev ^. evStart)
 
 
 -- | = Naming events
+
+labelsToStrings :: Show l => Museq' l a -> Museq' String a
+labelsToStrings = over vec' $ V.map $ over evLabel show
 
 -- | The names in a `Museq Name` are valid if no events with the same
 -- name overlap in time, within or across cycles.

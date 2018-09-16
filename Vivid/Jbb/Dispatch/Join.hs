@@ -122,8 +122,8 @@ stack'' x y =
 --
 -- When merging parameters, you'll probably usually want to use * or +,
 -- on a per-parameter basis. For instance, you might want merging
--- frequencies 2 and 440 to produce a frequency of 880, but merging
--- amplitudes 1 and 2 to give an amplitude of 3.
+-- frequencies 2 and 440 to produce a (multiplied) frequency of 880, but 
+-- merging amplitudes 1 and 2 to give an (added) amplitude of 3.
 --
 -- `merge` is abstract. For instance, it specializes to the signature
 -- `Museq (a->b) -> Museq a -> Museq b` in the `Applicative Museq` instance.
@@ -145,6 +145,24 @@ merge op x y = Museq { _dur = _dur y -- arbitrary
   xps = partitionAndGroupEventsAtBoundaries bs xs
   yps = partitionAndGroupEventsAtBoundaries bs ys
 
+merge' :: forall a b c.
+          (a -> b -> c)
+       -> Museq' String a
+       -> Museq' String b
+       -> Museq' String c
+merge' op x y = Museq' { _dur' = _dur' y -- arbitrary
+                       , _sup' = tbr
+                       , _vec' = V.fromList
+                                $ alignAndJoin' op xps yps } where
+  tbr = timeForBothToRepeat' x y
+  xs, xps :: [Event RTime String a]
+  ys, yps :: [Event RTime String b]
+  xs = concatMap V.toList $ unsafeExplicitReps' tbr x
+  ys = concatMap V.toList $ unsafeExplicitReps' tbr y
+  bs = boundaries $ map _evArc xs ++ map _evArc ys :: [RTime]
+  xps = partitionAndGroupEventsAtBoundaries' bs xs
+  yps = partitionAndGroupEventsAtBoundaries' bs ys
+
 -- | Some ways to merge `Museq Msg`s.
 -- So named because in math, the additive identity is 0,
 -- the mutliplicative identity = 1, and "amp" starts with an "a".
@@ -159,6 +177,21 @@ instance Applicative Museq where
   (<*>) = merge ($)
   pure x = Museq { _dur=1, _sup=1
                  , _vec = V.singleton ((0,1),x) }
+
+-- | Some ways to merge `Museq Msg`s.
+-- So named because in math, the additive identity is 0,
+-- the mutliplicative identity = 1, and "amp" starts with an "a".
+merge0', merge1', mergea'
+  :: forall l m. (Show l, Show m) =>
+  Museq' l Msg -> Museq' m Msg -> Museq' String Msg
+merge0' m n =
+  merge' (M.unionWith (+))  (labelsToStrings m) (labelsToStrings n)
+merge1' m n =
+  merge' (M.unionWith (*))  (labelsToStrings m) (labelsToStrings n)
+mergea' m n =
+  merge' (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
+  where  f "amp" = (+) -- ^ add amplitudes, multiply others
+         f _     = (*)
 
 meta :: forall a b c. Museq (Museq a -> Museq b) -> Museq a -> Museq b
 meta x y = sortMuseq $ Museq { _dur = _dur y -- arbitrary
