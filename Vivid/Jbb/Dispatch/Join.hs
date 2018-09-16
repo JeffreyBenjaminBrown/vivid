@@ -3,10 +3,21 @@
 module Vivid.Jbb.Dispatch.Join
   (
   append
+  , append'
   , cat
+  , cat'
   , stack
-  , merge, mergea, merge0, merge1
+  , stack'
+  , merge
+  , merge'
+  , mergea
+  , mergea'
+  , merge0
+  , merge0'
+  , merge1
+  , merge1'
   , meta
+  , meta'
   )
 where
 
@@ -98,11 +109,15 @@ stack x y = let t = timeForBothToRepeat x y
                        , _vec = V.concat $ xs ++ ys}
 
 -- | Prefixes a string not in the first arg's names to the second one's
-stack' :: forall a. Museq' String a -> Museq' String a -> Museq' String a
-stack' x y = stack'' x $ over vec' (V.map f) y where
-  n = unusedName $ map (view evLabel) $ V.toList $ _vec' x
-  f :: Ev' String a -> Ev' String a
-  f = over evLabel $ (++) n
+stack' :: forall a l m. (Show l, Show m)
+       => Museq' l a -> Museq' m a -> Museq' String a
+stack' x y = sortMuseq' $ _stack' (labelsToStrings x) (labelsToStrings y)
+  where
+  _stack' :: forall a. Museq' String a -> Museq' String a -> Museq' String a
+  _stack' x y = stack'' x $ over vec' (V.map f) y where
+    n = unusedName $ map (view evLabel) $ V.toList $ _vec' x
+    f :: Ev' String a -> Ev' String a
+    f = over evLabel $ (++) n
 
 -- | Allows the two arguments' namespaces to conflict
 stack'' :: Museq' l a -> Museq' l a -> Museq' l a
@@ -145,23 +160,29 @@ merge op x y = Museq { _dur = _dur y -- arbitrary
   xps = partitionAndGroupEventsAtBoundaries bs xs
   yps = partitionAndGroupEventsAtBoundaries bs ys
 
-merge' :: forall a b c.
-          (a -> b -> c)
-       -> Museq' String a
-       -> Museq' String b
+merge' :: forall a b c l m. (Show l, Show m)
+       => (a -> b -> c)
+       -> Museq' l a
+       -> Museq' m b
        -> Museq' String c
-merge' op x y = Museq' { _dur' = _dur' y -- arbitrary
-                       , _sup' = tbr
-                       , _vec' = V.fromList
-                                $ alignAndJoin' op xps yps } where
-  tbr = timeForBothToRepeat' x y
-  xs, xps :: [Event RTime String a]
-  ys, yps :: [Event RTime String b]
-  xs = concatMap V.toList $ unsafeExplicitReps' tbr x
-  ys = concatMap V.toList $ unsafeExplicitReps' tbr y
-  bs = boundaries $ map _evArc xs ++ map _evArc ys :: [RTime]
-  xps = partitionAndGroupEventsAtBoundaries' bs xs
-  yps = partitionAndGroupEventsAtBoundaries' bs ys
+merge' op a b = _merge' op (labelsToStrings a) (labelsToStrings b) where
+  _merge' :: forall a b c.
+            (a -> b -> c)
+         -> Museq' String a
+         -> Museq' String b
+         -> Museq' String c
+  _merge' op x y = Museq' { _dur' = _dur' y -- arbitrary
+                          , _sup' = tbr
+                          , _vec' = V.fromList
+                                   $ alignAndJoin' op xps yps } where
+    tbr = timeForBothToRepeat' x y
+    xs, xps :: [Event RTime String a]
+    ys, yps :: [Event RTime String b]
+    xs = concatMap V.toList $ unsafeExplicitReps' tbr x
+    ys = concatMap V.toList $ unsafeExplicitReps' tbr y
+    bs = boundaries $ map _evArc xs ++ map _evArc ys :: [RTime]
+    xps = partitionAndGroupEventsAtBoundaries' bs xs
+    yps = partitionAndGroupEventsAtBoundaries' bs ys
 
 -- | Some ways to merge `Museq Msg`s.
 -- So named because in math, the additive identity is 0,

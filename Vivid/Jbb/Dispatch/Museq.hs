@@ -349,7 +349,7 @@ sortMuseq = vec %~
 sortMuseq' :: Museq' l a -> Museq' l a
 sortMuseq' = vec' %~
   \v -> runST $ do v' <- V.thaw v
-                   sortBy (compare `on` view evStart) v'
+                   sortBy (compare `on` view evArc) v'
                    V.freeze v'
 
 -- | A valid Museq' m is sorted on start and then end times,
