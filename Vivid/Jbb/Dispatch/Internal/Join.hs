@@ -116,3 +116,27 @@ joinEvents op ((arc,a):aEvs) bEvs =
   joined ++ alignAndJoin op aEvs bEvs
   where bEvsMatch = takeWhile ((== arc) . fst) bEvs
         joined = over _2 (op a) <$> bEvsMatch
+
+alignAndJoin',joinEvents' :: forall a b c t. Real t
+                          => (a -> b -> c)
+                          -> [Event t String a]
+                          -> [Event t String b]
+                          -> [Event t String c]
+
+alignAndJoin' _ [] _ = []
+alignAndJoin' _ _ [] = []
+alignAndJoin' op as bs
+  | _evArc (head as) <   _evArc (head bs) =
+    alignAndJoin' op (tail as) bs
+  | _evArc (head as) >   _evArc (head bs) =
+    alignAndJoin' op as (tail bs)
+  | _evArc (head as) ==  _evArc (head bs) =
+    joinEvents' op as bs
+
+joinEvents' op (a:as) bs =
+  joined ++ alignAndJoin' op as bs
+  where arc = _evArc a
+        bsMatch = takeWhile ((== arc) . _evArc) bs
+        joined = over evData (op $ _evData a)
+               . over evLabel ((++) $ _evLabel a)
+               <$> bsMatch
