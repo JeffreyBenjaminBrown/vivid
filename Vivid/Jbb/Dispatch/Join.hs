@@ -10,7 +10,7 @@ module Vivid.Jbb.Dispatch.Join
   )
 where
 
-import Control.Lens (set, over, view, _1, _2)
+import Control.Lens (set, over, view, _1, _2, (^.))
 import qualified Data.List as L
 import qualified Data.Map as M
 import qualified Data.Vector as V
@@ -203,3 +203,24 @@ meta x y = sortMuseq $ Museq { _dur = _dur y -- arbitrary
         evs = map (over _1 $ \(s,t) -> (RTime s, RTime t))
           $ concat [arc 0 1 (tr start) (tr finish) (op y)
                    | ((start,finish),op) <- xs]
+
+meta' :: forall a b c l m. (Show l, Show m)
+  => Museq' l      (Museq' String a -> Museq' String b)
+  -> Museq' m      a
+  -> Museq' String b
+meta' x y = _meta' (labelsToStrings x) (labelsToStrings y) where
+  _meta' :: Museq' String (Museq' String a -> Museq' String b)
+         -> Museq' String a 
+         -> Museq' String b
+  _meta' x y = sortMuseq' $ Museq' { _dur' = _dur' y -- arbitrary
+                                   , _sup' = tbr
+                                   , _vec' = V.fromList evs } where
+    tbr = timeForBothToRepeat' x y
+    xs :: [Ev' String (Museq' String a -> Museq' String b)]
+    xs = concatMap V.toList $ unsafeExplicitReps' tbr x
+    prefixLabels :: String -> Museq' String a -> Museq' String a
+    prefixLabels s = over vec' $ V.map $ over evLabel $ ((++) s)
+    evs = map (over evArc $ \(s,t) -> (RTime s, RTime t))
+      $ concat [arc' 0 1 a b $ _evData x $ prefixLabels (_evLabel x) y
+               | x <- xs, let a = tr $ x ^. evStart
+                              b = tr $ x ^. evEnd ]
