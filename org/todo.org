@@ -9,6 +9,7 @@
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14,
 * TODO polyphonic refactor
+** TODO test overlapping label problems for Join.*
 ** TODO consider what happens to (maybe) Ev names after Join.hs ops
 *** after Transform.hs ops: nothing changes
 *** Join.append: nothing changes

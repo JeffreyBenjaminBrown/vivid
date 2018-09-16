@@ -1,4 +1,7 @@
-{-# LANGUAGE ScopedTypeVariables, ViewPatterns #-}
+{-# LANGUAGE
+ScopedTypeVariables
+, ViewPatterns
+, FlexibleInstances #-}
 
 module Vivid.Jbb.Dispatch.Join
   (
@@ -198,6 +201,12 @@ instance Applicative Museq where
   (<*>) = merge ($)
   pure x = Museq { _dur=1, _sup=1
                  , _vec = V.singleton ((0,1),x) }
+
+instance Applicative (Museq' String) where -- TODO ? generalize
+  (<*>) = merge' ($)
+  pure x = Museq' { _dur'=1, _sup'=1
+                  , _vec' = V.singleton $ ev "" 0 1 x }
+
 
 -- | Some ways to merge `Museq Msg`s.
 -- So named because in math, the additive identity is 0,
