@@ -12,6 +12,17 @@ module Vivid.Jbb.Dispatch.Transform
   , switchParams
   , keepParams
   , dropParams
+
+  , rev'
+  , early', late'
+  , fast', slow'
+  , dense', sparse'
+  , rotate', rep'
+
+  , overParams'
+  , switchParams'
+  , keepParams'
+  , dropParams'
   )
 where
 

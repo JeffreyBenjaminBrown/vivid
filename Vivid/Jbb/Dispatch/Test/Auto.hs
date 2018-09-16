@@ -28,15 +28,20 @@ tests = runTestTT $ TestList
   , TestLabel "testStack" testStack
   , TestLabel "testStack'" testStack'
   , TestLabel "testRev" testRev
+  , TestLabel "testRev'" testRev'
   , TestLabel "testEarlyAndLate" testEarlyAndLate
+  , TestLabel "testEarlyAndLate'" testEarlyAndLate'
   , TestLabel "testFastAndSlow" testFastAndSlow
+  , TestLabel "testFastAndSlow'" testFastAndSlow'
   , TestLabel "testDenseAndSparse" testDenseAndSparse
+  , TestLabel "testDenseAndSparse'" testDenseAndSparse'
   , TestLabel "testExplicitReps" testExplicitReps
   , TestLabel "testMuseqsDiff" testMuseqsDiff
   , TestLabel "testMuseqsDiff'" testMuseqsDiff'
   , TestLabel "testArc" testArc
   , TestLabel "testArc'" testArc'
   , TestLabel "testOverParams" testOverParams
+  , TestLabel "testOverParams'" testOverParams'
   , TestLabel "testBoundaries" testBoundaries
   , TestLabel "testPartitionArcAtTimes" testPartitionArcAtTimes
   , TestLabel "testPartitionAndGroupEventsAtBoundaries"
@@ -188,6 +193,14 @@ testRev = TestCase $ do
                                       ,((3/2, 3/2),"c")
                                       ,((5/3, 13/3),"b")]
 
+testRev' = TestCase $ do
+  let a = museq' 2 [ ev () 0     1     "a"
+                   , ev () (1/3) 3     "b"
+                   , ev () (1/2) (1/2) "c" ]
+  assertBool "rev" $ rev' a == museq' 2 [ ev () 0     1      "a"
+                                        , ev () (3/2) (3 /2)  "c"
+                                        , ev () (5/3) (13/3) "b" ]
+
 testEarlyAndLate = TestCase $ do
   let a = museq 10 [((0,11),"a"),((1,2),"b")]
   assertBool "early" $ _vec (early 1 a) ==
@@ -197,10 +210,28 @@ testEarlyAndLate = TestCase $ do
   assertBool "late" $ _vec (late 1 a) ==
     V.fromList [((1,12),"a"),((2,3),"b")]
 
+testEarlyAndLate' = TestCase $ do
+  let a = museq' 10 [ ev () 0 11 "a"
+                    , ev () 1 2 "b"]
+  assertBool "early" $ _vec' (early' 1 a) ==
+    V.fromList [ ev () 0 1 "b"
+               , ev () 9 20 "a"]
+
+  let a = museq' 10 [ ev () 0 11 "a"
+                    , ev () 1 2 "b"]
+  assertBool "late" $ _vec' (late' 1 a) ==
+    V.fromList [ ev () 1 12 "a"
+               , ev () 2 3 "b"]
+
 testFastAndSlow = TestCase $ do
   let a = museq 10 [((0,20),"a"),((2,2),"b")]
   assertBool "fast" $ (fast 2 a) == museq 5 [((0,10),"a"),((1,1),"b")]
   assertBool "slow" $ (slow 2 a) == museq 20 [((0,40),"a"),((4,4),"b")]
+
+testFastAndSlow' = TestCase $ do
+  let a = museq' 10 [ev () 0 20 "a",ev () 2 2 "b"]
+  assertBool "fast" $ (fast' 2 a) == museq' 5 [ev () 0 10 "a",ev () 1 1 "b"]
+  assertBool "slow" $ (slow' 2 a) == museq' 20 [ev () 0 40 "a",ev () 4 4 "b"]
 
 testDenseAndSparse = TestCase $ do
   let x = museq 10 [((0,15),"a"),((2,2),"b")]
@@ -208,6 +239,13 @@ testDenseAndSparse = TestCase $ do
     L.set dur 10 (museq 5 [((0,15/2),"a"),((1,1),"b")])
   assertBool "sparse" $ sparse 2 x ==
     L.set dur 10 (museq 20 [((0,30),"a"),((4,4),"b")])
+
+testDenseAndSparse' = TestCase $ do
+  let x = museq' 10 [ev () 0 15 "a",ev () 2 2 "b"]
+  assertBool "dense" $ dense' 2 x ==
+    L.set dur' 10 (museq' 5 [ev () 0 (15/2) "a",ev () 1 1 "b"])
+  assertBool "sparse" $ sparse' 2 x ==
+    L.set dur' 10 (museq' 20 [ev () 0 30 "a",ev () 4 4 "b"])
 
 testExplicitReps = TestCase $ do
   let y = Museq {_dur = 3, _sup = 4
@@ -342,6 +380,21 @@ testOverParams = TestCase $ do
     == museq0 2 [(0, M.singleton "freq" 100)]
   assertBool "dropParams" $ dropParams ["freq"] m
     == museq0 2 [(1, M.singleton "amp" 0.1)]
+
+testOverParams' = TestCase $ do
+  let m = museq' 2 [ ev0 () 0 $ M.singleton "freq" 100
+                   , ev0 () 1 $ M.singleton "amp"  0.1 ]
+  return ()
+--  assertBool "overParams" $ overParams [("freq",(+1))] m
+--    == museq0 2 [ (0, M.singleton "freq" 101)
+--                , (1, M.singleton "amp" 0.1)]
+--  assertBool "switchParams" $ switchParams [("freq","guzzle")] m
+--    == museq0 2 [ (0, M.singleton "guzzle" 100)
+--                , (1, M.singleton "amp" 0.1)]
+--  assertBool "keepParams" $ keepParams ["freq"] m
+--    == museq0 2 [(0, M.singleton "freq" 100)]
+--  assertBool "dropParams" $ dropParams ["freq"] m
+--    == museq0 2 [(1, M.singleton "amp" 0.1)]
 
 testBoundaries = TestCase $ do
   assertBool "boundaries" $ boundaries [(0,1),(1,1),(2,3)]
