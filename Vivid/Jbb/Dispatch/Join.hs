@@ -120,7 +120,7 @@ stack' x y = sortMuseq' $ _stack' (labelsToStrings x) (labelsToStrings y)
   _stack' x y = stack'' x $ over vec' (V.map f) y where
     n = unusedName $ map (view evLabel) $ V.toList $ _vec' x
     f :: Ev' String a -> Ev' String a
-    f = over evLabel $ (++) n
+    f = over evLabel $ deleteShowQuotes . (++) n
 
 -- | Allows the two arguments' namespaces to conflict
 stack'' :: Museq' l a -> Museq' l a -> Museq' l a
@@ -249,7 +249,8 @@ meta' x y = _meta' (labelsToStrings x) (labelsToStrings y) where
     xs :: [Ev' String (Museq' String a -> Museq' String b)]
     xs = concatMap V.toList $ unsafeExplicitReps' tbr x
     prefixLabels :: String -> Museq' String a -> Museq' String a
-    prefixLabels s = over vec' $ V.map $ over evLabel $ ((++) s)
+    prefixLabels s = over vec' $ V.map
+      $ over evLabel $ deleteShowQuotes . ((++) s)
     evs = map (over evArc $ \(s,t) -> (RTime s, RTime t))
       $ concat [arc' 0 1 a b $ _evData x $ prefixLabels (_evLabel x) y
                | x <- xs, let a = tr $ x ^. evStart

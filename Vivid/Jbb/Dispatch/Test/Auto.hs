@@ -167,27 +167,26 @@ testStack = TestCase $ do
                            ,((2,5),"y") ] )
 
 testStack' = TestCase $ do
-  let y = museq' 2 [ev "y" 0 3 "y"]
+  let y = museq' 2 [ev () 0 3 "()"]
       z = museq' 3 [ev "z" 1 2 "z"]
-  return ()
   assertBool "stack" $ stack' y z ==
-    L.set dur' (_dur' y) ( museq' 6 [ev "\"y\""  0 3 "y"
-                                    ,ev "a\"z\"" 1 2 "z"
-                                    ,ev "\"y\""  2 5 "y"
-                                    ,ev "a\"z\"" 4 5 "z"
-                                    ,ev "\"y\""  4 7 "y"] )
+    L.set dur' (_dur' y) ( museq' 6 [ ev "()"  0 3 "()"
+                                    , ev "az" 1 2 "z"
+                                    , ev "()"  2 5 "()"
+                                    , ev "az" 4 5 "z"
+                                    , ev "()"  4 7 "()"] )
   assertBool "stack" $ stack' (L.set dur' 1 y) z ==
-    L.set dur' 1 ( museq' 6 [  ev "\"y\""  0 3 "y"
-                            , ev "a\"z\"" 1 2 "z"
-                            , ev "\"y\""  2 5 "y"
-                            , ev "a\"z\"" 4 5 "z"
-                            , ev "\"y\""  4 7 "y" ] )
+    L.set dur' 1 ( museq' 6 [ ev "()"  0 3 "()"
+                            , ev "az" 1 2 "z"
+                            , ev "()"  2 5 "()"
+                            , ev "az" 4 5 "z"
+                            , ev "()"  4 7 "()" ] )
   assertBool "stack, where timeToRepeat differs from timeToPlayThrough"
     $ stack' (L.set sup' 1 y) z ==
-    L.set dur' 2 ( museq' 3 [ ev "\"y\""  0 3 "y"
-                            , ev "a\"z\"" 1 2 "z"
-                            , ev "\"y\""  1 4 "y"
-                            , ev "\"y\""  2 5 "y" ] )
+    L.set dur' 2 ( museq' 3 [ ev "()"  0 3 "()"
+                            , ev "az" 1 2 "z"
+                            , ev "()"  1 4 "()"
+                            , ev "()"  2 5 "()" ] )
 
 testRev = TestCase $ do
   let a = museq 2 [((0,   1),"a")
@@ -479,41 +478,49 @@ testMerge = TestCase $ do
                                 , ((4,5),M.fromList [("amp",2)
                                                     ,("freq",0)]) ] }
 
+a  = Museq' { _dur' = 2, _sup' = 2,
+              _vec' = V.fromList [ ev "a" 0 1 "a" ] }
+bc = Museq' { _dur' = 3, _sup' = 3,
+              _vec' = V.fromList [ ev "b" 0 1 "b"
+                                 , ev "c" 1 2 "c" ] }
+op = Museq' { _dur' = 3, _sup' = 1.5,
+              _vec' = V.singleton $ ev "op" 0 1 $ (++) " " }
+
 testMerge' = TestCase $ do
   let a  = Museq' { _dur' = 2, _sup' = 2,
-                    _vec' = V.fromList [ ev () 0 1 "a" ] }
+                    _vec' = V.fromList [ ev "a" 0 1 "a" ] }
       bc = Museq' { _dur' = 3, _sup' = 3,
-                    _vec' = V.fromList [ ev () 0 1 "b"
-                                       , ev () 1 2 "c" ] }
+                    _vec' = V.fromList [ ev "b" 0 1 "b"
+                                       , ev "c" 1 2 "c" ] }
       op = Museq' { _dur' = 3, _sup' = 1.5,
-                    _vec' = V.singleton $ ev () 0 1 $ (++) " " }
+                    _vec' = V.singleton $ ev "op" 0 1 $ (++) "-" }
   assertBool "merge" $ merge' (++) a bc
     == Museq' { _dur' = 3, _sup' = 6,
-                _vec' = V.fromList [ ev "()" 0 1 "ab"
-                                   , ev "()" 4 5 "ac" ] }
+                _vec' = V.fromList [ ev "ab" 0 1 "ab"
+                                   , ev "ac" 4 5 "ac" ] }
   assertBool "apply" $ (labelsToStrings op <*> labelsToStrings bc)
     == Museq' { _dur' = 3, _sup' = 3,
-                _vec' = V.fromList [ ev "()" 0 1  "b"
-                                   , ev "()" 1.5 2  "c" ] }
+                _vec' = V.fromList [ ev "opb" 0 1  "-b"
+                                   , ev "opc" 1.5 2  "-c" ] }
 
   let a' = Museq' { _dur' = 2, _sup' = 2,
-                    _vec' = V.fromList [ ev () 0 1
+                    _vec' = V.fromList [ ev "a" 0 1
                                          $ M.fromList [ ("amp",2)
                                                       , ("freq",2)] ] }
       bc' = Museq' { _dur' = 3, _sup' = 3,
-                     _vec' = V.fromList [ ev () 0 1 $ M.singleton "amp" 0
-                                        , ev () 1 2 $ M.singleton "freq" 0 ] }
+                     _vec' = V.fromList [ ev "b" 0 1 $ M.singleton "amp" 0
+                                        , ev "c" 1 2 $ M.singleton "freq" 0] }
   assertBool "merge0" $ merge0' a' bc'
     == Museq' { _dur' = 3, _sup' = 6,
-                _vec' = V.fromList [ ev "()" 0 1 $ M.fromList [("amp",2)
+                _vec' = V.fromList [ ev "ab" 0 1 $ M.fromList [("amp",2)
                                                               ,("freq",2)]
-                                   , ev "()" 4 5 $ M.fromList [("amp",2)
+                                   , ev "ac" 4 5 $ M.fromList [("amp",2)
                                                               ,("freq",2)] ] }
   assertBool "mergea" $ mergea' a' bc'
     == Museq' { _dur' = 3, _sup' = 6,
-                _vec' = V.fromList [ ev "()" 0 1 $ M.fromList [("amp",2)
+                _vec' = V.fromList [ ev "ab" 0 1 $ M.fromList [("amp",2)
                                                               ,("freq",2)]
-                                   , ev "()" 4 5 $ M.fromList [("amp",2)
+                                   , ev "ac" 4 5 $ M.fromList [("amp",2)
                                                               ,("freq",0)] ] }
 
 testMeta = TestCase $ do
@@ -530,16 +537,16 @@ testMeta = TestCase $ do
 
 testMeta' = TestCase $ do
   let a = Museq' { _dur' = 2, _sup' = 2,
-                   _vec' = V.fromList [ ev () 0 1 "a" ] }
+                   _vec' = V.fromList [ ev "a" 0 1 "a" ] }
       f = Museq' { _dur' = 3, _sup' = 3,
-                   _vec' = V.fromList [ ev () 0 1 $ fast' 2
-                                      , ev () 2 3 $ early' $ 1/4 ] }
+                   _vec' = V.fromList [ ev "f" 0 1 $ fast' 2
+                                      , ev "g" 2 3 $ early' $ 1/4 ] }
   assertBool "meta" $ meta' f a
     == Museq' { _dur' = 2, _sup' = 6,
-                _vec' = V.fromList [ ev "()" 0     0.5 "a"
-                                   , ev "()" 2     2.75 "a"
-                                   , ev "()" 3     3.5 "a"
-                                   , ev "()" 5.75  6 "a" ] }
+                _vec' = V.fromList [ ev "fa" 0     0.5 "a"
+                                   , ev "ga" 2     2.75 "a"
+                                   , ev "fa" 3     3.5 "a"
+                                   , ev "ga" 5.75  6 "a" ] }
 
 testMuseqNamesAreValid = TestCase $ do
   assertBool "empty Museq has valid names" $

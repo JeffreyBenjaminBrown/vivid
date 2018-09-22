@@ -9,6 +9,8 @@ module Vivid.Jbb.Util (
   -- | = lists
   , unique
   , interleave
+  , deleteAll
+  , deleteShowQuotes
 
   -- | = numbers & time
   , fr -- ^ fromRational
@@ -73,6 +75,16 @@ unique' (a:as) = a : (unique' $ filter (not . (==) a) as)
 interleave :: [a] -> [a] -> [a]
 interleave xs ys = concat (zipWith (\x y -> [x]++[y]) xs ys)
 
+-- | Unlike Data.List.delete, this deletes more than the first instance.
+deleteAll :: Eq a => a -> [a] -> [a]
+deleteAll _ [] = []
+deleteAll a (b:bs) = if a==b then deleteAll a bs
+                     else b : deleteAll a bs
+
+deleteShowQuotes :: String -> String
+  -- TODO ? `deleteAllSubstrings "\""` would be more natural, and maybe safer.
+  -- With this, if someone used '\' on its own, it would disappear.
+deleteShowQuotes = deleteAll '\"' . deleteAll '\\'
 
 -- | = Time
 

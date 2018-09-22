@@ -139,16 +139,14 @@ alignAndJoin',joinEvents' :: forall a b c t. Real t
 alignAndJoin' _ [] _ = []
 alignAndJoin' _ _ [] = []
 alignAndJoin' op as bs
-  | _evArc (head as) <   _evArc (head bs) =
-    alignAndJoin' op (tail as) bs
-  | _evArc (head as) >   _evArc (head bs) =
-    alignAndJoin' op as (tail bs)
-  | _evArc (head as) ==  _evArc (head bs) =
-    joinEvents' op as bs
+  | _evArc (head as) <   _evArc (head bs) = alignAndJoin' op (tail as) bs
+  | _evArc (head as) >   _evArc (head bs) = alignAndJoin' op as (tail bs)
+  | _evArc (head as) ==  _evArc (head bs) = joinEvents' op as bs
 
 joinEvents' op (a:as) bs = joined ++ alignAndJoin' op as bs where
   arc = _evArc a
   bsMatch = takeWhile ((== arc) . _evArc) bs
   joined = over evData (op $ _evData a)
-         . over evLabel ((++) $ _evLabel a) -- concatenate event labels
+         . over evLabel -- concatenate event labels
+           (deleteShowQuotes . ((++) $ _evLabel a))
          <$> bsMatch
