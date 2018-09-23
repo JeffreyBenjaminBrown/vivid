@@ -43,9 +43,18 @@ import Vivid.Jbb.Synths
 import Vivid.Jbb.Util (pickSome)
 
 
-earTrain :: Int -> Int -> IO ()
-  -- 3 kinds of IO: randomness, sound and text
-earTrain numberOfFreqs range = do
+type Test = ( IO () -- ^ how to show them
+            , IO ()) -- ^ how to play them
+
+showChoices :: IO ()
+showChoices = putStrLn $ "\nPlease press a key:\n"
+                      ++ "  s: (s)how what was played\n"
+                      ++ "  a: play (a)nother chord\n"
+                      ++ "  q: (q)uit,\n"
+                      ++ "  any other key: replay the sound."
+
+pickChromaticTest :: Int -> Int -> IO Test
+pickChromaticTest numberOfFreqs range = do
   freqs <- L.sort <$>
     pickSome numberOfFreqs [0 .. fromIntegral $ range-1] -- randomness
   let bass = minimum freqs
@@ -55,22 +64,27 @@ earTrain numberOfFreqs range = do
                                 ++ "  chord: " ++ show normFreqs
                                   ++ " relative to the bass"
       theSound = playFreqs $ fmap (et12toFreq 220) freqs :: IO ()
-      soundAndText :: IO () -> IO ()
-      soundAndText sound = do -- 2 kinds of IO: sound(out) and text(in & out)
-        putStrLn $ "\nPlease press a key:\n"
-          ++ "  s: (s)how what was played\n"
-          ++ "  a: play (a)nother chord\n"
-          ++ "  q: (q)uit,\n"
-          ++ "  any other key: replay the sound."
-        sound
-        getChar >>= \case
-          'a' -> putStrLn "nother sound!\nBTW, the last sound was:"
-                 >> showFreqs >> earTrain numberOfFreqs range
-          's' -> putStrLn "how what was played" >> showFreqs
-                 >> soundAndText sound
-          'q' -> putStrLn "uit" >> return ()
-          otherwise -> putStrLn "replay" >> soundAndText sound
-  soundAndText theSound
+  return (showFreqs, theSound)
+
+earTrain' numberOfFreqs range =
+  earTrain $ pickChromaticTest numberOfFreqs range
+
+earTrain :: IO Test -> IO ()
+earTrain pickTest = pickTest >>= runTest where
+  runTest :: Test -> IO ()
+  runTest test@(showFreqs, playFreqs) = do
+    showChoices
+    playFreqs
+    getChar >>= \case
+      'a' -> putStrLn "nother sound!\nBTW, the last sound was:"
+             >> showFreqs >> earTrain pickTest
+      's' -> putStrLn "how what was played" >> showFreqs
+             >> runTest test
+      'q' -> putStrLn "uit" >> return ()
+      otherwise -> putStrLn "replay" >> runTest test
+
+
+-- | Making sounds
 
 playFreqs :: (Real a, Floating a) => [a] -> IO ()
 playFreqs freqs = do
