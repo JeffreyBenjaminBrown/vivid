@@ -61,6 +61,7 @@ library
     , Vivid.Jbb.Dispatch.Test.Auto
     , Vivid.Jbb.Dispatch.Transform
     , Vivid.Jbb.Dispatch.Types
+    , Vivid.Jbb.EarTrain
     , Vivid.Jbb.Random.MentionsSig
     , Vivid.Jbb.Random.RandomSignal
     , Vivid.Jbb.Random.RandomSynth
