@@ -69,6 +69,7 @@ library
     , Vivid.Jbb.Random.Types.AbstractSignal
     , Vivid.Jbb.Random.Types.Other
     , Vivid.Jbb.ReadHsAsGhci
+    , Vivid.Jbb.Scale
     , Vivid.Jbb.Synths
     , Vivid.Jbb.Synths.Vap
     , Vivid.Jbb.Synths.Zot
