@@ -23,16 +23,19 @@ earTrain numberOfFreqs = do
       theSound = playFreqs $ fmap (et12toFreq 220) freqs :: IO ()
       soundAndText :: IO () -> IO ()
       soundAndText sound = do -- 2 kinds of IO: sound(out) and text(in & out)
-        putStrLn $ "\nPlease press a key:\n" ++
-          "(s)how, (a)nother, (q)uit, or (anything else) replay the sound."
+        putStrLn $ "\nPlease press a key:\n"
+          ++ "(s)how, (a)nother chord, (q)uit, "
+          ++ "or (anything else) replay the sound."
         sound
-        getChar >>= \case 'a' -> putStrLn "nother" >> test numberOfFreqs
-                          's' -> do putStrLn $ "how\n" ++ show bass
-                                      ++ "\n" ++ show normFreqs
-                                    soundAndText sound
-                          'q' -> putStrLn "uit" >> return ()
-                          otherwise -> putStrLn "\nreplay"
-                                       >> soundAndText sound
+        getChar >>= \case
+          'a' -> putStrLn "nother" >> earTrain numberOfFreqs
+          's' -> do putStrLn $ "how\nbass: "
+                      ++ show bass ++ " semitones above A (220 Hz)\nchord: "
+                      ++ show normFreqs ++ " relative to the bass"
+                    soundAndText sound
+          'q' -> putStrLn "uit" >> return ()
+          otherwise -> putStrLn "\nreplay"
+                       >> soundAndText sound
   soundAndText theSound
 
 playFreqs :: (Real a, Floating a) => [a] -> IO ()
