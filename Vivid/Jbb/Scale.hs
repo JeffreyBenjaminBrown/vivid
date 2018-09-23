@@ -1,4 +1,7 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables
+, DataKinds
+, LambdaCase
+#-}
 
 module Vivid.Jbb.Scale where
 
@@ -9,19 +12,33 @@ import Data.Set as S
 
 import Vivid
 import Vivid.Jbb.Synths
+import Vivid.Jbb.Util (pickSome)
 
 
-pickSome :: forall a m. (Eq a, MonadRandom m) => Int -> [a] -> m [a]
-pickSome 0 as = return []
-pickSome n as = do
-  (b  ::  a )    <- pick as
-  (bs :: [a]) <- pickSome (n-1) (L.delete b as)
-  return $ b:bs
+earTrain :: Int -> IO () -- 3 kinds of IO: randomness, sound and text
+earTrain numberOfFreqs = do
+  freqs <- L.sort <$> pickSome numberOfFreqs [0..23] -- randomness
+  let bass = minimum freqs
+      normFreqs = fmap (\n -> n - bass) freqs
+      theSound = playFreqs $ fmap (et12toFreq 220) freqs :: IO ()
+      soundAndText :: IO () -> IO ()
+      soundAndText sound = do -- 2 kinds of IO: sound(out) and text(in & out)
+        putStrLn $ "\nPlease press a key:\n" ++
+          "(s)how, (a)nother, (q)uit, or (anything else) replay the sound."
+        sound
+        getChar >>= \case 'a' -> putStrLn "nother" >> test numberOfFreqs
+                          's' -> do putStrLn $ "how\n" ++ show bass
+                                      ++ "\n" ++ show normFreqs
+                                    soundAndText sound
+                          'q' -> putStrLn "uit" >> return ()
+                          otherwise -> putStrLn "\nreplay"
+                                       >> soundAndText sound
+  soundAndText theSound
 
 playFreqs :: (Real a, Floating a) => [a] -> IO ()
 playFreqs freqs = do
   let msg a = (toI a :: I "freq", 0.2 :: I "amp")
-  synths <- mapM (synth boop . msg) freqs
+  synths <- mapM (synth boopPulse . msg) freqs
   wait 1
   mapM_ free synths
 

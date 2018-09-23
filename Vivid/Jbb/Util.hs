@@ -3,6 +3,9 @@
 module Vivid.Jbb.Util (
   writeTimeAndError
 
+  -- | randomness
+  , pickSome
+
   -- | strings
   , unusedName
 
@@ -36,13 +39,23 @@ import qualified Data.Vector as V
 import Data.Vector.Algorithms.Search
   (binarySearchLBy, binarySearchRBy, Comparison)
 
-import Vivid (getTime)
+import Vivid (getTime, pick, MonadRandom)
 
 
 writeTimeAndError :: String -> IO ()
 writeTimeAndError msg = do now <- getTime
                            appendFile "errors.txt"
                              $ show now ++ ": " ++ msg
+
+
+-- | Randomness
+
+pickSome :: forall a m. (Eq a, MonadRandom m) => Int -> [a] -> m [a]
+pickSome 0 as = return []
+pickSome n as = do
+  (b  ::  a )    <- pick as
+  (bs :: [a]) <- pickSome (n-1) (L.delete b as)
+  return $ b:bs
 
 
 -- | = Strings

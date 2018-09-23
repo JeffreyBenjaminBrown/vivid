@@ -9,6 +9,8 @@ module Vivid.Jbb.Synths (
   , BoopParams
   , BoopParam(..)
   , boop
+  , boopSaw
+  , boopPulse
   , SqfmParams
   , SqfmParam(..)
   , sqfm
@@ -38,6 +40,20 @@ boop = sd ( 0    :: I "freq"
           , 0.01 :: I "amp"
           ) $ do
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "freq"))
+   out 0 [s1, s1]
+
+boopSaw :: SynthDef BoopParams
+boopSaw = sd ( 0    :: I "freq"
+             , 0.01 :: I "amp"
+             ) $ do
+   s1 <- (V::V "amp") ~* saw (freq_ (V::V "freq"))
+   out 0 [s1, s1]
+
+boopPulse :: SynthDef BoopParams
+boopPulse = sd ( 0    :: I "freq"
+               , 0.01 :: I "amp"
+               ) $ do
+   s1 <- (V::V "amp") ~* pulse (freq_ (V::V "freq"))
    out 0 [s1, s1]
 
 
