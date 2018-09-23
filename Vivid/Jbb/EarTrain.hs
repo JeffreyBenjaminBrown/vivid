@@ -1,26 +1,31 @@
 -- | = How to use the ear training function here.
--- 
+--
 -- (0) You'll need Stack and SuperCollider installed.
---     (This can be used from a global Haskell installation,
---     but Stack is easier and safer.)
--- 
+--     (I believe using Stack is both easier and safer than using a global
+--     Haskell installation. However, if you prefer the latter, Tom Murphy
+--     figured out how to do that once, and describes it here:
+--     https://we.lurk.org/hyperkitty/list/haskell-art@we.lurk.org/thread/CQU74SOXJTKH3D3MGKVUSVX57Z6PHUYF/
+--     starting at the phrase "I'm using ghc+cabal, not stack".)
+--
 -- (1) Clone this branch of this repo -- for instance, by running:
 --     git clone -b jbb-update https://github.com/JeffreyBenjaminBrown/vivid/
---     From Bash, visit the repo's root folder.
--- 
--- (2) Start SuperCollider by running:
+--
+-- (2) From Bash, visit the repo's root folder -- probably by running:
+--     cd vivid
+--
+-- (3) Start SuperCollider by running:
 --     bash sc-start.sh
 --     (Or start SuperCollider in whatever other way you prefer.)
--- 
--- (3) Start GHCI (from the root folder visited in step (1)) by running:
+--
+-- (4) Start GHCI by running:
 --     stack ghci
--- 
--- (4) Run "earTrain n r", where:
+--
+-- (5) Run "earTrain n r", where:
 --     n is the number of notes you want to be quizzed on at a time.
 --     r is the size (measured in halfsteps) of the range of pitches
 --       you would like to be quizzed on. (You'll probably want to
 --       use a multiple of 12.)
--- 
+--
 -- (5) Follow the on-screen prompts.
 
 
