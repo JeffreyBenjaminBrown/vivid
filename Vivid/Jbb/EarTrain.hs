@@ -50,6 +50,10 @@ earTrain numberOfFreqs range = do
     pickSome numberOfFreqs [0 .. fromIntegral $ range-1] -- randomness
   let bass = minimum freqs
       normFreqs = fmap (\n -> n - bass) freqs
+      showFreqs = do putStrLn $ "  bass: " ++ show bass
+                                  ++ " semitones above A (220 Hz)\n"
+                                ++ "  chord: " ++ show normFreqs
+                                  ++ " relative to the bass"
       theSound = playFreqs $ fmap (et12toFreq 220) freqs :: IO ()
       soundAndText :: IO () -> IO ()
       soundAndText sound = do -- 2 kinds of IO: sound(out) and text(in & out)
@@ -60,16 +64,12 @@ earTrain numberOfFreqs range = do
           ++ "  any other key: replay the sound."
         sound
         getChar >>= \case
-          'a' -> putStrLn "nother" >> earTrain numberOfFreqs range
-          's' -> do putStrLn $ "how what was played:\n"
-                      ++ "  bass: " ++ show bass
-                        ++ " semitones above A (220 Hz)\n"
-                      ++ "  chord: " ++ show normFreqs
-                        ++ " relative to the bass"
-                    soundAndText sound
+          'a' -> putStrLn "nother sound!\nBTW, the last sound was:"
+                 >> showFreqs >> earTrain numberOfFreqs range
+          's' -> putStrLn "how what was played" >> showFreqs
+                 >> soundAndText sound
           'q' -> putStrLn "uit" >> return ()
-          otherwise -> putStrLn "\nreplay"
-                       >> soundAndText sound
+          otherwise -> putStrLn "replay" >> soundAndText sound
   soundAndText theSound
 
 playFreqs :: (Real a, Floating a) => [a] -> IO ()
