@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Vivid.Jbb.Scale where
 
 import Data.Fixed (mod',div')
@@ -6,6 +8,25 @@ import Data.List as L
 import Data.Set as S
 
 import Vivid
+import Vivid.Jbb.Synths
+
+
+pickSome :: forall a m. (Eq a, MonadRandom m) => Int -> [a] -> m [a]
+pickSome 0 as = return []
+pickSome n as = do
+  (b  ::  a )    <- pick as
+  (bs :: [a]) <- pickSome (n-1) (L.delete b as)
+  return $ b:bs
+
+playFreqs :: (Real a, Floating a) => [a] -> IO ()
+playFreqs freqs = do
+  let msg a = (toI a :: I "freq", 0.2 :: I "amp")
+  synths <- mapM (synth boop . msg) freqs
+  wait 1
+  mapM_ free synths
+
+et12toFreq :: Floating a => a -> a -> a
+et12toFreq baseFreq p = 2**(p/12) * baseFreq
 
 
 -- | = scales
