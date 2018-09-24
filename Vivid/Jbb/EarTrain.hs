@@ -55,7 +55,19 @@ type ShowAnswer = IO () -- ^ display something, e.g. "it was a major chord"
 type Test = (PlayQuestion, ShowAnswer)
 
 
--- | = The top IO function
+-- | = User-facing quiz functions.
+
+-- | quizzes from subsets drawn uniformly from a chromatic range
+earTrainChromatic :: Int -> Int -> IO ()
+earTrainChromatic numberOfFreqs range =
+  earTrain $ pickChromaticTest numberOfFreqs range
+
+-- | quizzes from a list of chords
+earTrainFromChordList :: [[Float]] -> IO ()
+earTrainFromChordList chords = earTrain $ pickTestFromChordList chords
+
+
+-- | = The top IO workhorse
 
 earTrain :: IO Test -> IO ()
 earTrain pickTest = pickTest >>= runTest where
@@ -79,12 +91,10 @@ showChoices = putStrLn $ "\nPlease press a key:\n"
                       ++ "  any other key: replay the sound."
 
 
--- | = pick uniformly from a chromatic range
+-- | = Test-producing functions
 
-earTrainChromatic :: Int -> Int -> IO ()
-earTrainChromatic numberOfFreqs range =
-  earTrain $ pickChromaticTest numberOfFreqs range
-
+-- | For earTrainChromatic,
+-- picks uniformly from a chromatic range
 pickChromaticTest :: Int -> Int -> IO Test
 pickChromaticTest numberOfFreqs range = do
   freqs <- L.sort <$>
@@ -98,12 +108,8 @@ pickChromaticTest numberOfFreqs range = do
       playSound = playFreqs $ fmap (et12toFreq 220) freqs :: IO ()
   return (playSound, showFreqs)
 
-
--- | = pick from a custom list of chords
-
-earTrainFromChordList :: [[Float]] -> IO ()
-earTrainFromChordList chords = earTrain $ pickTestFromChordList chords
-
+-- | For earTrainFromChordList,
+-- builds and picks Tests from a list of chords.
 pickTestFromChordList :: [[Float]] -> IO Test
 pickTestFromChordList chords = do
   transpose <- pick [0..11]
