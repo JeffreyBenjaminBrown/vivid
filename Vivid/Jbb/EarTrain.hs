@@ -67,6 +67,10 @@ earTrain3ClusterFreeChromatic :: Int -> Int -> IO ()
 earTrain3ClusterFreeChromatic numberOfFreqs range =
   earTrain $ pick3ClusterFreeTest numberOfFreqs range
 
+earTrainFromScale :: Int -> [Float] -> IO ()
+earTrainFromScale numberOfFreqs scale =
+  earTrain $ pickTestFromScale scale numberOfFreqs
+
 -- | quizzes from a list of chords
 earTrainFromChordList :: [[Float]] -> IO ()
 earTrainFromChordList chords = earTrain $ pickTestFromChordList chords
@@ -96,15 +100,13 @@ showChoices = putStrLn $ "\nPlease press a key:\n"
                       ++ "  any other key: replay the sound."
 
 
--- | = Test-producing functions
+-- | = Test-producing functions (used by earTrainChromatic)
 
--- | For earTrainChromatic,
--- picks uniformly from a chromatic range
-_pickChromaticTest :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
-                   => (a -> [a] -> [a]) -> Int -> Int -> IO Test
-_pickChromaticTest f numberOfFreqs range = do
+pickTestFromPitchSet :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
+                   => (a -> [a] -> [a]) -> [a] -> Int -> IO Test
+pickTestFromPitchSet f range numberOfFreqs = do
   freqs <- L.sort <$>
-    pickSome' f numberOfFreqs [0 .. fromIntegral $ range-1] -- randomness
+    pickSome' f numberOfFreqs range -- randomness
   let bass = minimum freqs
       normFreqs = fmap (\n -> n - bass) freqs
       showFreqs = putStrLn $ "  bass: " ++ show bass
@@ -114,11 +116,20 @@ _pickChromaticTest f numberOfFreqs range = do
       playSound = playFreqs $ fmap (et12toFreq 220) freqs :: IO ()
   return (playSound, showFreqs)
 
+pickTestFromScale :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
+  => [a] -> Int -> IO Test
+pickTestFromScale = pickTestFromPitchSet L.delete 
+
+_pickChromaticTest :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
+                   => (a -> [a] -> [a]) -> Int -> Int -> IO Test
+_pickChromaticTest f numberOfFreqs range =
+  pickTestFromPitchSet f (map fromIntegral [0..range]) numberOfFreqs
+
 pickChromaticTest = _pickChromaticTest L.delete
+
 pick3ClusterFreeTest = _pickChromaticTest no3Clusters
 
--- | For earTrainFromChordList,
--- builds and picks Tests from a list of chords.
+-- | builds and picks Tests from a list of chords.
 pickTestFromChordList :: [[Float]] -> IO Test
 pickTestFromChordList chords = do
   transpose <- pick [0..11]
