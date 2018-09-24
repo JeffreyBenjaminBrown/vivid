@@ -29,6 +29,9 @@
 --         of chords (in 12 tone equal temperament) you want to be quizzed on.
 --         For instance, `earTrainFromChordList [[0,3,7],[0,4,7]] would quiz
 --         you on the difference between major and minor triads.
+--     A workflow I like is to start with earTrainChromatic, and when
+--     something confuses me, I'll use earTrainFromChordList to focus on
+--     the alternatives I was unable to distinguish.
 --
 -- (5) Follow the on-screen prompts.
 
