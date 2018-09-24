@@ -20,11 +20,15 @@
 -- (4) Start GHCI by running:
 --     stack ghci
 --
--- (5) Run "earTrain n r", where:
---     n is the number of notes you want to be quizzed on at a time.
---     r is the size (measured in halfsteps) of the range of pitches
---       you would like to be quizzed on. (You'll probably want to
---       use a multiple of 12.)
+-- (5) Try one of these
+--     (a) earTrainChromatic n k, where:
+--         n is the number of notes you want to be quizzed on at a time.
+--         r is the size (measured in halfsteps) of the range of pitches
+--           you would like to be quizzed on.
+--     (b) earTrainFromChordList as, where `as :: [[Float]]` is a list
+--         of chords (in 12 tone equal temperament) you want to be quizzed on.
+--         For instance, `earTrainFromChordList [[0,3,7],[0,4,7]] would quiz
+--         you on the difference between major and minor triads.
 --
 -- (5) Follow the on-screen prompts.
 
@@ -43,36 +47,17 @@ import Vivid.Jbb.Synths
 import Vivid.Jbb.Util (pickSome)
 
 
-type Test = ( IO () -- ^ how to show them
-            , IO ()) -- ^ how to play them
+type PlayQuestion = IO () -- ^ make a sound, for the user to identify
+type ShowAnswer = IO () -- ^ display something, e.g. "it was a major chord"
+type Test = (PlayQuestion, ShowAnswer)
 
-showChoices :: IO ()
-showChoices = putStrLn $ "\nPlease press a key:\n"
-                      ++ "  s: (s)how what was played\n"
-                      ++ "  a: play (a)nother chord\n"
-                      ++ "  q: (q)uit,\n"
-                      ++ "  any other key: replay the sound."
 
-pickChromaticTest :: Int -> Int -> IO Test
-pickChromaticTest numberOfFreqs range = do
-  freqs <- L.sort <$>
-    pickSome numberOfFreqs [0 .. fromIntegral $ range-1] -- randomness
-  let bass = minimum freqs
-      normFreqs = fmap (\n -> n - bass) freqs
-      showFreqs = do putStrLn $ "  bass: " ++ show bass
-                                  ++ " semitones above A (220 Hz)\n"
-                                ++ "  chord: " ++ show normFreqs
-                                  ++ " relative to the bass"
-      theSound = playFreqs $ fmap (et12toFreq 220) freqs :: IO ()
-  return (showFreqs, theSound)
-
-earTrain' numberOfFreqs range =
-  earTrain $ pickChromaticTest numberOfFreqs range
+-- | = The top IO function
 
 earTrain :: IO Test -> IO ()
 earTrain pickTest = pickTest >>= runTest where
   runTest :: Test -> IO ()
-  runTest test@(showFreqs, playFreqs) = do
+  runTest test@(playFreqs, showFreqs) = do
     showChoices
     playFreqs
     getChar >>= \case
@@ -83,12 +68,55 @@ earTrain pickTest = pickTest >>= runTest where
       'q' -> putStrLn "uit" >> return ()
       otherwise -> putStrLn "replay" >> runTest test
 
+showChoices :: IO ()
+showChoices = putStrLn $ "\nPlease press a key:\n"
+                      ++ "  s: (s)how what was played\n"
+                      ++ "  a: play (a)nother chord\n"
+                      ++ "  q: (q)uit,\n"
+                      ++ "  any other key: replay the sound."
 
--- | Making sounds
+
+-- | = pick uniformly from a chromatic range
+
+earTrainChromatic :: Int -> Int -> IO ()
+earTrainChromatic numberOfFreqs range =
+  earTrain $ pickChromaticTest numberOfFreqs range
+
+pickChromaticTest :: Int -> Int -> IO Test
+pickChromaticTest numberOfFreqs range = do
+  freqs <- L.sort <$>
+    pickSome numberOfFreqs [0 .. fromIntegral $ range-1] -- randomness
+  let bass = minimum freqs
+      normFreqs = fmap (\n -> n - bass) freqs
+      showFreqs = putStrLn $ "  bass: " ++ show bass
+                               ++ " semitones above A (220 Hz)\n"
+                             ++ "  chord: " ++ show normFreqs
+                               ++ " relative to the bass"
+      playSound = playFreqs $ fmap (et12toFreq 220) freqs :: IO ()
+  return (playSound, showFreqs)
+
+
+-- | = pick from a custom list of chords
+
+earTrainFromChordList :: [[Float]] -> IO ()
+earTrainFromChordList chords = earTrain $ pickTestFromChordList chords
+
+pickTestFromChordList :: [[Float]] -> IO Test
+pickTestFromChordList chords = do
+  transpose <- pick [0..11]
+  freqs <- pick chords
+  let playSound = playFreqs $ fmap (et12toFreq 220)
+                  $ fmap ((+) transpose) freqs :: IO ()
+      showFreqs = putStrLn $ "  transpose: " ++ show transpose
+                           ++ "\n  chord: " ++ show freqs
+  return (playSound, showFreqs)
+
+
+-- | = Making sounds
 
 playFreqs :: (Real a, Floating a) => [a] -> IO ()
 playFreqs freqs = do
-  let msg a = (toI a :: I "freq", 0.2 :: I "amp")
+  let msg a = (toI a :: I "freq", 0.1 :: I "amp")
   synths <- mapM (synth boopPulse . msg) freqs
   wait 1
   mapM_ free synths
