@@ -47,7 +47,7 @@ import Data.List as L
 
 import Vivid
 import Vivid.Jbb.Synths
-import Vivid.Jbb.Util (pickSome)
+import Vivid.Jbb.Util
 
 
 type PlayQuestion = IO () -- ^ make a sound, for the user to identify
@@ -61,6 +61,11 @@ type Test = (PlayQuestion, ShowAnswer)
 earTrainChromatic :: Int -> Int -> IO ()
 earTrainChromatic numberOfFreqs range =
   earTrain $ pickChromaticTest numberOfFreqs range
+
+-- | like earTrainChromatic, but no 3 consecutive chromatically adjacent tones
+earTrain3ClusterFreeChromatic :: Int -> Int -> IO ()
+earTrain3ClusterFreeChromatic numberOfFreqs range =
+  earTrain $ pick3ClusterFreeTest numberOfFreqs range
 
 -- | quizzes from a list of chords
 earTrainFromChordList :: [[Float]] -> IO ()
@@ -95,10 +100,11 @@ showChoices = putStrLn $ "\nPlease press a key:\n"
 
 -- | For earTrainChromatic,
 -- picks uniformly from a chromatic range
-pickChromaticTest :: Int -> Int -> IO Test
-pickChromaticTest numberOfFreqs range = do
+_pickChromaticTest :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
+                   => (a -> [a] -> [a]) -> Int -> Int -> IO Test
+_pickChromaticTest f numberOfFreqs range = do
   freqs <- L.sort <$>
-    pickSome numberOfFreqs [0 .. fromIntegral $ range-1] -- randomness
+    pickSome' f numberOfFreqs [0 .. fromIntegral $ range-1] -- randomness
   let bass = minimum freqs
       normFreqs = fmap (\n -> n - bass) freqs
       showFreqs = putStrLn $ "  bass: " ++ show bass
@@ -107,6 +113,9 @@ pickChromaticTest numberOfFreqs range = do
                                ++ " relative to the bass"
       playSound = playFreqs $ fmap (et12toFreq 220) freqs :: IO ()
   return (playSound, showFreqs)
+
+pickChromaticTest = _pickChromaticTest L.delete
+pick3ClusterFreeTest = _pickChromaticTest no3Clusters
 
 -- | For earTrainFromChordList,
 -- builds and picks Tests from a list of chords.
