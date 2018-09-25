@@ -38,11 +38,16 @@
 
 -- | A study plan: the Victor Burges ear-training program
 --
--- When I was in high school, I read an ad in Guitar Magazine for a set of
--- ear training tapes by Victor Burges. Over months I scrounged up $100 
--- and bought them. They worked like a dream: 
--- after two months of training maybe 20 minutes a day,
--- I could hear a new melody and know how to play it.
+-- If you understand how to run the program, but you're not sure what to
+-- do with it, or it seems too difficult, this comment explains how to
+-- start from zero and build up in small incremental steps.
+--
+-- When I was in high school, I read an ad in Guitar Magazine and ended up
+-- (after saving for months) buying the ear training cassette tapes
+-- by Victor Burges.
+-- They worked: After two months of training maybe 20 minutes a day,
+-- I could hear a new song on the smooth jazz radio sation in
+-- Guatemala City and know how to play the melody, and sometimes the chords.
 --
 -- If I recall correctly, Burges first taught perfect fifths.
 -- First he would assign homework: You had to find a piano (or something),
@@ -61,17 +66,22 @@
 -- try to sing a fifth above or below, then play the "answer" and see if
 -- you were right. Let's call that test "producing the interval".
 --
--- If you couldn't pass the "producing the interval" test, you had to
+-- If you can't yet pass the "producing the interval" test, you need to
 -- sing another octave of the interval. Cycle through those two steps
--- until you pass the second one.
+-- until you pass the second one. (Don't burn out! After 20 minutes, if
+-- you feel drained, you deserve at least an hour's rest. Sensory
+-- expansion is weird; holding many brief study periods is
+-- surprisingly powerful, and cramming is surprisingly ineffective.)
 --
--- Now you know perfect fifths! Next, do the same for fourths: Sing an
+-- Once you've passed the "producing the interval" test, you know perfect
+-- fifths! Next, do the same thing to learn fourths: Sing an
 -- octave of fourths (ascending and descending), then test yourself at
 -- producing fourths.
 --
--- Now that you know two intervals, Vivid.EarTrain becomes useful:
+-- Now that you can produce two intervals, you need to learn to
+-- distinguish them. (Here is where Vivid.EarTrain becomes useful.)
 -- Burge's next step was to ask you to distinguish between fourths and fifths.
--- You can ask this software to do that, by running
+-- You can have this software do that, by running
 -- `earTrainFromChordList [[0,7],[0,5]]`
 --
 -- If I recall correctly, the rest of the Burges program was:
@@ -100,10 +110,10 @@
 -- Now you know all the intervals! Those are roughly ordered by increasing
 -- difficulty.
 --
--- An advantage of this software over the audio tapes of my youth is that
+-- An advantage of Vivid.EarTrain over the cassettes of my youth is that
 -- if you find yourself having trouble distinguishing two (or a few) sounds,
--- you can focus on exactly those sounds. For instance, suppose you've
--- almost completed the above program: you're testing yourself on all
+-- you can focus on exactly those. For instance, suppose you've
+-- almost completed the above program. You're testing yourself on all
 -- the intervals:
 -- `earTrainFromChordList $ (\x -> [0,x]) <$> [1..11]`
 -- and you keep confusing minor sevenths for major seconds. You can put
@@ -112,15 +122,15 @@
 -- Similarly, if you yourself always nailing a certain kind of question,
 -- you can remove it from the set of things you're being tested on, to
 -- save time.
--- 
+--
 -- Here are the triads, again roughly in order of increasing difficulty:
 -- major = [0,4,7]
 -- minor = [0,3,7]
 -- diminished = [0,3,6]
 -- augmented = [0,4,8]
 -- You don't have to learn all the intervals before you start learning
--- the triads. I think Burges introduced major and minor chords around
--- the same time as major and minor thirds, maybe even before.
+-- the triads. I think Burges introduces major and minor chords around
+-- the same time as major and minor thirds -- maybe even before.
 --
 -- Here are the common 7th chords, again in roughly increasing difficulty:
 -- dom 7 = [0,4,7,10]
@@ -151,8 +161,10 @@
 -- You'll find yourself recognizing inverted chords even before you learn
 -- how to recognize which inversion it is.
 --
--- This long comment only describes using `earTrainFromChordList`, but
--- all the functions that begin with earTrain are useful.
+-- This long comment only describes using `earTrainFromChordList`, because
+-- that's the way to get started. Once you have a good vocabulary,
+-- the other user-facting functions (the ones that begin with earTrain)
+-- will become useful.
 
 
 {-# LANGUAGE ScopedTypeVariables
@@ -239,7 +251,7 @@ pickTestFromPitchSet f range numberOfFreqs = do
 
 pickTestFromScale :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
   => [a] -> Int -> IO Test
-pickTestFromScale = pickTestFromPitchSet L.delete 
+pickTestFromScale = pickTestFromPitchSet L.delete
 
 _pickChromaticTest :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
                    => (a -> [a] -> [a]) -> Int -> Int -> IO Test
