@@ -1,3 +1,11 @@
+-- | == Table of contents
+-- (1) How to run the ear training functions here.
+-- (2) A study plan: the Victor Burges ear-training program
+-- (3) Using Vivid.EarTrain for other stuff: perfect pitch,
+--     perfect rhythm, microtonal harmony, distinguishing timbres ...
+-- (4) The code
+
+
 -- | = How to run the ear training functions here.
 --
 -- (0) You'll need Stack and SuperCollider installed.
@@ -36,7 +44,7 @@
 -- (5) Follow the on-screen prompts.
 
 
--- | A study plan: the Victor Burges ear-training program
+-- | = A study plan: the Victor Burges ear-training program
 --
 -- If you understand how to run the program, but you're not sure what to
 -- do with it, or it seems too difficult, this comment explains how to
@@ -165,6 +173,20 @@
 -- that's the way to get started. Once you have a good vocabulary,
 -- the other user-facting functions (the ones that begin with earTrain)
 -- will become useful.
+
+
+-- | = Using Vivid.EarTrain for other stuff: perfect pitch,
+--     perfect rhythm, microtonal harmony, distinguishing timbres ...
+--
+-- If you can pair sounds with labels, `runEarTests` will let you drill
+-- yourself on those pairs. It doesn't have to be 12 tone equal temperament;
+-- if you replace every instance of 12 with 31 in this file, you would
+-- be training for microtonal harmony[1]. You could also train for perfect
+-- pitch, or perfect meter (90 bpm! 4 Hz!), or learn to distinguish
+-- different kinds of timbres ("pulse wave with a hard low pass filter at
+-- 500 Hz!").
+--
+-- [1] 31 ET is the best microtonal system: https://www.reddit.com/r/haskell/comments/9ivf5e/vivideartrain_learn_to_recognize_intervals_and/e6nk34s/
 
 
 {-# LANGUAGE ScopedTypeVariables
