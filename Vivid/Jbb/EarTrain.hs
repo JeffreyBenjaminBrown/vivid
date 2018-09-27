@@ -228,7 +228,13 @@ earTrainFromScale numberOfFreqs scale =
 
 -- | quizzes from a list of chords
 earTrainFromChordList :: [[Float]] -> IO ()
-earTrainFromChordList chords = runEarTests $ pickTestFromChordList chords
+earTrainFromChordList chords =
+  runEarTests $ pickTestFromChordList chords
+
+-- | quizzes from major-minor polychords
+earTrainPolyChords :: IO ()
+earTrainPolyChords =
+  runEarTests $ pickPolyChordTest [[0,3,7],[0,4,7],[0,3,6],[0,4,8]]
 
 
 -- | = The top IO workhorse
@@ -293,6 +299,20 @@ pickTestFromChordList chords = do
                   $ fmap ((+) transpose) freqs :: IO ()
       showFreqs = putStrLn $ "  transpose: " ++ show transpose
                            ++ "\n  chord: " ++ show freqs
+  return (playSound, showFreqs)
+
+-- | picks two chords, plays them in different octaves
+pickPolyChordTest :: [[Float]] -> IO Test
+pickPolyChordTest chords = do
+  transposeLo  <- pick [0..11]
+  transposeHi <- pick [0..11]
+  freqsLo <- pick chords
+  freqsHi <- pick chords
+  let allTransposedFreqs = fmap ((+) transposeLo)        freqsLo
+                        ++ fmap ((+) $ transposeHi + 17) freqsHi
+      least = minimum allTransposedFreqs
+      playSound = playFreqs $ fmap (et12toFreq 110) allTransposedFreqs
+      showFreqs = putStrLn $ show $ ((+) (- least)) <$> allTransposedFreqs
   return (playSound, showFreqs)
 
 
