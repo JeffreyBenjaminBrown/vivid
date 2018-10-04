@@ -8,26 +8,30 @@
 ** [dubious] Represent a Museq in more than one way
 *** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
 **** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14,
+* TODO use meta'
 * TODO polyphonic refactor
-** TODO test overlapping label problems for Join.*
-** TODO consider what happens to (maybe) Ev names after Join.hs ops
-*** after Transform.hs ops: nothing changes
-*** Join.append: nothing changes
-*** Join.stack: make two versions, stack' guaranteeing distinctness*
-**** in stack', the names of one argument are prefixed with the least name not among those of the second argument
-**** in both stack and stack', Nothing-named events require no extra work -- later they will be distinguished
-**** in stack, like-named events from the two arguments will interact
-*** TODO ??? Join.merge
-seq 1         = a f          , a f
-seq 2         = d    , d
-seq 1 + seq 2 = a f d, a f d
-**** assign names to everything before merge
-**** join names with (++)
-**** otherwise the same algorithm
-*** Join.meta: suppose the Museq (Museq a -> Museq b) has two anonymous overlapping transformations, and the Museq a has two like-named serial operations.
-**** Give the meta-museq unique names, then just (++) names from the two args
-** merges should be polymomrphic
-*** currently mergea, merge0, merge1 :: Museq Msg -> Museq Msg -> Museq Msg
+** demo'.hs: provide the entire synth state in each Event
+* TODO compute note off from event ends
+** motivation
+*** currently (I think?), note offs must be programmed explicitly
+*** that strategy is subject to bugs like this
+**** if v freq = 50-50 duty cycle at freq, initially on, period 1
+**** then this sucks : append' (v 200) (stack' (v 100) (early' (1/2) $ v 300))
+**** the resulting Museq'
+  "a1" :
+    0   on  200
+    0.5 off 200
+    1   on  100
+    1.5 off 100
+  "aa1":
+    1   off 300
+    1.5 on  300
+**** the story: the 200 frequency "interrupts" the 300 frequency before it gets silenced, so the 300 frequency ends up with a 3/4 duty cycle
+** plan : instead, make a note-off automatically when each event ends
+*** but only send a note-off if no other voice has started yet
+** TODO concept ? what if there are multiple ongoing events in the same voice
+** TODO research ? where do note-offs happen
+*** I think they aren't automatically generated anywhere, but I'm not sure
 * fix
 ** it should be an error for two notes with the same name to go to two different `SynthDefEnum`s
 ** use museqIsValid in join|transform tests
