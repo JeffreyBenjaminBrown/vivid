@@ -117,10 +117,13 @@ stack' :: forall a l m. (Show l, Show m)
 stack' x y = sortMuseq' $ _stack' (labelsToStrings x) (labelsToStrings y)
   where
   _stack' :: forall a. Museq' String a -> Museq' String a -> Museq' String a
-  _stack' x y = stack'' x $ over vec' (V.map f) y where
-    n = unusedName $ map (view evLabel) $ V.toList $ _vec' x
-    f :: Ev' String a -> Ev' String a
-    f = over evLabel $ deleteShowQuotes . (++) n
+  _stack' x y = stack'' (over vec' (V.map fx) x) (over vec' (V.map fy) y)
+    where -- append a label unused in x's events to all of y's event labels
+    fx :: Ev' String a -> Ev' String a
+    fx = over evLabel $ deleteShowQuotes
+    fy :: Ev' String a -> Ev' String a
+    fy = over evLabel $ deleteShowQuotes . (++) unusedInX
+    unusedInX = unusedName $ map (view evLabel) $ V.toList $ _vec' x
 
 -- | Allows the two arguments' namespaces to conflict
 stack'' :: Museq' l a -> Museq' l a -> Museq' l a
