@@ -13,11 +13,11 @@ module Vivid.Jbb.Dispatch.Types (
   , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
   , NamedWith, mNamed, anon
-  , Action(..), actionSynth
+  , Action(..), actionToSynth
   , Ev     , showEvs
   , Event(..), showEvs', ev, ev0
   , evArc   , evLabel   , evData   , evStart   , evEnd
-  , toEventTime
+  , eventRTimeToEventTime
   , Ev'
   , Museq(..) , dur , sup , vec
   , emptyMuseq
@@ -90,7 +90,7 @@ type Msg = M.Map ParamName Float
 type NamedWith t a = (t, a)
 
 mNamed :: t -> a -> NamedWith (Maybe t) a
-mNamed n a = (Just n, a)
+mNamed n = (Just n , )
 
 anon :: a -> NamedWith (Maybe t) a
 anon = (Nothing , )
@@ -101,18 +101,20 @@ data Msg' sdArgs where
           , Subset (InnerVars params) sdArgs)
        => params -> Msg' sdArgs
 
+-- | The `SynthDefEnum` gives the kind of synth.
+-- The `SynthName` gives the name of the particular instance of that kind.
 data Action = New  SynthDefEnum SynthName
             | Free SynthDefEnum SynthName
             | Send SynthDefEnum SynthName Msg
   deriving (Show,Eq,Ord)
 
-actionSynth :: Action -> (SynthDefEnum, SynthName)
-actionSynth (New  s n  ) = (s,n)
-actionSynth (Free s n  ) = (s,n)
-actionSynth (Send s n _) = (s,n)
+actionToSynth :: Action -> (SynthDefEnum, SynthName)
+actionToSynth (New  s n  ) = (s,n)
+actionToSynth (Free s n  ) = (s,n)
+actionToSynth (Send s n _) = (s,n)
 
 
-type Ev a = ( (RTime,RTime), a)
+type Ev a = ( (RTime,RTime), a) -- ^ start and end time, I guess
 
 showEvs :: (Foldable t, Show a) => t (Ev a) -> String
 showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs
@@ -120,14 +122,13 @@ showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs
 data Event time label a = Event { _evLabel :: label
                                 , _evArc :: (time,time)
                                 , _evData :: a} deriving (Show, Eq, Ord)
+makeLenses ''Event
 
 type Ev' = Event RTime
 
-toEventTime :: Event RTime l a -> Event Time l a
-toEventTime ev = let (s,t) = _evArc ev
-                 in ev { _evArc = (tr s, tr t) }
-
-makeLenses ''Event
+eventRTimeToEventTime :: Event RTime l a -> Event Time l a
+eventRTimeToEventTime ev = let (s,t) = _evArc ev
+                           in ev { _evArc = (tr s, tr t) }
 
 evStart, evEnd :: Lens' (Event t l a) t
 evStart = evArc . _1
@@ -137,14 +138,14 @@ showEvs' :: (Foldable t, Show a, Show label)
         => t (Ev' label a) -> String
 showEvs' = foldl (\acc ev -> acc ++ show ev) "\n"
 
-ev :: l -> Rational -> Rational -> a -> Ev' l a -- ^ use fewer parens, commas
+ev :: l -> Rational -> Rational -> a -> Ev' l a
 ev l s e a = Event l (fr s, fr e) a
 
-ev0 :: l -> Rational -> a -> Ev' l a -- ^ innstantaneous
+ev0 :: l -> Rational -> a -> Ev' l a -- ^ duration-0 events
 ev0 l t a = Event l (fr t, fr t) a
-  
+
 data Museq a = Museq {
-  _dur :: RDuration -- ^ the play duration of the loop
+    _dur :: RDuration -- ^ the play duration of the loop
   , _sup :: RDuration -- ^ the supremum of the possible RTime values
     -- in `_vec`. If this is greater than `dur`, the `Museq`will rotate
     -- through different sections of the `vec` each time it plays.
@@ -152,7 +153,6 @@ data Museq a = Museq {
     -- once each time it plays.
   , _vec :: V.Vector (Ev a) }
   deriving (Show,Eq)
-
 makeLenses ''Museq
 
 instance Functor Museq where
@@ -170,7 +170,6 @@ data Museq' label a = Museq' {
     -- once each time it plays.
   , _vec' :: V.Vector (Ev' label a) }
   deriving (Show,Eq)
-
 makeLenses ''Museq'
 
 instance Functor (Museq' label) where
@@ -187,17 +186,15 @@ data SynthRegister = -- per-synth boilerplate
                 , _vaps  :: M.Map SynthName (Synth VapParams)
                 , _sqfms :: M.Map SynthName (Synth SqfmParams)
                 } deriving (Show, Eq, Ord)
-
 makeLenses ''SynthRegister
 
 emptySynthRegister :: SynthRegister
 emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
-type Note        = NamedWith String  (SynthDefEnum, Msg)
+type Note  = NamedWith String (SynthDefEnum, Msg)
 
 data Note' = Note' { _noteSd :: SynthDefEnum
                    , _noteMsg :: Msg } deriving (Show, Eq)
-
 makeLenses ''Note'
 
 data Dispatch = Dispatch {
@@ -207,31 +204,33 @@ data Dispatch = Dispatch {
   , mTempoPeriod :: MVar Duration
   }
 
--- | "new" because it's not really empty, except for `time0`
+-- | PITFALL: the `mTime0` field begins empty.
 newDispatch :: IO Dispatch
 newDispatch = do
-  mTimeMuseqs <- newMVar M.empty
-  mReg <- newMVar emptySynthRegister
-  mTime0 <- newEmptyMVar
+  mTimeMuseqs  <- newMVar M.empty
+  mReg         <- newMVar emptySynthRegister
+  mTime0       <- newEmptyMVar
   mTempoPeriod <- newMVar 1
-  return Dispatch
-    { mMuseqs = mTimeMuseqs,  mReg         = mReg
-    , mTime0  = mTime0     ,  mTempoPeriod = mTempoPeriod }
+  return Dispatch { mMuseqs      = mTimeMuseqs
+                  , mReg         = mReg
+                  , mTime0       = mTime0
+                  , mTempoPeriod = mTempoPeriod }
 
 data Dispatch' = Dispatch' {
-    mMuseqs' :: MVar (M.Map MuseqName (Museq' String Note'))
-  , mReg' :: MVar SynthRegister
-  , mTime0' :: MVar Time
+    mMuseqs'      :: MVar (M.Map MuseqName (Museq' String Note'))
+  , mReg'         :: MVar SynthRegister
+  , mTime0'       :: MVar Time
   , mTempoPeriod' :: MVar Duration
   }
 
 -- | "new" because it's not really empty, except for `time0`
 newDispatch' :: IO Dispatch'
 newDispatch' = do
-  mTimeMuseqs <- newMVar M.empty
-  mReg <- newMVar emptySynthRegister
-  mTime0 <- newEmptyMVar
+  mTimeMuseqs  <- newMVar M.empty
+  mReg         <- newMVar emptySynthRegister
+  mTime0       <- newEmptyMVar
   mTempoPeriod <- newMVar 1
-  return Dispatch'
-    { mMuseqs' = mTimeMuseqs,  mReg'         = mReg
-    , mTime0'  = mTime0     ,  mTempoPeriod' = mTempoPeriod }
+  return Dispatch' { mMuseqs'      = mTimeMuseqs
+                   , mReg'         = mReg
+                   , mTime0'       = mTime0
+                   , mTempoPeriod' = mTempoPeriod }

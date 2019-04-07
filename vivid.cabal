@@ -51,8 +51,7 @@ license:             GPL
 
 library
   exposed-modules:
-    Vivid.Jbb
-    , Vivid.Jbb.Dispatch.Config
+      Vivid.Jbb.Dispatch.Config
     , Vivid.Jbb.Dispatch.Dispatch
     , Vivid.Jbb.Dispatch.Join
     , Vivid.Jbb.Dispatch.Internal.Join

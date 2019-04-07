@@ -462,7 +462,7 @@ arc' time0 tempoPeriod from to m =
         -- Because chopStarts can leave an old event starting after it ended.
       dropImpossibles = filter $ uncurry (<=) . view evArc
       futzTimes :: Event RTime l a -> Event Time l a
-      futzTimes ev = over evArc f $ toEventTime ev
+      futzTimes ev = over evArc f $ eventRTimeToEventTime ev
         where f = chopEnds . chopStarts . correctAbsoluteTimes
    in dropImpossibles $
       map futzTimes
