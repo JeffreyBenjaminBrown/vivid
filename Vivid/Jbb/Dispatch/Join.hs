@@ -213,7 +213,7 @@ instance Applicative Museq where
 instance Applicative (Museq' String) where -- TODO ? generalize
   (<*>) = merge' ($)
   pure x = Museq' { _dur'=1, _sup'=1
-                  , _vec' = V.singleton $ ev "" 0 1 x }
+                  , _vec' = V.singleton $ mkEv "" 0 1 x }
 
 
 -- | Some ways to merge `Museq Msg`s.

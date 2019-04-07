@@ -4,9 +4,9 @@
 
 module Vivid.Jbb.Dispatch.Museq (
   -- | = Make a Museq
-    museq  -- ^ RDuration -> [((Rational,Rational),a)] -> Museq a
-  , museq0 -- ^ RDuration -> [(Rational,a)]            -> Museq a
-  , museq' -- ^ RDuration -> [Ev' l a]                 -> Museq' l a
+    mkMuseq  -- ^ RDuration -> [((Rational,Rational),a)] -> Museq a
+  , mkMuseq0 -- ^ RDuration -> [(Rational,a)]            -> Museq a
+  , mkMuseq' -- ^ RDuration -> [Ev' l a]                 -> Museq' l a
   , toMuseqAction -- ^ String -> SynthDefEnum
                   -- -> Museq (NamedWith String Msg) -> Museq Action
 
@@ -108,23 +108,23 @@ import Vivid.Jbb.Synths (SynthDefEnum(Boop))
 -- | = Make a Museq
 
 -- | Make a Museq, specifying start and end times
-museq :: RDuration -> [((Rational,Rational),a)] -> Museq a
-museq d tas = sortMuseq $ Museq { _dur = d
-                                , _sup = d
-                                , _vec = V.fromList $ map (over _1 f) tas }
-  where f (start,end) = (fr start, fr end)
+mkMuseq :: RDuration -> [((Rational,Rational),a)] -> Museq a
+mkMuseq d tas = let f (start,end) = (fr start, fr end)
+  in sortMuseq $ Museq { _dur = d
+                       , _sup = d
+                       , _vec = V.fromList $ map (over _1 f) tas }
 
 -- | Make a Museq of instantaneous events, specifying only start times
-museq0 :: RDuration -> [(Rational,a)] -> Museq a
-museq0 d tas = sortMuseq $ Museq {_dur = d, _sup = d,
-                                  _vec = V.fromList $ map f tas}
-  where f (t,val) = ((fr t, fr t), val)
-
+mkMuseq0 :: RDuration -> [(Rational,a)] -> Museq a
+mkMuseq0 d tas = let f (t,val) = ((fr t, fr t), val)
+  in sortMuseq $ Museq { _dur = d, _sup = d
+                       , _vec = V.fromList $ map f tas }
+  
 -- | Make a Museq', specifying start and end times
-museq' :: RDuration -> [Ev' l a] -> Museq' l a
-museq' d evs = sortMuseq' $ Museq' { _dur' = d
-                                   , _sup' = d
-                                   , _vec' = V.fromList $ evs }
+mkMuseq' :: RDuration -> [Ev' l a] -> Museq' l a
+mkMuseq' d evs = sortMuseq' $ Museq' { _dur' = d
+                                     , _sup' = d
+                                     , _vec' = V.fromList $ evs }
 
 -- | Convert from user type `Museq (NamedWith String Msg)`
 toMuseqAction ::

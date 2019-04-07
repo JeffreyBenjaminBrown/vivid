@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Vivid.Jbb.Dispatch.Dispatch (
   -- | = mess with a SynthRegister
@@ -26,13 +27,11 @@ module Vivid.Jbb.Dispatch.Dispatch (
 
 import Control.Concurrent (forkIO, ThreadId)
 import Control.Concurrent.MVar
-import Control.DeepSeq
 import Control.Lens (set, over, _1, _2, (^.))
-import Data.List ((\\))
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
-import Vivid hiding (set)
+import Vivid hiding (set, when)
 import Vivid.Jbb.Dispatch.Config (frameDuration)
 import Vivid.Jbb.Dispatch.Types
 import Vivid.Jbb.Dispatch.Msg
@@ -48,7 +47,7 @@ act :: SynthRegister -> Time -> Action
      -> IO (SynthRegister -> SynthRegister)
 act reg t a@(Send _ _ _) = actSend reg t a >> return id
 act reg t a@(Free _ _)   = actFree reg t a
-act reg t a@(New _ _)    = actNew  reg   a
+act reg _ a@(New _ _)    = actNew  reg   a
 
 
 actNew :: SynthRegister -> Action -> IO (SynthRegister -> SynthRegister)
@@ -79,28 +78,28 @@ actFree reg when (Free Boop name) = case M.lookup name $ _boops reg of
   Nothing -> do
     writeTimeAndError $ "There is no Boop named " ++ name ++ "to free."
     return id
-  Just s -> let fr = fromRational in
-    do doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
-       doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
-       return $ over boops $ M.delete name
+  Just s -> do
+    doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
+    doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
+    return $ over boops $ M.delete name
 
 actFree reg when (Free Vap name) = case M.lookup name $ _vaps reg of
   Nothing -> do
     writeTimeAndError $ "There is no Vap named " ++ name ++ "to free."
     return id
-  Just s -> let fr = fromRational in
-    do doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
-       doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
-       return $ over vaps $ M.delete name
+  Just s -> do
+    doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
+    doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
+    return $ over vaps $ M.delete name
 
 actFree reg when (Free Sqfm name) = case M.lookup name $ _sqfms reg of
   Nothing -> do
     writeTimeAndError $ "There is no Sqfm named " ++ name ++ "to free."
     return id
-  Just s -> let fr = fromRational in
-    do doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
-       doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
-       return $ over sqfms $ M.delete name
+  Just s -> do
+    doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
+    doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
+    return $ over sqfms $ M.delete name
 
 actFree _ _ (Send _ _ _) = error "actFree received a Send."
 actFree _ _ (New _ _)    = error "actFree received a New."
@@ -109,21 +108,25 @@ actFree _ _ (New _ _)    = error "actFree received a New."
 actSend :: SynthRegister -> Time -> Action -> IO ()
 actSend reg when (Send Boop name msg) =
   case M.lookup name $ _boops reg of
-    Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
-    Just synth -> doScheduledAt (Timestamp $ fromRational when)
-      $ mapM_ (set' synth) $ boopMsg msg
+    Nothing ->
+      writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
+    Just (s :: Synth BoopParams) ->
+      doScheduledAt (Timestamp $ fromRational when)
+      $ mapM_ (set' s) $ boopMsg msg
 
 actSend reg when (Send Sqfm name msg) =
   case M.lookup name $ _sqfms reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
-    Just synth -> doScheduledAt (Timestamp $ fromRational when)
-      $ mapM_ (set' synth) $ sqfmMsg msg
+    Just (s :: Synth SqfmParams) ->
+      doScheduledAt (Timestamp $ fromRational when)
+      $ mapM_ (set' s) $ sqfmMsg msg
 
 actSend reg when (Send Vap name msg) =
   case M.lookup name $ _vaps reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
-    Just synth -> doScheduledAt (Timestamp $ fromRational when)
-      $ mapM_ (set' synth) $ vapMsg msg
+    Just (s :: Synth VapParams) ->
+      doScheduledAt (Timestamp $ fromRational when)
+      $ mapM_ (set' s) $ vapMsg msg
 
 actSend _ _ (Free _ _) = error "actFree received a Send."
 actSend _ _ (New _ _)  = error "actFree received a New."
@@ -182,9 +185,10 @@ replaceAll disp masNew = do
   putMVar (mMuseqs      disp) masNew'
   putMVar (mReg         disp) $ foldl (.) id newTransform reg
 
-  forkIO $ do wait $ when - now -- delete register's synths once it's safe
-              reg <-takeMVar $ mReg disp
-              putMVar (mReg disp) $ foldl (.) id freeTransform reg
+  _ <- forkIO $ do
+    wait $ when - now -- delete register's synths once it's safe
+    reg1 <-takeMVar $ mReg disp
+    putMVar (mReg disp) $ foldl (.) id freeTransform reg1
 
   return ()
 
@@ -215,9 +219,10 @@ replaceAll' disp masNew = do
   putMVar (mMuseqs'      disp) masNew'
   putMVar (mReg'         disp) $ foldl (.) id newTransform reg
 
-  forkIO $ do wait $ when - now -- delete register's synths once it's safe
-              reg <-takeMVar $ mReg' disp
-              putMVar (mReg' disp) $ foldl (.) id freeTransform reg
+  _ <- forkIO $ do
+    wait $ when - now -- delete register's synths once it's safe
+    reg1 <-takeMVar $ mReg' disp
+    putMVar (mReg' disp) $ foldl (.) id freeTransform reg1
 
   return ()
 
@@ -256,7 +261,7 @@ chTempoPeriod' disp newTempoPeriod = do
 
 startDispatchLoop :: Dispatch -> IO ThreadId
 startDispatchLoop disp = do
-  tryTakeMVar $ mTime0 disp -- empty it, just in case
+  _ <- tryTakeMVar $ mTime0 disp -- empty it, just in case
   mbTempo <- tryReadMVar $ mTempoPeriod disp
   maybe (putMVar (mTempoPeriod disp) 1) (const $ return ()) mbTempo
 
@@ -268,7 +273,7 @@ startDispatchLoop disp = do
 
 startDispatchLoop' :: Dispatch' -> IO ThreadId
 startDispatchLoop' disp = do
-  tryTakeMVar $ mTime0' disp -- empty it, just in case
+  _ <- tryTakeMVar $ mTime0' disp -- empty it, just in case
   mbTempo <- tryReadMVar $ mTempoPeriod' disp
   maybe (putMVar (mTempoPeriod' disp) 1) (const $ return ()) mbTempo
 
@@ -326,13 +331,13 @@ dispatchLoop' disp = do
                    ac = Send (note^.noteSd) (ev^.evLabel) (note^.noteMsg)
                in set evData ac ev
 
-    evs = concatMap f $ M.elems museqsMap' :: [(Time, Action)] where
+    evs0 = concatMap f $ M.elems museqsMap' :: [(Time, Action)] where
       f :: Museq' String Action -> [(Time, Action)] -- start times and actions
       f m = map (\ev -> ((ev^.evStart), (ev^.evData))) evs
         where evs = arc' time0 tempoPeriod startRender
                     (startRender + frameDuration) m
 
-  mapM_ (uncurry $ actSend reg) evs
+  mapM_ (uncurry $ actSend reg) evs0
 
   putMVar (mTime0'       disp) time0
   putMVar (mTempoPeriod' disp) tempoPeriod

@@ -32,7 +32,7 @@ off = killThread tid >> freeAll -- run "off" to stop the program
 let p :: Float -> Float -> Museq Note
     p f1 f2 = nameAnonEvents
               $ (Nothing,) . (Boop,)
-              <$> museq0 1 -- 1 is the `Museq`'s duration
+              <$> mkMuseq0 1 -- 1 is the `Museq`'s duration
               [ (0 -- when the first note (bunch of messages) is sent
                 , M.fromList [ ("freq",f1)
                              , ("amp",0.2) ] )
@@ -71,7 +71,7 @@ stop disp "nope" -- Stop and delete the Museq named "nope", if it exists.
 --    -- see Join.hs for more ways to join `Museq`s
 
 -- use `meta` to apply a `Museq (Museq a -> Museq a)` to a `Museq a`
-let f1 = museq 4 [ ((0,2),fast 2)
+let f1 = mkMuseq 4 [ ((0,2),fast 2)
                  , ((2,4),early $ 1/2) ]
     m2 = slow 2 $ early (1/3) $ p 800 960
   in replace disp "meta" $ meta f1 m2

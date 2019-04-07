@@ -19,7 +19,14 @@
 :set -XTupleSections
 
 
--- | = Some boilerplate to start the program
+-- | == Some boilerplate to start the program
+-- | = first halt anything that might already be running.
+
+hush -- don't worry if this is not defined
+off -- don't worry if this is not defined
+
+
+-- | = Then create new stuff
 disp <- newDispatch'
 tid <- startDispatchLoop' disp
 hush = replaceAll' disp M.empty
@@ -32,8 +39,8 @@ off = killThread tid >> freeAll -- run "off" to stop the program
 
 let p :: Float -> Float -> Museq' String Msg
     p f1 f2 = nameAnonEvents'
-              $ museq' 1 -- 1 is the `Museq`'s duration
-              $ (\(t,msg) -> ev0 Nothing t msg)
+              $ mkMuseq' 1 -- 1 is the `Museq`'s duration
+              $ (\(t,msg) -> mkEv0 Nothing t msg)
               <$> [ (0 -- when the first note (bunch of messages) is sent
                     , M.fromList [ ("freq",f1)
                                  , ("amp",0.1) ] )
@@ -45,8 +52,8 @@ let p :: Float -> Float -> Museq' String Msg
 
 let v :: Float -> Museq' String Msg -- "v" for "verbose"
     v f1 = nameAnonEvents'
-              $ museq' 1 -- 1 is the `Museq`'s duration
-              $ (\(s,t,msg) -> ev Nothing s t msg)
+              $ mkMuseq' 1 -- 1 is the `Museq`'s duration
+              $ (\(s,t,msg) -> mkEv Nothing s t msg)
               <$> [ (0, 1/2 -- when the first note (bunch of messages)
                     , M.fromList [ ("freq",f1)
                                  , ("amp",0.1) ] )
