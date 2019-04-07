@@ -3,26 +3,31 @@ ScopedTypeVariables
 , ViewPatterns
 , FlexibleInstances #-}
 
-module Vivid.Jbb.Dispatch.Join
-  (
-  append
-  , append'
-  , cat
-  , cat'
-  , stack
-  , stack'
-  , merge
-  , merge'
-  , mergea
-  , mergea'
-  , merge0
-  , merge0'
-  , merge1
-  , merge1'
-  , meta
-  , meta'
-  )
-where
+module Vivid.Jbb.Dispatch.Join (
+    Museq(..)
+  , append -- ^ forall a. Museq a -> Museq a -> Museq a
+  , append' -- ^ forall l a. Museq' l a -> Museq' l a -> Museq' l a
+  , cat -- ^ [Museq a] -> Museq a -- the name "concat" is taken
+  , cat' -- ^ [Museq' l a] -> Museq' l a -- the name "concat" is taken
+  , stack -- ^ Museq a -> Museq a -> Museq a
+  , stack' -- ^ forall a l m. (Show l, Show m)
+        -- => Museq' l a -> Museq' m a -> Museq' String a
+  , stack'' -- ^ Museq' l a -> Museq' l a -> Museq' l a
+  , merge -- ^ forall a b c. (a -> b -> c) -> Museq a -> Museq b -> Museq c
+  , merge' -- ^ forall a b c l m. (Show l, Show m)
+        -- => (a -> b -> c)
+        -- -> Museq' l a
+        -- -> Museq' m b
+        -- -> Museq' String c
+  , mergea , merge0 , merge1  -- ^ Museq Msg -> Museq Msg -> Museq Msg
+  , merge0', merge1', mergea' -- ^ forall l m. (Show l, Show m) =>
+      -- Museq' l Msg -> Museq' m Msg -> Museq' String Msg
+  , meta -- ^ forall a b c. Museq (Museq a -> Museq b) -> Museq a -> Museq b
+  , meta' -- ^ forall a b c l m. (Show l, Show m)
+       -- => Museq' l      (Museq' String a -> Museq' String b)
+       -- -> Museq' m      a
+       -- -> Museq' String b
+  ) where
 
 import Control.Lens (set, over, view, _1, _2, (^.))
 import qualified Data.List as L

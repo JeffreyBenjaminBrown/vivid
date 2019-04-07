@@ -9,12 +9,12 @@
 #-}
 
 module Vivid.Jbb.Dispatch.Types (
-  SynthName, ParamName, MuseqName
+    SynthName, ParamName, MuseqName
   , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
   , NamedWith, mNamed, anon
   , Action(..), actionToSynth
-  , Ev     , showEvs
+  , Ev       , showEvs
   , Event(..), showEvs', ev, ev0
   , evArc   , evLabel   , evData   , evStart   , evEnd
   , eventRTimeToEventTime

@@ -1,11 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 
 module Vivid.Jbb.Dispatch.Msg (
-  set'
-
-  , boopMsg
-  , sqfmMsg
-  , vapMsg
+    set'    -- ^ VividAction m => Synth params -> Msg' params -> m ()
+  , boopMsg -- ^ Msg -> [Msg' BoopParams]
+  , sqfmMsg -- ^ Msg -> [Msg' SqfmParams]
+  , vapMsg  -- ^ Msg -> [Msg' VapParams]
   )
 where
 

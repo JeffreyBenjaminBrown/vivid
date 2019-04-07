@@ -2,12 +2,13 @@
 
 -- | = Mostly analysis
 
-module Vivid.Jbb.Dispatch.Museq
-  (
+module Vivid.Jbb.Dispatch.Museq (
   -- | = Make a Museq
     museq  -- ^ RDuration -> [((Rational,Rational),a)] -> Museq a
-  , museq0 -- ^ RDuration -> [(Rational,a)] -> Museq a
-  , museq' -- ^ RDuration -> [Ev' l a] -> Museq' l a
+  , museq0 -- ^ RDuration -> [(Rational,a)]            -> Museq a
+  , museq' -- ^ RDuration -> [Ev' l a]                 -> Museq' l a
+  , toMuseqAction -- ^ String -> SynthDefEnum
+                  -- -> Museq (NamedWith String Msg) -> Museq Action
 
   -- | = Timing
   , timeToPlayThrough  -- ^ Museq a -> RTime
@@ -65,8 +66,7 @@ module Vivid.Jbb.Dispatch.Museq
        -- -> Museq a -> [((Time,Time), a)]
   , arc' -- ^ forall l a. Time -> Duration -> Time -> Time
         -- -> Museq' l a -> [Event Time l a]
-  )
-where
+  ) where
 
 import Control.Lens ((^.),(.~),(%~),_1,_2,over,view)
 import Control.Monad.ST
@@ -125,6 +125,13 @@ museq' :: RDuration -> [Ev' l a] -> Museq' l a
 museq' d evs = sortMuseq' $ Museq' { _dur' = d
                                    , _sup' = d
                                    , _vec' = V.fromList $ evs }
+
+-- | Convert from user type `Museq (NamedWith String Msg)`
+toMuseqAction ::
+  String -> SynthDefEnum -> Museq (NamedWith String Msg) -> Museq Action
+toMuseqAction prefix dest m = over vec (V.map $ over _2 f) m where
+  f :: NamedWith String Msg -> Action
+  f (name,msg) = Send dest (prefix ++ name) msg
 
 
 -- | = Timing a Museq

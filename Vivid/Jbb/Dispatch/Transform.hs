@@ -1,31 +1,25 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns #-}
 
-module Vivid.Jbb.Dispatch.Transform
-  (
-  rev
-  , early, late
-  , fast, slow
-  , dense, sparse
-  , rotate, rep
+module Vivid.Jbb.Dispatch.Transform (
+    rev                        -- ^               Museq a    -> Museq    a
+  , rev'                       -- ^               Museq' l a -> Museq' l a
+  , early, late                -- ^ RDuration  -> Museq    a -> Museq    a
+  , early', late'              -- ^ RDuration  -> Museq' l a -> Museq' l a
+  , fast,slow,dense,sparse     -- ^ Rational   -> Museq    a -> Museq    a
+  , fast',slow',dense',sparse' -- ^ Rational   -> Museq' l a -> Museq' l a
+  , rotate, rep                -- ^ Rational   -> Museq    a -> Museq    a
+  , rotate', rep'              -- ^ Rational   -> Museq' l a -> Museq' l a
 
-  , overParams
-  , switchParams
-  , keepParams
-  , dropParams
+  , overParams    -- ^ [(ParamName, Float -> Float)] -> Museq Msg -> Museq Msg
+  , switchParams  -- ^ [(ParamName, ParamName)]      -> Museq Msg -> Museq Msg
+  , keepParams    -- ^ [ParamName]                   -> Museq Msg -> Museq Msg
+  , dropParams    -- ^ [ParamName]                   -> Museq Msg -> Museq Msg
 
-  , rev'
-  , early', late'
-  , fast', slow'
-  , dense', sparse'
-  , rotate', rep'
-
-  , overParams'
-  , switchParams'
-  , keepParams'
-  , dropParams'
-  )
-where
-
+  , overParams'   -- ^ [(ParamName, Float -> Float)] -> Museq' l Msg -> Museq' l Msg
+  , switchParams' -- ^ [(ParamName, ParamName)]      -> Museq' l Msg -> Museq' l Msg
+  , keepParams'   -- ^ [ParamName]                   -> Museq' l Msg -> Museq' l Msg
+  , dropParams'   -- ^ [ParamName]                   -> Museq' l Msg -> Museq' l Msg
+  ) where
 
 import Control.Lens (over, _1, _2, view)
 import Data.Fixed (div',mod')

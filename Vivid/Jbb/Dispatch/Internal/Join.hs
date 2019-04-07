@@ -1,7 +1,27 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns, TupleSections #-}
 
-module Vivid.Jbb.Dispatch.Internal.Join
-where
+module Vivid.Jbb.Dispatch.Internal.Join (
+    timeForBothToRepeat -- ^ Museq a -> Museq b -> RTime
+  , timeForBothToRepeat' -- ^ Museq' l a -> Museq' m b -> RTime
+  , explicitReps -- ^ forall a. Museq a -> [V.Vector (Ev a)]
+  , unsafeExplicitReps -- ^ forall a.
+     -- RTime -> Museq a -> [V.Vector (Ev a)]
+  , unsafeExplicitReps' -- ^ forall l a.
+     -- RTime -> Museq' l a -> [V.Vector (Ev' l a)]
+  , boundaries -- ^ forall a. Real a => [(a,a)] -> [a]
+  , partitionArcAtTimes -- ^ Real a => [a] -> (a,a) -> [(a,a)]
+  , partitionAndGroupEventsAtBoundaries -- ^ forall a v. Real a
+     -- => [a] -> [((a,a),v)] -> [((a,a),v)]
+  , partitionAndGroupEventsAtBoundaries' -- ^ forall a l t v. Real t
+     -- => [t] -> [Event t l a] -> [Event t l a]
+  , alignAndJoin,joinEvents -- ^ forall a b c.
+     -- (a -> b -> c) -> [Ev a] -> [Ev b] -> [Ev c]
+  , alignAndJoin',joinEvents' -- ^ forall a b c t. Real t
+     --                       => (a -> b -> c)
+     --                       -> [Event t String a]
+     --                       -> [Event t String b]
+     --                       -> [Event t String c]
+  ) where
 
 import Control.Lens (over, view, _1, _2)
 import qualified Data.List as L
