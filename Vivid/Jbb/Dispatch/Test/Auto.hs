@@ -1,12 +1,10 @@
 module Vivid.Jbb.Dispatch.Test.Auto where
 
-import Control.Concurrent.MVar
 import qualified Control.Lens as L
 import qualified Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
 
-import Vivid
 import Vivid.Jbb.Util
 import Vivid.Jbb.Synths
 import Vivid.Jbb.Dispatch.Join
@@ -17,6 +15,7 @@ import Vivid.Jbb.Dispatch.Types
 import Test.HUnit
 
 
+tests :: IO Counts
 tests = runTestTT $ TestList
   [ TestLabel "testOverlap" testOverlap
   , TestLabel "testPrevPhase0" testPrevPhase0
@@ -60,70 +59,73 @@ tests = runTestTT $ TestList
   , TestLabel "testNameAnonEvents'" testNameAnonEvents'
   ]
 
+testOverlap :: Test
 testOverlap = TestCase $ do
   assertBool "no overlap" $ not
-    $ overlap (0,1) (2,3)
+    $ overlap (0,1) (2,3::Int)
   assertBool "no overlap" $ not
-    $ overlap (2,3) (0,1)
+    $ overlap (2,3) (0,1::Int)
   assertBool "one inside"
-    $ overlap (0,1) (-1,2)
+    $ overlap (0,1) (-1,2::Int)
   assertBool "one inside"
-    $ overlap (-1,2) (0,1)
+    $ overlap (-1,2) (0,1::Int)
   assertBool "equal"
-    $ overlap (0,2) (0,2)
+    $ overlap (0,2) (0,2::Int)
   assertBool "equal"
-    $ overlap (0,2) (0,2)
+    $ overlap (0,2) (0,2::Int)
   assertBool "left-equal"
-    $ overlap (0,1) (0,2)
+    $ overlap (0,1) (0,2::Int)
   assertBool "left-equal"
-    $ overlap (0,2) (0,1)
+    $ overlap (0,2) (0,1::Int)
   assertBool "right-equal"
-    $ overlap (1,2) (0,2)
+    $ overlap (1,2) (0,2::Int)
   assertBool "right-equal"
-    $ overlap (0,2) (1,2)
+    $ overlap (0,2) (1,2::Int)
   assertBool "instantaneous, equal"
-    $ overlap (0,0) (0,0)
+    $ overlap (0,0) (0,0::Int)
   assertBool "instantaneous, equal"
-    $ overlap (0,0) (0,0)
+    $ overlap (0,0) (0,0::Int)
   assertBool "instantaneous, not equal" $ not
-    $ overlap (0,0) (1,1)
+    $ overlap (0,0) (1,1::Int)
   assertBool "instantaneous, not equal" $ not
-    $ overlap (1,1) (0,0)
+    $ overlap (1,1) (0,0::Int)
   assertBool "one instant, left-equal"
-    $ overlap (0,0) (0,1)
+    $ overlap (0,0) (0,1::Int)
   assertBool "one instant, left-equal"
-    $ overlap (0,1) (0,0)
+    $ overlap (0,1) (0,0::Int)
   assertBool "one instant, right-equal"
-    $ overlap (1,1) (0,1)
+    $ overlap (1,1) (0,1::Int)
   assertBool "one instant, right-equal"
-    $ overlap (0,1) (1,1)
+    $ overlap (0,1) (1,1::Int)
   assertBool "one instant, inside"
-    $ overlap (1,1) (0,2)
+    $ overlap (1,1) (0,2::Int)
   assertBool "one instant, inside"
-    $ overlap (0,2) (1,1)
+    $ overlap (0,2) (1,1::Int)
   assertBool "one instant, outside on right" $ not
-    $ overlap (3,3) (0,2)
+    $ overlap (3,3) (0,2::Int)
   assertBool "one instant, outside on right" $ not
-    $ overlap (0,2) (3,3)
+    $ overlap (0,2) (3,3::Int)
   assertBool "one instant, outside on left" $ not
-    $ overlap (3,3) (10,12)
+    $ overlap (3,3) (10,12::Int)
   assertBool "one instant, outside on left" $ not
-    $ overlap (10,12) (3,3)
+    $ overlap (10,12) (3,3::Int)
 
+testPrevPhase0 :: Test
 testPrevPhase0 = TestCase $ do
-  assertBool "" $ prevPhase0 0 10 11 == 10
-  assertBool "" $ prevPhase0 0 10 10 == 10
-  assertBool "" $ prevPhase0 0 20 41 == 40
-  assertBool "" $ prevPhase0 0 20 59 == 40
+  assertBool "" $ prevPhase0 0 10 11 == (10 :: Double)
+  assertBool "" $ prevPhase0 0 10 10 == (10 :: Double)
+  assertBool "" $ prevPhase0 0 20 41 == (40 :: Double)
+  assertBool "" $ prevPhase0 0 20 59 == (40 :: Double)
 
+testNextPhase0 :: Test
 testNextPhase0 = TestCase $ do
-  assertBool "" $ nextPhase0 0 10 11 == 20
-  assertBool "" $ nextPhase0 0 10 10 == 10
-  assertBool "" $ nextPhase0 0 20 41 == 60
-  assertBool "" $ nextPhase0 0 20 59 == 60
+  assertBool "" $ nextPhase0 0 10 11 == (20 :: Double)
+  assertBool "" $ nextPhase0 0 10 10 == (10 :: Double)
+  assertBool "" $ nextPhase0 0 20 41 == (60 :: Double)
+  assertBool "" $ nextPhase0 0 20 59 == (60 :: Double)
 
+testMuseqIsValid :: Test
 testMuseqIsValid = TestCase $ do
-  let vempty = V.empty :: V.Vector (RTime, ())
   assertBool "valid, empty"                   $ museqIsValid
     $ (mkMuseq0 3 [] :: Museq ())
   assertBool "invalid, zero length"     $ not $ museqIsValid
@@ -133,8 +135,8 @@ testMuseqIsValid = TestCase $ do
   assertBool "invalid, time > _sup" $ not $ museqIsValid
     $ (mkMuseq0 1 [(1.5, New Boop "marge")])
 
+testMuseqIsValid' :: Test
 testMuseqIsValid' = TestCase $ do
-  let vempty = V.empty :: V.Vector (RTime, ())
   assertBool "valid, empty"                   $ museqIsValid'
     $ (mkMuseq' 3 [] :: Museq' String ())
   assertBool "invalid, zero length"     $ not $ museqIsValid'
@@ -144,6 +146,7 @@ testMuseqIsValid' = TestCase $ do
   assertBool "invalid, time > _sup" $ not $ museqIsValid'
     $ mkMuseq' 1 [mkEv0 "1" 2 () ]
 
+testStack :: Test
 testStack = TestCase $ do
   let y = mkMuseq 2 [((0,3),"y")]
       z = mkMuseq 3 [((1,2),"z")]
@@ -166,6 +169,7 @@ testStack = TestCase $ do
                            ,((1,4),"y")
                            ,((2,5),"y") ] )
 
+testStack' :: Test
 testStack' = TestCase $ do
   let y = mkMuseq' 2 [mkEv () 0 3 "()"]
       z = mkMuseq' 3 [mkEv "z" 1 2 "z"]
@@ -188,6 +192,7 @@ testStack' = TestCase $ do
                             , mkEv "()"  1 4 "()"
                             , mkEv "()"  2 5 "()" ] )
 
+testRev :: Test
 testRev = TestCase $ do
   let a = mkMuseq 2 [((0,   1),"a")
                   ,((1/3, 3),"b")
@@ -196,6 +201,7 @@ testRev = TestCase $ do
                                       ,((3/2, 3/2),"c")
                                       ,((5/3, 13/3),"b")]
 
+testRev' :: Test
 testRev' = TestCase $ do
   let a = mkMuseq' 2 [ mkEv () 0     1     "a"
                    , mkEv () (1/3) 3     "b"
@@ -204,38 +210,43 @@ testRev' = TestCase $ do
                                         , mkEv () (3/2) (3 /2)  "c"
                                         , mkEv () (5/3) (13/3) "b" ]
 
+testEarlyAndLate :: Test
 testEarlyAndLate = TestCase $ do
   let a = mkMuseq 10 [((0,11),"a"),((1,2),"b")]
   assertBool "early" $ _vec (early 1 a) ==
     V.fromList [((0,1),"b"),((9,20),"a")]
 
-  let a = mkMuseq 10 [((0,11),"a"),((1,2),"b")]
-  assertBool "late" $ _vec (late 1 a) ==
+  let a' = mkMuseq 10 [((0,11),"a"),((1,2),"b")]
+  assertBool "late" $ _vec (late 1 a') ==
     V.fromList [((1,12),"a"),((2,3),"b")]
 
+testEarlyAndLate' :: Test
 testEarlyAndLate' = TestCase $ do
   let a = mkMuseq' 10 [ mkEv () 0 11 "a"
-                    , mkEv () 1 2 "b"]
+                      , mkEv () 1 2 "b"]
   assertBool "early" $ _vec' (early' 1 a) ==
     V.fromList [ mkEv () 0 1 "b"
                , mkEv () 9 20 "a"]
 
-  let a = mkMuseq' 10 [ mkEv () 0 11 "a"
-                    , mkEv () 1 2 "b"]
-  assertBool "late" $ _vec' (late' 1 a) ==
+  let a' = mkMuseq' 10 [ mkEv () 0 11 "a"
+                       , mkEv () 1 2 "b"]
+  assertBool "late" $ _vec' (late' 1 a') ==
     V.fromList [ mkEv () 1 12 "a"
                , mkEv () 2 3 "b"]
 
+testFastAndSlow :: Test
 testFastAndSlow = TestCase $ do
   let a = mkMuseq 10 [((0,20),"a"),((2,2),"b")]
   assertBool "fast" $ (fast 2 a) == mkMuseq 5 [((0,10),"a"),((1,1),"b")]
   assertBool "slow" $ (slow 2 a) == mkMuseq 20 [((0,40),"a"),((4,4),"b")]
 
+testFastAndSlow' :: Test
 testFastAndSlow' = TestCase $ do
   let a = mkMuseq' 10 [mkEv () 0 20 "a",mkEv () 2 2 "b"]
   assertBool "fast" $ (fast' 2 a) == mkMuseq' 5 [mkEv () 0 10 "a",mkEv () 1 1 "b"]
   assertBool "slow" $ (slow' 2 a) == mkMuseq' 20 [mkEv () 0 40 "a",mkEv () 4 4 "b"]
 
+testDenseAndSparse :: Test
 testDenseAndSparse = TestCase $ do
   let x = mkMuseq 10 [((0,15),"a"),((2,2),"b")]
   assertBool "dense" $ dense 2 x ==
@@ -243,6 +254,7 @@ testDenseAndSparse = TestCase $ do
   assertBool "sparse" $ sparse 2 x ==
     L.set dur 10 (mkMuseq 20 [((0,30),"a"),((4,4),"b")])
 
+testDenseAndSparse' :: Test
 testDenseAndSparse' = TestCase $ do
   let x = mkMuseq' 10 [mkEv () 0 15 "a",mkEv () 2 2 "b"]
   assertBool "dense" $ dense' 2 x ==
@@ -250,6 +262,7 @@ testDenseAndSparse' = TestCase $ do
   assertBool "sparse" $ sparse' 2 x ==
     L.set dur' 10 (mkMuseq' 20 [mkEv () 0 30 "a",mkEv () 4 4 "b"])
 
+testExplicitReps :: Test
 testExplicitReps = TestCase $ do
   let y = Museq {_dur = 3, _sup = 4
                 , _vec = V.fromList [((0,3),()), ((1,1),())]}
@@ -270,6 +283,7 @@ testExplicitReps = TestCase $ do
     , V.fromList [((21,21),())]
     ]
 
+testAppend :: Test
 testAppend = TestCase $ do
     let a = mkMuseq 1 [((0,1),"a")]
         a2  = a {_sup = RTime $ 2}
@@ -288,6 +302,7 @@ testAppend = TestCase $ do
                        , ((3,3),"b"), ((5,5),"b")]
       in m {_sup = 6}
 
+testAppend' :: Test
 testAppend' = TestCase $ do
     let a = mkMuseq' 1 [mkEv () 0 1 "a"]
         a2  = a {_sup' = RTime $ 2}
@@ -307,6 +322,7 @@ testAppend' = TestCase $ do
                        , mkEv () 3 3 "b", mkEv () 5 5 "b"]
       in m {_sup' = 6}
 
+testRep :: Test
 testRep = TestCase $ do
   let a = mkMuseq 6 [((0,7),"a")]
   assertBool "rep int" $ rep 2 a ==
@@ -314,6 +330,7 @@ testRep = TestCase $ do
   assertBool "rep fraction" $ rep (3/2) a ==
     L.set dur 9 (mkMuseq 6 [((0,7),"a")])
 
+testRep' :: Test
 testRep' = TestCase $ do
   let a = mkMuseq' 6 [mkEv () 0 7 "a"]
   assertBool "rep int" $ rep' 2 a ==
@@ -321,6 +338,7 @@ testRep' = TestCase $ do
   assertBool "rep fraction" $ rep' (3/2) a ==
     L.set dur' 9 (mkMuseq' 6 [mkEv () 0 7 "a"])
 
+testMuseqsDiff :: Test
 testMuseqsDiff = TestCase $ do
   let msg = M.singleton "amp" 1
       m1 = M.fromList [("a", mkMuseq0 10 [(0, ("1", (Boop, msg)))])
@@ -340,6 +358,7 @@ testMuseqsDiff = TestCase $ do
                                                , [ (Boop,"1")
                                                  ] )
 
+testMuseqsDiff' :: Test
 testMuseqsDiff' = TestCase $ do
   let msg = M.singleton "amp" 1
       m1 = M.fromList [("a", mkMuseq' 10 [ mkEv0 "1" 0  (Note' Boop msg)])
@@ -359,6 +378,7 @@ testMuseqsDiff' = TestCase $ do
                                                , [ (Boop,"1")
                                                  ] )
 
+testArc :: Test
 testArc = TestCase $ do
   let m = mkMuseq 5 [((0,6),"a"),((2,4),"b")]
   -- arguments to arc : time0 tempoPeriod from to museq
@@ -377,6 +397,7 @@ testArc = TestCase $ do
        , ((211,220),"a")
        , ((215,219),"b")]
 
+testArc' :: Test
 testArc' = TestCase $ do
   let m = mkMuseq' 5 [ Event () (0,6) "a"
                    , Event () (2,4) "b"]
@@ -396,6 +417,7 @@ testArc' = TestCase $ do
        , ( Event () (211,220) "a")
        , ( Event () (215,219) "b")]
 
+testOverParams :: Test
 testOverParams = TestCase $ do
   let m = mkMuseq0 2 [ (0, M.singleton "freq" 100)
                    , (1, M.singleton "amp"  0.1) ]
@@ -410,6 +432,7 @@ testOverParams = TestCase $ do
   assertBool "dropParams" $ dropParams ["freq"] m
     == mkMuseq0 2 [(1, M.singleton "amp" 0.1)]
 
+testOverParams' :: Test
 testOverParams' = TestCase $ do
   let m = mkMuseq' 2 [ mkEv0 () 0 $ M.singleton "freq" 100
                    , mkEv0 () 1 $ M.singleton "amp"  0.1 ]
@@ -424,18 +447,23 @@ testOverParams' = TestCase $ do
   assertBool "dropParams'" $ dropParams' ["freq"] m
     == mkMuseq' 2 [mkEv0 () 1 $ M.singleton "amp" 0.1]
 
+testBoundaries :: Test
 testBoundaries = TestCase $ do
-  assertBool "boundaries" $ boundaries [(0,1),(1,1),(2,3)]
+  assertBool "boundaries" $ boundaries [(0,1),(1,1),(2,3::Int)]
     == [0,1,1,2,3]
 
+testPartitionArcAtTimes :: Test
 testPartitionArcAtTimes = TestCase $ do
-  assertBool "partitionArcAtTimes" $ partitionArcAtTimes [0,2,2,5,10] (0,5)
+  assertBool "partitionArcAtTimes" $ partitionArcAtTimes [0,2,2,5,10::Int]
+    (0,5)
     == [(0,2),(2,2),(2,5)]
 
+testPartitionAndGroupEventsAtBoundaries :: Test
 testPartitionAndGroupEventsAtBoundaries = TestCase $ do
   assertBool "partitionAndGroupEventsAtBoundaries" $
-    partitionAndGroupEventsAtBoundaries [0, 1, 1, 2, 3, 4] [ ((0,3),"a")
-                                                           , ((2,4),"b") ]
+    partitionAndGroupEventsAtBoundaries [0, 1, 1, 2, 3, 4 :: Int]
+      [ ((0,3),"a")
+      , ((2,4),"b") ]
     == [((0,1),"a")
        ,((1,1),"a")
        ,((1,2),"a")
@@ -444,6 +472,7 @@ testPartitionAndGroupEventsAtBoundaries = TestCase $ do
        ,((3,4),"b")
        ]
 
+testMerge :: Test
 testMerge = TestCase $ do
   let a  = Museq {_dur = 2, _sup = 2, _vec = V.fromList [ ((0,1),"a") ] }
       bc = Museq {_dur = 3, _sup = 3, _vec = V.fromList [ ((0,1),"b")
@@ -478,14 +507,7 @@ testMerge = TestCase $ do
                                 , ((4,5),M.fromList [("amp",2)
                                                     ,("freq",0)]) ] }
 
-a  = Museq' { _dur' = 2, _sup' = 2,
-              _vec' = V.fromList [ mkEv "a" 0 1 "a" ] }
-bc = Museq' { _dur' = 3, _sup' = 3,
-              _vec' = V.fromList [ mkEv "b" 0 1 "b"
-                                 , mkEv "c" 1 2 "c" ] }
-op = Museq' { _dur' = 3, _sup' = 1.5,
-              _vec' = V.singleton $ mkEv "op" 0 1 $ (++) " " }
-
+testMerge' :: Test
 testMerge' = TestCase $ do
   let a  = Museq' { _dur' = 2, _sup' = 2,
                     _vec' = V.fromList [ mkEv "a" 0 1 "a" ] }
@@ -523,6 +545,7 @@ testMerge' = TestCase $ do
                                    , mkEv "ac" 4 5 $ M.fromList [("amp",2)
                                                               ,("freq",0)] ] }
 
+testMeta :: Test
 testMeta = TestCase $ do
   let a = Museq {_dur = 2, _sup = 2, _vec = V.fromList [ ((0,1),"a") ] }
       f = Museq {_dur = 3, _sup = 3, _vec = V.fromList [ ((0,1), fast 2)
@@ -535,6 +558,7 @@ testMeta = TestCase $ do
                                 ,((3,    3.5),"a")
                                 ,((5.75, 6),"a")]}
 
+testMeta' :: Test
 testMeta' = TestCase $ do
   let a = Museq' { _dur' = 2, _sup' = 2,
                    _vec' = V.fromList [ mkEv "a" 0 1 "a" ] }
@@ -548,6 +572,7 @@ testMeta' = TestCase $ do
                                    , mkEv "fa" 3     3.5 "a"
                                    , mkEv "ga" 5.75  6 "a" ] }
 
+testMuseqNamesAreValid :: Test
 testMuseqNamesAreValid = TestCase $ do
   assertBool "empty Museq has valid names" $
     museqMaybeNamesAreValid $ mkMuseq 10 ([] :: [((Rational,Rational)
@@ -568,6 +593,7 @@ testMuseqNamesAreValid = TestCase $ do
     museqMaybeNamesAreValid $ mkMuseq 10 [ ((0,  4), (Just "1",()))
                                   , ((6, 12), (Just "1",())) ]
 
+testMuseqNamesAreValid' :: Test
 testMuseqNamesAreValid' = TestCase $ do
   assertBool "empty Museq' has valid names" $ museqMaybeNamesAreValid' $
     mkMuseq' 10 ([] :: [Ev' (Maybe String) ()])
@@ -588,6 +614,7 @@ testMuseqNamesAreValid' = TestCase $ do
     museqMaybeNamesAreValid' $ mkMuseq' 10 [ mkEv (Just "1") 0 4 ()
                                          , mkEv (Just "1") 6 12 () ]
 
+testIntNameEvents :: Test
 testIntNameEvents = TestCase $ do
   assertBool "intNameEvents" $
     intNameEvents 10 [((0,1), ()),      ((2,3), ())]
@@ -599,6 +626,7 @@ testIntNameEvents = TestCase $ do
     intNameEvents 10 [((0,2), ()),      ((5,11), ())]
     ==               [((0,2), (1,())),  ((5,11), (2,()))]
 
+testIntNameEvents' :: Test
 testIntNameEvents' = TestCase $ do
   assertBool "intNameEvents', no overlap" $
     intNameEvents' 10 [mkEv () 0  1 (),  mkEv () 2 3 ()]
@@ -610,6 +638,7 @@ testIntNameEvents' = TestCase $ do
     intNameEvents' 10 [mkEv () 0 2 (),  mkEv () 5 11 ()]
     ==                [mkEv  1 0 2 (),  mkEv  2 5 11 ()]
 
+testNameAnonEvents :: Test
 testNameAnonEvents = TestCase $ do
   let m = mkMuseq 10 [((0,1),(Just "1",()))
                    ,((0,1),(Nothing, ()))]
@@ -617,6 +646,7 @@ testNameAnonEvents = TestCase $ do
     ==    mkMuseq 10 [((0,1),("1",()))
                    ,((0,1),("a1",()))]
 
+testNameAnonEvents' :: Test
 testNameAnonEvents' = TestCase $ do
   let m = mkMuseq' 10 [ mkEv (Just "1") 0 1 ()
                     , mkEv Nothing    0 1 () ]
