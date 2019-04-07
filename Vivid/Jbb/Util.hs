@@ -130,6 +130,7 @@ fr = fromRational
 tr :: Real a => a -> Rational
 tr = toRational
 
+-- | least common denominator
 lcmRatios :: Rational -> Rational -> Rational
 lcmRatios x y = let (a,b) = (numerator x, denominator x)
                     (c,d) = (numerator y, denominator y)
@@ -140,8 +141,8 @@ bumpArc :: Num a => a -> (a,a) -> (a,a)
 bumpArc b (s,t) = (s + b, t + b)
 
 -- | ASSUMES both inputs are well-formed intervals, s.t. start <= end.
--- PITFALL: If either event has zero duration
--- , they must strictly not overlap. Otherwise their endpoints can meet.
+-- PITFALL: If either event has zero duration,
+-- then they must strictly not overlap. Otherwise their endpoints can meet.
 overlap :: (Num a, Ord a) => (a,a) -> (a,a) -> Bool
 overlap (a,b) (c,d) | a == b =
                       b >= c && b <= d
@@ -168,12 +169,11 @@ prevPhase0 time0 period now =
 
 -- | == Vectors
 
--- | example:
--- > x
--- [(1,"gobot"),(2,"gobot"),(3,"gobot"),(4,"gobot"),(5,"gobot"),(6,"gobot")]
--- > divideAtMaxima fst [3,5] $ V.fromList x
--- [[(1,"gobot"),(2,"gobot")]
--- ,[(3,"gobot"),(4,"gobot")]]
+-- | example
+-- > prin $ divideAtMaxima fst [3.1,4.9,7] $ V.fromList $ map (,()) [1..8]
+-- [(1.0,()),(2.0,()),(3.0,())]
+-- [(4.0,())]
+-- [(5.0,()),(6.0,())]
 divideAtMaxima :: forall a b. Ord b
                => (a->b) -> [b] -> V.Vector a -> [V.Vector a]
 divideAtMaxima view upperBounds stuff =
@@ -186,18 +186,19 @@ divideAtMaxima view upperBounds stuff =
     let (lt,gte) = V.partition ((< t) . view) vec
     in go (lt : acc) ts gte
 
+
 -- | = Functions to find a range of items of interest in a sorted vector.
 
--- | 0-indexed. Returns the first index you could insert `a` and preserve
--- sortedness (shoving whatever was there before to the right).
+-- | 0-indexed. Returns the first index where you could insert `a` and
+-- preserve sortedness (shoving whatever was there before to the right).
 -- If none such, returns length of vector.
 firstIndexGTE :: Comparison a -> V.Vector a -> a -> Int
 firstIndexGTE comp v a = runST $ do
   v' <- V.thaw v
   return =<< binarySearchLBy comp v' a
 
--- | 0-indexed. Returns the last index you could insert `a` and preserve
--- sortedness (shoving whatever was there before to the right).
+-- | 0-indexed. Returns the last index where you could insert `a` and
+-- preserve sortedness (shoving whatever was there before to the right).
 -- If none such, returns length of vector.
 lastIndexLTE :: Comparison a -> V.Vector a -> a -> Int
 lastIndexLTE comp v a = runST $ do

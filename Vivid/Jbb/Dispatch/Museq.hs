@@ -5,47 +5,66 @@
 module Vivid.Jbb.Dispatch.Museq
   (
   -- | = Make a Museq
-  museq, museq0
-  , museq'
+    museq  -- ^ RDuration -> [((Rational,Rational),a)] -> Museq a
+  , museq0 -- ^ RDuration -> [(Rational,a)] -> Museq a
+  , museq' -- ^ RDuration -> [Ev' l a] -> Museq' l a
 
   -- | = Timing
-  , timeToPlayThrough
-  , supsToPlayThrough
-  , dursToPlayThrough
-  , timeToRepeat
-  , supsToRepeat
-  , dursToRepeat
+  , timeToPlayThrough  -- ^ Museq a -> RTime
+  , supsToPlayThrough  -- ^ Museq a -> RTime
+  , dursToPlayThrough  -- ^ Museq a -> RTime
+  , timeToRepeat       -- ^ Museq a -> RTime
+  , supsToRepeat       -- ^ Museq a -> RTime
+  , dursToRepeat       -- ^ Museq a -> RTime
 
-  , timeToPlayThrough'
-  , supsToPlayThrough'
-  , dursToPlayThrough'
-  , timeToRepeat'
-  , supsToRepeat'
-  , dursToRepeat'
+  , timeToPlayThrough' -- ^ Museq' l a -> RTime
+  , supsToPlayThrough' -- ^ Museq' l a -> RTime
+  , dursToPlayThrough' -- ^ Museq' l a -> RTime
+  , timeToRepeat'      -- ^ Museq' l a -> RTime
+  , supsToRepeat'      -- ^ Museq' l a -> RTime
+  , dursToRepeat'      -- ^ Museq' l a -> RTime
 
-  , longestDur
-  , longestDur'
+  , longestDur  -- ^ Museq a    -> RDuration
+  , longestDur' -- ^ Museq' l a -> RDuration
 
   -- | = Naming events
-  , labelsToStrings
-  , museqMaybeNamesAreValid
-  , museqMaybeNamesAreValid'
-  , nameAnonEvents
-  , nameAnonEvents'
-  , intNameEvents
-  , intNameEvents'
+  , labelsToStrings -- ^ Show l => Museq' l a -> Museq' String a
+  , museqMaybeNamesAreValid -- ^ forall a t. Eq t
+       -- => Museq (NamedWith (Maybe t) a) -> Bool
+  , museqMaybeNamesAreValid' -- ^ forall l a. Eq l
+       -- => Museq' (Maybe l) a -> Bool
+  , nameAnonEvents -- ^ forall a.
+       -- Museq (NamedWith (Maybe String) a)
+       -- -> Museq (NamedWith String a)
+  , nameAnonEvents' -- ^ forall a.
+                --    Museq' (Maybe String) a
+                -- -> Museq'        String  a
+  , intNameEvents -- ^ RDuration -- ^ _sup of the Museq these Evs come from
+                 -- -> [Ev a] -- ^ these are being named
+                 -- -> [Ev (NamedWith Int a)]
+  , intNameEvents' -- ^ RDuration -- ^ _sup of the Museq these Evs come from
+                  -- -> [Ev' () a] -- ^ these are being named
+                  -- -> [Ev' Int a]
 
   -- | = More
-  , museqSynths
-  , museqSynths'
-  , museqsDiff
-  , museqsDiff'
-  , sortMuseq
-  , sortMuseq'
-  , museqIsValid
-  , museqIsValid'
-  , arc
-  , arc'
+  , museqSynths -- ^ Museq Note -> [(SynthDefEnum, SynthName)]
+  , museqSynths' -- ^ Museq' String Note' -> [(SynthDefEnum, SynthName)]
+  , museqsDiff -- ^ M.Map MuseqName (Museq Note)
+              -- -> M.Map MuseqName (Museq Note)
+              -- -> ([(SynthDefEnum, SynthName)],
+              --     [(SynthDefEnum, SynthName)])
+  , museqsDiff' -- ^ M.Map MuseqName (Museq' String Note')
+               -- -> M.Map MuseqName (Museq' String Note')
+               -- -> ([(SynthDefEnum, SynthName)],
+               --     [(SynthDefEnum, SynthName)])
+  , sortMuseq -- ^ Museq a -> Museq a
+  , sortMuseq' -- ^ Museq' l a -> Museq' l a
+  , museqIsValid -- ^ Eq a => Museq a -> Bool
+  , museqIsValid' -- ^ (Eq a, Eq l) => Museq' l a -> Bool
+  , arc -- ^ forall a. Time -> Duration -> Time -> Time
+       -- -> Museq a -> [((Time,Time), a)]
+  , arc' -- ^ forall l a. Time -> Duration -> Time -> Time
+        -- -> Museq' l a -> [Event Time l a]
   )
 where
 
@@ -95,13 +114,11 @@ museq d tas = sortMuseq $ Museq { _dur = d
                                 , _vec = V.fromList $ map (over _1 f) tas }
   where f (start,end) = (fr start, fr end)
 
-
 -- | Make a Museq of instantaneous events, specifying only start times
 museq0 :: RDuration -> [(Rational,a)] -> Museq a
 museq0 d tas = sortMuseq $ Museq {_dur = d, _sup = d,
                                   _vec = V.fromList $ map f tas}
   where f (t,val) = ((fr t, fr t), val)
-
 
 -- | Make a Museq', specifying start and end times
 museq' :: RDuration -> [Ev' l a] -> Museq' l a
@@ -121,8 +138,8 @@ dursToPlayThrough :: Museq a -> RTime
 dursToPlayThrough m = timeToPlayThrough m / (_dur m)
 
 timeToRepeat :: Museq a -> RTime
-timeToRepeat m = let x = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)
-  in if x == _dur m then _sup m else x
+timeToRepeat m = let x = timeToPlayThrough m
+                 in if x == _dur m then _sup m else x
 
 supsToRepeat :: Museq a -> RTime
 supsToRepeat m = timeToRepeat m / _sup m
@@ -142,8 +159,8 @@ dursToPlayThrough' :: Museq' l a -> RTime
 dursToPlayThrough' m = timeToPlayThrough' m / (_dur' m)
 
 timeToRepeat' :: Museq' l a -> RTime
-timeToRepeat' m = let x = RTime $ lcmRatios (tr $ _sup' m) (tr $ _dur' m)
-  in if x == _dur' m then _sup' m else x
+timeToRepeat' m = let x = timeToPlayThrough' m
+                  in if x == _dur' m then _sup' m else x
 
 supsToRepeat' :: Museq' l a -> RTime
 supsToRepeat' m = timeToRepeat' m / _sup' m
