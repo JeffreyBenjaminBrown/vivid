@@ -65,8 +65,6 @@ replaceAll' disp
   $ M.fromList [ ("a slow pattern", toBoop <$> p 400 500)
                , ("a faster one", toBoop <$> p 600 700) ]
 
-replaceAll' disp $ M.empty
-
 x = stack'
     (append' (p 600 700)
      (fast' 3 $ early' (1/3) $ p 650 750))

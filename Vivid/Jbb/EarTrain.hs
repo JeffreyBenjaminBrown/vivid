@@ -236,6 +236,11 @@ earTrainPolyChords :: IO ()
 earTrainPolyChords =
   runEarTests $ pickPolyChordTest [[0,3,7],[0,4,7],[0,3,6],[0,4,8]]
 
+-- | quiz two chords in serial
+earTrainChromatic2Serial :: Int -> Int -> IO ()
+earTrainChromatic2Serial numberOfFreqs range =
+  runEarTests $ pickChromatic2SerialTest numberOfFreqs range
+
 
 -- | = The top IO workhorse
 
@@ -265,9 +270,9 @@ showChoices = putStrLn $ "\nPlease press a key:\n"
 
 pickTestFromPitchSet :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
                    => (a -> [a] -> [a]) -> [a] -> Int -> IO Test
-pickTestFromPitchSet f range numberOfFreqs = do
+pickTestFromPitchSet howToDelete range numberOfFreqs = do
   freqs <- L.sort <$>
-    pickSome' f numberOfFreqs range -- randomness
+    pickSome' howToDelete numberOfFreqs range -- randomness
   let bass = minimum freqs
       normFreqs = fmap (\n -> n - bass) freqs
       showFreqs = putStrLn $ "  bass: " ++ show bass
@@ -283,12 +288,20 @@ pickTestFromScale = pickTestFromPitchSet L.delete
 
 _pickChromaticTest :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
                    => (a -> [a] -> [a]) -> Int -> Int -> IO Test
-_pickChromaticTest f numberOfFreqs range =
-  pickTestFromPitchSet f (map fromIntegral [0..range]) numberOfFreqs
+_pickChromaticTest howToDelete numberOfFreqs range =
+  pickTestFromPitchSet howToDelete (map fromIntegral [0..range]) numberOfFreqs
 
 pickChromaticTest = _pickChromaticTest L.delete
 
+-- | play two chords in serial
+pickChromatic2SerialTest :: Int -> Int -> IO Test
+pickChromatic2SerialTest numFreqs range = do
+  (q,a) <- pickChromaticTest numFreqs range
+  (q',a') <- pickChromaticTest numFreqs range
+  return (q >> q', a >> a')
+
 pick3ClusterFreeTest = _pickChromaticTest no3Clusters
+
 
 -- | builds and picks Tests from a list of chords.
 pickTestFromChordList :: [[Float]] -> IO Test
@@ -322,8 +335,8 @@ playFreqs :: (Real a, Floating a) => [a] -> IO ()
 playFreqs freqs = do
   let msg a = (toI a :: I "freq", 0.1 :: I "amp")
   synths <- mapM (synth boopPulse . msg) freqs
-  wait 1
+  wait 2
   mapM_ free synths
 
 et12toFreq :: Floating a => a -> a -> a
-et12toFreq baseFreq p = 2**(p/12) * baseFreq
+et12toFreq baseFreq p = 2**(p/31) * baseFreq
