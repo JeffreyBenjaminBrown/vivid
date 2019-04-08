@@ -32,10 +32,8 @@ module Vivid.Jbb.Dispatch.Types (
   ) where
 
 import Control.Concurrent.MVar
-import Control.DeepSeq
-import Control.Lens (makeLenses, over, _1, _2, Lens', view)
+import Control.Lens (makeLenses, over, _1, _2, Lens')
 import qualified Data.Map as M
-import Data.Ratio
 import qualified Data.Vector as V
 
 import Vivid
@@ -73,7 +71,8 @@ instance Fractional RTime where (/) (RTime t) (RTime s) = RTime (t / s)
                                 fromRational rat = RTime rat
 instance Real RTime where toRational (RTime t) = t
 instance RealFrac RTime where
-  properFraction (RTime r) = let (i,r) = properFraction r in (i,RTime r)
+  properFraction (RTime r0) = let (i,r) = properFraction r0
+                              in (i,RTime r)
   truncate (RTime r) = truncate r
   round (RTime r) = round r
   ceiling (RTime r) = ceiling r
@@ -207,14 +206,14 @@ data Dispatch = Dispatch {
 -- | PITFALL: the `mTime0` field begins empty.
 newDispatch :: IO Dispatch
 newDispatch = do
-  mTimeMuseqs  <- newMVar M.empty
-  mReg         <- newMVar emptySynthRegister
-  mTime0       <- newEmptyMVar
-  mTempoPeriod <- newMVar 1
-  return Dispatch { mMuseqs      = mTimeMuseqs
-                  , mReg         = mReg
-                  , mTime0       = mTime0
-                  , mTempoPeriod = mTempoPeriod }
+  a <- newMVar M.empty
+  b <- newMVar emptySynthRegister
+  c <- newEmptyMVar
+  d <- newMVar 1
+  return Dispatch { mMuseqs      = a
+                  , mReg         = b
+                  , mTime0       = c
+                  , mTempoPeriod = d }
 
 data Dispatch' = Dispatch' {
     mMuseqs'      :: MVar (M.Map MuseqName (Museq' String Note'))
@@ -226,11 +225,11 @@ data Dispatch' = Dispatch' {
 -- | "new" because it's not really empty, except for `time0`
 newDispatch' :: IO Dispatch'
 newDispatch' = do
-  mTimeMuseqs  <- newMVar M.empty
-  mReg         <- newMVar emptySynthRegister
-  mTime0       <- newEmptyMVar
-  mTempoPeriod <- newMVar 1
-  return Dispatch' { mMuseqs'      = mTimeMuseqs
-                   , mReg'         = mReg
-                   , mTime0'       = mTime0
-                   , mTempoPeriod' = mTempoPeriod }
+  a <- newMVar M.empty
+  b <- newMVar emptySynthRegister
+  c <- newEmptyMVar
+  d <- newMVar 1
+  return Dispatch' { mMuseqs'      = a
+                   , mReg'         = b
+                   , mTime0'       = c
+                   , mTempoPeriod' = d }

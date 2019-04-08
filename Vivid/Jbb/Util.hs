@@ -14,6 +14,7 @@ module Vivid.Jbb.Util (
 
   -- | = lists
   , unique
+  , unique' -- ^ Eq a => [a] -> [a]
   , interleave
   , deleteAll
   , deleteShowQuotes
@@ -35,7 +36,6 @@ module Vivid.Jbb.Util (
 
 import Control.Monad.ST
 import Data.Ratio
-import Control.Lens
 import qualified Data.List as L
 import qualified Data.Set as S
 import qualified Data.Vector as V
@@ -55,7 +55,7 @@ writeTimeAndError msg = do now <- getTime
 
 pickSome :: forall a m. (Eq a, MonadRandom m)
          => Int -> [a] -> m [a]
-pickSome 0 as = return []
+pickSome 0 _ = return []
 pickSome n as = do (b  ::  a ) <- pick as
                    (bs :: [a]) <- pickSome (n-1) (L.delete b as)
                    -- if deleting b isn't enough, consider pickSome'
@@ -63,7 +63,7 @@ pickSome n as = do (b  ::  a ) <- pick as
 
 pickSome' :: forall a m. (Eq a, MonadRandom m)
          => (a -> [a] -> [a]) -> Int -> [a] -> m [a]
-pickSome' _ 0 as = return []
+pickSome' _ 0 _ = return []
 pickSome' f n as = do (b  ::  a ) <- pick as
                       (bs :: [a]) <- pickSome (n-1) (f b as)
                       return $ b:bs
@@ -73,8 +73,8 @@ pickSomeWithout3Clusters :: forall a m. (Num a, Eq a, MonadRandom m)
 pickSomeWithout3Clusters = pickSome' no3Clusters
 
 no3Clusters :: (Num a, Eq a) => a -> [a] -> [a]
-no3Clusters chosen remaining =
-  L.delete chosen $ f chosen $ g chosen $ remaining where
+no3Clusters chosen0 remaining0 =
+  L.delete chosen0 $ f chosen0 $ g chosen0 $ remaining0 where
   f chosen remaining = if elem       (chosen + 1) remaining
                        then L.delete (chosen - 1) remaining else remaining
   g chosen remaining = if elem       (chosen - 1) remaining
@@ -156,7 +156,8 @@ overlap (a,b) (c,d) | a == b =
 -- | TODO ? rewrite using div', mod' from Data.Fixed
 nextPhase0 :: RealFrac a => a -> a -> a -> a
 nextPhase0 time0 period now =
-  fromIntegral (ceiling $ (now - time0) / period ) * period + time0
+  fromIntegral x * period + time0
+  where x :: Int = ceiling $ (now - time0) / period
 
 -- | PITFALL ? if lastPhase0 or nextPhase0 was called precisely at phase0,
 -- both would yield the same result. Since time is measured in microseconds
@@ -164,7 +165,8 @@ nextPhase0 time0 period now =
 -- | TODO ? rewrite using div', mod' from Data.Fixed
 prevPhase0 :: RealFrac a => a -> a -> a -> a
 prevPhase0 time0 period now =
-  fromIntegral (floor $ (now - time0) / period ) * period + time0
+  fromIntegral x * period + time0
+  where x :: Int = floor $ (now - time0) / period
 
 
 -- | == Vectors

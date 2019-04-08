@@ -22,12 +22,11 @@ module Vivid.Jbb.Dispatch.Transform (
   ) where
 
 import Control.Lens (over, _1, _2, view)
-import Data.Fixed (div',mod')
+import Data.Fixed (mod')
 import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Data.Vector as V
 
-import Vivid.Jbb.Util
 import Vivid.Jbb.Dispatch.Museq
 import Vivid.Jbb.Dispatch.Types
 

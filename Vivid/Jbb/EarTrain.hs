@@ -196,7 +196,7 @@
 
 module Vivid.Jbb.EarTrain where
 
-import Data.List as L
+import qualified Data.List as L
 
 import Vivid
 import Vivid.Jbb.Synths
@@ -247,16 +247,18 @@ earTrainChromatic2Serial numberOfFreqs range =
 runEarTests :: IO Test -> IO ()
 runEarTests pickTest = pickTest >>= runTest where
   runTest :: Test -> IO ()
-  runTest test@(playFreqs, showFreqs) = do
+  runTest test@(playFreqsMethod, showFreqsMethod) = do
     showChoices
-    playFreqs
+    playFreqsMethod
     getChar >>= \case
       'a' -> putStrLn "nother sound!\nBTW, the last sound was:"
-             >> showFreqs >> runEarTests pickTest
-      's' -> putStrLn "how what was played" >> showFreqs
+             >> showFreqsMethod
+             >> runEarTests pickTest
+      's' -> putStrLn "how what was played"
+             >> showFreqsMethod
              >> runTest test
       'q' -> putStrLn "uit" >> return ()
-      otherwise -> putStrLn "replay" >> runTest test
+      _   -> putStrLn "replay" >> runTest test
 
 showChoices :: IO ()
 showChoices = putStrLn $ "\nPlease press a key:\n"
@@ -291,6 +293,7 @@ _pickChromaticTest :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
 _pickChromaticTest howToDelete numberOfFreqs range =
   pickTestFromPitchSet howToDelete (map fromIntegral [0..range]) numberOfFreqs
 
+pickChromaticTest :: Int -> Int -> IO Test
 pickChromaticTest = _pickChromaticTest L.delete
 
 -- | play two chords in serial
@@ -300,6 +303,7 @@ pickChromatic2SerialTest numFreqs range = do
   (q',a') <- pickChromaticTest numFreqs range
   return (q >> q', a >> a')
 
+pick3ClusterFreeTest :: Int -> Int -> IO Test
 pick3ClusterFreeTest = _pickChromaticTest no3Clusters
 
 
@@ -335,7 +339,7 @@ playFreqs :: (Real a, Floating a) => [a] -> IO ()
 playFreqs freqs = do
   let msg a = (toI a :: I "freq", 0.1 :: I "amp")
   synths <- mapM (synth boopPulse . msg) freqs
-  wait 2
+  wait (2 :: Int)
   mapM_ free synths
 
 et12toFreq :: Floating a => a -> a -> a
