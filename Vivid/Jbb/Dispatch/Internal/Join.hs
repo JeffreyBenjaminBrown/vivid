@@ -56,13 +56,13 @@ unsafeExplicitReps totalDuration m = reps where
     -- It takes a duration equal to this many multiples of _sup m
     -- for m to finish at phase 0.
     -- It's already an integer; `round` is just to prove that to GHC.
-  durs = round $ totalDuration / _dur m
+  durs :: Int = round $ totalDuration / _dur m
   indexed = zip [0..sups-1]
     $ repeat $ _vec m :: [(Int,V.Vector (Ev a))]
   adjustTimes :: (Int,V.Vector (Ev a)) -> V.Vector (Ev a)
   adjustTimes (idx,v) = V.map f v where
-    f = over _1 (\(x,y) -> (f x, f y)) where
-      f = (+) $ fromIntegral idx * _sup m
+    f = over _1 (\(x,y) -> (g x, g y)) where
+      g = (+) $ fromIntegral idx * _sup m
   spread = V.concat $ map adjustTimes indexed :: V.Vector (Ev a)
     -- the times in `spread` range from 0 to `timeToRepeat m`
   maixima = [fromIntegral i * _dur m | i <- [1..durs]]
@@ -75,13 +75,13 @@ unsafeExplicitReps' totalDuration m = reps where
     -- It takes a duration equal to this many multiples of _sup m
     -- for m to finish at phase 0.
     -- It's already an integer; `round` is just to prove that to GHC.
-  durs = round $ totalDuration / _dur' m
+  durs :: Int = round $ totalDuration / _dur' m
   indexed = zip [0..sups-1]
     $ repeat $ _vec' m :: [(Int,V.Vector (Ev' l a))]
   adjustTimes :: (Int,V.Vector (Ev' l a)) -> V.Vector (Ev' l a)
   adjustTimes (idx,v) = V.map f v where
-    f = over evArc (\(x,y) -> (f x, f y)) where
-      f = (+) $ fromIntegral idx * _sup' m
+    f = over evArc (\(x,y) -> (g x, g y)) where
+      g = (+) $ fromIntegral idx * _sup' m
   spread = V.concat $ map adjustTimes indexed :: V.Vector (Ev' l a)
     -- the times in `spread` range from 0 to `timeToRepeat m`
   maixima = [fromIntegral i * _dur' m | i <- [1..durs]]
@@ -92,8 +92,8 @@ unsafeExplicitReps' totalDuration m = reps where
 -- | Produces a sorted list of arc endpoints.
 -- If `arcs` includes `(x,x)`, then `x` will appear twice in the output.
 boundaries :: forall a. Real a => [(a,a)] -> [a]
-boundaries arcs = doubleTheDurationZeroBoundaries arcs
-                  $ L.sort $ unique $ map fst arcs ++ map snd arcs where
+boundaries arcs0 = doubleTheDurationZeroBoundaries arcs0
+                  $ L.sort $ unique $ map fst arcs0 ++ map snd arcs0 where
   doubleTheDurationZeroBoundaries :: [(a,a)] -> [a] -> [a]
   doubleTheDurationZeroBoundaries arcs bounds = concatMap f bounds where
     instants :: S.Set a
@@ -107,6 +107,8 @@ partitionArcAtTimes (a:b:ts) (c,d)
   | c > a = partitionArcAtTimes (b:ts) (c,d)
   | b == d = [(a,b)]
   | otherwise = (a,b) : partitionArcAtTimes (b:ts) (b,d)
+partitionArcAtTimes _ _ =
+  error "partitionArcAtTimes: uncaught input pattern."
 
 -- | ASSUMES the first input includes each value in the second.
 -- (If the first list comes from `boundaries`, it will include those.)
@@ -114,16 +116,17 @@ partitionAndGroupEventsAtBoundaries :: forall a v. Real a
   => [a] -> [((a,a),v)] -> [((a,a),v)]
 partitionAndGroupEventsAtBoundaries bs evs =
   let partitionEv :: ((a,a),v) -> [((a,a),v)]
-      partitionEv (arc,x) = map (,x) $ partitionArcAtTimes bs arc
+      partitionEv (someArc,x) = map (,x) $
+                                partitionArcAtTimes bs someArc
   in L.sortOn fst $ concatMap partitionEv evs
 
-partitionAndGroupEventsAtBoundaries' :: forall a l t v. Real t
+partitionAndGroupEventsAtBoundaries' :: forall a l t. Real t
   => [t] -> [Event t l a] -> [Event t l a]
 partitionAndGroupEventsAtBoundaries' bs evs =
   -- TODO ? Use Traversal to simplify
   let partitionEv :: Event t l a -> [Event t l a]
       partitionEv ev = map rebuild $ partitionArcAtTimes bs $ _evArc ev
-        where rebuild arc = ev {_evArc = arc}
+        where rebuild someArc = ev {_evArc = someArc}
   in L.sortOn _evArc $ concatMap partitionEv evs
 
 -- | `alignAndJoin`  and `joinEvents` are mutually recursive.
@@ -144,11 +147,13 @@ alignAndJoin op aEvs@((arcA,_):aRest)  bEvs@((arcB,_):bRest)
   | arcA <  arcB = alignAndJoin op aRest bEvs
   | arcB <  arcA = alignAndJoin op aEvs bRest
   | arcA == arcB = joinEvents op aEvs bEvs
+alignAndJoin _ _ _ = error "alignAndJoin: uncaught input pattern."
 
-joinEvents op ((arc,a):aEvs) bEvs =
+joinEvents op ((arc0,a):aEvs) bEvs =
   joined ++ alignAndJoin op aEvs bEvs
-  where bEvsMatch = takeWhile ((== arc) . fst) bEvs
+  where bEvsMatch = takeWhile ((== arc0) . fst) bEvs
         joined = over _2 (op a) <$> bEvsMatch
+joinEvents _ _ _ = error "joinEvents: uncaught input pattern."
 
 alignAndJoin',joinEvents' :: forall a b c t. Real t
                           => (a -> b -> c)
@@ -162,11 +167,12 @@ alignAndJoin' op as bs
   | _evArc (head as) <   _evArc (head bs) = alignAndJoin' op (tail as) bs
   | _evArc (head as) >   _evArc (head bs) = alignAndJoin' op as (tail bs)
   | _evArc (head as) ==  _evArc (head bs) = joinEvents' op as bs
+alignAndJoin' _ _ _ = error "alignAndJoin': uncaught input pattern."
 
 joinEvents' op (a:as) bs = joined ++ alignAndJoin' op as bs where
-  arc = _evArc a
-  bsMatch = takeWhile ((== arc) . _evArc) bs
+  bsMatch = takeWhile ((== _evArc a) . _evArc) bs
   joined = over evData (op $ _evData a)
          . over evLabel -- concatenate event labels
            (deleteShowQuotes . ((++) $ _evLabel a))
          <$> bsMatch
+joinEvents' _ _ _ = error "joinEvents': uncaught input pattern."

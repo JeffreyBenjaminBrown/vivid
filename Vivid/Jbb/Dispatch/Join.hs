@@ -29,8 +29,7 @@ module Vivid.Jbb.Dispatch.Join (
        -- -> Museq' String b
   ) where
 
-import Control.Lens (set, over, view, _1, _2, (^.))
-import qualified Data.List as L
+import Control.Lens (over, view, _1, (^.))
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
@@ -42,57 +41,66 @@ import Vivid.Jbb.Dispatch.Internal.Join
 
 -- | Play one after the other
 append :: forall a. Museq a -> Museq a -> Museq a
-append x y =
-  let durs = RTime
-        $ lcmRatios (tr $ dursToPlayThrough x) (tr $ dursToPlayThrough y)
-        -- Since x and y both have to finish at the same time,
-        -- they must run through this many durs.
-      ixs, iys :: [(Int,V.Vector (Ev a))]
-      ixs = zip [0..] $ unsafeExplicitReps (durs * _dur x) x
-      iys = zip [1..] $ unsafeExplicitReps (durs * _dur y) y
-        -- ixs uses a 0 because it starts with no ys before it
-        -- iys uses a 1 because it starts with 1 (_dur x) worth of x before it
+append x0 y0 = let
+  durs = RTime
+    $ lcmRatios (tr $ dursToPlayThrough x0) (tr $ dursToPlayThrough y0)
+    -- Since x and y both have to finish at the same time,
+    -- they must run through this many durs.
 
-      -- next, space out the xs to make room for the ys, and vice versa
-      adjustx, adjusty :: (Int,V.Vector (Ev a)) -> V.Vector (Ev a)
-      adjustx (idx,v) = V.map f v where
-        f = over _1 (\(x,y) -> (g x, g y)) where
-          g = (+) $ fromIntegral idx * _dur y
-      adjusty (idx,v) = V.map f v where
-        f = over _1 (\(x,y) -> (g x, g y)) where
-          g = (+) $ fromIntegral idx * _dur x
-      xs, ys :: [V.Vector (Ev a)]
-      xs = map adjustx ixs
-      ys = map adjusty iys
-  in Museq {  _sup = durs * (_dur x + _dur y)
-            , _dur =         _dur x + _dur y
+  xs, ys :: [V.Vector (Ev a)]
+  xs = map adjustx ixs where
+    ixs :: [(Int,V.Vector (Ev a))]
+    ixs = zip [0..] $ unsafeExplicitReps (durs * _dur x0) x0
+      -- ixs uses a 0 because it starts with no ys before it
+    -- adjustx: space out the xs to make room for the ys
+    adjustx :: (Int,V.Vector (Ev a)) -> V.Vector (Ev a)
+    adjustx (idx,v) = V.map f v where
+      f = over _1 (\(x,y) -> (g x, g y)) where
+        g = (+) $ fromIntegral idx * _dur y0
+
+  ys = map adjusty iys where
+    iys :: [(Int,V.Vector (Ev a))]
+    iys = zip [1..] $ unsafeExplicitReps (durs * _dur y0) y0
+      -- iys uses a 1 because it starts with 1 (_dur x) worth of x before it
+    -- adjusty: space out the ys to make room for the xs
+    adjusty :: (Int,V.Vector (Ev a)) -> V.Vector (Ev a)
+    adjusty (idx,v) = V.map f v where
+      f = over _1 (\(x,y) -> (g x, g y)) where
+        g = (+) $ fromIntegral idx * _dur x0
+
+  in Museq {  _sup = durs * (_dur x0 + _dur y0)
+            , _dur =         _dur x0 + _dur y0
             , _vec = V.concat $ interleave xs ys }
 
 append' :: forall l a. Museq' l a -> Museq' l a -> Museq' l a
-append' x y =
-  let durs = RTime
-        $ lcmRatios (tr $ dursToPlayThrough' x) (tr $ dursToPlayThrough' y)
-        -- Since x and y both have to finish at the same time,
-        -- they must run through this many durs.
-      ixs, iys :: [(Int,V.Vector (Ev' l a))]
-      ixs = zip [0..] $ unsafeExplicitReps' (durs * _dur' x) x
-      iys = zip [1..] $ unsafeExplicitReps' (durs * _dur' y) y
-        -- ixs uses a 0 because it starts with no ys before it
-        -- iys uses a 1 because it starts with 1 (_dur x) worth of x before it
+append' x0 y0 = let
+  durs = RTime
+    $ lcmRatios (tr $ dursToPlayThrough' x0) (tr $ dursToPlayThrough' y0)
+    -- Since x and y both have to finish at the same time,
+    -- they must run through this many durs.
 
-      -- next, space out the xs to make room for the ys, and vice versa
-      adjustx, adjusty :: (Int,V.Vector (Ev' l a)) -> V.Vector (Ev' l a)
-      adjustx (idx,v) = V.map f v where
-        f = over evArc (\(x,y) -> (g x, g y)) where
-          g = (+) $ fromIntegral idx * _dur' y
-      adjusty (idx,v) = V.map f v where
-        f = over evArc (\(x,y) -> (g x, g y)) where
-          g = (+) $ fromIntegral idx * _dur' x
-      xs, ys :: [V.Vector (Ev' l a)]
-      xs = map adjustx ixs
-      ys = map adjusty iys
-  in Museq' { _sup' = durs * (_dur' x + _dur' y)
-            , _dur' =         _dur' x + _dur' y
+  xs = map adjustx ixs where
+    ixs :: [(Int,V.Vector (Ev' l a))]
+    ixs = zip [0..] $ unsafeExplicitReps' (durs * _dur' x0) x0
+      -- ixs uses a 0 because it starts with no ys before it
+    -- adjustx: space out the xs to make room for the ys
+    adjustx :: (Int,V.Vector (Ev' l a)) -> V.Vector (Ev' l a)
+    adjustx (idx,v) = V.map f v where
+      f = over evArc (\(x,y) -> (g x, g y)) where
+        g = (+) $ fromIntegral idx * _dur' y0
+
+  ys = map adjusty iys where
+    iys :: [(Int,V.Vector (Ev' l a))]
+    iys = zip [1..] $ unsafeExplicitReps' (durs * _dur' y0) y0
+      -- iys uses a 1 because it starts with 1 (_dur x) worth of x before it
+    -- adjusty: space out the ys to make room for the xs
+    adjusty :: (Int,V.Vector (Ev' l a)) -> V.Vector (Ev' l a)
+    adjusty (idx,v) = V.map f v where
+      f = over evArc (\(x,y) -> (g x, g y)) where
+        g = (+) $ fromIntegral idx * _dur' x0
+
+  in Museq' { _sup' = durs * (_dur' x0 + _dur' y0)
+            , _dur' =         _dur' x0 + _dur' y0
             , _vec' = V.concat $ interleave xs ys }
 
 -- todo ? speed this up dramatically by computing start times once, rather
@@ -119,9 +127,10 @@ stack x y = let t = timeForBothToRepeat x y
 -- | Prefixes a string not in the first arg's names to the second one's
 stack' :: forall a l m. (Show l, Show m)
        => Museq' l a -> Museq' m a -> Museq' String a
-stack' x y = sortMuseq' $ _stack' (labelsToStrings x) (labelsToStrings y)
+stack' x0 y0 = sortMuseq' $
+  _stack' (labelsToStrings x0) (labelsToStrings y0)
   where
-  _stack' :: forall a. Museq' String a -> Museq' String a -> Museq' String a
+  _stack' :: Museq' String a -> Museq' String a -> Museq' String a
   _stack' x y = stack'' (over vec' (V.map fx) x) (over vec' (V.map fy) y)
     where -- append a label unused in x's events to all of y's event labels
     fx :: Ev' String a -> Ev' String a
@@ -176,16 +185,14 @@ merge' :: forall a b c l m. (Show l, Show m)
        -> Museq' l a
        -> Museq' m b
        -> Museq' String c
-merge' op a b = _merge' op (labelsToStrings a) (labelsToStrings b) where
-  _merge' :: forall a b c.
-            (a -> b -> c)
-         -> Museq' String a
-         -> Museq' String b
-         -> Museq' String c
-  _merge' op x y = Museq' { _dur' = _dur' y -- arbitrary
-                          , _sup' = tbr
-                          , _vec' = V.fromList
-                                   $ alignAndJoin' op xps yps } where
+merge' op a b = _merge' (labelsToStrings a) (labelsToStrings b) where
+  _merge' :: Museq' String a
+          -> Museq' String b
+          -> Museq' String c
+  _merge' x y = Museq' { _dur' = _dur' y -- arbitrary
+                       , _sup' = tbr
+                       , _vec' = V.fromList
+                                 $ alignAndJoin' op xps yps } where
     tbr = timeForBothToRepeat' x y
     xs, xps :: [Event RTime String a]
     ys, yps :: [Event RTime String b]
@@ -231,7 +238,7 @@ mergea' m n =
   where  f "amp" = (+) -- ^ add amplitudes, multiply others
          f _     = (*)
 
-meta :: forall a b c. Museq (Museq a -> Museq b) -> Museq a -> Museq b
+meta :: forall a b. Museq (Museq a -> Museq b) -> Museq a -> Museq b
 meta x y = sortMuseq $ Museq { _dur = _dur y -- arbitrary
                              , _sup = tbr
                              , _vec = V.fromList evs }
@@ -242,11 +249,11 @@ meta x y = sortMuseq $ Museq { _dur = _dur y -- arbitrary
           $ concat [arc 0 1 (tr start) (tr finish) (op y)
                    | ((start,finish),op) <- xs]
 
-meta' :: forall a b c l m. (Show l, Show m)
+meta' :: forall a b l m. (Show l, Show m)
   => Museq' l      (Museq' String a -> Museq' String b)
   -> Museq' m      a
   -> Museq' String b
-meta' x y = _meta' (labelsToStrings x) (labelsToStrings y) where
+meta' x0 y0 = _meta' (labelsToStrings x0) (labelsToStrings y0) where
   _meta' :: Museq' String (Museq' String a -> Museq' String b)
          -> Museq' String a 
          -> Museq' String b
@@ -260,6 +267,6 @@ meta' x y = _meta' (labelsToStrings x) (labelsToStrings y) where
     prefixLabels s = over vec' $ V.map
       $ over evLabel $ deleteShowQuotes . ((++) s)
     evs = map (over evArc $ \(s,t) -> (RTime s, RTime t))
-      $ concat [arc' 0 1 a b $ _evData x $ prefixLabels (_evLabel x) y
-               | x <- xs, let a = tr $ x ^. evStart
-                              b = tr $ x ^. evEnd ]
+      $ concat [arc' 0 1 a b $ _evData anX $ prefixLabels (_evLabel anX) y
+               | anX <- xs, let a = tr $ anX ^. evStart
+                                b = tr $ anX ^. evEnd ]
