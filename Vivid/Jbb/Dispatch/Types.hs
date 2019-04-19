@@ -144,8 +144,8 @@ mkEv0 :: l -> Rational -> a -> Ev' l a -- ^ duration-0 events
 mkEv0 l t a = Event l (fr t, fr t) a
 
 data Museq a = Museq {
-    _dur :: RDuration -- ^ the play duration of the loop
-  , _sup :: RDuration -- ^ the supremum of the possible RTime values
+    _dur :: RDuration -- ^ The play duration of the loop.
+  , _sup :: RDuration -- ^ The supremum of the possible RTime values
     -- in `_vec`. If this is greater than `dur`, the `Museq`will rotate
     -- through different sections of the `vec` each time it plays.
     -- If less than `dur`, the `Museq` will play the entire `vec` more than

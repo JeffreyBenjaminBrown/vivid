@@ -175,22 +175,22 @@ testStack' = TestCase $ do
       z = mkMuseq' 3 [mkEv "z" 1 2 "z"]
   assertBool "stack" $ stack' y z ==
     L.set dur' (_dur' y) ( mkMuseq' 6 [ mkEv "()"  0 3 "()"
-                                    , mkEv "az" 1 2 "z"
-                                    , mkEv "()"  2 5 "()"
-                                    , mkEv "az" 4 5 "z"
-                                    , mkEv "()"  4 7 "()"] )
+                                      , mkEv "az" 1 2 "z"
+                                      , mkEv "()"  2 5 "()"
+                                      , mkEv "az" 4 5 "z"
+                                      , mkEv "()"  4 7 "()"] )
   assertBool "stack" $ stack' (L.set dur' 1 y) z ==
     L.set dur' 1 ( mkMuseq' 6 [ mkEv "()"  0 3 "()"
-                            , mkEv "az" 1 2 "z"
-                            , mkEv "()"  2 5 "()"
-                            , mkEv "az" 4 5 "z"
-                            , mkEv "()"  4 7 "()" ] )
+                              , mkEv "az" 1 2 "z"
+                              , mkEv "()"  2 5 "()"
+                              , mkEv "az" 4 5 "z"
+                              , mkEv "()"  4 7 "()" ] )
   assertBool "stack, where timeToRepeat differs from timeToPlayThrough"
     $ stack' (L.set sup' 1 y) z ==
     L.set dur' 2 ( mkMuseq' 3 [ mkEv "()"  0 3 "()"
-                            , mkEv "az" 1 2 "z"
-                            , mkEv "()"  1 4 "()"
-                            , mkEv "()"  2 5 "()" ] )
+                              , mkEv "az" 1 2 "z"
+                              , mkEv "()"  1 4 "()"
+                              , mkEv "()"  2 5 "()" ] )
 
 testRev :: Test
 testRev = TestCase $ do
@@ -293,7 +293,9 @@ testAppend = TestCase $ do
     assertBool "testAppend" $ append a b ==
       mkMuseq 2 [((0,1),"a"),((1,1),"b")]
     assertBool "testAppend" $ append a2 b ==
-      let m = mkMuseq 2 [((0,1),"a"),((1,1),"b"),((3,3),"b")]
+      let m = mkMuseq 2 [((0,1),"a")
+                        ,((1,1),"b")
+                        ,((3,3),"b")]
       in m {_sup = 4}
     assertBool "testAppend" $ append a12 b ==
       mkMuseq 2 [((0,1),"a"),((1%2,3%2),"a"),((1,1),"b")]

@@ -5,20 +5,21 @@ ScopedTypeVariables
 
 module Vivid.Jbb.Dispatch.Join (
     Museq(..)
-  , append -- ^ forall a. Museq a -> Museq a -> Museq a
+  , append  -- ^ forall a.   Museq a    -> Museq a    -> Museq a
   , append' -- ^ forall l a. Museq' l a -> Museq' l a -> Museq' l a
-  , cat -- ^ [Museq a] -> Museq a -- the name "concat" is taken
-  , cat' -- ^ [Museq' l a] -> Museq' l a -- the name "concat" is taken
-  , stack -- ^ Museq a -> Museq a -> Museq a
-  , stack' -- ^ forall a l m. (Show l, Show m)
-        -- => Museq' l a -> Museq' m a -> Museq' String a
-  , stack'' -- ^ Museq' l a -> Museq' l a -> Museq' l a
-  , merge -- ^ forall a b c. (a -> b -> c) -> Museq a -> Museq b -> Museq c
-  , merge' -- ^ forall a b c l m. (Show l, Show m)
-        -- => (a -> b -> c)
-        -- -> Museq' l a
-        -- -> Museq' m b
-        -- -> Museq' String c
+  , cat     -- ^ [Museq a]    -> Museq a    -- the name "concat" is taken
+  , cat'    -- ^ [Museq' l a] -> Museq' l a -- the name "concat" is taken
+  , stack   -- ^ Museq a      -> Museq a    -> Museq a
+  , stack'  -- ^ forall a l m. (Show l, Show m)
+            -- => Museq' l a  -> Museq' m a -> Museq' String a
+  , stack'' -- ^  Museq' l a  -> Museq' l a -> Museq' l a
+  ,    -- ^ forall a b c. (a -> b -> c)
+            -- -> Museq a -> Museq b -> Museq c
+  , merge'  -- ^ forall a b c l m. (Show l, Show m)
+            -- => (a -> b -> c)
+            -- -> Museq' l a
+            -- -> Museq' m b
+            -- -> Museq' String c
   , mergea , merge0 , merge1  -- ^ Museq Msg -> Museq Msg -> Museq Msg
   , merge0', merge1', mergea' -- ^ forall l m. (Show l, Show m) =>
       -- Museq' l Msg -> Museq' m Msg -> Museq' String Msg
@@ -153,14 +154,16 @@ stack'' x y =
 -- | `merge`` creates a hybrid.
 --
 -- At any time when one of the inputs has nothing happening,
--- the output has nothing happening.
+-- the output has nothing happening. Merge can increase or leave unaffected,
+-- but never decrease, the amount of silence in a pattern.
 --
 -- When merging parameters, you'll probably usually want to use * or +,
 -- on a per-parameter basis. For instance, you might want merging
 -- frequencies 2 and 440 to produce a (multiplied) frequency of 880, but 
 -- merging amplitudes 1 and 2 to give an (added) amplitude of 3.
 --
--- `merge` is abstract. For instance, it specializes to the signature
+-- `merge` is very abstract -- the two inputs can have different types.
+-- For instance, it specializes to the signature
 -- `Museq (a->b) -> Museq a -> Museq b` in the `Applicative Museq` instance.
 --
 -- PITFALL: The choice of the resulting Museq's _dur is arbitrary.
@@ -182,8 +185,8 @@ merge op x y = Museq { _dur = _dur y -- arbitrary
 
 merge' :: forall a b c l m. (Show l, Show m)
        => (a -> b -> c)
-       -> Museq' l a
-       -> Museq' m b
+       -> Museq' l      a
+       -> Museq' m      b
        -> Museq' String c
 merge' op a b = _merge' (labelsToStrings a) (labelsToStrings b) where
   _merge' :: Museq' String a
