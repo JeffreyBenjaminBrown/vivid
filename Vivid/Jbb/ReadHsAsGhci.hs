@@ -23,7 +23,7 @@ import           Data.Void (Void)
 import           Text.Megaparsec
 import           Text.Megaparsec as Megp
 import           Text.Megaparsec.Char
-  (satisfy, string, char, space, space1, anyChar, tab, alphaNumChar)
+  (string, char, space, space1, tab, alphaNumChar)
 import qualified Text.Megaparsec.Char.Lexer as L
 
 
@@ -43,19 +43,19 @@ emptyLine = space >> eof >> return Ignore
 
 comment :: Parser Line
 comment = space >> satisfy (== '-') >> satisfy (== '-')
-  >> skipMany anyChar >> eof >> return Ignore
+  >> skipMany anySingle >> eof >> return Ignore
 
 start :: Parser Line
 start = do c <- satisfy (/= ' ')
-           rest <- Megp.many anyChar
+           rest <- Megp.many anySingle
            return $ Start $ c : rest
 
 more :: Parser Line
 more = do c <- satisfy (== ' ')
-          rest <- Megp.many anyChar
+          rest <- Megp.many anySingle
           return $ More $ c : rest
 
-hsToGhci :: String -> Either (ParseError (Token String) Void) String
+--hsToGhci :: String -> Either (ParseError (Token String) Void) String
 hsToGhci s = do s1 <- mapM (parse line "") $ lines s
                 let s2 = filter (not . ignorable) s1
                     f (Start s) = [":}",":{",s]

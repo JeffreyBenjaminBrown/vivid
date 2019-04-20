@@ -64,7 +64,7 @@ zot = sd ( 0 :: I "amp"
          , 0 :: I "sh-b"
          , 1 :: I "del"
          ) $ do
-  [fb_1] <- localIn(1)
+  fb_1 <- head <$> localIn(1)
   fb01 <- (fb_1 ~+ 1) ~/ 2
   fm <- (V::V "f")
         ~+ (V::V "fm-b") ~* fb_1

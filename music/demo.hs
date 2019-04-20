@@ -6,7 +6,8 @@
 --     From Bash, visit its root folder.
 -- (2) Run "bash sc-start.sh" to start SuperCollider.
 --     (Or start SuperCollider in whatever other way you prefer.)
--- (3) Start GHCI by running "stack ghci".
+-- (3) In another terminal at the same folder,
+--     start GHCI by running "stack ghci".
 -- (4) Run ":s init.hs" to set up the environment.
 -- (5) Run ":. music/demo" to execute this file.
 --

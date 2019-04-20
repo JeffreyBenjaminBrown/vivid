@@ -12,8 +12,7 @@ import Vivid
 import Vivid.SC.SynthDef.Types
 
 -- | 'Dbrown' example from the SC help file
--- HERE:
-dbrown_example :: SDBody' a [Signal]
+dbrown_example :: SDBody' args [Signal]
 dbrown_example = do
    mx <- mouseX (min_ 1, max_ 40, warp_ 1)
    imp <- impulse (freq_ mx) ? KR

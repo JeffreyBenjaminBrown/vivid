@@ -1,7 +1,7 @@
 name:                vivid
-version:             0.3.0.2
+version:             0.4.2.3
 synopsis:            Sound synthesis with SuperCollider
-description:
+description:         
   Music and sound synthesis with SuperCollider.
   .
   Example usage (after installing and booting SuperCollider):
@@ -12,11 +12,7 @@ description:
   .
   > import Vivid
   >
-  > theSound = sd (0 ::I "note") $ do
-  >    wobble <- sinOsc (freq_ 5) ? KR ~* 10 ~+ 10
-  >    s <- 0.1 ~* sinOsc (freq_ $ midiCPS (V::V "note") ~+ wobble)
-  >    out 0 [s,s]
-  >
+  > playSong :: VividAction m => m ()
   > playSong = do
   >    fork $ do
   >       s0 <- synth theSound (36 ::I "note")
@@ -29,6 +25,13 @@ description:
   >    wait (1/4)
   >    free s1
   >
+  > theSound :: SynthDef '["note"]
+  > theSound = sd (0 ::I "note") $ do
+  >    wobble <- sinOsc (freq_ 5) ? KR ~* 10 ~+ 10
+  >    s <- 0.1 ~* sinOsc (freq_ $ midiCPS (V::V "note") ~+ wobble)
+  >    out 0 [s,s]
+  >
+  > main :: IO ()
   > main = do
   >    putStrLn "Simplest:"
   >    playSong
@@ -40,7 +43,7 @@ description:
   >    putStrLn "Written to a file, non-realtime synthesis:"
   >    putStrLn "(Need to quit the running server for NRT)"
   >    quitSCServer
-  >    writeNRT "/tmp/song.wav" playSong
+  >    writeNRT "song.wav" playSong
 author:              Tom Murphy
 maintainer:          Tom Murphy
 category:            Audio, Music, Sound
@@ -128,7 +131,7 @@ library
     , Vivid.UGens.Triggers
     , Vivid.UGens.Undocumented
     , Vivid.UGens.UserInteraction
-  -- other-modules:
+  -- other-modules:       
   build-depends:
    -- These package bounds are to comply with the PVP
    -- (https://wiki.haskell.org/Package_versioning_policy).
@@ -141,6 +144,9 @@ library
       -- Auto bounds from 'cabal init':
       base
 
+    -- TEMP:
+    , binary
+
       -- Lower bound:
       --    Just a guess -- 0.5.0.2 is >5 years old
       --    I don't have a reason to think it needs a lower bound
@@ -148,9 +154,6 @@ library
       -- Upper bound:
       --    0.9 doesn't exist yet
       -- Try: "> 0.5.0.2 && < 0.9"
-
-   -- todo: maybe remove?:
-    -- , binary
 
       -- Lower bound:
       --    Just a guess -- 0.9.1.8 is >5 years old
@@ -169,10 +172,7 @@ library
       --    0.6 doesn't exist yet
       -- Try: "> 0.4.0.0 && < 0.6"
 
-    -- , cereal
-
     , containers
-
     , directory
 
       -- Lower bound:
@@ -190,6 +190,7 @@ library
      -- Upper bound:
      --    1.3 doesn't exist yet
      -- Try: "&& < 1.3"
+
     , hashable
 
       -- Lower bound:
@@ -308,7 +309,7 @@ library
     -fconstraint-solver-iterations=0
 
 -- TODO:
--- testsuite
+-- testsuite 
 --   build-depends:
 --       vivid
 --     , microspec

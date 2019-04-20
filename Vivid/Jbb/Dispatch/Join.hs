@@ -13,8 +13,7 @@ module Vivid.Jbb.Dispatch.Join (
   , stack'  -- ^ forall a l m. (Show l, Show m)
             -- => Museq' l a  -> Museq' m a -> Museq' String a
   , stack'' -- ^  Museq' l a  -> Museq' l a -> Museq' l a
-  ,    -- ^ forall a b c. (a -> b -> c)
-            -- -> Museq a -> Museq b -> Museq c
+  , merge   -- ^ forall a b c. (a -> b -> c) -> Museq a -> Museq b -> Museq c
   , merge'  -- ^ forall a b c l m. (Show l, Show m)
             -- => (a -> b -> c)
             -- -> Museq' l a

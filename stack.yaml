@@ -1,2 +1,2 @@
-resolver: lts-12.0
-# resolver: lts-13.5
+# resolver: lts-12.0
+resolver: lts-13.5
