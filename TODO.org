@@ -1,0 +1,32 @@
+* the ' notation indicates moving names from Notes to Museqs
+* Museqs (both kinds) contain Events, which (both kinds) have start and end
+* TODO maybe off should be a (common) synth param, but only implicit from Museqs
+* TODO a way to break the "silence dominates" rule
+Suppose two patterns A and B are merged, 
+and they have voices A0, B0 and B1.
+If B0 and B1 are both off, and "action dominates" rather than silence,
+then A0 should sound, and not the merges AO+B0 and A0+B1.
+As soon as either B0 or B1 comes back, A0 should be replaced with A0+Bx.
+Only when both B0 and B1 are both on ini B should we hear A0+B0 and A0+B1.
+* TODO Theory: The problem with joining named patterns
+** Monophonic voices => Names created from joining two notes must be unique.
+** TODO If both Museqs have polyphony, how many notes to make? What to call them?
+** TODO If the two input Museqs have no forever notes, will the output?
+** TODO solution ? Make "note off" a special kind of event that breaks the "silence wins" rule.
+*** what that means
+Normally, if either Museq is silent 
+(in the sense of sending no messages
+, not in the sense of 0-amplitude) 
+then the merge or meta of the two of them is silent.
+But "note off" could be a kind of message that propgates into the join always.
+*** TODO If museq `a` says note off while polyphonic museq `b` is silent
+then the merge of `a` and `b` must propogate the note-off message
+to every relevant voice -- that is, each that starts with the name
+used by museq `a`.
+** TODO solution ? "note off" events of duration > 0
+so that always, for each voice (event name) used by a Museq, something is happening
+* TODO ? the Join functions that accept two kinds of labels are dumb
+They should accept only one kind, in the Monoid class, 
+and join them if needed with (<>).
+* leads
+./Dispatch/Dispatch.hs: -- todo ? awkward : The Ev' label gets repeated within the Action. 
