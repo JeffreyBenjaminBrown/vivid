@@ -30,21 +30,26 @@ data SynthDefEnum = Boop -- PITFALL ! keep alphabetically ordered
                   | Zot
   deriving (Show,Eq,Ord)
 
+
 -- | = Boop
 
-type BoopParams = '["freq","amp"]
-data BoopParam = BoopFreq | BoopAmp
+type BoopParams = '["freq",    "amp",    "on"]
+data BoopParam = BoopFreq | BoopAmp | BoopOn
 
 boop :: SynthDef BoopParams
 boop = sd ( 0    :: I "freq"
           , 0.01 :: I "amp"
+          , 0    :: I "on"
           ) $ do
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "freq"))
-   out 0 [s1, s1]
+   s2 <- s1 ~* lag ( in_ (V::V "on")
+                   , lagSecs_ 0.01 )
+   out 0 [s2, s2]
 
 boopSaw :: SynthDef BoopParams
 boopSaw = sd ( 0    :: I "freq"
              , 0.01 :: I "amp"
+             , 1 :: I "on" -- TODO : use
              ) $ do
    s1 <- (V::V "amp") ~* saw (freq_ (V::V "freq"))
    out 0 [s1, s1]
@@ -52,6 +57,7 @@ boopSaw = sd ( 0    :: I "freq"
 boopPulse :: SynthDef BoopParams
 boopPulse = sd ( 0    :: I "freq"
                , 0.01 :: I "amp"
+               , 1 :: I "on" -- TODO : use
                ) $ do
    s1 <- (V::V "amp") ~* pulse (freq_ (V::V "freq"))
    out 0 [s1, s1]
