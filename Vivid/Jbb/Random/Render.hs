@@ -11,8 +11,6 @@ import qualified Data.Map as M
 
 import Vivid
 import Vivid.Jbb.Random.Types
-import Vivid.Jbb.Random.RandomSignal
-import Vivid.Jbb.Random.RandomSynth
 
 
 type RenderTarget = SDBody' TheAbParams Signal

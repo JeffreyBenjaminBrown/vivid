@@ -4,7 +4,6 @@ module Vivid.Jbb.Random.RandomSynth where
 
 import qualified Data.Map as M
 
-import Vivid
 import Vivid.Jbb.Random.Types
 import Vivid.Jbb.Random.RandomSignal
 import Vivid.Jbb.Random.MentionsSig
@@ -12,8 +11,8 @@ import Vivid.Jbb.Util (unique)
 
 
 randAbSynth :: RandConstraints -> IO AbSynth
-randAbSynth cs = -- TODO : prune cs <$>
-  go cs M.empty where
+randAbSynth cs0 = -- TODO : prune cs <$>
+  go cs0 M.empty where
   go :: RandConstraints -> AbSynth -> IO AbSynth
   go cs m = if namedSignals cs >= maxSignals cs
             then return m
@@ -26,15 +25,15 @@ randAbSynth cs = -- TODO : prune cs <$>
 -- TODO : debug `prune`; it seems to strip everything but the last
 -- | After pruning, every remaining signal influences the last one
 prune :: RandConstraints -> AbSynth -> AbSynth
-prune cs m =
-  let theUnused = unused cs [maximum $ M.keys m] m
+prune cs m0 =
+  let theUnused = unused cs [maximum $ M.keys m0] m0
       deleteKeys :: Ord k => [k] -> M.Map k a -> M.Map k a
       deleteKeys ks m = foldl (flip M.delete) m ks
-  in deleteKeys (M.keys theUnused) m
+  in deleteKeys (M.keys theUnused) m0
 
 -- | Produces an AbSynth containing only the unused signals
 unused :: RandConstraints -> [AbSigName] -> AbSynth -> AbSynth
-unused cs [] all = all
+unused _ [] all0 = all0
 unused cs (u:used) m =
   let newMentions = allMentions cs u
       m' = M.delete u m

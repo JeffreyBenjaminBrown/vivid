@@ -13,11 +13,11 @@ When merging, choose whether "off" is multiplicative or additive.
 If additive, it has a maximum of 1.
 Make a Museq constructor that automatically creates "off=1" events
 (with no other parameters going on) to fill in all gaps for each voice.
-** to prevent loud unisons
-Use per-voice explicit or random phase|freq variation.
-This way, when a polyphonic Museq is joined with another,
-and the poly one is silent,
-the many voices will not create huge waveform peaks.
+** TODO to prevent loud unisons
+ Use per-voice explicit or random phase|freq variation.
+ This way, when a polyphonic Museq is joined with another,
+ and the poly one is silent,
+ the many voices will not create huge waveform peaks.
 ** DONE it solves all these problems
 *** TODO a way to break the "silence dominates" rule
 Suppose two patterns A and B are merged,

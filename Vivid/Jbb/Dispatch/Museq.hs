@@ -7,6 +7,14 @@ module Vivid.Jbb.Dispatch.Museq (
     mkMuseq  -- ^ RDuration -> [((Rational,Rational),a)] -> Museq a
   , mkMuseq0 -- ^ RDuration -> [(Rational,a)]            -> Museq a
   , mkMuseq' -- ^ RDuration -> [Ev' l a]                 -> Museq' l a
+  , mkMuseq'h -- ^ forall a l. Ord l
+              -- => RDuration -> [(l,RDuration,a)] -> Museq' l a
+  , mkMuseq'ho -- ^ forall a l. Ord l
+               -- => RDuration -> [(l,RDuration,Msg)] -> Museq' l Msg
+  , hold     -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
+  , insertOns -- ^  Ev' l (M.Map String Float)
+              -- -> Ev' l (M.Map String Float)
+
   , toMuseqAction -- ^ String -> SynthDefEnum
                   -- -> Museq (NamedWith String Msg) -> Museq Action
 
@@ -120,12 +128,59 @@ mkMuseq0 :: RDuration -> [(Rational,a)] -> Museq a
 mkMuseq0 d tas = let f (t,val) = ((fr t, fr t), val)
   in sortMuseq $ Museq { _dur = d, _sup = d
                        , _vec = V.fromList $ map f tas }
-  
+
 -- | Make a Museq', specifying start and end times
 mkMuseq' :: RDuration -> [Ev' l a] -> Museq' l a
 mkMuseq' d evs = sortMuseq' $ Museq' { _dur' = d
                                      , _sup' = d
                                      , _vec' = V.fromList $ evs }
+
+-- | Make a `Museq'` from a list of `(label, start, value)` tuples,
+-- using `hold` to sustain each event until the next.
+mkMuseq'h :: forall a l. Ord l
+          => RDuration -> [(l,RDuration,a)] -> Museq' l a
+mkMuseq'h d evs0 = let
+  evs1 :: [(l,(RDuration,a))] =
+    map (\(l,t,a) -> (l,(t,a))) evs0
+  evs2 :: [(l,[(RDuration,a)])] =
+    multiPartition evs1
+  evs3 :: [(l,[((RDuration,RDuration),a)])] =
+    map (_2 %~ hold d) evs2
+  evs4 :: [Ev' l a] = concatMap f evs3 where
+    f (l,ttas) = map g ttas where
+      g :: ((RDuration,RDuration),a) -> Ev' l a
+      g ((t,s),a) = Event { _evLabel = l
+                          , _evArc = (t,s)
+                          , _evData = a }
+  in mkMuseq' d evs4
+
+-- | Like `mkMuseq'h`, but inserts `on = 1` in `Event`s that do not
+-- mention the `on` parameter. Specialized to `Msg` payloads.
+mkMuseq'ho :: forall l. Ord l
+          => RDuration -> [(l,RDuration,Msg)] -> Museq' l Msg
+mkMuseq'ho d evs0 =
+  mkMuseq'h d evs0 & vec' %~ V.map insertOns
+
+-- | `hold sup0 tas` sustains each event in `tas` until the next one starts.
+-- The `sup0` parameter indicates the total duration of the pattern,
+-- so that the last one can wrap around appropriately.
+hold :: forall a t. Num t => t -> [(t,a)] -> [((t,t),a)]
+hold sup0 tas = _hold tas where
+  endTime = fst (head tas) + sup0
+
+  _hold :: [(t,a)] -> [((t,t),a)]
+  _hold [] = []
+  _hold [(t,a)] =
+    [((t,endTime),a)]
+  _hold ((t0,a0):(t1,a1):rest) =
+    ((t0,t1),a0) : _hold ((t1,a1):rest)
+
+-- | `insertOns` does not change any extant `on` messages,
+-- but where they are missing, it inserts `on = 1`.
+insertOns :: Ev' l (M.Map String Float)
+          -> Ev' l (M.Map String Float)
+insertOns = evData %~ M.insertWith (flip const) "on" 1
+
 
 -- | Convert from user type `Museq (NamedWith String Msg)`
 toMuseqAction ::

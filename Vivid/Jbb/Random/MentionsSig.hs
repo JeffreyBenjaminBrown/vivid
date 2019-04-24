@@ -1,8 +1,6 @@
 module Vivid.Jbb.Random.MentionsSig where
 
-import Vivid
 import Vivid.Jbb.Random.Types
-import Vivid.Jbb.Random.RandomSignal
 
 
 class MentionsSig a where
