@@ -18,6 +18,7 @@ module Vivid.Jbb.Util (
   , interleave
   , deleteAll
   , deleteShowQuotes
+  , multiPartition -- ^ forall a b. Ord a => [(a,b)] -> [ (a,[b]) ]
 
   -- | = numbers & time
   , fr -- ^ fromRational
@@ -37,6 +38,7 @@ module Vivid.Jbb.Util (
 import Control.Monad.ST
 import Data.Ratio
 import qualified Data.List as L
+import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Data.Vector as V
 import Data.Vector.Algorithms.Search
@@ -121,6 +123,15 @@ deleteShowQuotes :: String -> String
   -- TODO ? `deleteAllSubstrings "\""` would be more natural, and maybe safer.
   -- With this, if someone used '\' on its own, it would disappear.
 deleteShowQuotes = deleteAll '\"' . deleteAll '\\'
+
+-- | `multiPartition abs` preserves the order of the `b`s
+-- within each `a` group.
+multiPartition :: forall a b. Ord a => [(a,b)] -> [ (a,[b]) ]
+multiPartition abs = let
+  f :: (a,b) -> M.Map a [b] -> M.Map a [b]
+  f (a,b) = M.insertWith (++) a [b]
+  in M.toList $ foldr f M.empty abs
+
 
 -- | = Time
 

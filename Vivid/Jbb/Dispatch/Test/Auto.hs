@@ -57,7 +57,15 @@ tests = runTestTT $ TestList
   , TestLabel "testIntNameEvents'" testIntNameEvents'
   , TestLabel "testNameAnonEvents" testNameAnonEvents
   , TestLabel "testNameAnonEvents'" testNameAnonEvents'
+  , TestLabel "testMultiPartition" testMultiPartition
   ]
+
+testMultiPartition :: Test
+testMultiPartition = TestCase $ do
+  assertBool "1" $ multiPartition [(1,2), (1,3)
+                                  ,(2,1), (2,0)]
+                               == [(1, [2,3])
+                                  ,(2, [1,0])]
 
 testOverlap :: Test
 testOverlap = TestCase $ do

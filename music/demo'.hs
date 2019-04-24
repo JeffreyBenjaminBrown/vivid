@@ -24,7 +24,7 @@
 -- | = first halt anything that might already be running.
 
 hush -- don't worry if this is not defined
-off -- don't worry if this is not defined
+off  -- don't worry if this is not defined
 
 
 -- | = Then create new stuff
@@ -71,7 +71,7 @@ toBoop = Note' Boop
 
 replaceAll' disp
   $ M.fromList [ ("a slow pattern", toBoop <$> p 400 500)
-               , ("a faster one", toBoop <$> p 600 700) ]
+               , ("a faster one",   toBoop <$> p 600 700) ]
 
 x = stack'
     (append' (p 600 700)
