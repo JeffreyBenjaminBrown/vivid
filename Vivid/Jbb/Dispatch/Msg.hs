@@ -35,9 +35,10 @@ vapMsg = map vapOneMsg . M.toList
 -- | = send a message regarding a single parameter
 
 boopOneMsg :: (ParamName, Float) -> Msg' BoopParams
-boopOneMsg ("freq",n)           = Msg' (toI n :: I "freq")
-boopOneMsg ("amp",n)            = Msg' (toI n :: I "amp")
-boopOneMsg (param,val)           = error $
+boopOneMsg ("on",n)    = Msg' (toI n :: I "on")
+boopOneMsg ("freq",n)  = Msg' (toI n :: I "freq")
+boopOneMsg ("amp",n)   = Msg' (toI n :: I "amp")
+boopOneMsg (param,val) = error $
   "boopOneMsg: unexpected message: " ++ show param ++ "=" ++ show val
 
 sqfmOneMsg :: (ParamName, Float) -> Msg' SqfmParams
