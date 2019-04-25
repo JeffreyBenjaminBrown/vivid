@@ -12,8 +12,8 @@ module Vivid.Jbb.Dispatch.Museq (
   , mkMuseq'ho -- ^ forall a l. Ord l
                -- => RDuration -> [(l,RDuration,Msg)] -> Museq' l Msg
   , hold     -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
-  , insertOns -- ^  Ev' l (M.Map String Float)
-              -- -> Ev' l (M.Map String Float)
+  , insertOffs -- ^ Museq' l Msg -> Museq' l Msg
+  , insertOns  -- ^ Museq' l Msg -> Museq' l Msg
 
   , toMuseqAction -- ^ String -> SynthDefEnum
                   -- -> Museq (NamedWith String Msg) -> Museq Action
@@ -158,8 +158,7 @@ mkMuseq'h d evs0 = let
 -- mention the `on` parameter. Specialized to `Msg` payloads.
 mkMuseq'ho :: forall l. Ord l
           => RDuration -> [(l,RDuration,Msg)] -> Museq' l Msg
-mkMuseq'ho d evs0 =
-  mkMuseq'h d evs0 & vec' %~ V.map insertOns
+mkMuseq'ho d evs0 = insertOns $ mkMuseq'h d evs0
 
 -- | `hold sup0 tas` sustains each event in `tas` until the next one starts.
 -- The `sup0` parameter indicates the total duration of the pattern,
@@ -175,11 +174,21 @@ hold sup0 tas = _hold tas where
   _hold ((t0,a0):(t1,a1):rest) =
     ((t0,t1),a0) : _hold ((t1,a1):rest)
 
+-- | `insertOffs` turns every message off,
+-- whether it was on or off before.
+insertOffs :: Museq' l Msg -> Museq' l Msg
+insertOffs = vec' %~ V.map go where
+  go :: Ev' l (M.Map String Float)
+     -> Ev' l (M.Map String Float)
+  go = evData %~ M.insert "on" 0
+
 -- | `insertOns` does not change any extant `on` messages,
 -- but where they are missing, it inserts `on = 1`.
-insertOns :: Ev' l (M.Map String Float)
-          -> Ev' l (M.Map String Float)
-insertOns = evData %~ M.insertWith (flip const) "on" 1
+insertOns :: Museq' l Msg -> Museq' l Msg
+insertOns = vec' %~ V.map go where
+  go :: Ev' l (M.Map String Float)
+     -> Ev' l (M.Map String Float)
+  go = evData %~ M.insertWith (flip const) "on" 1
 
 
 -- | Convert from user type `Museq (NamedWith String Msg)`

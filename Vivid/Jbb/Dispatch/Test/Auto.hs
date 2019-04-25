@@ -59,22 +59,7 @@ tests = runTestTT $ TestList
   , TestLabel "testNameAnonEvents'" testNameAnonEvents'
   , TestLabel "testMultiPartition" testMultiPartition
   , TestLabel "testHold" testHold
-  , TestLabel "testInsertOns" testInsertOns
   ]
-
-testInsertOns :: Test
-testInsertOns = TestCase $ do
-  let e a = Event { _evLabel = ()
-                  , _evArc = (0,1)
-                  , _evData = a }
-  assertBool "1" $ insertOns (e M.empty)
-                           == e (M.singleton "on" 1)
-  assertBool "1" $ insertOns (e $ M.singleton "on" 0)
-                          == (e $ M.singleton "on" 0)
-  assertBool "1" $ insertOns (e $ M.singleton "on" 1)
-                          == (e $ M.singleton "on" 1)
-  assertBool "1" $ insertOns (e $ M.singleton "geese" 1)
-    == e (M.fromList [("geese",1), ("on",1)])
 
 testHold :: Test
 testHold = TestCase $ do
