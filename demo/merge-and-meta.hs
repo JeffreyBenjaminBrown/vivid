@@ -10,7 +10,8 @@
 --     start GHCI by running "stack ghci".
 -- (4) Run ":s init.hs" to set up the environment.
 -- (5) Run ":. music/<this file's name>" to execute this file, after
---     substituting the actual name of this file between the < and the >.
+--     substituting the actual name of this file between the < and the >,
+--     but without including the .hs file extension.
 --
 -- If at any point there's some multi-line code that you want to evaluate
 -- without interrupting the ongoing GHCI context,
@@ -34,12 +35,12 @@ off = killThread tid >> freeAll -- run "off" to stop the program
 
 p f = mkMuseq'ho 3
   [ ("a", 0, M.singleton "freq" f)
-  , ("a", 1, M.singleton "freq" $ f*1.2)
+  , ("a", 1, M.singleton "freq" $ f*7/4)
   , ("a", 2, M.singleton "on" 0)]
 
 q f = mkMuseq'ho 1
   [ ("a", 0, M.fromList [("freq",f)])
-  , ("b", 0, M.fromList [("freq",f*3/2)]) ]
+  , ("b", 0, M.fromList [("freq",f*5/4)]) ]
 
 m = mkMuseq' 9
   [ Event "a" (0,3) id
@@ -52,4 +53,7 @@ m = mkMuseq' 9
   ]
 
 replaceAll' disp $ M.fromList
-   [ ("1", Note' Boop <$> meta' m (mergea' (p 1) (q 400))) ]
+   [ ("1", Note' Boop <$> meta' m (p 400) ) ]
+
+--replaceAll' disp $ M.fromList
+--   [ ("1", Note' Boop <$> meta' m (mergea' (p 1) (q 400))) ]

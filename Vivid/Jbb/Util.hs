@@ -3,6 +3,12 @@
 module Vivid.Jbb.Util (
   writeTimeAndError
 
+  -- | abbreviations
+  , fr -- ^ fromRational
+  , tr -- ^ toRational
+  , m1 -- ^ M.singleton
+  , mfl -- ^ M.fromList
+
   -- | randomness
   , pickSome
   , pickSome'
@@ -21,8 +27,6 @@ module Vivid.Jbb.Util (
   , multiPartition -- ^ forall a b. Ord a => [(a,b)] -> [ (a,[b]) ]
 
   -- | = numbers & time
-  , fr -- ^ fromRational
-  , tr -- ^ toRational
   , lcmRatios
   , bumpArc
   , overlap
@@ -51,6 +55,20 @@ writeTimeAndError :: String -> IO ()
 writeTimeAndError msg = do now <- getTime
                            appendFile "errors.txt"
                              $ show now ++ ": " ++ msg
+
+-- | abbreviations
+
+fr :: Fractional a => Rational -> a
+fr = fromRational
+
+tr :: Real a => a -> Rational
+tr = toRational
+
+m1 :: k -> a -> M.Map k a
+m1 = M.singleton
+
+mfl :: Ord k => [(k, a)] -> M.Map k a
+mfl = M.fromList
 
 
 -- | Randomness
@@ -134,12 +152,6 @@ multiPartition abs = let
 
 
 -- | = Time
-
-fr :: Fractional a => Rational -> a
-fr = fromRational
-
-tr :: Real a => a -> Rational
-tr = toRational
 
 -- | least common denominator
 lcmRatios :: Rational -> Rational -> Rational

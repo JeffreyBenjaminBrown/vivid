@@ -49,3 +49,4 @@ They should accept only one kind, in the Monoid class,
 and join them if needed with (<>).
 * leads
 ./Dispatch/Dispatch.hs: -- todo ? awkward : The Ev' label gets repeated within the Action.
+* also whatever is in org/todo.org

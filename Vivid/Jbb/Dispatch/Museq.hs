@@ -4,14 +4,14 @@
 
 module Vivid.Jbb.Dispatch.Museq (
   -- | = Make a Museq
-    mkMuseq  -- ^ RDuration -> [((Rational,Rational),a)] -> Museq a
-  , mkMuseq0 -- ^ RDuration -> [(Rational,a)]            -> Museq a
-  , mkMuseq' -- ^ RDuration -> [Ev' l a]                 -> Museq' l a
-  , mkMuseq'h -- ^ forall a l. Ord l
-              -- => RDuration -> [(l,RDuration,a)] -> Museq' l a
+    mkMuseq    -- ^ RDuration -> [((Rational,Rational),a)] -> Museq a
+  , mkMuseq0   -- ^ RDuration -> [(Rational,a)]            -> Museq a
+  , mkMuseq'   -- ^ RDuration -> [Ev' l a]                 -> Museq' l a
+  , mkMuseq'h  -- ^ forall a l. Ord l
+               -- => RDuration -> [(l,RDuration,a)] -> Museq' l a
   , mkMuseq'ho -- ^ forall a l. Ord l
                -- => RDuration -> [(l,RDuration,Msg)] -> Museq' l Msg
-  , hold     -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
+  , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
   , insertOffs -- ^ Museq' l Msg -> Museq' l Msg
   , insertOns  -- ^ Museq' l Msg -> Museq' l Msg
 
