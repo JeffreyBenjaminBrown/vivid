@@ -19,12 +19,17 @@ m = mmh 9 -- mmh = make museq' + holds
 
 m2 = mmh 9 $ pre2 "a" [ (0,id), (5,early' (1/2)) ]
 
-replaceAll' disp $ M.fromList
-  [ ("1", Note' Boop <$> meta' m
-          (mergea'
-           (p 400 $ 5/4)
-           (meta' m2 $ fast' 2 $ p 1 $ 3/5)) )
-  , ("2", Note' Boop <$> meta' (fast' 2 m)
-          (mergea'
-           (p 300 $ 10/11)
-           (fast' 2 $ p 1 $ 3/7)) ) ]
+chAll $ mfl
+  [ ("1", nBoop $ -- nBoop :: Museq' l Msg -> Museq' l Note'
+          meta' m $
+          mergea' (p 400 $ 5/4) $
+          meta' m2 $ fast' 2 $ p 1 $ 3/5 )
+  , ("2", nBoop $
+          meta' (fast' 2 m) $
+          mergea' (p 300 $ 10/11) $
+          fast' 2 $ p 1 $ 3/7 ) ]
+
+ch "3" $ nBoop $ -- ch = change
+  meta' m $
+  mergea' (p 500 $ 10/11) $
+  fast' 2 $ p 1 $ 13/9

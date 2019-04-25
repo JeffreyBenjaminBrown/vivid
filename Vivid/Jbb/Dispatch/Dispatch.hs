@@ -9,8 +9,8 @@ module Vivid.Jbb.Dispatch.Dispatch (
   , actSend -- ^ SynthRegister -> Time -> Action -> IO ()
 
   -- | = change the music
-  , stop        -- ^ Dispatch  -> MuseqName -> IO ()
-  , stop'       -- ^ Dispatch' -> MuseqName -> IO ()
+  , stopDispatch        -- ^ Dispatch  -> MuseqName -> IO ()
+  , stopDispatch'       -- ^ Dispatch' -> MuseqName -> IO ()
   , replace     -- ^ Dispatch  -> MuseqName -> Museq Note -> IO ()
   , replace'    -- ^ Dispatch' -> MuseqName -> Museq' String Note' -> IO ()
   , replaceAll  -- ^ Dispatch  -> M.Map MuseqName (Museq Note) -> IO ()
@@ -134,13 +134,13 @@ actSend _ _ (New _ _)  = error "actFree received a New."
 
 -- | = Change the music
 
-stop :: Dispatch -> MuseqName -> IO ()
-stop disp name = do
+stopDispatch :: Dispatch -> MuseqName -> IO ()
+stopDispatch disp name = do
   masOld <- readMVar $ mMuseqs disp
   replaceAll disp $ M.delete name masOld
 
-stop' :: Dispatch' -> MuseqName -> IO ()
-stop' disp name = do
+stopDispatch' :: Dispatch' -> MuseqName -> IO ()
+stopDispatch' disp name = do
   masOld <- readMVar $ mMuseqs' disp
   replaceAll' disp $ M.delete name masOld
 

@@ -1,5 +1,7 @@
 :set prompt "> "
 :set -XDataKinds
+:set -XTupleSections
+
 import qualified Control.Lens as Lens
 import qualified Data.List as L
 import Control.Concurrent

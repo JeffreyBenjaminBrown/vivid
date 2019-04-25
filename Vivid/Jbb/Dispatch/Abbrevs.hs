@@ -4,6 +4,7 @@ module Vivid.Jbb.Dispatch.Abbrevs where
 
 import Vivid.Jbb.Dispatch.Museq
 import Vivid.Jbb.Dispatch.Types
+import Vivid.Jbb.Synths
 
 
 -- | = Abbreviations
@@ -19,6 +20,12 @@ offs = insertOffs
 
 ons :: Museq' l Msg -> Museq' l Msg
 ons = insertOns
+
+nBoop, nVap, nZot, nSqfm :: Museq' l Msg -> Museq' l Note'
+nBoop = (<$>) (Note' Boop)
+nVap  = (<$>) (Note' Vap)
+nZot  = (<$>) (Note' Zot)
+nSqfm = (<$>) (Note' Sqfm)
 
 
 -- | = To write names only once

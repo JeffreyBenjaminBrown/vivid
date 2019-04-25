@@ -10,8 +10,10 @@ module Vivid.Jbb.Dispatch.Join (
   , cat     -- ^ [Museq a]    -> Museq a    -- the name "concat" is taken
   , cat'    -- ^ [Museq' l a] -> Museq' l a -- the name "concat" is taken
   , stack   -- ^ Museq a      -> Museq a    -> Museq a
+  , stacks  -- ^ [Museq a] -> Museq a
   , stack'  -- ^ forall a l m. (Show l, Show m)
             -- => Museq' l a  -> Museq' m a -> Museq' String a
+  , stacks' -- ^ [Museq' l a] -> Museq' String a
   , stack'' -- ^  Museq' l a  -> Museq' l a -> Museq' l a
   , merge   -- ^ forall a b c. (a -> b -> c) -> Museq a -> Museq b -> Museq c
   , merge'  -- ^ forall a b c l m. (Show l, Show m)
@@ -124,6 +126,9 @@ stack x y = let t = timeForBothToRepeat x y
                        , _sup = t
                        , _vec = V.concat $ xs ++ ys}
 
+stacks :: [Museq a] -> Museq a
+stacks = foldl1 stack
+
 -- | Prefixes a string not in the first arg's names to the second one's
 stack' :: forall a l m. (Show l, Show m)
        => Museq' l a -> Museq' m a -> Museq' String a
@@ -138,6 +143,11 @@ stack' x0 y0 = sortMuseq' $
     fy :: Ev' String a -> Ev' String a
     fy = over evLabel $ deleteShowQuotes . (++) unusedInX
     unusedInX = unusedName $ map (view evLabel) $ V.toList $ _vec' x
+
+stacks' :: [Museq' String a] -> Museq' String a
+stacks' = foldl1 _stack' where
+  _stack' :: Museq' String a -> Museq' String a -> Museq' String a
+  _stack' = stack' -- only the type signature is different
 
 -- | Allows the two arguments' namespaces to conflict
 stack'' :: Museq' l a -> Museq' l a -> Museq' l a
