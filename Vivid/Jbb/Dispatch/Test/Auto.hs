@@ -22,18 +22,14 @@ tests = runTestTT $ TestList
   , TestLabel "testNextPhase0" testNextPhase0
   , TestLabel "museqIsValid" testMuseqIsValid
   , TestLabel "museqIsValid'" testMuseqIsValid'
-  , TestLabel "testStack" testStack
   , TestLabel "testStack'" testStack'
   , TestLabel "testRev" testRev
   , TestLabel "testRev'" testRev'
-  , TestLabel "testEarlyAndLate" testEarlyAndLate
   , TestLabel "testEarlyAndLate'" testEarlyAndLate'
-  , TestLabel "testFastAndSlow" testFastAndSlow
   , TestLabel "testFastAndSlow'" testFastAndSlow'
   , TestLabel "testDenseAndSparse" testDenseAndSparse
   , TestLabel "testDenseAndSparse'" testDenseAndSparse'
   , TestLabel "testExplicitReps" testExplicitReps
-  , TestLabel "testAppend" testAppend
   , TestLabel "testAppend'" testAppend'
   , TestLabel "testRep" testRep
   , TestLabel "testRep'" testRep'
@@ -47,9 +43,7 @@ tests = runTestTT $ TestList
   , TestLabel "testPartitionArcAtTimes" testPartitionArcAtTimes
   , TestLabel "testPartitionAndGroupEventsAtBoundaries"
     testPartitionAndGroupEventsAtBoundaries
-  , TestLabel "testMerge" testMerge
   , TestLabel "testMerge'" testMerge'
-  , TestLabel "testMeta" testMeta
   , TestLabel "testMeta'" testMeta'
   , TestLabel "testMuseqNamesAreValid" testMuseqNamesAreValid
   , TestLabel "testMuseqNamesAreValid'" testMuseqNamesAreValid'
@@ -160,29 +154,6 @@ testMuseqIsValid' = TestCase $ do
   assertBool "invalid, time > _sup" $ not $ museqIsValid'
     $ mkMuseq' 1 [mkEv0 "1" 2 () ]
 
-testStack :: Test
-testStack = TestCase $ do
-  let y = mkMuseq 2 [((0,3),"y")]
-      z = mkMuseq 3 [((1,2),"z")]
-  assertBool "stack" $ stack y z ==
-    L.set dur (_dur y) ( mkMuseq 6 [((0,3),"y")
-                                 ,((1,2),"z")
-                                 ,((2,5),"y")
-                                 ,((4,5),"z")
-                                 ,((4,7),"y") ] )
-  assertBool "stack" $ stack (L.set dur 1 y) z ==
-    L.set dur 1 ( mkMuseq 6 [((0,3),"y")
-                           ,((1,2),"z")
-                           ,((2,5),"y")
-                           ,((4,5),"z")
-                           ,((4,7),"y") ] )
-  assertBool "stack, where timeToRepeat differs from timeToPlayThrough"
-    $ stack (L.set sup 1 y) z ==
-    L.set dur 2 ( mkMuseq 3 [((0,3),"y")
-                           ,((1,2),"z")
-                           ,((1,4),"y")
-                           ,((2,5),"y") ] )
-
 testStack' :: Test
 testStack' = TestCase $ do
   let y = mkMuseq' 2 [mkEv () 0 3 "()"]
@@ -224,16 +195,6 @@ testRev' = TestCase $ do
                                         , mkEv () (3/2) (3 /2)  "c"
                                         , mkEv () (5/3) (13/3) "b" ]
 
-testEarlyAndLate :: Test
-testEarlyAndLate = TestCase $ do
-  let a = mkMuseq 10 [((0,11),"a"),((1,2),"b")]
-  assertBool "early" $ _vec (early 1 a) ==
-    V.fromList [((0,1),"b"),((9,20),"a")]
-
-  let a' = mkMuseq 10 [((0,11),"a"),((1,2),"b")]
-  assertBool "late" $ _vec (late 1 a') ==
-    V.fromList [((1,12),"a"),((2,3),"b")]
-
 testEarlyAndLate' :: Test
 testEarlyAndLate' = TestCase $ do
   let a = mkMuseq' 10 [ mkEv () 0 11 "a"
@@ -247,12 +208,6 @@ testEarlyAndLate' = TestCase $ do
   assertBool "late" $ _vec' (late' 1 a') ==
     V.fromList [ mkEv () 1 12 "a"
                , mkEv () 2 3 "b"]
-
-testFastAndSlow :: Test
-testFastAndSlow = TestCase $ do
-  let a = mkMuseq 10 [((0,20),"a"),((2,2),"b")]
-  assertBool "fast" $ (fast 2 a) == mkMuseq 5 [((0,10),"a"),((1,1),"b")]
-  assertBool "slow" $ (slow 2 a) == mkMuseq 20 [((0,40),"a"),((4,4),"b")]
 
 testFastAndSlow' :: Test
 testFastAndSlow' = TestCase $ do
@@ -296,27 +251,6 @@ testExplicitReps = TestCase $ do
     , V.fromList [((20,23),())]
     , V.fromList [((21,21),())]
     ]
-
-testAppend :: Test
-testAppend = TestCase $ do
-    let a = mkMuseq 1 [((0,1),"a")]
-        a2  = a {_sup = RTime $ 2}
-        a12 = a {_sup = RTime $ 1%2}
-        a32 = a {_sup = RTime $ 3%2}
-        b = mkMuseq 1 [((0,0),"b")]
-    assertBool "testAppend" $ append a b ==
-      mkMuseq 2 [((0,1),"a"),((1,1),"b")]
-    assertBool "testAppend" $ append a2 b ==
-      let m = mkMuseq 2 [((0,1),"a")
-                        ,((1,1),"b")
-                        ,((3,3),"b")]
-      in m {_sup = 4}
-    assertBool "testAppend" $ append a12 b ==
-      mkMuseq 2 [((0,1),"a"),((1%2,3%2),"a"),((1,1),"b")]
-    assertBool "testAppend" $ append a32 b ==
-      let m = mkMuseq 2 [((0,1),"a"), ((1,1),"b"), ((2+1/2,3+1/2),"a")
-                       , ((3,3),"b"), ((5,5),"b")]
-      in m {_sup = 6}
 
 testAppend' :: Test
 testAppend' = TestCase $ do
@@ -488,41 +422,6 @@ testPartitionAndGroupEventsAtBoundaries = TestCase $ do
        ,((3,4),"b")
        ]
 
-testMerge :: Test
-testMerge = TestCase $ do
-  let a  = Museq {_dur = 2, _sup = 2, _vec = V.fromList [ ((0,1),"a") ] }
-      bc = Museq {_dur = 3, _sup = 3, _vec = V.fromList [ ((0,1),"b")
-                                                        , ((1,2),"c") ] }
-      op = Museq {_dur = 3, _sup = 1.5, _vec = V.singleton ((0,1),(++) " ") }
-  assertBool "merge" $ merge (++) a bc
-    == Museq {_dur = 3, _sup = 6,
-              _vec = V.fromList [ ((0,1),"ab")
-                                , ((4,5),"ac") ] }
-  assertBool "apply" $ (op <*> bc)
-    == Museq {_dur = 3, _sup = 3,
-              _vec = V.fromList [ ((0,1),  " b")
-                                , ((1.5,2)," c")
-                                ] }
-
-  let a' = Museq {_dur = 2, _sup = 2,
-                 _vec = V.fromList [ ((0,1), M.fromList [("amp",2)
-                                                        ,("freq",2)] ) ] }
-      bc' = Museq {_dur = 3, _sup = 3,
-                 _vec = V.fromList [ ((0,1), M.singleton "amp" 0)
-                                   , ((1,2), M.singleton "freq" 0) ] }
-  assertBool "merge0" $ merge0 a' bc'
-    == Museq {_dur = 3, _sup = 6,
-              _vec = V.fromList [ ((0,1),M.fromList [("amp",2)
-                                                    ,("freq",2)])
-                                , ((4,5),M.fromList [("amp",2)
-                                                    ,("freq",2)]) ] }
-  assertBool "mergea" $ mergea a' bc'
-    == Museq {_dur = 3, _sup = 6,
-              _vec = V.fromList [ ((0,1),M.fromList [("amp",2)
-                                                    ,("freq",2)])
-                                , ((4,5),M.fromList [("amp",2)
-                                                    ,("freq",0)]) ] }
-
 testMerge' :: Test
 testMerge' = TestCase $ do
   let a  = Museq' { _dur' = 2, _sup' = 2,
@@ -560,19 +459,6 @@ testMerge' = TestCase $ do
                                                               ,("freq",2)]
                                    , mkEv "ac" 4 5 $ M.fromList [("amp",2)
                                                               ,("freq",0)] ] }
-
-testMeta :: Test
-testMeta = TestCase $ do
-  let a = Museq {_dur = 2, _sup = 2, _vec = V.fromList [ ((0,1),"a") ] }
-      f = Museq {_dur = 3, _sup = 3, _vec = V.fromList [ ((0,1), fast 2)
-                                                       , ((2,3), early $ 1/4)
-                                                       ] }
-  assertBool "meta" $ meta f a
-    == Museq {_dur = 2, _sup = 6,
-              _vec = V.fromList [((0,    0.5),"a")
-                                ,((2,    2.75),"a")
-                                ,((3,    3.5),"a")
-                                ,((5.75, 6),"a")]}
 
 testMeta' :: Test
 testMeta' = TestCase $ do

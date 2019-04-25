@@ -5,26 +5,17 @@ ScopedTypeVariables
 
 module Vivid.Jbb.Dispatch.Join (
     Museq(..)
-  , append  -- ^ forall a.   Museq a    -> Museq a    -> Museq a
   , append' -- ^ forall l a. Museq' l a -> Museq' l a -> Museq' l a
-  , cat     -- ^ [Museq a]    -> Museq a    -- the name "concat" is taken
   , cat'    -- ^ [Museq' l a] -> Museq' l a -- the name "concat" is taken
-  , stack   -- ^ Museq a      -> Museq a    -> Museq a
-  , stacks  -- ^ [Museq a] -> Museq a
   , stack'  -- ^ forall a l m. (Show l, Show m)
             -- => Museq' l a  -> Museq' m a -> Museq' String a
   , stacks' -- ^ [Museq' l a] -> Museq' String a
   , stack'' -- ^  Museq' l a  -> Museq' l a -> Museq' l a
-  , merge   -- ^ forall a b c. (a -> b -> c) -> Museq a -> Museq b -> Museq c
   , merge'  -- ^ forall a b c l m. (Show l, Show m)
-            -- => (a -> b -> c)
-            -- -> Museq' l a
-            -- -> Museq' m b
-            -- -> Museq' String c
-  , mergea , merge0 , merge1  -- ^ Museq Msg -> Museq Msg -> Museq Msg
+            -- =>         (a ->          b ->               c)
+            -- -> Museq' l a -> Museq' m b -> Museq' String c
   , merge0', merge1', mergea' -- ^ forall l m. (Show l, Show m) =>
       -- Museq' l Msg -> Museq' m Msg -> Museq' String Msg
-  , meta -- ^ forall a b c. Museq (Museq a -> Museq b) -> Museq a -> Museq b
   , meta' -- ^ forall a b c l m. (Show l, Show m)
        -- => Museq' l      (Museq' String a -> Museq' String b)
        -- -> Museq' m      a
@@ -42,38 +33,6 @@ import Vivid.Jbb.Dispatch.Internal.Join
 
 
 -- | Play one after the other
-append :: forall a. Museq a -> Museq a -> Museq a
-append x0 y0 = let
-  durs = RTime
-    $ lcmRatios (tr $ dursToPlayThrough x0) (tr $ dursToPlayThrough y0)
-    -- Since x and y both have to finish at the same time,
-    -- they must run through this many durs.
-
-  xs, ys :: [V.Vector (Ev a)]
-  xs = map adjustx ixs where
-    ixs :: [(Int,V.Vector (Ev a))]
-    ixs = zip [0..] $ unsafeExplicitReps (durs * _dur x0) x0
-      -- ixs uses a 0 because it starts with no ys before it
-    -- adjustx: space out the xs to make room for the ys
-    adjustx :: (Int,V.Vector (Ev a)) -> V.Vector (Ev a)
-    adjustx (idx,v) = V.map f v where
-      f = over _1 (\(x,y) -> (g x, g y)) where
-        g = (+) $ fromIntegral idx * _dur y0
-
-  ys = map adjusty iys where
-    iys :: [(Int,V.Vector (Ev a))]
-    iys = zip [1..] $ unsafeExplicitReps (durs * _dur y0) y0
-      -- iys uses a 1 because it starts with 1 (_dur x) worth of x before it
-    -- adjusty: space out the ys to make room for the xs
-    adjusty :: (Int,V.Vector (Ev a)) -> V.Vector (Ev a)
-    adjusty (idx,v) = V.map f v where
-      f = over _1 (\(x,y) -> (g x, g y)) where
-        g = (+) $ fromIntegral idx * _dur x0
-
-  in Museq {  _sup = durs * (_dur x0 + _dur y0)
-            , _dur =         _dur x0 + _dur y0
-            , _vec = V.concat $ interleave xs ys }
-
 append' :: forall l a. Museq' l a -> Museq' l a -> Museq' l a
 append' x0 y0 = let
   durs = RTime
@@ -105,31 +64,16 @@ append' x0 y0 = let
             , _dur' =         _dur' x0 + _dur' y0
             , _vec' = V.concat $ interleave xs ys }
 
--- todo ? speed this up dramatically by computing start times once, rather
+-- todo ? speed (unlikely to matter)
+-- Speed this up dramatically by computing start times once, rather
 -- than readjusting the whole series each time a new copy is folded into it.
-cat :: [Museq a] -> Museq a -- the name "concat" is taken
-cat = foldl1 append
-
 cat' :: [Museq' l a] -> Museq' l a -- the name "concat" is taken
 cat' = foldl1 append'
-
 
 -- | Play both at the same time.
 -- PITFALL: The choice of the resulting Museq's _dur is arbitrary.
 -- Here it's set to that of the first.
 -- For something else, just compose `Lens.set dur _` after `stack`.
-stack :: Museq a -> Museq a -> Museq a
-stack x y = let t = timeForBothToRepeat x y
-                xs = unsafeExplicitReps t x
-                ys = unsafeExplicitReps t y
-  in sortMuseq $ Museq { _dur = _dur x
-                       , _sup = t
-                       , _vec = V.concat $ xs ++ ys}
-
-stacks :: [Museq a] -> Museq a
-stacks = foldl1 stack
-
--- | Prefixes a string not in the first arg's names to the second one's
 stack' :: forall a l m. (Show l, Show m)
        => Museq' l a -> Museq' m a -> Museq' String a
 stack' x0 y0 = sortMuseq' $
@@ -179,24 +123,10 @@ stack'' x y =
 -- Here it's set to that of the second.
 -- For something else, just compose `Lens.set dur _` after `stack`.
 
-merge :: forall a b c. (a -> b -> c) -> Museq a -> Museq b -> Museq c
-merge op x y = Museq { _dur = _dur y -- arbitrary
-                     , _sup = tbr
-                     , _vec = V.fromList $ alignAndJoin op xps yps } where
-  tbr = timeForBothToRepeat x y
-  xs, xps :: [Ev a]
-  ys, yps :: [Ev b]
-  xs = concatMap V.toList $ unsafeExplicitReps tbr x
-  ys = concatMap V.toList $ unsafeExplicitReps tbr y
-  bs = boundaries $ map fst xs ++ map fst ys :: [RTime]
-  xps = partitionAndGroupEventsAtBoundaries bs xs
-  yps = partitionAndGroupEventsAtBoundaries bs ys
 
 merge' :: forall a b c l m. (Show l, Show m)
-       => (a -> b -> c)
-       -> Museq' l      a
-       -> Museq' m      b
-       -> Museq' String c
+       =>         (a ->          b ->               c)
+       -> Museq' l a -> Museq' m b -> Museq' String c
 merge' op a b = _merge' (labelsToStrings a) (labelsToStrings b) where
   _merge' :: Museq' String a
           -> Museq' String b
@@ -214,21 +144,6 @@ merge' op a b = _merge' (labelsToStrings a) (labelsToStrings b) where
     xps = partitionAndGroupEventsAtBoundaries' bs xs
     yps = partitionAndGroupEventsAtBoundaries' bs ys
 
--- | Some ways to merge `Museq Msg`s.
--- So named because in math, the additive identity is 0,
--- the mutliplicative identity = 1, and "amp" starts with an "a".
-mergea, merge0, merge1 :: Museq Msg -> Museq Msg -> Museq Msg
-merge0 = merge $ M.unionWith (+)
-merge1 = merge $ M.unionWith (*)
-mergea = merge $ M.unionWithKey f -- ^ add amplitudes, multiply others
-  where  f "amp" = (+)
-         f _ = (*)
-
-instance Applicative Museq where
-  (<*>) = merge ($)
-  pure x = Museq { _dur=1, _sup=1
-                 , _vec = V.singleton ((0,1),x) }
-
 instance Applicative (Museq' String) where -- TODO ? generalize
   (<*>) = merge' ($)
   pure x = Museq' { _dur'=1, _sup'=1
@@ -238,6 +153,7 @@ instance Applicative (Museq' String) where -- TODO ? generalize
 -- | Some ways to merge `Museq Msg`s.
 -- So named because in math, the additive identity is 0,
 -- the mutliplicative identity = 1, and "amp" starts with an "a".
+
 merge0', merge1', mergea'
   :: forall l m. (Show l, Show m) =>
   Museq' l Msg -> Museq' m Msg -> Museq' String Msg
@@ -249,17 +165,6 @@ mergea' m n =
   merge' (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
   where  f "amp" = (+) -- ^ add amplitudes, multiply others
          f _     = (*)
-
-meta :: forall a b. Museq (Museq a -> Museq b) -> Museq a -> Museq b
-meta x y = sortMuseq $ Museq { _dur = _dur y -- arbitrary
-                             , _sup = tbr
-                             , _vec = V.fromList evs }
-  where tbr = timeForBothToRepeat x y
-        xs :: [Ev (Museq a -> Museq b)]
-        xs = concatMap V.toList $ unsafeExplicitReps tbr x
-        evs = map (over _1 $ \(s,t) -> (RTime s, RTime t))
-          $ concat [arc 0 1 (tr start) (tr finish) (op y)
-                   | ((start,finish),op) <- xs]
 
 meta' :: forall a b l m. (Show l, Show m)
   => Museq' l      (Museq' String a -> Museq' String b)
