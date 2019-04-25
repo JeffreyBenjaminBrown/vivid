@@ -23,21 +23,17 @@ tests = runTestTT $ TestList
   , TestLabel "museqIsValid" testMuseqIsValid
   , TestLabel "museqIsValid'" testMuseqIsValid'
   , TestLabel "testStack'" testStack'
-  , TestLabel "testRev" testRev
   , TestLabel "testRev'" testRev'
   , TestLabel "testEarlyAndLate'" testEarlyAndLate'
   , TestLabel "testFastAndSlow'" testFastAndSlow'
-  , TestLabel "testDenseAndSparse" testDenseAndSparse
   , TestLabel "testDenseAndSparse'" testDenseAndSparse'
   , TestLabel "testExplicitReps" testExplicitReps
   , TestLabel "testAppend'" testAppend'
-  , TestLabel "testRep" testRep
   , TestLabel "testRep'" testRep'
   , TestLabel "testMuseqsDiff" testMuseqsDiff
   , TestLabel "testMuseqsDiff'" testMuseqsDiff'
   , TestLabel "testArc" testArc
   , TestLabel "testArc'" testArc'
-  , TestLabel "testOverParams" testOverParams
   , TestLabel "testOverParams'" testOverParams'
   , TestLabel "testBoundaries" testBoundaries
   , TestLabel "testPartitionArcAtTimes" testPartitionArcAtTimes
@@ -177,15 +173,6 @@ testStack' = TestCase $ do
                               , mkEv "()"  1 4 "()"
                               , mkEv "()"  2 5 "()" ] )
 
-testRev :: Test
-testRev = TestCase $ do
-  let a = mkMuseq 2 [((0,   1),"a")
-                  ,((1/3, 3),"b")
-                  ,((1/2, 1/2),"c")]
-  assertBool "rev" $ rev a == mkMuseq 2 [((0  , 1),"a")
-                                      ,((3/2, 3/2),"c")
-                                      ,((5/3, 13/3),"b")]
-
 testRev' :: Test
 testRev' = TestCase $ do
   let a = mkMuseq' 2 [ mkEv () 0     1     "a"
@@ -214,14 +201,6 @@ testFastAndSlow' = TestCase $ do
   let a = mkMuseq' 10 [mkEv () 0 20 "a",mkEv () 2 2 "b"]
   assertBool "fast" $ (fast' 2 a) == mkMuseq' 5 [mkEv () 0 10 "a",mkEv () 1 1 "b"]
   assertBool "slow" $ (slow' 2 a) == mkMuseq' 20 [mkEv () 0 40 "a",mkEv () 4 4 "b"]
-
-testDenseAndSparse :: Test
-testDenseAndSparse = TestCase $ do
-  let x = mkMuseq 10 [((0,15),"a"),((2,2),"b")]
-  assertBool "dense" $ dense 2 x ==
-    L.set dur 10 (mkMuseq 5 [((0,15/2),"a"),((1,1),"b")])
-  assertBool "sparse" $ sparse 2 x ==
-    L.set dur 10 (mkMuseq 20 [((0,30),"a"),((4,4),"b")])
 
 testDenseAndSparse' :: Test
 testDenseAndSparse' = TestCase $ do
@@ -271,14 +250,6 @@ testAppend' = TestCase $ do
                        , mkEv () (2+1/2) (3+1/2) "a"
                        , mkEv () 3 3 "b", mkEv () 5 5 "b"]
       in m {_sup' = 6}
-
-testRep :: Test
-testRep = TestCase $ do
-  let a = mkMuseq 6 [((0,7),"a")]
-  assertBool "rep int" $ rep 2 a ==
-    L.set dur 12 (mkMuseq 6 [((0,7),"a")])
-  assertBool "rep fraction" $ rep (3/2) a ==
-    L.set dur 9 (mkMuseq 6 [((0,7),"a")])
 
 testRep' :: Test
 testRep' = TestCase $ do
@@ -366,21 +337,6 @@ testArc' = TestCase $ do
        , ( Event () (205,209) "b")
        , ( Event () (211,220) "a")
        , ( Event () (215,219) "b")]
-
-testOverParams :: Test
-testOverParams = TestCase $ do
-  let m = mkMuseq0 2 [ (0, M.singleton "freq" 100)
-                   , (1, M.singleton "amp"  0.1) ]
-  assertBool "overParams" $ overParams [("freq",(+1))] m
-    == mkMuseq0 2 [ (0, M.singleton "freq" 101)
-                , (1, M.singleton "amp" 0.1)]
-  assertBool "switchParams" $ switchParams [("freq","guzzle")] m
-    == mkMuseq0 2 [ (0, M.singleton "guzzle" 100)
-                , (1, M.singleton "amp" 0.1)]
-  assertBool "keepParams" $ keepParams ["freq"] m
-    == mkMuseq0 2 [(0, M.singleton "freq" 100)]
-  assertBool "dropParams" $ dropParams ["freq"] m
-    == mkMuseq0 2 [(1, M.singleton "amp" 0.1)]
 
 testOverParams' :: Test
 testOverParams' = TestCase $ do

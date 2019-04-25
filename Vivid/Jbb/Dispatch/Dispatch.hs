@@ -9,19 +9,13 @@ module Vivid.Jbb.Dispatch.Dispatch (
   , actSend -- ^ SynthRegister -> Time -> Action -> IO ()
 
   -- | = change the music
-  , stopDispatch        -- ^ Dispatch  -> MuseqName -> IO ()
   , stopDispatch'       -- ^ Dispatch' -> MuseqName -> IO ()
-  , replace     -- ^ Dispatch  -> MuseqName -> Museq Note -> IO ()
   , replace'    -- ^ Dispatch' -> MuseqName -> Museq' String Note' -> IO ()
-  , replaceAll  -- ^ Dispatch  -> M.Map MuseqName (Museq Note) -> IO ()
   , replaceAll' -- ^ Dispatch' -> M.Map MuseqName (Museq' String Note') -> IO ()
-  , chTempoPeriod      -- ^ Dispatch -> Duration -> IO ()
   , chTempoPeriod'     -- ^ Dispatch' -> Duration -> IO ()
 
   -- | = the dispatch loop
-  , startDispatchLoop  -- ^ Dispatch -> IO ThreadId
   , startDispatchLoop' -- ^ Dispatch' -> IO ThreadId
-  , dispatchLoop       -- ^ Dispatch -> IO ()
   , dispatchLoop'      -- ^ Dispatch' -> IO ()
   ) where
 
@@ -134,20 +128,10 @@ actSend _ _ (New _ _)  = error "actFree received a New."
 
 -- | = Change the music
 
-stopDispatch :: Dispatch -> MuseqName -> IO ()
-stopDispatch disp name = do
-  masOld <- readMVar $ mMuseqs disp
-  replaceAll disp $ M.delete name masOld
-
 stopDispatch' :: Dispatch' -> MuseqName -> IO ()
 stopDispatch' disp name = do
   masOld <- readMVar $ mMuseqs' disp
   replaceAll' disp $ M.delete name masOld
-
-replace :: Dispatch -> MuseqName -> Museq Note -> IO ()
-replace disp newName newMuseq = do
-  masOld <- readMVar $ mMuseqs disp
-  replaceAll disp $ M.insert newName newMuseq masOld
 
 replace' :: Dispatch' -> MuseqName -> Museq' String Note' -> IO ()
 replace' disp newName newMuseq = do
@@ -161,37 +145,6 @@ replace' disp newName newMuseq = do
 -- and which need creation. Create the latter immediately. Wait to delete
 -- the former until it's safe, and before deleting them, send silence
 -- (set "amp" to 0).
-replaceAll :: Dispatch -> M.Map MuseqName (Museq Note) -> IO ()
-replaceAll disp masNew = do
-  time0  <-      takeMVar $ mTime0       disp
-  tempoPeriod <- takeMVar $ mTempoPeriod disp
-  masOld <-      takeMVar $ mMuseqs      disp
-  reg <-         takeMVar $ mReg         disp
-  now <- unTimestamp <$> getTime
-
-  let masNew' = M.mapWithKey f masNew where
-        f :: MuseqName -> Museq Note -> Museq Note
-        f museqName m = over vec (V.map $ over (_2._1) (museqName ++)) m
-      when = nextPhase0 time0 frameDuration now + frameDuration
-        -- `when` = the start of the first not-yet-rendered frame
-      toFree, toCreate :: [(SynthDefEnum, SynthName)]
-      (toFree,toCreate) = museqsDiff masOld masNew'
-
-  newTransform  <- mapM (actNew  reg)      $ map (uncurry New)  toCreate
-  freeTransform <- mapM (actFree reg when) $ map (uncurry Free) toFree
-
-  putMVar (mTime0       disp) time0       -- unchnaged
-  putMVar (mTempoPeriod disp) tempoPeriod -- unchanged
-  putMVar (mMuseqs      disp) masNew'
-  putMVar (mReg         disp) $ foldl (.) id newTransform reg
-
-  _ <- forkIO $ do
-    wait $ when - now -- delete register's synths once it's safe
-    reg1 <-takeMVar $ mReg disp
-    putMVar (mReg disp) $ foldl (.) id freeTransform reg1
-
-  return ()
-
 
 replaceAll' :: Dispatch' -> M.Map MuseqName (Museq' String Note') -> IO ()
 replaceAll' disp masNew = do
@@ -226,22 +179,6 @@ replaceAll' disp masNew = do
 
   return ()
 
-
-chTempoPeriod :: Dispatch -> Duration -> IO ()
-chTempoPeriod disp newTempoPeriod = do
-  time0       <- takeMVar $ mTime0       disp
-  tempoPeriod <- takeMVar $ mTempoPeriod disp
-  now         <- unTimestamp <$> getTime
-  let when = nextPhase0 time0 frameDuration now + frameDuration
-        -- `when` here is defined similar to `when` in `dispatchLoop`,
-        -- EXCEPT: add `frameDuration`, because `when` is one period
-        -- less than it will be the next time `dispatchLoop` runs
-      whenInCycles = (when - time0) / tempoPeriod
-      newTime0 = when - whenInCycles * newTempoPeriod
-  putMVar (mTempoPeriod disp) newTempoPeriod
-  putMVar (mTime0       disp) newTime0
-
-
 chTempoPeriod' :: Dispatch' -> Duration -> IO ()
 chTempoPeriod' disp newTempoPeriod = do
   time0       <- takeMVar $ mTime0'       disp
@@ -258,19 +195,6 @@ chTempoPeriod' disp newTempoPeriod = do
 
 
 -- | = The Dispatch loop
-
-startDispatchLoop :: Dispatch -> IO ThreadId
-startDispatchLoop disp = do
-  _ <- tryTakeMVar $ mTime0 disp -- empty it, just in case
-  mbTempo <- tryReadMVar $ mTempoPeriod disp
-  maybe (putMVar (mTempoPeriod disp) 1) (const $ return ()) mbTempo
-
-  ((-) (0.8 * frameDuration)) . unTimestamp <$> getTime
-    -- subtract nearly an entire frameDuration so it starts soon
-    >>= putMVar (mTime0 disp)
-  forkIO $ dispatchLoop disp
-
-
 startDispatchLoop' :: Dispatch' -> IO ThreadId
 startDispatchLoop' disp = do
   _ <- tryTakeMVar $ mTime0' disp -- empty it, just in case
@@ -281,37 +205,6 @@ startDispatchLoop' disp = do
     -- subtract nearly an entire frameDuration so it starts soon
     >>= putMVar (mTime0' disp)
   forkIO $ dispatchLoop' disp
-
-
-dispatchLoop :: Dispatch -> IO ()
-dispatchLoop disp = do
-  time0  <-      takeMVar $ mTime0       disp
-  tempoPeriod <- takeMVar $ mTempoPeriod disp
-  museqsMap <-   takeMVar $ mMuseqs      disp
-  reg <-         takeMVar $ mReg         disp
-  now <- unTimestamp <$> getTime
-
-  let
-    startRender = nextPhase0 time0 frameDuration now
-    museqsMap' = M.map g museqsMap :: M.Map String (Museq Action) where
-      g museq = over vec (V.map $ over _2 f) museq where
-        f :: Note -> Action
-        f (noteName,(sde, msg)) = Send sde noteName msg
-    evs = concatMap f $ M.elems museqsMap' :: [(Time, Action)] where
-      f :: Museq Action -> [(Time, Action)]
-      f m = map (over _1 fst)  -- use `fst` to ignore message's end time
-        $ arc time0 tempoPeriod startRender (startRender + frameDuration) m
-
-  mapM_ (uncurry $ actSend reg) evs
-
-  putMVar (mTime0       disp) time0
-  putMVar (mTempoPeriod disp) tempoPeriod
-  putMVar (mMuseqs      disp) museqsMap
-  putMVar (mReg         disp) reg
-
-  wait $ fromRational startRender - now
-  dispatchLoop disp
-
 
 dispatchLoop' :: Dispatch' -> IO ()
 dispatchLoop' disp = do
