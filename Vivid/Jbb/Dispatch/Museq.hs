@@ -322,12 +322,12 @@ arc time0 tempoPeriod from to m =
         where f = chopEnds . chopStarts . correctAbsoluteTimes
    in dropImpossibles $
       map futzTimes
-      $ _arcFold' oldestRelevantCycle period startVec time0 earlierFrom to m
+      $ _arcFold oldestRelevantCycle period startVec time0 earlierFrom to m
 
-_arcFold' :: forall l a. Int -> Duration -> V.Vector RTime
+_arcFold :: forall l a. Int -> Duration -> V.Vector RTime
   -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
   -> Museq l a -> [Ev l a]
-_arcFold' cycle period startVec time0 from to m =
+_arcFold cycle period startVec time0 from to m =
   if from >= to then [] -- todo ? Be sure of `arc` boundary condition
   else let
     pp0 = prevPhase0 time0 period from :: Time
@@ -344,7 +344,7 @@ _arcFold' cycle period startVec time0 from to m =
 --                         then pp0 + period
 --                         else pp0 + 2*period
 --          in _arcFold (cycle+1) period startVec time0 nextFrom to m
-     then _arcFold' (cycle+1) period startVec time0 (pp0 + period) to m
+     then _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
      else
        let startIndex = startOrOOBIndex :: Int
            endIndex = lastIndexLTE compare' startVec
@@ -356,4 +356,4 @@ _arcFold' cycle period startVec time0 from to m =
              $ V.map (over evStart (+(_sup m * fromIntegral cycle)))
              $ V.slice startIndex (endIndex-startIndex) $ _vec m
        in eventsThisCycle
-          ++ _arcFold' (cycle+1) period startVec time0 (pp0 + period) to m
+          ++ _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
