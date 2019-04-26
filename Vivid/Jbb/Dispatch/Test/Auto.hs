@@ -122,80 +122,80 @@ testNextPhase0 = TestCase $ do
 testMuseqIsValid' :: Test
 testMuseqIsValid' = TestCase $ do
   assertBool "valid, empty"                   $ museqIsValid'
-    $ (mkMuseq' 3 [] :: Museq' String ())
+    $ (mkMuseq 3 [] :: Museq String ())
   assertBool "invalid, zero length"     $ not $ museqIsValid'
-    $ (mkMuseq' 0 [] :: Museq' String ())
+    $ (mkMuseq 0 [] :: Museq String ())
   assertBool "valid, nonempty"                $ museqIsValid'
-    $ mkMuseq' 1 [mkEv0 "1" 0 () ]
+    $ mkMuseq 1 [mkEv0 "1" 0 () ]
   assertBool "invalid, time > _sup" $ not $ museqIsValid'
-    $ mkMuseq' 1 [mkEv0 "1" 2 () ]
+    $ mkMuseq 1 [mkEv0 "1" 2 () ]
 
 testStack' :: Test
 testStack' = TestCase $ do
-  let y = mkMuseq' 2 [mkEv () 0 3 "()"]
-      z = mkMuseq' 3 [mkEv "z" 1 2 "z"]
+  let y = mkMuseq 2 [mkEv () 0 3 "()"]
+      z = mkMuseq 3 [mkEv "z" 1 2 "z"]
   assertBool "stack" $ stack' y z ==
-    L.set dur' (_dur' y) ( mkMuseq' 6 [ mkEv "()"  0 3 "()"
+    L.set dur (_dur y) ( mkMuseq 6 [ mkEv "()"  0 3 "()"
                                       , mkEv "az" 1 2 "z"
                                       , mkEv "()"  2 5 "()"
                                       , mkEv "az" 4 5 "z"
                                       , mkEv "()"  4 7 "()"] )
-  assertBool "stack" $ stack' (L.set dur' 1 y) z ==
-    L.set dur' 1 ( mkMuseq' 6 [ mkEv "()"  0 3 "()"
+  assertBool "stack" $ stack' (L.set dur 1 y) z ==
+    L.set dur 1 ( mkMuseq 6 [ mkEv "()"  0 3 "()"
                               , mkEv "az" 1 2 "z"
                               , mkEv "()"  2 5 "()"
                               , mkEv "az" 4 5 "z"
                               , mkEv "()"  4 7 "()" ] )
   assertBool "stack, where timeToRepeat differs from timeToPlayThrough"
-    $ stack' (L.set sup' 1 y) z ==
-    L.set dur' 2 ( mkMuseq' 3 [ mkEv "()"  0 3 "()"
+    $ stack' (L.set sup 1 y) z ==
+    L.set dur 2 ( mkMuseq 3 [ mkEv "()"  0 3 "()"
                               , mkEv "az" 1 2 "z"
                               , mkEv "()"  1 4 "()"
                               , mkEv "()"  2 5 "()" ] )
 
 testRev' :: Test
 testRev' = TestCase $ do
-  let a = mkMuseq' 2 [ mkEv () 0     1     "a"
+  let a = mkMuseq 2 [ mkEv () 0     1     "a"
                    , mkEv () (1/3) 3     "b"
                    , mkEv () (1/2) (1/2) "c" ]
-  assertBool "rev" $ rev' a == mkMuseq' 2 [ mkEv () 0     1      "a"
+  assertBool "rev" $ rev' a == mkMuseq 2 [ mkEv () 0     1      "a"
                                         , mkEv () (3/2) (3 /2)  "c"
                                         , mkEv () (5/3) (13/3) "b" ]
 
 testEarlyAndLate' :: Test
 testEarlyAndLate' = TestCase $ do
-  let a = mkMuseq' 10 [ mkEv () 0 11 "a"
+  let a = mkMuseq 10 [ mkEv () 0 11 "a"
                       , mkEv () 1 2 "b"]
-  assertBool "early" $ _vec' (early' 1 a) ==
+  assertBool "early" $ _vec (early' 1 a) ==
     V.fromList [ mkEv () 0 1 "b"
                , mkEv () 9 20 "a"]
 
-  let a' = mkMuseq' 10 [ mkEv () 0 11 "a"
+  let a' = mkMuseq 10 [ mkEv () 0 11 "a"
                        , mkEv () 1 2 "b"]
-  assertBool "late" $ _vec' (late' 1 a') ==
+  assertBool "late" $ _vec (late' 1 a') ==
     V.fromList [ mkEv () 1 12 "a"
                , mkEv () 2 3 "b"]
 
 testFastAndSlow' :: Test
 testFastAndSlow' = TestCase $ do
-  let a = mkMuseq' 10 [mkEv () 0 20 "a",mkEv () 2 2 "b"]
-  assertBool "fast" $ (fast' 2 a) == mkMuseq' 5 [mkEv () 0 10 "a",mkEv () 1 1 "b"]
-  assertBool "slow" $ (slow' 2 a) == mkMuseq' 20 [mkEv () 0 40 "a",mkEv () 4 4 "b"]
+  let a = mkMuseq 10 [mkEv () 0 20 "a",mkEv () 2 2 "b"]
+  assertBool "fast" $ (fast' 2 a) == mkMuseq 5 [mkEv () 0 10 "a",mkEv () 1 1 "b"]
+  assertBool "slow" $ (slow' 2 a) == mkMuseq 20 [mkEv () 0 40 "a",mkEv () 4 4 "b"]
 
 testDenseAndSparse' :: Test
 testDenseAndSparse' = TestCase $ do
-  let x = mkMuseq' 10 [mkEv () 0 15 "a",mkEv () 2 2 "b"]
+  let x = mkMuseq 10 [mkEv () 0 15 "a",mkEv () 2 2 "b"]
   assertBool "dense" $ dense' 2 x ==
-    L.set dur' 10 (mkMuseq' 5 [mkEv () 0 (15/2) "a",mkEv () 1 1 "b"])
+    L.set dur 10 (mkMuseq 5 [mkEv () 0 (15/2) "a",mkEv () 1 1 "b"])
   assertBool "sparse" $ sparse' 2 x ==
-    L.set dur' 10 (mkMuseq' 20 [mkEv () 0 30 "a",mkEv () 4 4 "b"])
+    L.set dur 10 (mkMuseq 20 [mkEv () 0 30 "a",mkEv () 4 4 "b"])
 
 -- This was written for the old Museq, where labels were attached
 -- in the wrong place. That was changed in the "one-museq" branch,
 -- but the test was not updated to use the new type.
 --testExplicitReps :: Test
 --testExplicitReps = TestCase $ do
---  let y = Museq' {_dur = 3, _sup = 4
+--  let y = Museq {_dur = 3, _sup = 4
 --                , _vec = V.fromList [((0,3),()), ((1,1),())]}
 --  assertBool "explicitReps" $ explicitReps y ==
 --    [ V.fromList [((0,3),()), ((1,1),())]
@@ -216,42 +216,42 @@ testDenseAndSparse' = TestCase $ do
 
 testAppend' :: Test
 testAppend' = TestCase $ do
-    let a = mkMuseq' 1 [mkEv () 0 1 "a"]
-        a2  = a {_sup' = RTime $ 2}
-        a12 = a {_sup' = RTime $ 1%2}
-        a32 = a {_sup' = RTime $ 3%2}
-        b = mkMuseq' 1 [mkEv () 0 0 "b"]
+    let a = mkMuseq 1 [mkEv () 0 1 "a"]
+        a2  = a {_sup = RTime $ 2}
+        a12 = a {_sup = RTime $ 1%2}
+        a32 = a {_sup = RTime $ 3%2}
+        b = mkMuseq 1 [mkEv () 0 0 "b"]
     assertBool "testAppend" $ append' a b ==
-      mkMuseq' 2 [mkEv () 0 1 "a", mkEv () 1 1 "b"]
+      mkMuseq 2 [mkEv () 0 1 "a", mkEv () 1 1 "b"]
     assertBool "testAppend'" $ append' a2 b ==
-      let m = mkMuseq' 2 [mkEv () 0 1 "a",mkEv () 1 1 "b",mkEv () 3 3 "b"]
-      in m {_sup' = 4}
+      let m = mkMuseq 2 [mkEv () 0 1 "a",mkEv () 1 1 "b",mkEv () 3 3 "b"]
+      in m {_sup = 4}
     assertBool "testAppend'" $ append' a12 b ==
-      mkMuseq' 2 [mkEv () 0 1 "a",mkEv () (1%2) (3%2) "a", mkEv () 1 1 "b"]
+      mkMuseq 2 [mkEv () 0 1 "a",mkEv () (1%2) (3%2) "a", mkEv () 1 1 "b"]
     assertBool "testAppend'" $ append' a32 b ==
-      let m = mkMuseq' 2 [ mkEv () 0 1 "a", mkEv () 1 1 "b"
+      let m = mkMuseq 2 [ mkEv () 0 1 "a", mkEv () 1 1 "b"
                        , mkEv () (2+1/2) (3+1/2) "a"
                        , mkEv () 3 3 "b", mkEv () 5 5 "b"]
-      in m {_sup' = 6}
+      in m {_sup = 6}
 
 testRep' :: Test
 testRep' = TestCase $ do
-  let a = mkMuseq' 6 [mkEv () 0 7 "a"]
+  let a = mkMuseq 6 [mkEv () 0 7 "a"]
   assertBool "rep int" $ rep' 2 a ==
-    L.set dur' 12 (mkMuseq' 6 [mkEv () 0 7 "a"])
+    L.set dur 12 (mkMuseq 6 [mkEv () 0 7 "a"])
   assertBool "rep fraction" $ rep' (3/2) a ==
-    L.set dur' 9 (mkMuseq' 6 [mkEv () 0 7 "a"])
+    L.set dur 9 (mkMuseq 6 [mkEv () 0 7 "a"])
 
 testMuseqsDiff' :: Test
 testMuseqsDiff' = TestCase $ do
   let msg = M.singleton "amp" 1
-      m1 = M.fromList [("a", mkMuseq' 10 [ mkEv0 "1" 0  (Note' Boop msg)])
-                      ,("b", mkMuseq' 15 [ mkEv0 "1" 0  (Note' Boop msg)
-                                       , mkEv0 "2" 10 (Note' Boop msg)
+      m1 = M.fromList [("a", mkMuseq 10 [ mkEv0 "1" 0  (Note Boop msg)])
+                      ,("b", mkMuseq 15 [ mkEv0 "1" 0  (Note Boop msg)
+                                       , mkEv0 "2" 10 (Note Boop msg)
                                        ] ) ]
-      m2 = M.fromList [("a", mkMuseq' 10 [ mkEv0 "2" 0  (Note' Vap msg) ])
-                      ,("b", mkMuseq' 15 [ mkEv0 "2" 0  (Note' Boop msg)
-                                       , mkEv0 "3" 10 (Note' Boop msg)
+      m2 = M.fromList [("a", mkMuseq 10 [ mkEv0 "2" 0  (Note Vap msg) ])
+                      ,("b", mkMuseq 15 [ mkEv0 "2" 0  (Note Boop msg)
+                                       , mkEv0 "3" 10 (Note Boop msg)
                                        ] ) ]
   assertBool "museqDiff" $ museqsDiff' m1 m2 == ( [ (Boop,"1") ]
                                                , [ (Boop,"3")
@@ -264,7 +264,7 @@ testMuseqsDiff' = TestCase $ do
 
 testArc' :: Test
 testArc' = TestCase $ do
-  let m = mkMuseq' 5 [ Event () (0,6) "a"
+  let m = mkMuseq 5 [ Event () (0,6) "a"
                    , Event () (2,4) "b"]
   -- arguments to arc : time0 tempoPeriod from to museq
   assertBool "arc 0" $ arc' 100 2  200 210  m
@@ -284,18 +284,18 @@ testArc' = TestCase $ do
 
 testOverParams' :: Test
 testOverParams' = TestCase $ do
-  let m = mkMuseq' 2 [ mkEv0 () 0 $ M.singleton "freq" 100
+  let m = mkMuseq 2 [ mkEv0 () 0 $ M.singleton "freq" 100
                    , mkEv0 () 1 $ M.singleton "amp"  0.1 ]
   assertBool "overParams'" $ overParams' [("freq",(+1))] m
-    == mkMuseq' 2 [ mkEv0 () 0 $ M.singleton "freq" 101
+    == mkMuseq 2 [ mkEv0 () 0 $ M.singleton "freq" 101
                 , mkEv0 () 1 $ M.singleton "amp" 0.1]
   assertBool "switchParams'" $ switchParams' [("freq","guzzle")] m
-    == mkMuseq' 2 [ mkEv0 () 0 $ M.singleton "guzzle" 100
+    == mkMuseq 2 [ mkEv0 () 0 $ M.singleton "guzzle" 100
                 , mkEv0 () 1 $ M.singleton "amp" 0.1]
   assertBool "keepParams'" $ keepParams' ["freq"] m
-    == mkMuseq' 2 [mkEv0 () 0 $ M.singleton "freq" 100]
+    == mkMuseq 2 [mkEv0 () 0 $ M.singleton "freq" 100]
   assertBool "dropParams'" $ dropParams' ["freq"] m
-    == mkMuseq' 2 [mkEv0 () 1 $ M.singleton "amp" 0.1]
+    == mkMuseq 2 [mkEv0 () 1 $ M.singleton "amp" 0.1]
 
 testBoundaries :: Test
 testBoundaries = TestCase $ do
@@ -327,75 +327,75 @@ testPartitionArcAtTimes = TestCase $ do
 
 testMerge' :: Test
 testMerge' = TestCase $ do
-  let a  = Museq' { _dur' = 2, _sup' = 2,
-                    _vec' = V.fromList [ mkEv "a" 0 1 "a" ] }
-      bc = Museq' { _dur' = 3, _sup' = 3,
-                    _vec' = V.fromList [ mkEv "b" 0 1 "b"
+  let a  = Museq { _dur = 2, _sup = 2,
+                    _vec = V.fromList [ mkEv "a" 0 1 "a" ] }
+      bc = Museq { _dur = 3, _sup = 3,
+                    _vec = V.fromList [ mkEv "b" 0 1 "b"
                                        , mkEv "c" 1 2 "c" ] }
-      op = Museq' { _dur' = 3, _sup' = 1.5,
-                    _vec' = V.singleton $ mkEv "op" 0 1 $ (++) "-" }
+      op = Museq { _dur = 3, _sup = 1.5,
+                    _vec = V.singleton $ mkEv "op" 0 1 $ (++) "-" }
   assertBool "merge" $ merge' (++) a bc
-    == Museq' { _dur' = 3, _sup' = 6,
-                _vec' = V.fromList [ mkEv "ab" 0 1 "ab"
+    == Museq { _dur = 3, _sup = 6,
+                _vec = V.fromList [ mkEv "ab" 0 1 "ab"
                                    , mkEv "ac" 4 5 "ac" ] }
   assertBool "apply" $ (labelsToStrings op <*> labelsToStrings bc)
-    == Museq' { _dur' = 3, _sup' = 3,
-                _vec' = V.fromList [ mkEv "opb" 0 1  "-b"
+    == Museq { _dur = 3, _sup = 3,
+                _vec = V.fromList [ mkEv "opb" 0 1  "-b"
                                    , mkEv "opc" 1.5 2  "-c" ] }
 
-  let a' = Museq' { _dur' = 2, _sup' = 2,
-                    _vec' = V.fromList [ mkEv "a" 0 1
+  let a' = Museq { _dur = 2, _sup = 2,
+                    _vec = V.fromList [ mkEv "a" 0 1
                                          $ M.fromList [ ("amp",2)
                                                       , ("freq",2)] ] }
-      bc' = Museq' { _dur' = 3, _sup' = 3,
-                     _vec' = V.fromList [ mkEv "b" 0 1 $ M.singleton "amp" 0
+      bc' = Museq { _dur = 3, _sup = 3,
+                     _vec = V.fromList [ mkEv "b" 0 1 $ M.singleton "amp" 0
                                         , mkEv "c" 1 2 $ M.singleton "freq" 0] }
   assertBool "merge0" $ merge0' a' bc'
-    == Museq' { _dur' = 3, _sup' = 6,
-                _vec' = V.fromList [ mkEv "ab" 0 1 $ M.fromList [("amp",2)
+    == Museq { _dur = 3, _sup = 6,
+                _vec = V.fromList [ mkEv "ab" 0 1 $ M.fromList [("amp",2)
                                                               ,("freq",2)]
                                    , mkEv "ac" 4 5 $ M.fromList [("amp",2)
                                                               ,("freq",2)] ] }
   assertBool "mergea" $ mergea' a' bc'
-    == Museq' { _dur' = 3, _sup' = 6,
-                _vec' = V.fromList [ mkEv "ab" 0 1 $ M.fromList [("amp",2)
+    == Museq { _dur = 3, _sup = 6,
+                _vec = V.fromList [ mkEv "ab" 0 1 $ M.fromList [("amp",2)
                                                               ,("freq",2)]
                                    , mkEv "ac" 4 5 $ M.fromList [("amp",2)
                                                               ,("freq",0)] ] }
 
 testMeta' :: Test
 testMeta' = TestCase $ do
-  let a = Museq' { _dur' = 2, _sup' = 2,
-                   _vec' = V.fromList [ mkEv "a" 0 1 "a" ] }
-      f = Museq' { _dur' = 3, _sup' = 3,
-                   _vec' = V.fromList [ mkEv "f" 0 1 $ fast' 2
+  let a = Museq { _dur = 2, _sup = 2,
+                   _vec = V.fromList [ mkEv "a" 0 1 "a" ] }
+      f = Museq { _dur = 3, _sup = 3,
+                   _vec = V.fromList [ mkEv "f" 0 1 $ fast' 2
                                       , mkEv "g" 2 3 $ early' $ 1/4 ] }
   assertBool "meta" $ meta' f a
-    == Museq' { _dur' = 2, _sup' = 6,
-                _vec' = V.fromList [ mkEv "fa" 0     0.5 "a"
+    == Museq { _dur = 2, _sup = 6,
+                _vec = V.fromList [ mkEv "fa" 0     0.5 "a"
                                    , mkEv "ga" 2     2.75 "a"
                                    , mkEv "fa" 3     3.5 "a"
                                    , mkEv "ga" 5.75  6 "a" ] }
 
 testMuseqNamesAreValid' :: Test
 testMuseqNamesAreValid' = TestCase $ do
-  assertBool "empty Museq' has valid names" $ museqMaybeNamesAreValid' $
-    mkMuseq' 10 ([] :: [Ev' (Maybe String) ()])
-  assertBool "Museq' without names has valid names"
+  assertBool "empty Museq has valid names" $ museqMaybeNamesAreValid' $
+    mkMuseq 10 ([] :: [Ev (Maybe String) ()])
+  assertBool "Museq without names has valid names"
     $ museqMaybeNamesAreValid'
-    $ mkMuseq' 10 [ mkEv (Nothing :: Maybe String) 0 10 ()
+    $ mkMuseq 10 [ mkEv (Nothing :: Maybe String) 0 10 ()
                 , mkEv (Nothing :: Maybe String) 0 10 () ]
-  assertBool "Museq' with overlapping like names is not valid" $ not $
-    museqMaybeNamesAreValid' $ mkMuseq' 10 [ mkEv (Just "1") 0  6 ()
+  assertBool "Museq with overlapping like names is not valid" $ not $
+    museqMaybeNamesAreValid' $ mkMuseq 10 [ mkEv (Just "1") 0  6 ()
                                          , mkEv (Just "1") 4 10 () ]
-  assertBool "Museq' with non-overlapping like names is valid" $
-    museqMaybeNamesAreValid' $ mkMuseq' 10 [ mkEv (Just "1") 0 4  ()
+  assertBool "Museq with non-overlapping like names is valid" $
+    museqMaybeNamesAreValid' $ mkMuseq 10 [ mkEv (Just "1") 0 4  ()
                                          , mkEv (Just "1") 6 10 () ]
-  assertBool "Museq' with overlapping unlike names is valid" $
-    museqMaybeNamesAreValid' $ mkMuseq' 10 [ mkEv (Just "1") 0 6 ()
+  assertBool "Museq with overlapping unlike names is valid" $
+    museqMaybeNamesAreValid' $ mkMuseq 10 [ mkEv (Just "1") 0 6 ()
                                          , mkEv (Just "2") 4 10 () ]
-  assertBool "Museq' with wrapped overlap is not valid" $ not $
-    museqMaybeNamesAreValid' $ mkMuseq' 10 [ mkEv (Just "1") 0 4 ()
+  assertBool "Museq with wrapped overlap is not valid" $ not $
+    museqMaybeNamesAreValid' $ mkMuseq 10 [ mkEv (Just "1") 0 4 ()
                                          , mkEv (Just "1") 6 12 () ]
 
 testIntNameEvents' :: Test
@@ -412,8 +412,8 @@ testIntNameEvents' = TestCase $ do
 
 testNameAnonEvents' :: Test
 testNameAnonEvents' = TestCase $ do
-  let m = mkMuseq' 10 [ mkEv (Just "1") 0 1 ()
+  let m = mkMuseq 10 [ mkEv (Just "1") 0 1 ()
                     , mkEv Nothing    0 1 () ]
   assertBool "testNameAnonEvents'" $ nameAnonEvents' m
-    ==    mkMuseq' 10 [ mkEv "1"  0 1 ()
+    ==    mkMuseq 10 [ mkEv "1"  0 1 ()
                     , mkEv "a1" 0 1 () ]

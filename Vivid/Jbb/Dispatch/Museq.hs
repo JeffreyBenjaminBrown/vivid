@@ -4,45 +4,45 @@
 
 module Vivid.Jbb.Dispatch.Museq (
   -- | = Make a Museq
-    mkMuseq'   -- ^ RDuration -> [Ev' l a]            -> Museq' l a
-  , mkMuseq'h  -- ^ forall a l. Ord l
-               -- => RDuration -> [(l,RDuration,a)]   -> Museq' l a
-  , mkMuseq'ho -- ^ forall a l. Ord l
-               -- => RDuration -> [(l,RDuration,Msg)] -> Museq' l Msg
+    mkMuseq   -- ^ RDuration -> [Ev l a]            -> Museq l a
+  , mkMuseqH  -- ^ forall a l. Ord l
+               -- => RDuration -> [(l,RDuration,a)]   -> Museq l a
+  , mkMuseqHo -- ^ forall a l. Ord l
+               -- => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
-  , insertOffs -- ^ Museq' l Msg -> Museq' l Msg
-  , insertOns  -- ^ Museq' l Msg -> Museq' l Msg
+  , insertOffs -- ^ Museq l Msg -> Museq l Msg
+  , insertOns  -- ^ Museq l Msg -> Museq l Msg
 
   -- | = Timing
-  , timeToPlayThrough' -- ^ Museq' l a -> RTime
-  , supsToPlayThrough' -- ^ Museq' l a -> RTime
-  , dursToPlayThrough' -- ^ Museq' l a -> RTime
-  , timeToRepeat'      -- ^ Museq' l a -> RTime
-  , supsToRepeat'      -- ^ Museq' l a -> RTime
-  , dursToRepeat'      -- ^ Museq' l a -> RTime
-  , longestDur' -- ^ Museq' l a -> RDuration
+  , timeToPlayThrough' -- ^ Museq l a -> RTime
+  , supsToPlayThrough' -- ^ Museq l a -> RTime
+  , dursToPlayThrough' -- ^ Museq l a -> RTime
+  , timeToRepeat'      -- ^ Museq l a -> RTime
+  , supsToRepeat'      -- ^ Museq l a -> RTime
+  , dursToRepeat'      -- ^ Museq l a -> RTime
+  , longestDur' -- ^ Museq l a -> RDuration
 
   -- | = Naming events
-  , labelsToStrings -- ^ Show l => Museq' l a -> Museq' String a
+  , labelsToStrings -- ^ Show l => Museq l a -> Museq String a
   , museqMaybeNamesAreValid' -- ^ forall l a. Eq l
-       -- => Museq' (Maybe l) a -> Bool
+       -- => Museq (Maybe l) a -> Bool
   , nameAnonEvents' -- ^ forall a.
-                --    Museq' (Maybe String) a
-                -- -> Museq'        String  a
+                --    Museq (Maybe String) a
+                -- -> Museq        String  a
   , intNameEvents' -- ^ RDuration -- ^ _sup of the Museq these Evs come from
-                  -- -> [Ev' () a] -- ^ these are being named
-                  -- -> [Ev' Int a]
+                  -- -> [Ev () a] -- ^ these are being named
+                  -- -> [Ev Int a]
 
   -- | = More
-  , museqSynths' -- ^ Museq' String Note' -> [(SynthDefEnum, SynthName)]
-  , museqsDiff' -- ^ M.Map MuseqName (Museq' String Note')
-               -- -> M.Map MuseqName (Museq' String Note')
+  , museqSynths' -- ^ Museq String Note -> [(SynthDefEnum, SynthName)]
+  , museqsDiff' -- ^ M.Map MuseqName (Museq String Note)
+               -- -> M.Map MuseqName (Museq String Note)
                -- -> ([(SynthDefEnum, SynthName)],
                --     [(SynthDefEnum, SynthName)])
-  , sortMuseq' -- ^ Museq' l a -> Museq' l a
-  , museqIsValid' -- ^ (Eq a, Eq l) => Museq' l a -> Bool
+  , sortMuseq -- ^ Museq l a -> Museq l a
+  , museqIsValid' -- ^ (Eq a, Eq l) => Museq l a -> Bool
   , arc' -- ^ forall l a. Time -> Duration -> Time -> Time
-        -- -> Museq' l a -> [Event Time l a]
+        -- -> Museq l a -> [Event Time l a]
   ) where
 
 import Prelude hiding (cycle)
@@ -84,36 +84,36 @@ import Vivid.Jbb.Synths (SynthDefEnum)
 
 
 -- | = Make a Museq
--- | Make a Museq', specifying start and end times
-mkMuseq' :: RDuration -> [Ev' l a] -> Museq' l a
-mkMuseq' d evs = sortMuseq' $ Museq' { _dur' = d
-                                     , _sup' = d
-                                     , _vec' = V.fromList $ evs }
+-- | Make a Museq, specifying start and end times
+mkMuseq :: RDuration -> [Ev l a] -> Museq l a
+mkMuseq d evs = sortMuseq $ Museq { _dur = d
+                                     , _sup = d
+                                     , _vec = V.fromList $ evs }
 
--- | Make a `Museq'` from a list of `(label, start, value)` tuples,
+-- | Make a `Museq` from a list of `(label, start, value)` tuples,
 -- using `hold` to sustain each event until the next.
-mkMuseq'h :: forall a l. Ord l
-          => RDuration -> [(l,RDuration,a)] -> Museq' l a
-mkMuseq'h d evs0 = let
+mkMuseqH :: forall a l. Ord l
+          => RDuration -> [(l,RDuration,a)] -> Museq l a
+mkMuseqH d evs0 = let
   evs1 :: [(l,(RDuration,a))] =
     map (\(l,t,a) -> (l,(t,a))) evs0
   evs2 :: [(l,[(RDuration,a)])] =
     multiPartition evs1
   evs3 :: [(l,[((RDuration,RDuration),a)])] =
     map (_2 %~ hold d) evs2
-  evs4 :: [Ev' l a] = concatMap f evs3 where
+  evs4 :: [Ev l a] = concatMap f evs3 where
     f (l,ttas) = map g ttas where
-      g :: ((RDuration,RDuration),a) -> Ev' l a
+      g :: ((RDuration,RDuration),a) -> Ev l a
       g ((t,s),a) = Event { _evLabel = l
                           , _evArc = (t,s)
                           , _evData = a }
-  in mkMuseq' d evs4
+  in mkMuseq d evs4
 
--- | Like `mkMuseq'h`, but inserts `on = 1` in `Event`s that do not
+-- | Like `mkMuseqH`, but inserts `on = 1` in `Event`s that do not
 -- mention the `on` parameter. Specialized to `Msg` payloads.
-mkMuseq'ho :: forall l. Ord l
-          => RDuration -> [(l,RDuration,Msg)] -> Museq' l Msg
-mkMuseq'ho d evs0 = insertOns $ mkMuseq'h d evs0
+mkMuseqHo :: forall l. Ord l
+          => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
+mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
 
 -- | `hold sup0 tas` sustains each event in `tas` until the next one starts.
 -- The `sup0` parameter indicates the total duration of the pattern,
@@ -131,83 +131,83 @@ hold sup0 tas = _hold tas where
 
 -- | `insertOffs` turns every message off,
 -- whether it was on or off before.
-insertOffs :: Museq' l Msg -> Museq' l Msg
-insertOffs = vec' %~ V.map go where
-  go :: Ev' l (M.Map String Float)
-     -> Ev' l (M.Map String Float)
+insertOffs :: Museq l Msg -> Museq l Msg
+insertOffs = vec %~ V.map go where
+  go :: Ev l (M.Map String Float)
+     -> Ev l (M.Map String Float)
   go = evData %~ M.insert "on" 0
 
 -- | `insertOns` does not change any extant `on` messages,
 -- but where they are missing, it inserts `on = 1`.
-insertOns :: Museq' l Msg -> Museq' l Msg
-insertOns = vec' %~ V.map go where
-  go :: Ev' l (M.Map String Float)
-     -> Ev' l (M.Map String Float)
+insertOns :: Museq l Msg -> Museq l Msg
+insertOns = vec %~ V.map go where
+  go :: Ev l (M.Map String Float)
+     -> Ev l (M.Map String Float)
   go = evData %~ M.insertWith (flip const) "on" 1
 
 
--- | = Timing a Museq'
-timeToPlayThrough' :: Museq' l a -> RTime
-timeToPlayThrough' m = RTime $ lcmRatios (tr $ _sup' m) (tr $ _dur' m)
+-- | = Timing a Museq
+timeToPlayThrough' :: Museq l a -> RTime
+timeToPlayThrough' m = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)
 
-supsToPlayThrough' :: Museq' l a -> RTime
-supsToPlayThrough' m = timeToPlayThrough' m / (_sup' m)
+supsToPlayThrough' :: Museq l a -> RTime
+supsToPlayThrough' m = timeToPlayThrough' m / (_sup m)
 
-dursToPlayThrough' :: Museq' l a -> RTime
-dursToPlayThrough' m = timeToPlayThrough' m / (_dur' m)
+dursToPlayThrough' :: Museq l a -> RTime
+dursToPlayThrough' m = timeToPlayThrough' m / (_dur m)
 
-timeToRepeat' :: Museq' l a -> RTime
+timeToRepeat' :: Museq l a -> RTime
 timeToRepeat' m = let x = timeToPlayThrough' m
-                  in if x == _dur' m then _sup' m else x
+                  in if x == _dur m then _sup m else x
 
-supsToRepeat' :: Museq' l a -> RTime
-supsToRepeat' m = timeToRepeat' m / _sup' m
+supsToRepeat' :: Museq l a -> RTime
+supsToRepeat' m = timeToRepeat' m / _sup m
 
-dursToRepeat' :: Museq' l a -> RTime
-dursToRepeat' m = timeToRepeat' m / _dur' m
+dursToRepeat' :: Museq l a -> RTime
+dursToRepeat' m = timeToRepeat' m / _dur m
 
-longestDur' :: Museq' l a -> RDuration
+longestDur' :: Museq l a -> RDuration
 longestDur' m = let eventDur ev = (ev ^. evEnd) - (ev ^. evStart)
-                in V.maximum $ V.map eventDur $ _vec' m
+                in V.maximum $ V.map eventDur $ _vec m
 
 
 -- | = Naming events
 
-labelsToStrings :: Show l => Museq' l a -> Museq' String a
-labelsToStrings = over vec' $ V.map $ over evLabel show
+labelsToStrings :: Show l => Museq l a -> Museq String a
+labelsToStrings = over vec $ V.map $ over evLabel show
 
 -- | The names in a `Museq Name` are valid if no events with the same
 -- name overlap in time, within or across cycles.
 museqMaybeNamesAreValid' :: forall l a. Eq l
-                         => Museq' (Maybe l) a -> Bool
+                         => Museq (Maybe l) a -> Bool
 museqMaybeNamesAreValid' m = and $ map goodGroup nameGroups where
-  namedEvents = filter (Mb.isJust . view evLabel) $ V.toList $ _vec' m
+  namedEvents = filter (Mb.isJust . view evLabel) $ V.toList $ _vec m
   nameGroups = L.groupBy ((==) `on` view evLabel) namedEvents
-    :: [[Ev' (Maybe l) a]]
+    :: [[Ev (Maybe l) a]]
   adjacentOverlap, wrappedOverlap, goodGroup
-    :: [Ev' (Maybe l) a] -> Bool
+    :: [Ev (Maybe l) a] -> Bool
   adjacentOverlap [] = False
   adjacentOverlap (_:[]) = False
   adjacentOverlap (e : f : more) = overlap (e^.evArc) (f^.evArc)
                                    || adjacentOverlap (f:more)
   wrappedOverlap evs = overlap (last evs ^. evArc)
-                       (bumpArc (_sup' m) $ head evs ^. evArc)
+                       (bumpArc (_sup m) $ head evs ^. evArc)
   goodGroup g = not $ adjacentOverlap g || wrappedOverlap g
 
 nameAnonEvents' :: forall a.
-                   Museq' (Maybe String) a
-                -> Museq'        String  a
+                   Museq (Maybe String) a
+                -> Museq        String  a
 nameAnonEvents' m =
-  sortMuseq' $ m {_vec' = V.fromList $ namedEvs' ++ namedAnons}
+  sortMuseq $ m {_vec = V.fromList $ namedEvs' ++ namedAnons}
   where
-    evs, namedEvs, anonEvs :: [Ev' (Maybe String) a]
-    evs = V.toList $ _vec' m
+    evs, namedEvs, anonEvs :: [Ev (Maybe String) a]
+    evs = V.toList $ _vec m
     (namedEvs, anonEvs) = L.partition (Mb.isJust . view evLabel) evs
-    namedEvs' = map (over evLabel Mb.fromJust) namedEvs :: [Ev' String a]
+    namedEvs' = map (over evLabel Mb.fromJust) namedEvs :: [Ev String a]
     names = map (view evLabel) namedEvs' :: [String]
-    anonEvs' = map (over evLabel $ const ()) anonEvs :: [Ev' () a]
-    intNamedAnons = intNameEvents' (_sup' m) anonEvs' :: [Ev' Int a]
-    namedAnons = map (over evLabel f) intNamedAnons :: [Ev' String a]
+    anonEvs' = map (over evLabel $ const ()) anonEvs :: [Ev () a]
+    intNamedAnons = intNameEvents' (_sup m) anonEvs' :: [Ev Int a]
+    namedAnons = map (over evLabel f) intNamedAnons :: [Ev String a]
       where f = ((++) $ unusedName names) . show
             -- The ++ ensures no name conflicts.
 
@@ -215,8 +215,8 @@ nameAnonEvents' m =
 -- starting from 1, so that like-named events do not overlap.
 -- ASSUMES the input list is sorted on (start,end) times.
 intNameEvents' :: RDuration -- ^ _sup of the Museq these Evs come from
-               -> [Ev' () a] -- ^ these are being named
-               -> [Ev' Int a]
+               -> [Ev () a] -- ^ these are being named
+               -> [Ev Int a]
 intNameEvents' sup0 (ev1:more) =
   ev1' : _intNameEvents' sup0 ev1' [ev1'] more
   where ev1' = over evLabel (const 1) ev1
@@ -224,10 +224,10 @@ intNameEvents' _ _ = error "intNameEvents: uncaught input pattern."
 
 _intNameEvents' :: forall a.
   RDuration -- ^ _sup of the Museq these Evs come from
-  -> (Ev' Int a) -- ^ the first event
-  -> [Ev' Int a] -- ^ ongoing events
-  -> [Ev' ()  a] -- ^ these are being named
-  -> [Ev' Int a]
+  -> (Ev Int a) -- ^ the first event
+  -> [Ev Int a] -- ^ ongoing events
+  -> [Ev ()  a] -- ^ these are being named
+  -> [Ev Int a]
 _intNameEvents' _ _ _ [] = []
 _intNameEvents' sup0 ev1 ongoing (ev : more) =
   over evLabel (const name) ev
@@ -245,10 +245,10 @@ _intNameEvents' sup0 ev1 ongoing (ev : more) =
 
 -- | = More
 -- | Given a Museq, find the synths it uses.
-museqSynths' :: Museq' String Note' -> [(SynthDefEnum, SynthName)]
+museqSynths' :: Museq String Note -> [(SynthDefEnum, SynthName)]
 museqSynths' m = map f evs where
-  evs = V.toList $ _vec' m :: [Ev' String Note']
-  f :: Ev' String Note' -> (SynthDefEnum, SynthName)
+  evs = V.toList $ _vec m :: [Ev String Note]
+  f :: Ev String Note -> (SynthDefEnum, SynthName)
   f ev = ( view (evData . noteSd) ev
          , view evLabel ev )
 
@@ -256,13 +256,13 @@ museqSynths' m = map f evs where
 -- which synths need to be created, and which destroyed.
 -- PITFALL: Both resulting lists are ordered on the first element,
 -- likely differing from either of the input maps.
-museqsDiff' :: M.Map MuseqName (Museq' String Note')
-            -> M.Map MuseqName (Museq' String Note')
+museqsDiff' :: M.Map MuseqName (Museq String Note)
+            -> M.Map MuseqName (Museq String Note)
             -> ([(SynthDefEnum, SynthName)],
                  [(SynthDefEnum, SynthName)])
 museqsDiff' old new = (toFree,toCreate) where
-  oldMuseqs = M.elems old :: [Museq' String Note']
-  newMuseqs = M.elems new :: [Museq' String Note']
+  oldMuseqs = M.elems old :: [Museq String Note]
+  newMuseqs = M.elems new :: [Museq String Note]
   oldSynths = unique $ concatMap museqSynths' oldMuseqs
   newSynths = unique $ concatMap museqSynths' newMuseqs
   toCreate = (L.\\) newSynths oldSynths
@@ -270,25 +270,25 @@ museqsDiff' old new = (toFree,toCreate) where
 
 
 -- | = Sort a Museq
-sortMuseq' :: Museq' l a -> Museq' l a
-sortMuseq' = vec' %~
+sortMuseq :: Museq l a -> Museq l a
+sortMuseq = vec %~
   \v -> runST $ do v' <- V.thaw v
                    sortBy (compare `on` view evArc) v'
                    V.freeze v'
 
--- | A valid Museq' m is sorted on start and then end times,
+-- | A valid Museq m is sorted on start and then end times,
 -- with all end times >= the corresponding start times,
 -- has (relative) duration > 0, and all events at time < _sup m.
 -- (todo ? I'm not sure the end-time sort helps.)
 -- PITFALL : The end times are permitted to be greater than the _sup.
-museqIsValid' :: (Eq a, Eq l) => Museq' l a -> Bool
+museqIsValid' :: (Eq a, Eq l) => Museq l a -> Bool
 museqIsValid' mu = and [a,b,c,d,e] where
-  v = _vec' mu
+  v = _vec mu
   a = if V.length v == 0 then True
-      else (view evEnd $ V.last v) < _sup' mu
-  b = mu == sortMuseq' mu
-  c = _dur' mu > 0
-  d = _sup' mu > 0
+      else (view evEnd $ V.last v) < _sup mu
+  b = mu == sortMuseq mu
+  c = _dur mu > 0
+  d = _sup mu > 0
   e = V.all (uncurry (<=) . view evArc) v
 
 -- todo ? `arc` could be ~2x faster by using binarySearchRByBounds
@@ -296,10 +296,10 @@ museqIsValid' mu = and [a,b,c,d,e] where
 -- of the vector again.
 -- | Finds the events in [from,to).
 arc' :: forall l a. Time -> Duration -> Time -> Time
-     -> Museq' l a -> [Event Time l a]
+     -> Museq l a -> [Event Time l a]
 arc' time0 tempoPeriod from to m =
-  let period = tempoPeriod * tr (_sup' m) :: Duration
-      startVec = V.map (view evStart) $ _vec' $ m :: V.Vector RTime
+  let period = tempoPeriod * tr (_sup m) :: Duration
+      startVec = V.map (view evStart) $ _vec $ m :: V.Vector RTime
       latestPhase0 = prevPhase0 time0 period from :: Time
         -- it would be natural to start here, but long events from
         -- earlier cycles could carry into now, so we must back up
@@ -307,7 +307,7 @@ arc' time0 tempoPeriod from to m =
       oldestRelevantCycle = div' (earlierFrom - latestPhase0) period :: Int
       correctAbsoluteTimes :: (Time,Time) -> (Time,Time)
         -- HACK: the inputs ought to be RTimes,
-        -- but then I'd be switching types, from Ev' to AbsEv'
+        -- but then I'd be switching types, from Ev to AbsEv
       correctAbsoluteTimes (a,b) = (f a, f b) where
         f rt = tr rt * tempoPeriod + latestPhase0
       chopStarts :: (Time,Time) -> (Time,Time)
@@ -326,7 +326,7 @@ arc' time0 tempoPeriod from to m =
 
 _arcFold' :: forall l a. Int -> Duration -> V.Vector RTime
   -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
-  -> Museq' l a -> [Ev' l a]
+  -> Museq l a -> [Ev l a]
 _arcFold' cycle period startVec time0 from to m =
   if from >= to then [] -- todo ? Be sure of `arc` boundary condition
   else let
@@ -334,7 +334,7 @@ _arcFold' cycle period startVec time0 from to m =
     fromInCycles = fr $ (from - pp0) / period :: RTime
     toInCycles   = fr $ (to   - pp0) / period :: RTime
     startOrOOBIndex =
-      firstIndexGTE compare startVec $ fromInCycles * _sup' m :: Int
+      firstIndexGTE compare startVec $ fromInCycles * _sup m :: Int
   in if startOrOOBIndex >= V.length startVec
 --     then let nextFrom = if pp0 + period > from
 -- -- todo ? delete
@@ -348,12 +348,12 @@ _arcFold' cycle period startVec time0 from to m =
      else
        let startIndex = startOrOOBIndex :: Int
            endIndex = lastIndexLTE compare' startVec
-                      $ toInCycles * _sup' m :: Int
+                      $ toInCycles * _sup m :: Int
              where compare' x y =
                      if x < y then LT else GT -- to omit the endpoint
            eventsThisCycle = V.toList
-             $ V.map (over evEnd   (+(_sup' m * fromIntegral cycle)))
-             $ V.map (over evStart (+(_sup' m * fromIntegral cycle)))
-             $ V.slice startIndex (endIndex-startIndex) $ _vec' m
+             $ V.map (over evEnd   (+(_sup m * fromIntegral cycle)))
+             $ V.map (over evStart (+(_sup m * fromIntegral cycle)))
+             $ V.slice startIndex (endIndex-startIndex) $ _vec m
        in eventsThisCycle
           ++ _arcFold' (cycle+1) period startVec time0 (pp0 + period) to m

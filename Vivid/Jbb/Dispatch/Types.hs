@@ -14,16 +14,16 @@ module Vivid.Jbb.Dispatch.Types (
   , Msg, Msg'(..)
   , NamedWith, mNamed, anon
   , Action(..), actionToSynth
-  , Event(..), showEvs', mkEv, mkEv0
+  , Event(..), showEvs, mkEv, mkEv0
   , evArc   , evLabel   , evData   , evStart   , evEnd
   , eventRTimeToEventTime
-  , Ev'
-  , Museq'(..), dur', sup', vec'
-  , emptyMuseq'
+  , Ev
+  , Museq(..), dur, sup, vec
+  , emptyMuseq
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
-  , Note'(..), noteSd, noteMsg
-  , Dispatch'(..), newDispatch'
+  , Note(..), noteSd, noteMsg
+  , Dispatch(..), newDispatch
   ) where
 
 import Control.Concurrent.MVar
@@ -113,7 +113,7 @@ data Event time label a = Event { _evLabel :: label
                                 , _evData :: a} deriving (Show, Eq, Ord)
 makeLenses ''Event
 
-type Ev' = Event RTime
+type Ev = Event RTime
 
 eventRTimeToEventTime :: Event RTime l a -> Event Time l a
 eventRTimeToEventTime ev = let (s,t) = _evArc ev
@@ -123,32 +123,32 @@ evStart, evEnd :: Lens' (Event t l a) t
 evStart = evArc . _1
 evEnd = evArc . _2
 
-showEvs' :: (Foldable t, Show a, Show label)
-        => t (Ev' label a) -> String
-showEvs' = foldl (\acc ev -> acc ++ show ev) "\n"
+showEvs :: (Foldable t, Show a, Show label)
+        => t (Ev label a) -> String
+showEvs = foldl (\acc ev -> acc ++ show ev) "\n"
 
-mkEv :: l -> Rational -> Rational -> a -> Ev' l a
+mkEv :: l -> Rational -> Rational -> a -> Ev l a
 mkEv l s e a = Event l (fr s, fr e) a
 
-mkEv0 :: l -> Rational -> a -> Ev' l a -- ^ duration-0 events
+mkEv0 :: l -> Rational -> a -> Ev l a -- ^ duration-0 events
 mkEv0 l t a = Event l (fr t, fr t) a
 
-data Museq' label a = Museq' {
-  _dur' :: RDuration -- ^ the play duration of the loop
-  , _sup' :: RDuration -- ^ the supremum of the possible RTime values
+data Museq label a = Museq {
+  _dur :: RDuration -- ^ the play duration of the loop
+  , _sup :: RDuration -- ^ the supremum of the possible RTime values
     -- in `_vec`. If this is greater than `dur`, the `Museq`will rotate
     -- through different sections of the `vec` each time it plays.
     -- If less than `dur`, the `Museq` will play the entire `vec` more than
     -- once each time it plays.
-  , _vec' :: V.Vector (Ev' label a) }
+  , _vec :: V.Vector (Ev label a) }
   deriving (Show,Eq)
-makeLenses ''Museq'
+makeLenses ''Museq
 
-instance Functor (Museq' label) where
-  fmap = over vec' . V.map . over evData
+instance Functor (Museq label) where
+  fmap = over vec . V.map . over evData
 
-emptyMuseq' :: Museq' label a
-emptyMuseq' = Museq' { _dur' = 1, _sup' = 1, _vec' = V.empty }
+emptyMuseq :: Museq label a
+emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 
 
 -- | The global state
@@ -163,25 +163,25 @@ makeLenses ''SynthRegister
 emptySynthRegister :: SynthRegister
 emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
-data Note' = Note' { _noteSd :: SynthDefEnum
+data Note = Note { _noteSd :: SynthDefEnum
                    , _noteMsg :: Msg } deriving (Show, Eq)
-makeLenses ''Note'
+makeLenses ''Note
 
-data Dispatch' = Dispatch' {
-    mMuseqs'      :: MVar (M.Map MuseqName (Museq' String Note'))
-  , mReg'         :: MVar SynthRegister
-  , mTime0'       :: MVar Time
-  , mTempoPeriod' :: MVar Duration
+data Dispatch = Dispatch {
+    mMuseqs      :: MVar (M.Map MuseqName (Museq String Note))
+  , mReg         :: MVar SynthRegister
+  , mTime0       :: MVar Time
+  , mTempoPeriod :: MVar Duration
   }
 
 -- | "new" because it's not really empty, except for `time0`
-newDispatch' :: IO Dispatch'
-newDispatch' = do
+newDispatch :: IO Dispatch
+newDispatch = do
   a <- newMVar M.empty
   b <- newMVar emptySynthRegister
   c <- newEmptyMVar
   d <- newMVar 1
-  return Dispatch' { mMuseqs'      = a
-                   , mReg'         = b
-                   , mTime0'       = c
-                   , mTempoPeriod' = d }
+  return Dispatch { mMuseqs      = a
+                   , mReg         = b
+                   , mTime0       = c
+                   , mTempoPeriod = d }

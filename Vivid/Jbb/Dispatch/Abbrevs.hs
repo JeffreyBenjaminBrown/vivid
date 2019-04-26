@@ -9,23 +9,23 @@ import Vivid.Jbb.Synths
 
 -- | = Abbreviations
 
-mmh :: forall a l. Ord l => RDuration -> [(l,RDuration,a)] -> Museq' l a
-mmh = mkMuseq'h
+mmh :: forall a l. Ord l => RDuration -> [(l,RDuration,a)] -> Museq l a
+mmh = mkMuseqH
 
-mmho :: forall l. Ord l => RDuration -> [(l,RDuration,Msg)] -> Museq' l Msg
-mmho = mkMuseq'ho
+mmho :: forall l. Ord l => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
+mmho = mkMuseqHo
 
-offs :: Museq' l Msg -> Museq' l Msg
+offs :: Museq l Msg -> Museq l Msg
 offs = insertOffs
 
-ons :: Museq' l Msg -> Museq' l Msg
+ons :: Museq l Msg -> Museq l Msg
 ons = insertOns
 
-nBoop, nVap, nZot, nSqfm :: Museq' l Msg -> Museq' l Note'
-nBoop = (<$>) (Note' Boop)
-nVap  = (<$>) (Note' Vap)
-nZot  = (<$>) (Note' Zot)
-nSqfm = (<$>) (Note' Sqfm)
+nBoop, nVap, nZot, nSqfm :: Museq l Msg -> Museq l Note
+nBoop = (<$>) (Note Boop)
+nVap  = (<$>) (Note Vap)
+nZot  = (<$>) (Note Zot)
+nSqfm = (<$>) (Note Sqfm)
 
 
 -- | = To write names only once

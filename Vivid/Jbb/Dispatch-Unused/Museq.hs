@@ -6,8 +6,8 @@ arcIO' :: forall l a. (Show a, Show l)
        => Time -> Duration -> Time -> Time
        -> Museq' l a -> IO [AbsEv' l a]
 arcIO' time0 tempoPeriod from to m = do
-  let period = tempoPeriod * tr (_sup' m) :: Duration
-      startVec = V.map (view evStart) $ _vec' $ m :: V.Vector RTime
+  let period = tempoPeriod * tr (_sup m) :: Duration
+      startVec = V.map (view evStart) $ _vec $ m :: V.Vector RTime
       latestPhase0 = prevPhase0 time0 period from :: Time
         -- it would be natural to start here, but long events from
         -- earlier cycles could carry into now, so we must back up
@@ -53,7 +53,7 @@ _arcFoldIO' cycle period startVec time0 from to m = do
         fromInCycles = fr $ (from - pp0) / period :: RTime
         toInCycles   = fr $ (to   - pp0) / period :: RTime
         startOrOOBIndex =
-          firstIndexGTE compare startVec $ fromInCycles * _sup' m :: Int
+          firstIndexGTE compare startVec $ fromInCycles * _sup m :: Int
     putStrLn $ "\npp0: " ++ show pp0
       ++ "\nfromInCycles: " ++ show fromInCycles
       ++ "\ntoInCycles: " ++ show toInCycles
@@ -72,13 +72,13 @@ _arcFoldIO' cycle period startVec time0 from to m = do
       else do
       let startIndex = startOrOOBIndex :: Int
           endIndex = lastIndexLTE compare' startVec
-                     $ toInCycles * _sup' m :: Int
+                     $ toInCycles * _sup m :: Int
              where compare' x y =
                      if x < y then LT else GT -- to omit the endpoint
           eventsThisCycle = V.toList
-             $ V.map (over evEnd   (+(_sup' m * fromIntegral cycle)))
-             $ V.map (over evStart (+(_sup' m * fromIntegral cycle)))
-             $ V.slice startIndex (endIndex-startIndex) $ _vec' m
+             $ V.map (over evEnd   (+(_sup m * fromIntegral cycle)))
+             $ V.map (over evStart (+(_sup m * fromIntegral cycle)))
+             $ V.slice startIndex (endIndex-startIndex) $ _vec m
       putStrLn $ "something to render this cycle: "
         ++ "\nstartIndex: " ++ show startIndex
         ++ "\nendIndex: " ++ show endIndex
