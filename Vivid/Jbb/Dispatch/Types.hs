@@ -14,20 +14,15 @@ module Vivid.Jbb.Dispatch.Types (
   , Msg, Msg'(..)
   , NamedWith, mNamed, anon
   , Action(..), actionToSynth
-  , Ev       , showEvs
   , Event(..), showEvs', mkEv, mkEv0
   , evArc   , evLabel   , evData   , evStart   , evEnd
   , eventRTimeToEventTime
   , Ev'
-  , Museq(..) , dur , sup , vec
-  , emptyMuseq
   , Museq'(..), dur', sup', vec'
   , emptyMuseq'
   , SynthRegister(..), boops, vaps, sqfms
   , emptySynthRegister
-  , Note
   , Note'(..), noteSd, noteMsg
-  , Dispatch(..),  newDispatch
   , Dispatch'(..), newDispatch'
   ) where
 
@@ -113,11 +108,6 @@ actionToSynth (Free s n  ) = (s,n)
 actionToSynth (Send s n _) = (s,n)
 
 
-type Ev a = ( (RTime,RTime), a) -- ^ start and end time, I guess
-
-showEvs :: (Foldable t, Show a) => t (Ev a) -> String
-showEvs evs = concatMap (\(t,a) -> "\n" ++ show t ++ ": " ++ show a) evs
-
 data Event time label a = Event { _evLabel :: label
                                 , _evArc :: (time,time)
                                 , _evData :: a} deriving (Show, Eq, Ord)
@@ -142,23 +132,6 @@ mkEv l s e a = Event l (fr s, fr e) a
 
 mkEv0 :: l -> Rational -> a -> Ev' l a -- ^ duration-0 events
 mkEv0 l t a = Event l (fr t, fr t) a
-
-data Museq a = Museq {
-    _dur :: RDuration -- ^ The play duration of the loop.
-  , _sup :: RDuration -- ^ The supremum of the possible RTime values
-    -- in `_vec`. If this is greater than `dur`, the `Museq`will rotate
-    -- through different sections of the `vec` each time it plays.
-    -- If less than `dur`, the `Museq` will play the entire `vec` more than
-    -- once each time it plays.
-  , _vec :: V.Vector (Ev a) }
-  deriving (Show,Eq)
-makeLenses ''Museq
-
-instance Functor Museq where
-  fmap = over vec . V.map . over _2
-
-emptyMuseq :: Museq a
-emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 
 data Museq' label a = Museq' {
   _dur' :: RDuration -- ^ the play duration of the loop
@@ -190,30 +163,9 @@ makeLenses ''SynthRegister
 emptySynthRegister :: SynthRegister
 emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
-type Note  = NamedWith String (SynthDefEnum, Msg)
-
 data Note' = Note' { _noteSd :: SynthDefEnum
                    , _noteMsg :: Msg } deriving (Show, Eq)
 makeLenses ''Note'
-
-data Dispatch = Dispatch {
-    mMuseqs :: MVar (M.Map MuseqName (Museq Note))
-  , mReg :: MVar SynthRegister
-  , mTime0 :: MVar Time
-  , mTempoPeriod :: MVar Duration
-  }
-
--- | PITFALL: the `mTime0` field begins empty.
-newDispatch :: IO Dispatch
-newDispatch = do
-  a <- newMVar M.empty
-  b <- newMVar emptySynthRegister
-  c <- newEmptyMVar
-  d <- newMVar 1
-  return Dispatch { mMuseqs      = a
-                  , mReg         = b
-                  , mTime0       = c
-                  , mTempoPeriod = d }
 
 data Dispatch' = Dispatch' {
     mMuseqs'      :: MVar (M.Map MuseqName (Museq' String Note'))

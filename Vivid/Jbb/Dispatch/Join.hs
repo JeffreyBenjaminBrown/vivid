@@ -4,7 +4,7 @@ ScopedTypeVariables
 , FlexibleInstances #-}
 
 module Vivid.Jbb.Dispatch.Join (
-    Museq(..)
+    Museq'(..)
   , append' -- ^ forall l a. Museq' l a -> Museq' l a -> Museq' l a
   , cat'    -- ^ [Museq' l a] -> Museq' l a -- the name "concat" is taken
   , stack'  -- ^ forall a l m. (Show l, Show m)
@@ -22,7 +22,7 @@ module Vivid.Jbb.Dispatch.Join (
        -- -> Museq' String b
   ) where
 
-import Control.Lens (over, view, _1, (^.))
+import Control.Lens (over, view, (^.))
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
