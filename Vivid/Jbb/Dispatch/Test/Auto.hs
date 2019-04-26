@@ -20,7 +20,7 @@ tests = runTestTT $ TestList
   [ TestLabel "testOverlap" testOverlap
   , TestLabel "testPrevPhase0" testPrevPhase0
   , TestLabel "testNextPhase0" testNextPhase0
-  , TestLabel "museqIsValid'" testMuseqIsValid'
+  , TestLabel "museqIsValid" testMuseqIsValid'
   , TestLabel "testStack'" testStack'
   , TestLabel "testRev'" testRev'
   , TestLabel "testEarlyAndLate'" testEarlyAndLate'
@@ -121,13 +121,13 @@ testNextPhase0 = TestCase $ do
 
 testMuseqIsValid' :: Test
 testMuseqIsValid' = TestCase $ do
-  assertBool "valid, empty"                   $ museqIsValid'
+  assertBool "valid, empty"                   $ museqIsValid
     $ (mkMuseq 3 [] :: Museq String ())
-  assertBool "invalid, zero length"     $ not $ museqIsValid'
+  assertBool "invalid, zero length"     $ not $ museqIsValid
     $ (mkMuseq 0 [] :: Museq String ())
-  assertBool "valid, nonempty"                $ museqIsValid'
+  assertBool "valid, nonempty"                $ museqIsValid
     $ mkMuseq 1 [mkEv0 "1" 0 () ]
-  assertBool "invalid, time > _sup" $ not $ museqIsValid'
+  assertBool "invalid, time > _sup" $ not $ museqIsValid
     $ mkMuseq 1 [mkEv0 "1" 2 () ]
 
 testStack' :: Test
@@ -253,11 +253,11 @@ testMuseqsDiff' = TestCase $ do
                       ,("b", mkMuseq 15 [ mkEv0 "2" 0  (Note Boop msg)
                                        , mkEv0 "3" 10 (Note Boop msg)
                                        ] ) ]
-  assertBool "museqDiff" $ museqsDiff' m1 m2 == ( [ (Boop,"1") ]
+  assertBool "museqDiff" $ museqsDiff m1 m2 == ( [ (Boop,"1") ]
                                                , [ (Boop,"3")
                                                  , (Vap ,"2")
                                                  ] )
-  assertBool "museqDiff" $ museqsDiff' m2 m1 == ( [ (Boop,"3")
+  assertBool "museqDiff" $ museqsDiff m2 m1 == ( [ (Boop,"3")
                                                  , (Vap ,"2") ]
                                                , [ (Boop,"1")
                                                  ] )
@@ -267,15 +267,15 @@ testArc' = TestCase $ do
   let m = mkMuseq 5 [ Event () (0,6) "a"
                    , Event () (2,4) "b"]
   -- arguments to arc : time0 tempoPeriod from to museq
-  assertBool "arc 0" $ arc' 100 2  200 210  m
+  assertBool "arc 0" $ arc 100 2  200 210  m
     == [ ( Event () (200,202) "a" )
        , ( Event () (200,210) "a" )
        , ( Event () (204,208) "b" )]
-  assertBool "arc' 1" $ arc' 101 2  200 210  m
+  assertBool "arc 1" $ arc 101 2  200 210  m
     == [ ( Event () (200,203) "a")
        , ( Event () (201,210) "a")
        , ( Event () (205,209) "b")]
-  assertBool "arc' 1" $ arc' 101 2  200 220  m
+  assertBool "arc 1" $ arc 101 2  200 220  m
     == [ ( Event () (200,203) "a")
        , ( Event () (201,213) "a")
        , ( Event () (205,209) "b")
@@ -379,41 +379,41 @@ testMeta' = TestCase $ do
 
 testMuseqNamesAreValid' :: Test
 testMuseqNamesAreValid' = TestCase $ do
-  assertBool "empty Museq has valid names" $ museqMaybeNamesAreValid' $
+  assertBool "empty Museq has valid names" $ museqMaybeNamesAreValid $
     mkMuseq 10 ([] :: [Ev (Maybe String) ()])
   assertBool "Museq without names has valid names"
-    $ museqMaybeNamesAreValid'
+    $ museqMaybeNamesAreValid
     $ mkMuseq 10 [ mkEv (Nothing :: Maybe String) 0 10 ()
                 , mkEv (Nothing :: Maybe String) 0 10 () ]
   assertBool "Museq with overlapping like names is not valid" $ not $
-    museqMaybeNamesAreValid' $ mkMuseq 10 [ mkEv (Just "1") 0  6 ()
+    museqMaybeNamesAreValid $ mkMuseq 10 [ mkEv (Just "1") 0  6 ()
                                          , mkEv (Just "1") 4 10 () ]
   assertBool "Museq with non-overlapping like names is valid" $
-    museqMaybeNamesAreValid' $ mkMuseq 10 [ mkEv (Just "1") 0 4  ()
+    museqMaybeNamesAreValid $ mkMuseq 10 [ mkEv (Just "1") 0 4  ()
                                          , mkEv (Just "1") 6 10 () ]
   assertBool "Museq with overlapping unlike names is valid" $
-    museqMaybeNamesAreValid' $ mkMuseq 10 [ mkEv (Just "1") 0 6 ()
+    museqMaybeNamesAreValid $ mkMuseq 10 [ mkEv (Just "1") 0 6 ()
                                          , mkEv (Just "2") 4 10 () ]
   assertBool "Museq with wrapped overlap is not valid" $ not $
-    museqMaybeNamesAreValid' $ mkMuseq 10 [ mkEv (Just "1") 0 4 ()
+    museqMaybeNamesAreValid $ mkMuseq 10 [ mkEv (Just "1") 0 4 ()
                                          , mkEv (Just "1") 6 12 () ]
 
 testIntNameEvents' :: Test
 testIntNameEvents' = TestCase $ do
-  assertBool "intNameEvents', no overlap" $
-    intNameEvents' 10 [mkEv () 0  1 (),  mkEv () 2 3 ()]
+  assertBool "intNameEvents, no overlap" $
+    intNameEvents 10 [mkEv () 0  1 (),  mkEv () 2 3 ()]
     ==                [mkEv  1 0  1 (),  mkEv  1 2 3 ()]
-  assertBool "intNameEvents', ordinary overlap" $
-    intNameEvents' 10 [mkEv () 0 2 (),  mkEv () 1 3 ()]
+  assertBool "intNameEvents, ordinary overlap" $
+    intNameEvents 10 [mkEv () 0 2 (),  mkEv () 1 3 ()]
     ==                [mkEv  1 0 2 (),  mkEv  2 1 3 ()]
-  assertBool "intNameEvents', wrapped overlap" $
-    intNameEvents' 10 [mkEv () 0 2 (),  mkEv () 5 11 ()]
+  assertBool "intNameEvents, wrapped overlap" $
+    intNameEvents 10 [mkEv () 0 2 (),  mkEv () 5 11 ()]
     ==                [mkEv  1 0 2 (),  mkEv  2 5 11 ()]
 
 testNameAnonEvents' :: Test
 testNameAnonEvents' = TestCase $ do
   let m = mkMuseq 10 [ mkEv (Just "1") 0 1 ()
                     , mkEv Nothing    0 1 () ]
-  assertBool "testNameAnonEvents'" $ nameAnonEvents' m
+  assertBool "testNameAnonEvents'" $ nameAnonEvents m
     ==    mkMuseq 10 [ mkEv "1"  0 1 ()
                     , mkEv "a1" 0 1 () ]

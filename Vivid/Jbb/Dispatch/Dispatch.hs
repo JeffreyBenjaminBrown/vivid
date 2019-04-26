@@ -162,7 +162,7 @@ replaceAll' disp masNew = do
       when = nextPhase0 time0 frameDuration now + frameDuration
         -- `when` = the start of the first not-yet-rendered frame
       toFree, toCreate :: [(SynthDefEnum, SynthName)]
-      (toFree,toCreate) = museqsDiff' masOld masNew'
+      (toFree,toCreate) = museqsDiff masOld masNew'
 
   newTransform  <- mapM (actNew  reg)      $ map (uncurry New)  toCreate
   freeTransform <- mapM (actFree reg when) $ map (uncurry Free) toFree
@@ -227,7 +227,7 @@ dispatchLoop' disp = do
     evs0 = concatMap f $ M.elems museqsMap' :: [(Time, Action)] where
       f :: Museq String Action -> [(Time, Action)] -- start times and actions
       f m = map (\ev -> ((ev^.evStart), (ev^.evData))) evs
-        where evs = arc' time0 tempoPeriod startRender
+        where evs = arc time0 tempoPeriod startRender
                     (startRender + frameDuration) m
 
   mapM_ (uncurry $ actSend reg) evs0

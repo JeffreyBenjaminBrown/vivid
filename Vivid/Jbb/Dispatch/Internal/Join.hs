@@ -28,13 +28,13 @@ import Vivid.Jbb.Dispatch.Types
 
 timeForBothToRepeat' :: Museq l a -> Museq m b -> RTime
 timeForBothToRepeat' x y =
-  RTime $ lcmRatios (tr $ timeToRepeat' x) (tr $ timeToRepeat' y)
+  RTime $ lcmRatios (tr $ timeToRepeat x) (tr $ timeToRepeat y)
 
 -- | If L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
 -- See the test suite for an example.
 explicitReps :: forall a l. Museq l a -> [V.Vector (Ev l a)]
-explicitReps m = unsafeExplicitReps' (timeToPlayThrough' m) m
+explicitReps m = unsafeExplicitReps' (timeToPlayThrough m) m
 
 -- | PITFALL: I don't know what this will do if
 -- `totalDuration` is not an integer multiple of `timeToPlayThrough m`

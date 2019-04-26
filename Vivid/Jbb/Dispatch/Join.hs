@@ -36,7 +36,7 @@ import Vivid.Jbb.Dispatch.Internal.Join
 append' :: forall l a. Museq l a -> Museq l a -> Museq l a
 append' x0 y0 = let
   durs = RTime
-    $ lcmRatios (tr $ dursToPlayThrough' x0) (tr $ dursToPlayThrough' y0)
+    $ lcmRatios (tr $ dursToPlayThrough x0) (tr $ dursToPlayThrough y0)
     -- Since x and y both have to finish at the same time,
     -- they must run through this many durs.
 
@@ -184,6 +184,6 @@ meta' x0 y0 = _meta' (labelsToStrings x0) (labelsToStrings y0) where
     prefixLabels s = over vec $ V.map
       $ over evLabel $ deleteShowQuotes . ((++) s)
     evs = map (over evArc $ \(s,t) -> (RTime s, RTime t))
-      $ concat [arc' 0 1 a b $ _evData anX $ prefixLabels (_evLabel anX) y
+      $ concat [arc 0 1 a b $ _evData anX $ prefixLabels (_evLabel anX) y
                | anX <- xs, let a = tr $ anX ^. evStart
                                 b = tr $ anX ^. evEnd ]
