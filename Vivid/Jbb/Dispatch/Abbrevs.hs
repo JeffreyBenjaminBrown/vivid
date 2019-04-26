@@ -3,6 +3,7 @@
 module Vivid.Jbb.Dispatch.Abbrevs where
 
 import Vivid.Jbb.Dispatch.Museq
+import Vivid.Jbb.Dispatch.Transform
 import Vivid.Jbb.Dispatch.Types
 import Vivid.Jbb.Synths
 
@@ -20,6 +21,9 @@ offs = insertOffs
 
 ons :: Museq l Msg -> Museq l Msg
 ons = insertOns
+
+ops :: [(ParamName, Float -> Float)] -> Museq l Msg -> Museq l Msg
+ops = overParams
 
 nBoop, nVap, nZot, nSqfm :: Museq l Msg -> Museq l Note
 nBoop = (<$>) (Note Boop)

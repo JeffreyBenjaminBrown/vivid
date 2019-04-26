@@ -65,7 +65,8 @@ rep n = slow n . dense n
 -- | = (something) -> Museq Msg -> Museq Msg
 overParams :: [(ParamName, Float -> Float)] -> Museq l Msg -> Museq l Msg
 overParams fs = fmap $ M.mapWithKey g
-  where g k v = maybe v ($v) $ M.lookup k $ M.fromList fs
+  where g :: ParamName -> Float -> Float
+        g k v = maybe v ($v) $ M.lookup k $ M.fromList fs
 
 switchParams :: [(ParamName, ParamName)] -> Museq l Msg -> Museq l Msg
 switchParams fs = fmap $ M.mapKeys g where

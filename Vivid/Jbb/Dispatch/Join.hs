@@ -16,6 +16,9 @@ module Vivid.Jbb.Dispatch.Join (
             -- -> Museq l a -> Museq m b -> Museq String c
   , merge0, merge1, mergea -- ^ forall l m. (Show l, Show m) =>
       -- Museq l Msg -> Museq m Msg -> Museq String Msg
+  , scale -- ^ forall l m. (Show l, Show m)
+          -- => Museq l [Float] -> Museq m Msg -> Museq String Msg
+
   , meta -- ^ forall a b c l m. (Show l, Show m)
        -- => Museq l      (Museq String a -> Museq String b)
        -- -> Museq m      a
@@ -23,10 +26,12 @@ module Vivid.Jbb.Dispatch.Join (
   ) where
 
 import Control.Lens (over, view, (^.))
+import Data.Fixed (mod')
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
 import Vivid.Jbb.Util
+import Vivid.Jbb.Dispatch.Transform
 import Vivid.Jbb.Dispatch.Museq
 import Vivid.Jbb.Dispatch.Types
 import Vivid.Jbb.Dispatch.Internal.Join
@@ -123,7 +128,6 @@ stack' x y =
 -- Here it's set to that of the second.
 -- For something else, just compose `Lens.set dur _` after `stack`.
 
-
 merge :: forall a b c l m. (Show l, Show m)
        =>         (a ->          b ->               c)
        -> Museq l a -> Museq m b -> Museq String c
@@ -165,6 +169,25 @@ mergea m n =
   merge (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
   where  f "amp" = (+) -- ^ add amplitudes, multiply others
          f _     = (*)
+
+-- | Twelve tone scales (e.g. [0,2,4,5,7,9,11] = major).
+scale :: forall l m. (Show l, Show m)
+      => Museq l [Float] -> Museq m Msg -> Museq String Msg
+scale l m = merge h (labelsToStrings l) (labelsToStrings m) where
+  f :: [Float] -> Int -> Float -- lookup a pitch in a scale
+  f scale n = let octave n = n `div` length scale
+              in (scale !!! n) + fromIntegral (12 * octave n)
+
+  g :: [Float] -> Float -> Float -- linear morphing between scale tones
+  g scale k = let fl :: Int   = floor k
+                  ce :: Int   = ceiling k
+                  md :: Float = mod' k 1
+              in md * f scale fl + (1-md) * f scale ce
+
+  h :: [Float] -> Msg -> Msg
+  h scale m = maybe m k $ M.lookup "freq" m where
+    k :: Float -> Msg
+    k freq = M.insert "freq" (g scale freq) m
 
 meta :: forall a b l m. (Show l, Show m)
   => Museq l      (Museq String a -> Museq String b)

@@ -19,6 +19,7 @@ module Vivid.Jbb.Util (
   , unusedName
 
   -- | = lists
+  , (!!!)
   , unique
   , unique' -- ^ Eq a => [a] -> [a]
   , interleave
@@ -117,6 +118,14 @@ unusedName names = head $ (L.\\) allStrings names where
 
 
 -- | = Lists
+
+-- | Like `!!`, it  selects an element from xs,
+-- but it wraps over at the end of the list.
+-- >>> map ((!!!) [1,3,5]) [0,1,2,3,4,5]
+-- [1,3,5,1,3,5]
+-- Copied from Sound.Tidal.
+(!!!) :: [a] -> Int -> a
+(!!!) xs n = xs !! (n `mod` length xs)
 
 -- | There's a Hackage package for this surely that's maybe faster, but
 -- it's not compatible with the stack snapshot I'm using.
