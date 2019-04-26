@@ -1,21 +1,14 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns, TupleSections #-}
 
 module Vivid.Jbb.Dispatch.Internal.Join (
-    timeForBothToRepeat -- ^ Museq a -> Museq b -> RTime
-  , timeForBothToRepeat' -- ^ Museq' l a -> Museq' m b -> RTime
-  , explicitReps -- ^ forall a. Museq a -> [V.Vector (Ev a)]
-  , unsafeExplicitReps -- ^ forall a.
-     -- RTime -> Museq a -> [V.Vector (Ev a)]
+    timeForBothToRepeat' -- ^ Museq' l a -> Museq' m b -> RTime
+  , explicitReps -- ^ forall a. Museq' l a -> [V.Vector (Ev' l a)]
   , unsafeExplicitReps' -- ^ forall l a.
      -- RTime -> Museq' l a -> [V.Vector (Ev' l a)]
   , boundaries -- ^ forall a. Real a => [(a,a)] -> [a]
   , partitionArcAtTimes -- ^ Real a => [a] -> (a,a) -> [(a,a)]
-  , partitionAndGroupEventsAtBoundaries -- ^ forall a v. Real a
-     -- => [a] -> [((a,a),v)] -> [((a,a),v)]
   , partitionAndGroupEventsAtBoundaries' -- ^ forall a l t v. Real t
      -- => [t] -> [Event t l a] -> [Event t l a]
-  , alignAndJoin,joinEvents -- ^ forall a b c.
-     -- (a -> b -> c) -> [Ev a] -> [Ev b] -> [Ev c]
   , alignAndJoin',joinEvents' -- ^ forall a b c t. Real t
      --                       => (a -> b -> c)
      --                       -> [Event t String a]
@@ -33,41 +26,18 @@ import Vivid.Jbb.Dispatch.Museq
 import Vivid.Jbb.Dispatch.Types
 
 
-timeForBothToRepeat :: Museq a -> Museq b -> RTime
-timeForBothToRepeat x y =
-  RTime $ lcmRatios (tr $ timeToRepeat x) (tr $ timeToRepeat y)
-
 timeForBothToRepeat' :: Museq' l a -> Museq' m b -> RTime
 timeForBothToRepeat' x y =
   RTime $ lcmRatios (tr $ timeToRepeat' x) (tr $ timeToRepeat' y)
 
--- | if L is the length of time such that `m` finishes at phase 0,
+-- | If L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
 -- See the test suite for an example.
-explicitReps :: forall a. Museq a -> [V.Vector (Ev a)]
-explicitReps m = unsafeExplicitReps (timeToPlayThrough m) m
+explicitReps :: forall a l. Museq' l a -> [V.Vector (Ev' l a)]
+explicitReps m = unsafeExplicitReps' (timeToPlayThrough' m) m
 
 -- | PITFALL: I don't know what this will do if
 -- `totalDuration` is not an integer multiple of `timeToPlayThrough m`
-unsafeExplicitReps :: forall a.
-  RTime -> Museq a -> [V.Vector (Ev a)]
-unsafeExplicitReps totalDuration m = reps where
-  sups = round $ totalDuration / _sup m
-    -- It takes a duration equal to this many multiples of _sup m
-    -- for m to finish at phase 0.
-    -- It's already an integer; `round` is just to prove that to GHC.
-  durs :: Int = round $ totalDuration / _dur m
-  indexed = zip [0..sups-1]
-    $ repeat $ _vec m :: [(Int,V.Vector (Ev a))]
-  adjustTimes :: (Int,V.Vector (Ev a)) -> V.Vector (Ev a)
-  adjustTimes (idx,v) = V.map f v where
-    f = over _1 (\(x,y) -> (g x, g y)) where
-      g = (+) $ fromIntegral idx * _sup m
-  spread = V.concat $ map adjustTimes indexed :: V.Vector (Ev a)
-    -- the times in `spread` range from 0 to `timeToRepeat m`
-  maixima = [fromIntegral i * _dur m | i <- [1..durs]]
-  reps = divideAtMaxima (fst . fst) maixima spread :: [V.Vector (Ev a)]
-
 unsafeExplicitReps' :: forall l a.
   RTime -> Museq' l a -> [V.Vector (Ev' l a)]
 unsafeExplicitReps' totalDuration m = reps where
@@ -112,14 +82,6 @@ partitionArcAtTimes _ _ =
 
 -- | ASSUMES the first input includes each value in the second.
 -- (If the first list comes from `boundaries`, it will include those.)
-partitionAndGroupEventsAtBoundaries :: forall a v. Real a
-  => [a] -> [((a,a),v)] -> [((a,a),v)]
-partitionAndGroupEventsAtBoundaries bs evs =
-  let partitionEv :: ((a,a),v) -> [((a,a),v)]
-      partitionEv (someArc,x) = map (,x) $
-                                partitionArcAtTimes bs someArc
-  in L.sortOn fst $ concatMap partitionEv evs
-
 partitionAndGroupEventsAtBoundaries' :: forall a l t. Real t
   => [t] -> [Event t l a] -> [Event t l a]
 partitionAndGroupEventsAtBoundaries' bs evs =
@@ -138,23 +100,6 @@ partitionAndGroupEventsAtBoundaries' bs evs =
 -- In the Museq' version, Event labels from an output event's
 -- two inputs are concatenated, which prevents interference.
 -- TODO ? A version that permits interference.
-alignAndJoin,joinEvents :: forall a b c.
-  (a -> b -> c) -> [Ev a] -> [Ev b] -> [Ev c]
-
-alignAndJoin _ [] _ = []
-alignAndJoin _ _ [] = []
-alignAndJoin op aEvs@((arcA,_):aRest)  bEvs@((arcB,_):bRest)
-  | arcA <  arcB = alignAndJoin op aRest bEvs
-  | arcB <  arcA = alignAndJoin op aEvs bRest
-  | arcA == arcB = joinEvents op aEvs bEvs
-alignAndJoin _ _ _ = error "alignAndJoin: uncaught input pattern."
-
-joinEvents op ((arc0,a):aEvs) bEvs =
-  joined ++ alignAndJoin op aEvs bEvs
-  where bEvsMatch = takeWhile ((== arc0) . fst) bEvs
-        joined = over _2 (op a) <$> bEvsMatch
-joinEvents _ _ _ = error "joinEvents: uncaught input pattern."
-
 alignAndJoin',joinEvents' :: forall a b c t. Real t
                           => (a -> b -> c)
                           -> [Event t String a]
