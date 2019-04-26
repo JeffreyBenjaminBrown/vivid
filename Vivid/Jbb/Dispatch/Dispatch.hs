@@ -10,13 +10,13 @@ module Vivid.Jbb.Dispatch.Dispatch (
 
   -- | = change the music
   , stopDispatch       -- ^ Dispatch -> MuseqName -> IO ()
-  , replace'    -- ^ Dispatch -> MuseqName -> Museq String Note -> IO ()
-  , replaceAll' -- ^ Dispatch -> M.Map MuseqName (Museq String Note) -> IO ()
-  , chTempoPeriod'     -- ^ Dispatch -> Duration -> IO ()
+  , replace    -- ^ Dispatch -> MuseqName -> Museq String Note -> IO ()
+  , replaceAll -- ^ Dispatch -> M.Map MuseqName (Museq String Note) -> IO ()
+  , chTempoPeriod     -- ^ Dispatch -> Duration -> IO ()
 
   -- | = the dispatch loop
-  , startDispatchLoop' -- ^ Dispatch -> IO ThreadId
-  , dispatchLoop'      -- ^ Dispatch -> IO ()
+  , startDispatchLoop -- ^ Dispatch -> IO ThreadId
+  , dispatchLoop      -- ^ Dispatch -> IO ()
   ) where
 
 import Control.Concurrent (forkIO, ThreadId)
@@ -131,12 +131,12 @@ actSend _ _ (New _ _)  = error "actFree received a New."
 stopDispatch :: Dispatch -> MuseqName -> IO ()
 stopDispatch disp name = do
   masOld <- readMVar $ mMuseqs disp
-  replaceAll' disp $ M.delete name masOld
+  replaceAll disp $ M.delete name masOld
 
-replace' :: Dispatch -> MuseqName -> Museq String Note -> IO ()
-replace' disp newName newMuseq = do
+replace :: Dispatch -> MuseqName -> Museq String Note -> IO ()
+replace disp newName newMuseq = do
   masOld <- readMVar $ mMuseqs disp
-  replaceAll' disp $ M.insert newName newMuseq masOld
+  replaceAll disp $ M.insert newName newMuseq masOld
 
 
 -- | ASSUMES every synth has an "amp" parameter which, when 0, causes silence.
@@ -146,8 +146,8 @@ replace' disp newName newMuseq = do
 -- the former until it's safe, and before deleting them, send silence
 -- (set "amp" to 0).
 
-replaceAll' :: Dispatch -> M.Map MuseqName (Museq String Note) -> IO ()
-replaceAll' disp masNew = do
+replaceAll :: Dispatch -> M.Map MuseqName (Museq String Note) -> IO ()
+replaceAll disp masNew = do
   time0  <-      takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
   masOld <-      takeMVar $ mMuseqs      disp
@@ -179,8 +179,8 @@ replaceAll' disp masNew = do
 
   return ()
 
-chTempoPeriod' :: Dispatch -> Duration -> IO ()
-chTempoPeriod' disp newTempoPeriod = do
+chTempoPeriod :: Dispatch -> Duration -> IO ()
+chTempoPeriod disp newTempoPeriod = do
   time0       <- takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
   now         <- unTimestamp <$> getTime
@@ -195,8 +195,8 @@ chTempoPeriod' disp newTempoPeriod = do
 
 
 -- | = The Dispatch loop
-startDispatchLoop' :: Dispatch -> IO ThreadId
-startDispatchLoop' disp = do
+startDispatchLoop :: Dispatch -> IO ThreadId
+startDispatchLoop disp = do
   _ <- tryTakeMVar $ mTime0 disp -- empty it, just in case
   mbTempo <- tryReadMVar $ mTempoPeriod disp
   maybe (putMVar (mTempoPeriod disp) 1) (const $ return ()) mbTempo
@@ -204,10 +204,10 @@ startDispatchLoop' disp = do
   ((-) (0.8 * frameDuration)) . unTimestamp <$> getTime
     -- subtract nearly an entire frameDuration so it starts soon
     >>= putMVar (mTime0 disp)
-  forkIO $ dispatchLoop' disp
+  forkIO $ dispatchLoop disp
 
-dispatchLoop' :: Dispatch -> IO ()
-dispatchLoop' disp = do
+dispatchLoop :: Dispatch -> IO ()
+dispatchLoop disp = do
   time0  <-      takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
   museqsMap <-   takeMVar $ mMuseqs      disp
@@ -238,4 +238,4 @@ dispatchLoop' disp = do
   putMVar (mReg         disp) reg
 
   wait $ fromRational startRender - now
-  dispatchLoop' disp
+  dispatchLoop disp

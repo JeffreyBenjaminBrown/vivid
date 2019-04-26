@@ -1,15 +1,15 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns, TupleSections #-}
 
 module Vivid.Jbb.Dispatch.Internal.Join (
-    timeForBothToRepeat' -- ^ Museq l a -> Museq m b -> RTime
+    timeForBothToRepeat -- ^ Museq l a -> Museq m b -> RTime
   , explicitReps -- ^ forall a. Museq l a -> [V.Vector (Ev l a)]
-  , unsafeExplicitReps' -- ^ forall l a.
+  , unsafeExplicitReps -- ^ forall l a.
      -- RTime -> Museq l a -> [V.Vector (Ev l a)]
   , boundaries -- ^ forall a. Real a => [(a,a)] -> [a]
   , partitionArcAtTimes -- ^ Real a => [a] -> (a,a) -> [(a,a)]
-  , partitionAndGroupEventsAtBoundaries' -- ^ forall a l t v. Real t
+  , partitionAndGroupEventsAtBoundaries -- ^ forall a l t v. Real t
      -- => [t] -> [Event t l a] -> [Event t l a]
-  , alignAndJoin',joinEvents' -- ^ forall a b c t. Real t
+  , alignAndJoin,joinEvents -- ^ forall a b c t. Real t
      --                       => (a -> b -> c)
      --                       -> [Event t String a]
      --                       -> [Event t String b]
@@ -26,21 +26,21 @@ import Vivid.Jbb.Dispatch.Museq
 import Vivid.Jbb.Dispatch.Types
 
 
-timeForBothToRepeat' :: Museq l a -> Museq m b -> RTime
-timeForBothToRepeat' x y =
+timeForBothToRepeat :: Museq l a -> Museq m b -> RTime
+timeForBothToRepeat x y =
   RTime $ lcmRatios (tr $ timeToRepeat x) (tr $ timeToRepeat y)
 
 -- | If L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
 -- See the test suite for an example.
 explicitReps :: forall a l. Museq l a -> [V.Vector (Ev l a)]
-explicitReps m = unsafeExplicitReps' (timeToPlayThrough m) m
+explicitReps m = unsafeExplicitReps (timeToPlayThrough m) m
 
 -- | PITFALL: I don't know what this will do if
 -- `totalDuration` is not an integer multiple of `timeToPlayThrough m`
-unsafeExplicitReps' :: forall l a.
+unsafeExplicitReps :: forall l a.
   RTime -> Museq l a -> [V.Vector (Ev l a)]
-unsafeExplicitReps' totalDuration m = reps where
+unsafeExplicitReps totalDuration m = reps where
   sups = round $ totalDuration / _sup m
     -- It takes a duration equal to this many multiples of _sup m
     -- for m to finish at phase 0.
@@ -82,9 +82,9 @@ partitionArcAtTimes _ _ =
 
 -- | ASSUMES the first input includes each value in the second.
 -- (If the first list comes from `boundaries`, it will include those.)
-partitionAndGroupEventsAtBoundaries' :: forall a l t. Real t
+partitionAndGroupEventsAtBoundaries :: forall a l t. Real t
   => [t] -> [Event t l a] -> [Event t l a]
-partitionAndGroupEventsAtBoundaries' bs evs =
+partitionAndGroupEventsAtBoundaries bs evs =
   -- TODO ? Use Traversal to simplify
   let partitionEv :: Event t l a -> [Event t l a]
       partitionEv ev = map rebuild $ partitionArcAtTimes bs $ _evArc ev
@@ -100,24 +100,24 @@ partitionAndGroupEventsAtBoundaries' bs evs =
 -- In the Museq version, Event labels from an output event's
 -- two inputs are concatenated, which prevents interference.
 -- TODO ? A version that permits interference.
-alignAndJoin',joinEvents' :: forall a b c t. Real t
+alignAndJoin,joinEvents :: forall a b c t. Real t
                           => (a -> b -> c)
                           -> [Event t String a]
                           -> [Event t String b]
                           -> [Event t String c]
 
-alignAndJoin' _ [] _ = []
-alignAndJoin' _ _ [] = []
-alignAndJoin' op as bs
-  | _evArc (head as) <   _evArc (head bs) = alignAndJoin' op (tail as) bs
-  | _evArc (head as) >   _evArc (head bs) = alignAndJoin' op as (tail bs)
-  | _evArc (head as) ==  _evArc (head bs) = joinEvents' op as bs
-alignAndJoin' _ _ _ = error "alignAndJoin': uncaught input pattern."
+alignAndJoin _ [] _ = []
+alignAndJoin _ _ [] = []
+alignAndJoin op as bs
+  | _evArc (head as) <   _evArc (head bs) = alignAndJoin op (tail as) bs
+  | _evArc (head as) >   _evArc (head bs) = alignAndJoin op as (tail bs)
+  | _evArc (head as) ==  _evArc (head bs) = joinEvents op as bs
+alignAndJoin _ _ _ = error "alignAndJoin: uncaught input pattern."
 
-joinEvents' op (a:as) bs = joined ++ alignAndJoin' op as bs where
+joinEvents op (a:as) bs = joined ++ alignAndJoin op as bs where
   bsMatch = takeWhile ((== _evArc a) . _evArc) bs
   joined = over evData (op $ _evData a)
          . over evLabel -- concatenate event labels
            (deleteShowQuotes . ((++) $ _evLabel a))
          <$> bsMatch
-joinEvents' _ _ _ = error "joinEvents': uncaught input pattern."
+joinEvents _ _ _ = error "joinEvents: uncaught input pattern."

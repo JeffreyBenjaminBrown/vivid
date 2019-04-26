@@ -5,18 +5,18 @@ ScopedTypeVariables
 
 module Vivid.Jbb.Dispatch.Join (
     Museq(..)
-  , append' -- ^ forall l a. Museq l a -> Museq l a -> Museq l a
-  , cat'    -- ^ [Museq l a] -> Museq l a -- the name "concat" is taken
-  , stack'  -- ^ forall a l m. (Show l, Show m)
+  , append -- ^ forall l a. Museq l a -> Museq l a -> Museq l a
+  , cat    -- ^ [Museq l a] -> Museq l a -- the name "concat" is taken
+  , stack  -- ^ forall a l m. (Show l, Show m)
             -- => Museq l a  -> Museq m a -> Museq String a
-  , stacks' -- ^ [Museq l a] -> Museq String a
-  , stack'' -- ^  Museq l a  -> Museq l a -> Museq l a
-  , merge'  -- ^ forall a b c l m. (Show l, Show m)
+  , stacks -- ^ [Museq l a] -> Museq String a
+  , stack' -- ^  Museq l a  -> Museq l a -> Museq l a
+  , merge  -- ^ forall a b c l m. (Show l, Show m)
             -- =>         (a ->          b ->               c)
             -- -> Museq l a -> Museq m b -> Museq String c
-  , merge0', merge1', mergea' -- ^ forall l m. (Show l, Show m) =>
+  , merge0, merge1, mergea -- ^ forall l m. (Show l, Show m) =>
       -- Museq l Msg -> Museq m Msg -> Museq String Msg
-  , meta' -- ^ forall a b c l m. (Show l, Show m)
+  , meta -- ^ forall a b c l m. (Show l, Show m)
        -- => Museq l      (Museq String a -> Museq String b)
        -- -> Museq m      a
        -- -> Museq String b
@@ -33,8 +33,8 @@ import Vivid.Jbb.Dispatch.Internal.Join
 
 
 -- | Play one after the other
-append' :: forall l a. Museq l a -> Museq l a -> Museq l a
-append' x0 y0 = let
+append :: forall l a. Museq l a -> Museq l a -> Museq l a
+append x0 y0 = let
   durs = RTime
     $ lcmRatios (tr $ dursToPlayThrough x0) (tr $ dursToPlayThrough y0)
     -- Since x and y both have to finish at the same time,
@@ -42,7 +42,7 @@ append' x0 y0 = let
 
   xs = map adjustx ixs where
     ixs :: [(Int,V.Vector (Ev l a))]
-    ixs = zip [0..] $ unsafeExplicitReps' (durs * _dur x0) x0
+    ixs = zip [0..] $ unsafeExplicitReps (durs * _dur x0) x0
       -- ixs uses a 0 because it starts with no ys before it
     -- adjustx: space out the xs to make room for the ys
     adjustx :: (Int,V.Vector (Ev l a)) -> V.Vector (Ev l a)
@@ -52,7 +52,7 @@ append' x0 y0 = let
 
   ys = map adjusty iys where
     iys :: [(Int,V.Vector (Ev l a))]
-    iys = zip [1..] $ unsafeExplicitReps' (durs * _dur y0) y0
+    iys = zip [1..] $ unsafeExplicitReps (durs * _dur y0) y0
       -- iys uses a 1 because it starts with 1 (_dur x) worth of x before it
     -- adjusty: space out the ys to make room for the xs
     adjusty :: (Int,V.Vector (Ev l a)) -> V.Vector (Ev l a)
@@ -67,20 +67,20 @@ append' x0 y0 = let
 -- todo ? speed (unlikely to matter)
 -- Speed this up dramatically by computing start times once, rather
 -- than readjusting the whole series each time a new copy is folded into it.
-cat' :: [Museq l a] -> Museq l a -- the name "concat" is taken
-cat' = foldl1 append'
+cat :: [Museq l a] -> Museq l a -- the name "concat" is taken
+cat = foldl1 append
 
 -- | Play both at the same time.
 -- PITFALL: The choice of the resulting Museqs _dur is arbitrary.
 -- Here it's set to that of the first.
 -- For something else, just compose `Lens.set dur _` after `stack`.
-stack' :: forall a l m. (Show l, Show m)
+stack :: forall a l m. (Show l, Show m)
        => Museq l a -> Museq m a -> Museq String a
-stack' x0 y0 = sortMuseq $
-  _stack' (labelsToStrings x0) (labelsToStrings y0)
+stack x0 y0 = sortMuseq $
+  _stack (labelsToStrings x0) (labelsToStrings y0)
   where
-  _stack' :: Museq String a -> Museq String a -> Museq String a
-  _stack' x y = stack'' (over vec (V.map fx) x) (over vec (V.map fy) y)
+  _stack :: Museq String a -> Museq String a -> Museq String a
+  _stack x y = stack' (over vec (V.map fx) x) (over vec (V.map fy) y)
     where -- append a label unused in x's events to all of y's event labels
     fx :: Ev String a -> Ev String a
     fx = over evLabel $ deleteShowQuotes
@@ -88,17 +88,17 @@ stack' x0 y0 = sortMuseq $
     fy = over evLabel $ deleteShowQuotes . (++) unusedInX
     unusedInX = unusedName $ map (view evLabel) $ V.toList $ _vec x
 
-stacks' :: [Museq String a] -> Museq String a
-stacks' = foldl1 _stack' where
-  _stack' :: Museq String a -> Museq String a -> Museq String a
-  _stack' = stack' -- only the type signature is different
+stacks :: [Museq String a] -> Museq String a
+stacks = foldl1 _stack where
+  _stack :: Museq String a -> Museq String a -> Museq String a
+  _stack = stack -- only the type signature is different
 
 -- | Allows the two arguments' namespaces to conflict
-stack'' :: Museq l a -> Museq l a -> Museq l a
-stack'' x y =
-  let t = timeForBothToRepeat' x y
-      xs = unsafeExplicitReps' t x
-      ys = unsafeExplicitReps' t y
+stack' :: Museq l a -> Museq l a -> Museq l a
+stack' x y =
+  let t = timeForBothToRepeat x y
+      xs = unsafeExplicitReps t x
+      ys = unsafeExplicitReps t y
   in sortMuseq $ Museq { _dur = _dur x
                          , _sup = t
                          , _vec = V.concat $ xs ++ ys}
@@ -124,28 +124,28 @@ stack'' x y =
 -- For something else, just compose `Lens.set dur _` after `stack`.
 
 
-merge' :: forall a b c l m. (Show l, Show m)
+merge :: forall a b c l m. (Show l, Show m)
        =>         (a ->          b ->               c)
        -> Museq l a -> Museq m b -> Museq String c
-merge' op a b = _merge' (labelsToStrings a) (labelsToStrings b) where
-  _merge' :: Museq String a
+merge op a b = _merge (labelsToStrings a) (labelsToStrings b) where
+  _merge :: Museq String a
           -> Museq String b
           -> Museq String c
-  _merge' x y = Museq { _dur = _dur y -- arbitrary
+  _merge x y = Museq { _dur = _dur y -- arbitrary
                        , _sup = tbr
                        , _vec = V.fromList
-                                 $ alignAndJoin' op xps yps } where
-    tbr = timeForBothToRepeat' x y
+                                 $ alignAndJoin op xps yps } where
+    tbr = timeForBothToRepeat x y
     xs, xps :: [Event RTime String a]
     ys, yps :: [Event RTime String b]
-    xs = concatMap V.toList $ unsafeExplicitReps' tbr x
-    ys = concatMap V.toList $ unsafeExplicitReps' tbr y
+    xs = concatMap V.toList $ unsafeExplicitReps tbr x
+    ys = concatMap V.toList $ unsafeExplicitReps tbr y
     bs = boundaries $ map _evArc xs ++ map _evArc ys :: [RTime]
-    xps = partitionAndGroupEventsAtBoundaries' bs xs
-    yps = partitionAndGroupEventsAtBoundaries' bs ys
+    xps = partitionAndGroupEventsAtBoundaries bs xs
+    yps = partitionAndGroupEventsAtBoundaries bs ys
 
 instance Applicative (Museq String) where -- TODO ? generalize
-  (<*>) = merge' ($)
+  (<*>) = merge ($)
   pure x = Museq { _dur=1, _sup=1
                   , _vec = V.singleton $ mkEv "" 0 1 x }
 
@@ -154,32 +154,32 @@ instance Applicative (Museq String) where -- TODO ? generalize
 -- So named because in math, the additive identity is 0,
 -- the mutliplicative identity = 1, and "amp" starts with an "a".
 
-merge0', merge1', mergea'
+merge0, merge1, mergea
   :: forall l m. (Show l, Show m) =>
   Museq l Msg -> Museq m Msg -> Museq String Msg
-merge0' m n =
-  merge' (M.unionWith (+))  (labelsToStrings m) (labelsToStrings n)
-merge1' m n =
-  merge' (M.unionWith (*))  (labelsToStrings m) (labelsToStrings n)
-mergea' m n =
-  merge' (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
+merge0 m n =
+  merge (M.unionWith (+))  (labelsToStrings m) (labelsToStrings n)
+merge1 m n =
+  merge (M.unionWith (*))  (labelsToStrings m) (labelsToStrings n)
+mergea m n =
+  merge (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
   where  f "amp" = (+) -- ^ add amplitudes, multiply others
          f _     = (*)
 
-meta' :: forall a b l m. (Show l, Show m)
+meta :: forall a b l m. (Show l, Show m)
   => Museq l      (Museq String a -> Museq String b)
   -> Museq m      a
   -> Museq String b
-meta' x0 y0 = _meta' (labelsToStrings x0) (labelsToStrings y0) where
-  _meta' :: Museq String (Museq String a -> Museq String b)
+meta x0 y0 = _meta (labelsToStrings x0) (labelsToStrings y0) where
+  _meta :: Museq String (Museq String a -> Museq String b)
          -> Museq String a 
          -> Museq String b
-  _meta' x y = sortMuseq $ Museq { _dur = _dur y -- arbitrary
+  _meta x y = sortMuseq $ Museq { _dur = _dur y -- arbitrary
                                    , _sup = tbr
                                    , _vec = V.fromList evs } where
-    tbr = timeForBothToRepeat' x y
+    tbr = timeForBothToRepeat x y
     xs :: [Ev String (Museq String a -> Museq String b)]
-    xs = concatMap V.toList $ unsafeExplicitReps' tbr x
+    xs = concatMap V.toList $ unsafeExplicitReps tbr x
     prefixLabels :: String -> Museq String a -> Museq String a
     prefixLabels s = over vec $ V.map
       $ over evLabel $ deleteShowQuotes . ((++) s)
