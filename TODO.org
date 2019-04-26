@@ -1,4 +1,7 @@
-* TODO need pitch scales
+* TODO drums
+See Tom's first message here:
+https://we.lurk.org/hyperkitty/list/livecode@we.lurk.org/thread/6JD5SHXPQQ25VZH4PVKIR5Y7HEAPXZWL/
+for how to load a buffer into a synth.
 * research
 ** the ' notation indicates moving synth labels from Note to Ev'
 *** PITFALL: The Msg-Msg' distinction is not relevant to this migration.

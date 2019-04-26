@@ -1,37 +1,3 @@
-* architecture mysteries
-** Museq Action vs. Museq Msg
-*** should separate Museqs control the same synth?
-*** will harmony be a function with multiple Museq Action arguments?
-** Many voices to one harmonizer
-** Distribute concurrent notes across synths
-*** automatically, rather than requiring the user to say which go where.
-** [dubious] Represent a Museq in more than one way
-*** Refactoring Museq to simply include end times took 10 hours today (August 20) plus a few yesterday.
-**** finished at commit 2d2d2311094e2cc15f9fa88eb0def1aa9f871a14,
-* TODO use meta'
-* TODO polyphonic refactor
-** demo'.hs: provide the entire synth state in each Event
-* TODO compute note off from event ends
-** motivation
-*** currently (I think?), note offs must be programmed explicitly
-*** that strategy is subject to bugs like this
-**** if v freq = 50-50 duty cycle at freq, initially on, period 1
-**** then this sucks : append' (v 200) (stack' (v 100) (early' (1/2) $ v 300))
-**** the resulting Museq'
-  "a1" :
-    0   on  200
-    0.5 off 200
-    1   on  100
-    1.5 off 100
-  "aa1":
-    1   off 300
-    1.5 on  300
-**** the story: the 200 frequency "interrupts" the 300 frequency before it gets silenced, so the 300 frequency ends up with a 3/4 duty cycle
-** plan : instead, make a note-off automatically when each event ends
-*** but only send a note-off if no other voice has started yet
-** TODO concept ? what if there are multiple ongoing events in the same voice
-** TODO research ? where do note-offs happen
-*** I think they aren't automatically generated anywhere, but I'm not sure
 * fix
 ** it should be an error for two notes with the same name to go to two different `SynthDefEnum`s
 ** use museqIsValid in join|transform tests
@@ -40,7 +6,6 @@
 ** abbreviations for map functions, imported as M
 *** M.fl = M.fromList
 *** M.u = M.union
-** scales, harmonies
 ** parse a DSL for it
 *** seems much easier to make the DSL after the functions it will encode
 *** for every bit of terse punctuation, include a verbal alternative
@@ -52,7 +17,7 @@
 ** envelopes
 ** many voices to one distortion
 ** slow changes, e.g. for slide guitar
-* problems that seem solved
+* DONE problems that seem solved
 ** bug ! melodies get mangled if tempo is near 1 but not 1
 *** the problem was floating point error in `arc`, solved by using only Rationals as times
 ** chTempo: continuity
