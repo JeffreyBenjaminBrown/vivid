@@ -5,7 +5,7 @@ import qualified Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
 
-import Vivid.Util hiding (m1)
+import Util hiding (m1)
 import Vivid.Synths
 import Vivid.Dispatch.Join
 import Vivid.Dispatch.Internal.Join

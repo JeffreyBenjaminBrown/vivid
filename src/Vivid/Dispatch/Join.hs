@@ -30,8 +30,7 @@ import Data.Fixed (mod')
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
-import Vivid.Util
-import Vivid.Dispatch.Transform
+import Util
 import Vivid.Dispatch.Museq
 import Vivid.Dispatch.Types
 import Vivid.Dispatch.Internal.Join
@@ -173,21 +172,21 @@ mergea m n =
 -- | Twelve tone scales (e.g. [0,2,4,5,7,9,11] = major).
 scale :: forall l m. (Show l, Show m)
       => Museq l [Float] -> Museq m Msg -> Museq String Msg
-scale l m = merge h (labelsToStrings l) (labelsToStrings m) where
+scale l0 m0 = merge h (labelsToStrings l0) (labelsToStrings m0) where
   f :: [Float] -> Int -> Float -- lookup a pitch in a scale
-  f scale n = let octave n = n `div` length scale
-              in (scale !!! n) + fromIntegral (12 * octave n)
+  f scale0 n0 = let octave n = n `div` length scale0
+                in (scale0 !!! n0) + fromIntegral (12 * octave n0)
 
   g :: [Float] -> Float -> Float -- linear morphing between scale tones
-  g scale k = let fl :: Int   = floor k
-                  ce :: Int   = ceiling k
-                  md :: Float = mod' k 1
-              in md * f scale fl + (1-md) * f scale ce
+  g scale0 k = let fl :: Int   = floor k
+                   ce :: Int   = ceiling k
+                   md :: Float = mod' k 1
+              in md * f scale0 fl + (1-md) * f scale0 ce
 
   h :: [Float] -> Msg -> Msg
-  h scale m = maybe m k $ M.lookup "freq" m where
+  h scale0 m = maybe m k $ M.lookup "freq" m where
     k :: Float -> Msg
-    k freq = M.insert "freq" (g scale freq) m
+    k freq = M.insert "freq" (g scale0 freq) m
 
 meta :: forall a b l m. (Show l, Show m)
   => Museq l      (Museq String a -> Museq String b)

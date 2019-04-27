@@ -9,7 +9,7 @@ import Data.List.Split (splitOn)
 import GHC.Generics (Generic)
 
 import Vivid
-import Vivid.Util
+import Util
 import Vivid.Dispatch.Config
 import Vivid.Dispatch.Types
 import Vivid.Dispatch.Dispatch

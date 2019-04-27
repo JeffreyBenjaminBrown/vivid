@@ -33,7 +33,7 @@ import qualified Data.Vector as V
 
 import Vivid
 import Vivid.Synths
-import Vivid.Util
+import Util
 
 
 -- | == The easy types

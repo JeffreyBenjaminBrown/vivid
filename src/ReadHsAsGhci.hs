@@ -6,7 +6,7 @@
 -- This is a duplicate of the code in my ReadHsAsGhci repo.
 -- todo: the clever Git thing that avoids such repo duplication
 
-module Vivid.ReadHsAsGhci (
+module ReadHsAsGhci (
   readHsAsGhci
 --  , Line
 --  , line
@@ -22,9 +22,7 @@ import           Control.Applicative
 import           Data.Void (Void)
 import           Text.Megaparsec
 import           Text.Megaparsec as Megp
-import           Text.Megaparsec.Char
-  (string, char, space, space1, tab, alphaNumChar)
-import qualified Text.Megaparsec.Char.Lexer as L
+import           Text.Megaparsec.Char (space)
 
 
 type Parser = Parsec Void String
@@ -32,6 +30,7 @@ type Parser = Parsec Void String
 -- | Parse multiple indented lines of a .hs file, for the :lexeme directive
 data Line = Ignore | Start String | More String deriving Show
 
+line :: Parser Line
 line = foldl1 (<|>) $ map try [emptyLine,comment,start,more]
 
 ignorable :: Line -> Bool
@@ -55,16 +54,17 @@ more = do c <- satisfy (== ' ')
           rest <- Megp.many anySingle
           return $ More $ c : rest
 
---hsToGhci :: String -> Either (ParseError (Token String) Void) String
-hsToGhci s = do s1 <- mapM (parse line "") $ lines s
-                let s2 = filter (not . ignorable) s1
-                    f (Start s) = [":}",":{",s]
-                    f (More s) = [s]
-                    s3 = concatMap f s2
-                return $ unlines $ tail s3 ++ [":}"]
+hsToGhci :: String -> Either (ParseErrorBundle String Void) String
+hsToGhci s0 = do s1 <- mapM (parse line "") $ lines s0
+                 let s2 = filter (not . ignorable) s1
+                     f (Start s) = [":}",":{",s]
+                     f (More s) = [s]
+                     f Ignore = error "impossible; we filtered these out"
+                     s3 = concatMap f s2
+                 return $ unlines $ tail s3 ++ [":}"]
 
 readHsAsGhci :: FilePath -> IO String
 readHsAsGhci filename = do
   s <- readFile $ filename ++ ".hs"
   case hsToGhci s of Left e -> (putStrLn $ show e) >> return ""
-                     Right s -> return s
+                     Right s' -> return s'

@@ -33,6 +33,7 @@ data AbSawMsg = AbSawMsg { abSawFreq :: AbSig }
 data AbSigName = AS1 | AS2 | AS3 | AS4 | AS5 | AS6 | AS7 | AS8
   deriving (Show, Eq, Ord)
 
+theAbSigNames :: [AbSigName]
 theAbSigNames = [AS1, AS2, AS3, AS4, AS5, AS6, AS7, AS8]
 
 -- | = Every random synth has up to eight parameters.
@@ -41,4 +42,5 @@ data AbParam = AP1 | AP2 | AP3 | AP4 | AP5 | AP6 | AP7 | AP8
 
 type TheAbParams = '["AP1", "AP2", "AP3", "AP4", "AP5", "AP6", "AP7", "AP8"]
 
+theAbParams :: [AbParam]
 theAbParams = [AP1, AP2, AP3, AP4, AP5, AP6, AP7, AP8]

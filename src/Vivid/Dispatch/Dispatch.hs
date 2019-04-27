@@ -21,7 +21,7 @@ module Vivid.Dispatch.Dispatch (
 
 import Control.Concurrent (forkIO, ThreadId)
 import Control.Concurrent.MVar
-import Control.Lens (set, over, _1, _2, (^.))
+import Control.Lens hiding (set')
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
@@ -31,7 +31,7 @@ import Vivid.Dispatch.Types
 import Vivid.Dispatch.Msg
 import Vivid.Dispatch.Museq
 import Vivid.Synths
-import Vivid.Util
+import Util
 
 
 -- | = Act on a Msg

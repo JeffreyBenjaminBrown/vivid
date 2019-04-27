@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Vivid.Util (
+module Util (
   writeTimeAndError
 
   -- | abbreviations

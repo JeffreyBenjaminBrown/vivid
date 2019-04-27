@@ -7,7 +7,7 @@ import qualified Data.Map as M
 import Vivid.Random.Types
 import Vivid.Random.RandomSignal
 import Vivid.Random.MentionsSig
-import Vivid.Util (unique)
+import Util (unique)
 
 
 randAbSynth :: RandConstraints -> IO AbSynth

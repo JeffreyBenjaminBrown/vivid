@@ -16,12 +16,12 @@ module Vivid.Dispatch.Internal.Join (
      --                       -> [Event t String c]
   ) where
 
-import Control.Lens (over, view, _1, _2)
+import Control.Lens hiding (op,indexed)
 import qualified Data.List as L
 import qualified Data.Set as S
 import qualified Data.Vector as V
 
-import Vivid.Util
+import Util
 import Vivid.Dispatch.Museq
 import Vivid.Dispatch.Types
 

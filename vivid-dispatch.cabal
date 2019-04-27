@@ -27,7 +27,10 @@ source-repository head
 
 library
   exposed-modules:
-      Vivid.Dispatch.Abbrevs
+      ReadHsAsGhci
+    , Util
+
+    , Vivid.Dispatch.Abbrevs
     , Vivid.Dispatch.Config
     , Vivid.Dispatch.Dispatch
     , Vivid.Dispatch.Join
@@ -45,12 +48,10 @@ library
     , Vivid.Random.Types
     , Vivid.Random.Types.AbstractSignal
     , Vivid.Random.Types.Other
-    , Vivid.ReadHsAsGhci
     , Vivid.Scale
     , Vivid.Synths
     , Vivid.Synths.Vap
     , Vivid.Synths.Zot
-    , Vivid.Util
   other-modules:
       Paths_vivid_dispatch
   hs-source-dirs:

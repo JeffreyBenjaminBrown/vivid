@@ -58,7 +58,7 @@ import qualified Data.Vector as V
 import Data.Vector.Algorithms.Intro (sortBy)
 
 import Vivid.Dispatch.Types
-import Vivid.Util
+import Util
 import Vivid.Synths (SynthDefEnum)
 
 

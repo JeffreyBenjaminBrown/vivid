@@ -12,10 +12,10 @@ allMentions cs a = let names = take (maxSignals cs) theAbSigNames
 
 instance MentionsSig AbSig where
   mentionsSig name (AbSigFormula f) = mentionsSig name f
-  mentionsSig name (AbSigGen g) = mentionsSig name g
-  mentionsSig name (AbSig n) = mentionsSig name n
-  mentionsSig name (AbV p) = mentionsSig name p
-  mentionsSig name (AbConst f) = False
+  mentionsSig name (AbSigGen g)     = mentionsSig name g
+  mentionsSig name (AbSig n)        = mentionsSig name n
+  mentionsSig name (AbV p)          = mentionsSig name p
+  mentionsSig _    (AbConst _)      = False
 
 instance MentionsSig AbFormula where
   mentionsSig name (AbProd x y) = mentionsSig name x || mentionsSig name y

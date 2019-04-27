@@ -10,12 +10,14 @@ import Data.List ((!!))
 -- (b) no interval is greater than a minor third
 -- (c) no three consecutive pitches occupy three consecutive half steps
 -- Surprisingly, there are only 33!
+nice12etScales :: [([String], [Float])]
 nice12etScales = concat [ symmetricScales
                         , diatonicScales
                         , harmonicScales
                         , antiharmonicScales
                         , melodicScales ]
 
+symmetricScales :: [([String], [Float])]
 symmetricScales = [ -- ^ symmetric scales
     (["dim"],  [0,2,3,5,6,8,9,11]) -- diminished up
   , (["dimd"], [0,1,3,4,6,7,9,10]) -- diminished down
@@ -23,9 +25,11 @@ symmetricScales = [ -- ^ symmetric scales
   , (["augd"], [0,1,4,5,8,9]) -- aug down
   , (["hol"],  [0,2,4,6,8,10::Float]) -- whole tone
   ]
+dim,dimd,aug,augd,hol :: [Float]
 [dim,dimd,aug,augd,hol] =
   map snd symmetricScales
 
+diatonicScales :: [([String], [Float])]
 diatonicScales = [ -- ^ diatonic family of scales
     (["maj"], [0,2,4,5,7,9,11]) -- major = ionian
   , (["dor"], [0,2,3,5,7,9,10]) -- dorian
@@ -35,9 +39,11 @@ diatonicScales = [ -- ^ diatonic family of scales
   , (["aol"], [0,2,3,5,7,8,10]) -- aeolian
   , (["loc"], [0,1,3,5,6,8,10::Float]) -- locrian
   ]
+maj,dor,phr,lyd,mix,aol,loc :: [Float]
 [maj,dor,phr,lyd,mix,aol,loc] =
   map snd diatonicScales
 
+harmonicScales :: [([String], [Float])]
 harmonicScales = [ -- ^ harmonic minor family
     (["maj5"],  [0,2,4,5,8,9,11]) -- major #5
   , (["dor4"],  [0,2,3,6,7,9,10]) -- dorian #4
@@ -47,9 +53,11 @@ harmonicScales = [ -- ^ harmonic minor family
   , (["aol7"],  [0,2,3,5,7,8,11]) -- aeolian #7
   , (["loc6"],  [0,1,3,5,6,9,10::Float]) -- locrian #6
   ]
+maj5,dor4,phr3,lyd2,loc47,aol7,loc6 :: [Float]
 [maj5,dor4,phr3,lyd2,loc47,aol7,loc6] =
   map snd harmonicScales
 
+antiharmonicScales :: [([String], [Float])]
 antiharmonicScales = [ -- ^ harmonic minor family played backward,
                        -- i.e. reflecting highs for lows in pitch space.
     (["maj6"],  [0,2,4,5,7,8,11]) -- major b6
@@ -60,9 +68,11 @@ antiharmonicScales = [ -- ^ harmonic minor family played backward,
   , (["lyd25"], [0,3,4,6,8,9,11]) -- lydian #2#5
   , (["loc7"],  [0,1,3,5,6,8,9::Float]) -- locrian b7
   ]
+maj6,dor5,phr4,lyd3,mix2,lyd25,loc7 :: [Float]
 [maj6,dor5,phr4,lyd3,mix2,lyd25,loc7] =
   map snd antiharmonicScales
 
+melodicScales :: [([String], [Float])]
 melodicScales = [ -- ^ ("ascending") melodic minor family.
                   -- Most of these scales have two "best" (simplest) names.
     (["maj3","dor7"], [0,2,3,5,7,9,11]) -- major b3 = dorian #7
@@ -73,6 +83,8 @@ melodicScales = [ -- ^ ("ascending") melodic minor family.
   , (["aol5","loc2"], [0,2,3,5,6,8,10]) -- aeolian b5 = locrian #2
   , (["loc4"],        [0,1,3,4,6,8,10::Float]) -- locrian b4
   ]
+maj3, dor7, dor2, phr6, lyd5, lyd7, mix4, mix6, aol3, aol5, loc2, loc4 ::
+  [Float]
 maj3 = snd $ melodicScales !! 0
 dor7 = snd $ melodicScales !! 0
 dor2 = snd $ melodicScales !! 1

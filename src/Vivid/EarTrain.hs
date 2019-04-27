@@ -200,7 +200,7 @@ import qualified Data.List as L
 
 import Vivid
 import Vivid.Synths
-import Vivid.Util
+import Util
 
 
 type PlayQuestion = IO () -- ^ make a sound, for the user to identify
@@ -294,7 +294,9 @@ _pickChromaticTest howToDelete numberOfFreqs range =
   pickTestFromPitchSet howToDelete (map fromIntegral [0..range]) numberOfFreqs
 
 pickChromaticTest :: Int -> Int -> IO Test
-pickChromaticTest = _pickChromaticTest L.delete
+pickChromaticTest = _pickChromaticTest x
+  where x :: Float -> [Float] -> [Float]
+        x = L.delete
 
 -- | play two chords in serial
 pickChromatic2SerialTest :: Int -> Int -> IO Test
@@ -304,7 +306,9 @@ pickChromatic2SerialTest numFreqs range = do
   return (q >> q', a >> a')
 
 pick3ClusterFreeTest :: Int -> Int -> IO Test
-pick3ClusterFreeTest = _pickChromaticTest no3Clusters
+pick3ClusterFreeTest = _pickChromaticTest x
+  where x :: Float -> [Float] -> [Float]
+        x = no3Clusters
 
 
 -- | builds and picks Tests from a list of chords.
