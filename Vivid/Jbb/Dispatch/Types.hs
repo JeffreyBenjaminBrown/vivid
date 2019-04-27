@@ -121,7 +121,7 @@ eventRTimeToEventTime ev = let (s,t) = _evArc ev
 
 evStart, evEnd :: Lens' (Event t l a) t
 evStart = evArc . _1
-evEnd = evArc . _2
+evEnd   = evArc . _2
 
 showEvs :: (Foldable t, Show a, Show label)
         => t (Ev label a) -> String
@@ -154,7 +154,7 @@ emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 -- | The global state
 
 data SynthRegister = -- per-synth boilerplate
-  SynthRegister{  _boops :: M.Map SynthName (Synth BoopParams)
+  SynthRegister { _boops :: M.Map SynthName (Synth BoopParams)
                 , _vaps  :: M.Map SynthName (Synth VapParams)
                 , _sqfms :: M.Map SynthName (Synth SqfmParams)
                 } deriving (Show, Eq, Ord)
@@ -164,7 +164,7 @@ emptySynthRegister :: SynthRegister
 emptySynthRegister = SynthRegister M.empty M.empty M.empty
 
 data Note = Note { _noteSd :: SynthDefEnum
-                   , _noteMsg :: Msg } deriving (Show, Eq)
+                 , _noteMsg :: Msg } deriving (Show, Eq)
 makeLenses ''Note
 
 data Dispatch = Dispatch {
@@ -182,6 +182,6 @@ newDispatch = do
   c <- newEmptyMVar
   d <- newMVar 1
   return Dispatch { mMuseqs      = a
-                   , mReg         = b
-                   , mTime0       = c
-                   , mTempoPeriod = d }
+                  , mReg         = b
+                  , mTime0       = c
+                  , mTempoPeriod = d }

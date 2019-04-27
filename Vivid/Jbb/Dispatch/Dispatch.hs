@@ -36,7 +36,7 @@ import Vivid.Jbb.Util
 
 -- | = Act on a Msg
 
--- todo ? `act` might never get used
+-- TODO ? use
 act :: SynthRegister -> Time -> Action
      -> IO (SynthRegister -> SynthRegister)
 act reg t a@(Send _ _ _) = actSend reg t a >> return id
