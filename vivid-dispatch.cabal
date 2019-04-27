@@ -1,0 +1,97 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.1.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 34934cdc357aa3d841ae35295fb72477ba9151be3d178f49c564415c6af19b65
+
+name:           vivid-dispatch
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/vivid-dispatch#readme>
+homepage:       https://github.com/githubuser/vivid-dispatch#readme
+bug-reports:    https://github.com/githubuser/vivid-dispatch/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2019 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+--    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/vivid-dispatch
+
+library
+  exposed-modules:
+      Vivid.Dispatch.Abbrevs
+    , Vivid.Dispatch.Config
+    , Vivid.Dispatch.Dispatch
+    , Vivid.Dispatch.Join
+    , Vivid.Dispatch.Internal.Join
+    , Vivid.Dispatch.Msg
+    , Vivid.Dispatch.Museq
+    , Vivid.Dispatch.Test.Auto
+    , Vivid.Dispatch.Transform
+    , Vivid.Dispatch.Types
+    , Vivid.EarTrain
+    , Vivid.Random.MentionsSig
+    , Vivid.Random.RandomSignal
+    , Vivid.Random.RandomSynth
+    , Vivid.Random.Render
+    , Vivid.Random.Types
+    , Vivid.Random.Types.AbstractSignal
+    , Vivid.Random.Types.Other
+    , Vivid.ReadHsAsGhci
+    , Vivid.Scale
+    , Vivid.Synths
+    , Vivid.Synths.Vap
+    , Vivid.Synths.Zot
+    , Vivid.Util
+  other-modules:
+      Paths_vivid_dispatch
+  hs-source-dirs:
+      src
+  build-depends:
+      base
+    , containers
+    , HUnit
+    , lens
+    , megaparsec
+    , random
+    , vector
+    , vector-algorithms
+
+    , vivid
+    , vivid-osc
+    , vivid-supercollider
+
+  default-language: Haskell2010
+
+--executable vivid-dispatch-exe
+--  main-is: Main.hs
+--  other-modules:
+--      Paths_vivid_dispatch
+--  hs-source-dirs:
+--      app
+--  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+--  build-depends:
+--      base >=4.7 && <5
+--    , vivid-dispatch
+--  default-language: Haskell2010
+--
+--test-suite vivid-dispatch-test
+--  type: exitcode-stdio-1.0
+--  main-is: Spec.hs
+--  other-modules:
+--      Paths_vivid_dispatch
+--  hs-source-dirs:
+--      test
+--  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+--  build-depends:
+--      base >=4.7 && <5
+--    , vivid-dispatch
+--  default-language: Haskell2010
