@@ -1,0 +1,12 @@
+-- in Haskell
+pat = mmho 3 $ pre2 "a"
+  [ (0, m1 "freq" 400)
+  , (1, m1 "freq" 500) ]
+chAll $ mfl [
+    ("1", nBoop pat )
+    ]
+
+-- in Hode
+/a (#freq 400) #in a #at 0
+/a (#freq 500) #in a #at 1
+/a #playing (#nBoop (3 ##mmho #pre2 a))

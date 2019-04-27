@@ -11,11 +11,12 @@
   -- subtracting from a competing one. `fm-b`, `pm-b`, `wm-b` do not.
 
 {-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
 module Vivid.Synths.Zot where
 
 import Vivid
-import Vivid.LongVarLists
+import Vivid.LongVarLists()
 
 
 type ZotParams = '["amp"

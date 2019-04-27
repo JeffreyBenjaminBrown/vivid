@@ -66,3 +66,5 @@ import Vivid.UGens.SynthControl
 import Vivid.UGens.Triggers
 import Vivid.UGens.Undocumented
 import Vivid.UGens.UserInteraction
+
+:. demo/init

@@ -1,5 +1,7 @@
 hush -- don't worry if this is not defined
+putStrLn "If hush just produced an error, don't worry, it's cool."
 off  -- don't worry if this is not defined
+putStrLn "If off just produced an error, don't worry, it's cool."
 
 -- Hopefully you'll never need to use these explicitly.
 disp <- newDispatch

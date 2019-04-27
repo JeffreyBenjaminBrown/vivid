@@ -41,6 +41,7 @@ library
     , Vivid.Dispatch.Transform
     , Vivid.Dispatch.Types
     , Vivid.EarTrain
+    , Vivid.Hode
     , Vivid.Random.MentionsSig
     , Vivid.Random.RandomSignal
     , Vivid.Random.RandomSynth
@@ -63,6 +64,7 @@ library
     , lens
     , megaparsec
     , random
+    , hode
     , vector
     , vector-algorithms
 

@@ -12,7 +12,7 @@ module Vivid.Dispatch.Transform (
   , dropParams   -- ^ [ParamName]                   -> Museq l Msg -> Museq l Msg
   ) where
 
-import Control.Lens (over, _1, _2, view)
+import Control.Lens
 import Data.Fixed (mod')
 import qualified Data.Map as M
 import qualified Data.Set as S

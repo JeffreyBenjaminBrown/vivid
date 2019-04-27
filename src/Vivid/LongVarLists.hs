@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 -- This extends the VarList instances so that the maximum length
 -- is 32 rather than 26. Entirely monkey-pasted from
 -- Vivid.SynthDef.TypesafeArgs
@@ -38,14 +40,7 @@
 
 module Vivid.LongVarLists where
 
-import Control.Arrow (first, second)
-import GHC.Exts
-import GHC.Generics
 import GHC.TypeLits
-import qualified Data.Map as Map
-import Data.Proxy
-import Data.Type.Bool
-import System.Random -- For a Random instance
 
 import Vivid.SynthDef.TypesafeArgs
 
