@@ -1,4 +1,4 @@
-module Vivid.Dispatch.Test.Auto where
+module Vivid.Dispatch.Test where
 
 import qualified Control.Lens as L
 import qualified Data.Map as M
@@ -12,12 +12,15 @@ import Vivid.Dispatch.Internal.Join
 import Vivid.Dispatch.Museq
 import Vivid.Dispatch.Transform
 import Vivid.Dispatch.Types
+import Vivid.Hode.HTest
 import Test.HUnit
 
 
 tests :: IO Counts
 tests = runTestTT $ TestList
-  [ TestLabel "testOverlap" testOverlap
+  [ TestLabel "test_module_hode" test_module_hode
+
+  , TestLabel "testOverlap" testOverlap
   , TestLabel "testPrevPhase0" testPrevPhase0
   , TestLabel "testNextPhase0" testNextPhase0
   , TestLabel "museqIsValid" testMuseqIsValid

@@ -29,6 +29,8 @@ library
   exposed-modules:
       ReadHsAsGhci
     , Util
+    , Vivid.Hode
+    , Vivid.Hode.HTest
 
     , Vivid.Dispatch.Abbrevs
     , Vivid.Dispatch.Config
@@ -37,7 +39,7 @@ library
     , Vivid.Dispatch.Internal.Join
     , Vivid.Dispatch.Msg
     , Vivid.Dispatch.Museq
-    , Vivid.Dispatch.Test.Auto
+    , Vivid.Dispatch.Test
     , Vivid.Dispatch.Transform
     , Vivid.Dispatch.Types
     , Vivid.EarTrain

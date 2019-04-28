@@ -4,48 +4,48 @@ import           Data.Map (Map)
 import qualified Data.Map as M
 
 import Hode.Hode
+import Hode.Util.Misc
 
 
 baseRslt :: Rslt
 baseRslt = mkRslt $ M.fromList _baseRslt
 
+aInAt, aFreq, aPlaying, aNBoop, aMmho, aPre2 :: Addr
+aInAt = -3
+aFreq = -5
+aPlaying = -7
+aNBoop = -9
+aMmho = -11
+aPre2 = -13
+
 _baseRslt :: [(Addr,RefExpr)]
 _baseRslt =
-  [(0,Phrase' "")
-  ,(1,Phrase' "in")
-  ,(2,Phrase' "at")
-  ,(3,Tplt' [0,1,2,0])
-  ,(4,Phrase' "freq")
-  ,(5,Tplt' [4,0])
-  ,(6,Phrase' "playing")
-  ,(7,Tplt' [6,0])
-  ,(8,Phrase' "nBoop")
-  ,(9,Tplt' [8,0])
-  ,(10,Phrase' "mmho")
-  ,(11,Tplt' [0,10,0])
-  ,(12,Phrase' "pre2")
-  ,(13,Tplt' [12,0]) ]
+  [( 0,Phrase' "")
+  ,(-1,Phrase' "in")
+  ,(-2,Phrase' "at")
+  ,(-3,Tplt' [0,-1,-2,0])
+  ,(-4,Phrase' "freq")
+  ,(-5,Tplt' [-4,0])
+  ,(-6,Phrase' "playing")
+  ,(-7,Tplt' [-6,0])
+  ,(-8,Phrase' "nBoop")
+  ,(-9,Tplt' [-8,0])
+  ,(-10,Phrase' "mmho")
+  ,(-11,Tplt' [0,-10,0])
+  ,(-12,Phrase' "pre2")
+  ,(-13,Tplt' [-12,0]) ]
 
-testRslt :: Rslt
-testRslt = mkRslt $ M.fromList $ _baseRslt ++ 
-  [(14,Rel' (Rel [12,8,13] 3))
-  ,(15,Phrase' "playing")
-  ,(16,Tplt' [15,0])
-  ,(17,Phrase' "nBoop")
-  ,(18,Tplt' [17,0])
-  ,(19,Phrase' "mmho")
-  ,(20,Tplt' [0,19,0])
-  ,(21,Phrase' "3")
-  ,(22,Phrase' "pre2")
-  ,(23,Tplt' [22,0])
-  ,(24,Rel' (Rel [8] 23))
-  ,(25,Rel' (Rel [21,24] 20))
-  ,(26,Rel' (Rel [25] 18))
-  ,(27,Rel' (Rel [26] 16))]
-
-
-
---evalParam :: Rslt -> Addr -> Either String (Map String Float)
---evalParam r a = do
-  
+evalSynthParam :: Rslt -> Addr -> Either String (Map String Float)
+evalSynthParam r a = prefixLeft "evalParam: " $ do
+  verifyVariety r a (Just RelCtr, Just 1)
+  tplt <- fills r (RoleTplt, a)
+  verifyVariety r tplt (Just TpltCtr, Just 1)
+  mbr <- fills r (RoleMember 1, a)
+  verifyVariety r mbr (Just PhraseCtr, Just 0)
+  val0 <- addrToExpr r mbr
+  let Phrase val1 = val0
+      val2 = read val1 :: Float
+  if tplt == aFreq then Right $ M.singleton "freq" val2
+    else Left $ "Template of Expr at " ++ show a
+         ++ " is not a synth  parameter."
 

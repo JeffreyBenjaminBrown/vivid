@@ -1,4 +1,15 @@
-* TODO
+* Hode & reification
+** DONE split rels > reify
+The "_ in <pattern name> at <time>"
+relationship is polymorphic in its first member.
+
+My two options are to split it into multiple rels
+("param _ in _ at _", "scale _ in _ at _", etc.)
+or to reify the elements of Dispatch into a single type.
+
+The first seems nicer.
+** testing
+* todo
 ** drums
 *** for how to load a buffer into a synth.
 See Tom's first message here:
