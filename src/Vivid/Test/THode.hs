@@ -14,24 +14,25 @@ import Vivid.Hode
 testRslt :: Rslt
 testRslt = mkRslt $ M.fromList $ _baseRslt ++
   [ (1,Phrase' "a")
-  ,(2,Phrase' "0")
-  ,(3,Phrase' "400")
-  ,(4,Rel' (Rel [3] (-5)))
-  ,(5,Rel' (Rel [1,2,4] (-3)))
-  ,(6,Phrase' "1")
-  ,(7,Phrase' "500")
-  ,(8,Rel' (Rel [7] (-5)))
-  ,(9,Rel' (Rel [1,6,8] (-3)))
-  ,(10,Phrase' "3")
-  ,(11,Rel' (Rel [1] (-13)))
-  ,(12,Rel' (Rel [10,11] (-11)))
-  ,(13,Rel' (Rel [12] (-9)))
-  ,(14,Rel' (Rel [13] (-7)))]
+  , (2,Phrase' "0")
+  , (3,Phrase' "400")
+  , (4,Rel' (Rel [3] (-5)))
+  , (5,Rel' (Rel [1,2,4] (-3)))
+  , (6,Phrase' "1")
+  , (7,Phrase' "500")
+  , (8,Rel' (Rel [7] (-5)))
+  , (9,Rel' (Rel [1,6,8] (-3)))
+  , (10,Phrase' "3")
+  , (11,Rel' (Rel [1] (-13)))
+  , (12,Rel' (Rel [10,11] (-11)))
+  , (13,Rel' (Rel [12] (-9)))
+  , (14,Rel' (Rel [13] (-7)))]
 
 test_module_hode :: Test
 test_module_hode = TestList [
     TestLabel "testEvalSynthParam" testEvalSynthParam
   , TestLabel "testEvalParamEvent" testEvalParamEvent
+  , TestLabel "testEvalEventTriples" testEvalEventTriples
   ]
 
 testEvalSynthParam :: Test
@@ -55,3 +56,19 @@ testEvalParamEvent = TestCase $ do
           , (5,Rel' (Rel [1,2,4] aWhenPlays)) ]
   assertBool "1" $ evalParamEvent r 5
     == Right ("a",0,M.singleton "freq" 400)
+
+testEvalEventTriples :: Test
+testEvalEventTriples = TestCase $ do
+  let r :: Rslt = mkRslt $ M.fromList $ _baseRslt ++
+                  [ (1,Phrase' "a")
+                  , (2,Phrase' "0")
+                  , (3,Phrase' "400")
+                  , (4,Rel' (Rel [3] (-5)))
+                  , (5,Rel' (Rel [1,2,4] (-3)))
+                  , (6,Phrase' "1")
+                  , (7,Phrase' "500")
+                  , (8,Rel' (Rel [7] (-5)))
+                  , (9,Rel' (Rel [1,6,8] (-3))) ]
+  assertBool "1" $ evalEventTriples testRslt 1
+    == Right [("a", 0.0, M.singleton "freq" 400)
+             ,("a", 1.0, M.singleton "freq" 500)]

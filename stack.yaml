@@ -1,8 +1,8 @@
 resolver: lts-13.18
 extra-deps:
-#  - /home/jeff/logic/hode
-  - git: https://github.com/JeffreyBenjaminBrown/hode
-    commit: c4bd2fcf81f87a152bdbdae0766137df6ce37a7c
+  - /home/jeff/logic/hode
+#  - git: https://github.com/JeffreyBenjaminBrown/hode
+#    commit: c4bd2fcf81f87a152bdbdae0766137df6ce37a7c
   - brick-0.47@sha256:4936c50acfdf09620dad5217fb384fc0d59626f75abed8b48250b419ec2ab623
   - text-zipper-0.10.1@sha256:8b73a97a3717a17df9b0a722b178950c476ff2268ca5c583e99d010c94af849e
   - word-wrap-0.4.1@sha256:f72233b383ef569c557bfd9812cbb8e306c415ce509082c0bd15ee51c0239ccc

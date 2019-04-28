@@ -4,6 +4,8 @@ module Vivid.Hode where
 
 import           Data.Map (Map)
 import qualified Data.Map as M
+import           Data.Set (Set)
+import qualified Data.Set as S
 
 import Hode.Hode
 import Hode.Util.Misc
@@ -87,5 +89,30 @@ evalParamEvent r a =
   msg :: Msg <- evalSynthParam r m3_msg
 
   if tplt == aWhenPlays then
-    return (name,time,msg)
+    Right (name,time,msg)
     else Left $ "Template is not for events."
+
+evalEventTriples :: Rslt -> Addr -> Either String [(String, Float, Msg)]
+evalEventTriples r a =
+  prefixLeft ("evalEventTriples at " ++ show a ++ ": ") $ do
+  hosts0 :: [Addr] <- S.toList . S.map snd .
+                       S.filter ((==) (RoleMember 1) . fst) <$>
+                       isIn r a
+  hostTplts :: [Addr] <- ifLefts $
+                         map (hasInRole r RoleTplt) hosts0
+  let hosts1 :: [Addr] = map fst .
+                         filter ((== aWhenPlays) . snd) $
+                         zip hosts0 hostTplts
+  ifLefts $ map (evalParamEvent r) hosts1
+
+--evalMuseqMsg :: Rslt -> Addr -> Either String (Museq String Msg)
+--evalMuseqMsg r a =
+--  prefixLeft ("evalMuseqMsg at " ++ show a ++ ": ") $ do
+--  verifyVariety r a (Just RelCtr, Just 2)
+--
+--  tplt <- fills r (RoleTplt, a)
+--  verifyVariety r tplt (Just TpltCtr, Just 3)
+--
+--  m1_dur <- fills r (RoleMember 1, a)
+--  dur0 :: Float <- phraseToFloat r m1_dur
+
