@@ -1,4 +1,6 @@
 * Hode & reification
+** TODO use HExpr!
+This could greatly simplify the eval* functions in Vivid.Hode
 ** DONE split rels > reify
 The "_ in <pattern name> at <time>"
 relationship is polymorphic in its first member.
