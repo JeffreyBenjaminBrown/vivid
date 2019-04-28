@@ -30,7 +30,10 @@ library
       ReadHsAsGhci
     , Util
     , Vivid.Hode
-    , Vivid.Hode.HTest
+
+    , Vivid.Test.TDispatch
+    , Vivid.Test.THode
+    , Vivid.Test.TMain
 
     , Vivid.Dispatch.Abbrevs
     , Vivid.Dispatch.Config
@@ -39,7 +42,6 @@ library
     , Vivid.Dispatch.Internal.Join
     , Vivid.Dispatch.Msg
     , Vivid.Dispatch.Museq
-    , Vivid.Dispatch.Test
     , Vivid.Dispatch.Transform
     , Vivid.Dispatch.Types
     , Vivid.EarTrain

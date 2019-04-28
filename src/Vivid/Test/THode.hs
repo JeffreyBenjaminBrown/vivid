@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Vivid.Hode.HTest where
+module Vivid.Test.THode where
 
 import           Data.Either
 import           Data.Map (Map)
@@ -30,7 +30,7 @@ testRslt = mkRslt $ M.fromList $ _baseRslt ++
 
 test_module_hode :: Test
 test_module_hode = TestList [
-  TestLabel "testEvalSynthParam" testEvalSynthParam
+    TestLabel "testEvalSynthParam" testEvalSynthParam
   , TestLabel "testEvalParamEvent" testEvalParamEvent
   ]
 
