@@ -2,15 +2,13 @@
 
 module Vivid.Hode where
 
-import           Data.Map (Map)
 import qualified Data.Map as M
-import           Data.Set (Set)
 import qualified Data.Set as S
 
-import Hode.Hode
-import Hode.Util.Misc
+import Hode.Hode hiding (name)
 
 import Vivid.Dispatch.Types
+import Vivid.Dispatch.Abbrevs
 
 
 baseRslt :: Rslt
@@ -26,6 +24,9 @@ aPre2 = -13
 
 aParamTplts :: [Addr]
 aParamTplts = [aFreq]
+
+aToSynths :: [Addr]
+aToSynths = [aNBoop]
 
 _baseRslt :: [(Addr,RefExpr)]
 _baseRslt =
@@ -69,14 +70,14 @@ evalSynthParam r a =
                 map (HExpr . Addr) aParamTplts
           in hMatches r h a
   if fits then Right () else Left $
-    "Is not a unary parameter relationship (e.g. \"#freq 500\"."
+    "Is not a unary parameter relationship (e.g. \"#freq 440\".)"
   param <- subExpr r  a [RoleTplt, RoleMember 1]
            >>= phraseToString r
   value <- subExpr r  a [RoleMember 1]
            >>= phraseToFloat r
   Right $ M.singleton param value
 
-evalParamEvent :: Rslt -> Addr -> Either String (String, Float, Msg)
+evalParamEvent :: Rslt -> Addr -> Either String (String, RTime, Msg)
 evalParamEvent r a =
   prefixLeft ("evalParamEvent at " ++ show a ++ ": ") $ do
   fits <- let h = HMap $ M.singleton RoleTplt $ HOr $
@@ -91,9 +92,9 @@ evalParamEvent r a =
                    >>= phraseToFloat r
   msg :: Msg <- fills r (RoleMember 3, a)
                 >>= evalSynthParam r
-  Right (name,time,msg)
+  Right (name, RTime $ toRational time, msg)
 
-evalEventTriples :: Rslt -> Addr -> Either String [(String, Float, Msg)]
+evalEventTriples :: Rslt -> Addr -> Either String [(String, RTime, Msg)]
 evalEventTriples r a =
   prefixLeft ("evalEventTriples at " ++ show a ++ ": ") $ do
   hosts <- (<$>) S.toList $ hExprToAddrs r mempty $
@@ -101,14 +102,17 @@ evalEventTriples r a =
                       , (RoleMember 1, HExpr $ Addr a) ]
   ifLefts $ map (evalParamEvent r) hosts
 
---evalMuseqMsg :: Rslt -> Addr -> Either String (Museq String Msg)
---evalMuseqMsg r a =
---  prefixLeft ("evalMuseqMsg at " ++ show a ++ ": ") $ do
---  verifyVariety r a (Just RelCtr, Just 2)
---
---  tplt <- fills r (RoleTplt, a)
---  verifyVariety r tplt (Just TpltCtr, Just 3)
---
---  m1_dur <- fills r (RoleMember 1, a)
---  dur0 :: Float <- phraseToFloat r m1_dur
+evalMmho :: Rslt -> Addr -> Either String (Museq String Msg)
+evalMmho r a =
+  prefixLeft ("evalMmho at " ++ show a ++ ": ") $ do
+  fits <- let h = HMap $ M.singleton RoleTplt $ HOr $
+                map (HExpr . Addr) [aMmho]
+          in hMatches r h a
+  if fits then Right () else Left $
+    "Is not a binary mmho relationship (e.g. \"3 #mmho a\", which would say that the pattern named (a) has a duration of 3."
 
+  dur0 :: Float <- fills r (RoleMember 1, a)
+                   >>= phraseToFloat r
+  triples :: [(String, RTime, Msg)] <- fills r (RoleMember 2, a)
+                                       >>= evalEventTriples r
+  Right $ mmho (RTime $ toRational dur0) triples
