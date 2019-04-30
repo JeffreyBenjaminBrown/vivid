@@ -1,10 +1,10 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns #-}
 
 module Vivid.Dispatch.Transform (
-    rev                       -- ^               Museq l a -> Museq l a
-  , early, late              -- ^ RDuration  -> Museq l a -> Museq l a
+    rev                    -- ^               Museq l a -> Museq l a
+  , early, late            -- ^ RDuration  -> Museq l a -> Museq l a
   , fast,slow,dense,sparse -- ^ Rational   -> Museq l a -> Museq l a
-  , rotate, rep              -- ^ Rational   -> Museq l a -> Museq l a
+  , rotate, rep            -- ^ Rational   -> Museq l a -> Museq l a
 
   , overParams   -- ^ [(ParamName, Float -> Float)] -> Museq l Msg -> Museq l Msg
   , switchParams -- ^ [(ParamName, ParamName)]      -> Museq l Msg -> Museq l Msg

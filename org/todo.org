@@ -3,9 +3,6 @@
 ** use museqIsValid in join|transform tests
 *** and test the new museqIsValid's extra clauses
 * add
-** abbreviations for map functions, imported as M
-*** M.fl = M.fromList
-*** M.u = M.union
 ** parse a DSL for it
 *** seems much easier to make the DSL after the functions it will encode
 *** for every bit of terse punctuation, include a verbal alternative
@@ -16,6 +13,7 @@
 * supercollider mysteries
 ** envelopes
 ** many voices to one distortion
+https://we.lurk.org/hyperkitty/list/haskell-art@we.lurk.org/thread/2BZIBR3DDOF3XPZ5UYBXJPYEPSPKIYFH/
 ** slow changes, e.g. for slide guitar
 * DONE problems that seem solved
 ** bug ! melodies get mangled if tempo is near 1 but not 1
