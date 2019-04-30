@@ -34,7 +34,15 @@ test_module_hode = TestList [
   , TestLabel "testEvalParamEvent" testEvalParamEvent
   , TestLabel "testEvalEventTriples" testEvalEventTriples
   , TestLabel "testEvalMmho" testEvalMmho
+  , TestLabel "testEvalToSynths" testEvalToSynths
   ]
+
+testEvalToSynths :: Test
+testEvalToSynths = TestCase $ do
+  assertBool "1" $ evalToSynths testRslt 12
+    == Right ( nBoop $ mmho 3 $ pre2 "a"
+               [ (0, m1 "freq" 400)
+               , (1, m1 "freq" 500) ] )
 
 testEvalMmho :: Test
 testEvalMmho = TestCase $ do

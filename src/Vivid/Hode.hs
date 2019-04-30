@@ -116,3 +116,21 @@ evalMmho r a =
   triples :: [(String, RTime, Msg)] <- fills r (RoleMember 2, a)
                                        >>= evalEventTriples r
   Right $ mmho (RTime $ toRational dur0) triples
+
+evalToSynths :: Rslt -> Addr -> Either String (Museq String Note)
+evalToSynths r a =
+  prefixLeft ("evalToSynths at " ++ show a ++ ": ") $ do
+  let misfit = "Is not a unary send-to-this-synth relationship (e.g. \"#nBoop (3 #mmho a)\", which would send to the Boop synth the pattern named (a) with a duration of 3."
+
+  fits <- let h = HMap $ M.singleton RoleTplt $ HOr $
+                map (HExpr . Addr) aToSynths
+          in hMatches r h a
+  if fits then Right () else Left misfit
+
+  pat :: Museq String Msg <- fills r (RoleMember 1, a)
+                             >>= evalMmho r
+  synth :: String <- subExpr r  a [RoleTplt, RoleMember 1]
+                     >>= phraseToString r
+  case synth of
+    "nBoop" -> Right $ nBoop pat
+    _ -> Left misfit
