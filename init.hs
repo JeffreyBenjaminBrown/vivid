@@ -3,7 +3,7 @@
 :set -XTupleSections
 :def! . readHsAsGhci
 
-import Control.Lens
+import Control.Lens hiding (has)
 import qualified Data.List as L
 import Control.Concurrent
 import Control.Concurrent.MVar

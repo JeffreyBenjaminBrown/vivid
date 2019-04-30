@@ -24,6 +24,9 @@ aNBoop = -9
 aMmho = -11
 aPre2 = -13
 
+aParamTplts :: [Addr]
+aParamTplts = [aFreq]
+
 _baseRslt :: [(Addr,RefExpr)]
 _baseRslt =
   [( 0,Phrase' "")
@@ -62,48 +65,41 @@ phraseToFloat r a =
 evalSynthParam :: Rslt -> Addr -> Either String Msg
 evalSynthParam r a =
   prefixLeft ("evalParam at " ++ show a ++ ": ") $ do
-  verifyVariety r a (Just RelCtr, Just 1)
-  tplt <- fills r (RoleTplt, a)
-  verifyVariety r tplt (Just TpltCtr, Just 1)
-  mbr <- fills r (RoleMember 1, a)
-  val2 <- phraseToFloat r mbr
-  if tplt == aFreq then Right $ M.singleton "freq" val2
-    -- TODO : add cases (e.g. amplitude, phase)
-    else Left $ "Template is not a synth  parameter."
+  fits <- let h = HMap $ M.singleton RoleTplt $ HOr $
+                map (HExpr . Addr) aParamTplts
+          in hMatches r h a
+  if fits then Right () else Left $
+    "Is not a unary parameter relationship (e.g. \"#freq 500\"."
+  param <- subExpr r  a [RoleTplt, RoleMember 1]
+           >>= phraseToString r
+  value <- subExpr r  a [RoleMember 1]
+           >>= phraseToFloat r
+  Right $ M.singleton param value
 
 evalParamEvent :: Rslt -> Addr -> Either String (String, Float, Msg)
 evalParamEvent r a =
   prefixLeft ("evalParamEvent at " ++ show a ++ ": ") $ do
-  verifyVariety r a (Just RelCtr, Just 3)
+  fits <- let h = HMap $ M.singleton RoleTplt $ HOr $
+                [HExpr $ Addr aWhenPlays]
+          in hMatches r h a
+  if fits then Right () else Left $
+    "Is not a unary parameter relationship (e.g. \"#freq 500\"."
 
-  tplt <- fills r (RoleTplt, a)
-  verifyVariety r tplt (Just TpltCtr, Just 3)
-
-  m1_name <- fills r (RoleMember 1, a)
-  name :: String <- phraseToString r m1_name
-
-  m2_time <- fills r (RoleMember 2, a)
-  time :: Float <- phraseToFloat r m2_time
-
-  m3_msg <- fills r (RoleMember 3, a)
-  msg :: Msg <- evalSynthParam r m3_msg
-
-  if tplt == aWhenPlays then
-    Right (name,time,msg)
-    else Left $ "Template is not for events."
+  name :: String <- fills r (RoleMember 1, a)
+                    >>= phraseToString r
+  time :: Float <- fills r (RoleMember 2, a)
+                   >>= phraseToFloat r
+  msg :: Msg <- fills r (RoleMember 3, a)
+                >>= evalSynthParam r
+  Right (name,time,msg)
 
 evalEventTriples :: Rslt -> Addr -> Either String [(String, Float, Msg)]
 evalEventTriples r a =
   prefixLeft ("evalEventTriples at " ++ show a ++ ": ") $ do
-  hosts0 :: [Addr] <- S.toList . S.map snd .
-                       S.filter ((==) (RoleMember 1) . fst) <$>
-                       isIn r a
-  hostTplts :: [Addr] <- ifLefts $
-                         map (hasInRole r RoleTplt) hosts0
-  let hosts1 :: [Addr] = map fst .
-                         filter ((== aWhenPlays) . snd) $
-                         zip hosts0 hostTplts
-  ifLefts $ map (evalParamEvent r) hosts1
+  hosts <- (<$>) S.toList $ hExprToAddrs r mempty $
+    HMap $ M.fromList [ (RoleTplt, HExpr $ Addr aWhenPlays)
+                      , (RoleMember 1, HExpr $ Addr a) ]
+  ifLefts $ map (evalParamEvent r) hosts
 
 --evalMuseqMsg :: Rslt -> Addr -> Either String (Museq String Msg)
 --evalMuseqMsg r a =
