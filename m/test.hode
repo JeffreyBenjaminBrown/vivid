@@ -11,6 +11,6 @@ st <- uiFromRslt baseRslt
 
 /a a #when 0 #plays (#freq 400)
 /a a #when 1 #plays (#freq 500)
-/a #playing (#nBoop (3 ##mmho a))
+/a song 1 #sends (#nBoop (3 ##mmho a))
 
 _addrToRefExpr  $ st ^. appRslt

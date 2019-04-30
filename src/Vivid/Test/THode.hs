@@ -17,16 +17,17 @@ testRslt = mkRslt $ M.fromList $ _baseRslt ++
   [ (01,Phrase' "a")
   , (02,Phrase' "0")
   , (03,Phrase' "400")
-  , (06,Phrase' "1")
   , (04, Rel' $ Rel [3] (aFreq))
   , (05, Rel' $ Rel [1,2,4] (aWhenPlays))
+  , (06,Phrase' "1")
   , (07,Phrase' "500")
   , (08, Rel' $ Rel [7] (aFreq))
   , (09, Rel' $ Rel [1,6,8] (aWhenPlays))
-  , (10,Phrase' "3")
-  , (11, Rel' $ Rel [10,1] (aMmho))
-  , (12, Rel' $ Rel [11] (aNBoop))
-  , (13, Rel' $ Rel [12] (aPlaying))]
+  , (10,Phrase' "song 1")
+  , (11,Phrase' "3")
+  , (12,Rel' $ Rel [11,1] aMmho)
+  , (13,Rel' $ Rel [12] aNBoop)
+  , (14,Rel' $ Rel [10,13] aSends)]
 
 test_module_hode :: Test
 test_module_hode = TestList [
@@ -39,14 +40,14 @@ test_module_hode = TestList [
 
 testEvalToSynths :: Test
 testEvalToSynths = TestCase $ do
-  assertBool "1" $ evalToSynths testRslt 12
+  assertBool "1" $ evalToSynths testRslt 13
     == Right ( nBoop $ mmho 3 $ pre2 "a"
                [ (0, m1 "freq" 400)
                , (1, m1 "freq" 500) ] )
 
 testEvalMmho :: Test
 testEvalMmho = TestCase $ do
-  assertBool "1" $ evalMmho testRslt 11
+  assertBool "1" $ evalMmho testRslt 12
     == Right ( mmho 3 $ pre2 "a"
                [ (0, m1 "freq" 400)
                , (1, m1 "freq" 500) ] )

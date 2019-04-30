@@ -14,10 +14,10 @@ import Vivid.Dispatch.Abbrevs
 baseRslt :: Rslt
 baseRslt = mkRslt $ M.fromList _baseRslt
 
-aWhenPlays, aFreq, aPlaying, aNBoop, aMmho, aPre2 :: Addr
+aWhenPlays, aFreq, aSends, aNBoop, aMmho, aPre2 :: Addr
 aWhenPlays = -3
 aFreq = -5
-aPlaying = -7
+aSends = -7
 aNBoop = -9
 aMmho = -11
 aPre2 = -13
@@ -44,8 +44,8 @@ _baseRslt =
   ,(-11,Tplt' [0,-10,0])
   ,(-12,Phrase' "pre2")
   ,(-13,Tplt' [-12,0])
-  ,(-14,Phrase' "plays")
-  ,(-15,Tplt' [-14,0]) ]
+  ,(-14,Phrase' "sends")
+  ,(-15,Tplt' [0,-14,0]) ]
 
 phraseToString :: Rslt -> Addr -> Either String String
 phraseToString r a =
