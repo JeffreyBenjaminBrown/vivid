@@ -1,48 +1,29 @@
-# Vivid - *music and sound synthesis in Haskell*
-
-This isn't Vivid's home -- that's at http://vivid-synth.com
-
-Some people like to read code on GitHub though, so here we are!
-
-**Please don't submit pull requests here -- discuss on the [mailing list][list]**
-
-[list]: http://lurk.org/groups/haskell-art
+# Vivid-Dispatch: like Tidal, using Vivid and Hode
 
 
-## Example usage:
+## prerequisites
+To use this code you'll need to have first installed:
 
-```haskell
-{-# LANGUAGE DataKinds #-}
+* [Stack](https://docs.haskellstack.org/en/stable/README/),
+the Haskell toolkit
 
-import Vivid
+* SuperCollider,
+as described in the documentation for [Vivid](https://www.vivid-synth.com/).
 
-theSound = sd (0 ::I "note") $ do
-    wobble <- sinOsc (freq_ 5) ? KR ~* 10 ~+ 10
-    s <- 0.1 ~* sinOsc (freq_ $ midiCPS (V::V "note") ~+ wobble)
-    out 0 [s,s]
 
-playSong = do
-    fork $ do
-        s0 <- synth theSound (36 ::I "note")
-        wait 1
-        free s0
-    s1 <- synth theSound (60 ::I "note")
-    forM_ [62,66,64] $ \note -> do
-        wait (1/4)
-        set s1 (note ::I "note")
-    wait (1/4)
-    free s1
+## to see how it works
 
-main = do
-    putStrLn "Simplest:"
-    playSong
+Run `bash sc-start.sh` from the command line to start SuperCollider
+(listening on an appropriate channel).
 
-    putStrLn "With precise timing:"
-    doScheduledIn 0.1 playSong
-    wait 1
+Run `stack ghci` to start the Haskell repl.
+Run `:s init.hs` to set up a dispatcher
+(a thing that talks to SuperCollider).
 
-    putStrLn "Written to a file, non-realtime synthesis:"
-    putStrLn "(Need to quit the running server for NRT)"
-    quitSCServer
-    writeNRT "/tmp/song.wav" playSong
-```
+To see how controlling `Vivid-Dispatch` from code works,
+try running `:. demo/x`
+(where `x` is the name of some file in the `demo/` folder).
+
+To see how controlling `Vivid-Dispatch` using
+[Hode](https://github.com/JeffreyBenjaminBrown/hode) works,
+try running `playSong disp testRslt 10`.

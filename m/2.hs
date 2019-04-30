@@ -10,7 +10,7 @@ mRyt = mmh 7 [ trip "a" 0 $ fast 2
              , trip "a" 3 $ early 1 ]
 
 chAll $ mfl [
-  ("1", nBoop $ pat 125 (5/4) (3/2))
+    ("1", nBoop $ pat 125 (5/4) (3/2))
   , ("2", nBoop
       (mergea
        (pat 250 (5/4) (3/2))

@@ -138,17 +138,16 @@ evalToSynths r a =
     _ -> Left misfit
 
 playSong :: Dispatch -> Rslt -> Addr -> IO ()
-playSong d r a =
-  let museqs :: Either String (M.Map String (Museq String Note)) =
-        prefixLeft ("evalToSynths at " ++ show a ++ ": ") $ do
-        museqAddrs :: [Addr] <- (<$>) S.toList $
-          hExprToAddrs r mempty $
-          HEval (HMap $ M.fromList [ (RoleTplt, HExpr $ Addr aSends)
-                                   , (RoleMember 1, HExpr $ Addr a) ] )
-          [[RoleMember 2]]
-        x :: [Museq String Note] <-
-          ifLefts $ map (evalToSynths r) museqAddrs
-        Right $ M.fromList $ zip (map show [1::Int ..]) x
-  in case museqs of
-    Left s -> putStrLn s
-    Right ms -> replaceAll d ms
+playSong d r a = let
+  museqs :: Either String (M.Map String (Museq String Note)) =
+    prefixLeft ("evalToSynths at " ++ show a ++ ": ") $ do
+    museqAddrs :: [Addr] <- (<$>) S.toList $
+      hExprToAddrs r mempty $
+      HEval (HMap $ M.fromList [ (RoleTplt, HExpr $ Addr aSends)
+                               , (RoleMember 1, HExpr $ Addr a) ] )
+      [[RoleMember 2]]
+    x :: [Museq String Note] <-
+      ifLefts $ map (evalToSynths r) museqAddrs
+    Right $ M.fromList $ zip (map show [1::Int ..]) x
+  in case museqs of Left s   -> putStrLn s
+                    Right ms -> replaceAll d ms

@@ -1,7 +1,14 @@
+* extend graph language
+parameters (on, amp)
+functions
+function patterns
+scale patterns
+* play song from UI
+** modify Hode to let using code add to the UI
+* how to cut through the boilerplate in Vivid.Hode?
+HExpr helped, but there ought to be a way to build all those functions from a single HExprF.
 * Hode & reification
-** TODO use HExpr!
-This could greatly simplify the eval* functions in Vivid.Hode
-** DONE split rels > reify
+** DONE split rels v. reify
 The "_ in <pattern name> at <time>"
 relationship is polymorphic in its first member.
 
@@ -9,8 +16,9 @@ My two options are to split it into multiple rels
 ("param _ in _ at _", "scale _ in _ at _", etc.)
 or to reify the elements of Dispatch into a single type.
 
-The first seems nicer.
-** testing
+The first is nicer to code,
+but it means duplicating lots of functions,
+which sucks for the user who has to remember them.
 * todo
 ** drums
 *** for how to load a buffer into a synth.
