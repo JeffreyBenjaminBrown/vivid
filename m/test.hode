@@ -14,3 +14,5 @@ st <- uiFromRslt baseRslt
 /a song 1 #sends (#nBoop (3 ##mmho a))
 
 _addrToRefExpr  $ st ^. appRslt
+
+playSong disp testRslt 10

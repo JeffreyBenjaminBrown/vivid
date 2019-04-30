@@ -7,8 +7,9 @@ import qualified Data.Set as S
 
 import Hode.Hode hiding (name)
 
-import Vivid.Dispatch.Types
 import Vivid.Dispatch.Abbrevs
+import Vivid.Dispatch.Dispatch
+import Vivid.Dispatch.Types
 
 
 baseRslt :: Rslt
@@ -77,6 +78,7 @@ evalSynthParam r a =
            >>= phraseToFloat r
   Right $ M.singleton param value
 
+-- | It works! Try, e.g., `playSong disp testRslt 10`
 evalParamEvent :: Rslt -> Addr -> Either String (String, RTime, Msg)
 evalParamEvent r a =
   prefixLeft ("evalParamEvent at " ++ show a ++ ": ") $ do
@@ -134,3 +136,19 @@ evalToSynths r a =
   case synth of
     "nBoop" -> Right $ nBoop pat
     _ -> Left misfit
+
+playSong :: Dispatch -> Rslt -> Addr -> IO ()
+playSong d r a =
+  let museqs :: Either String (M.Map String (Museq String Note)) =
+        prefixLeft ("evalToSynths at " ++ show a ++ ": ") $ do
+        museqAddrs :: [Addr] <- (<$>) S.toList $
+          hExprToAddrs r mempty $
+          HEval (HMap $ M.fromList [ (RoleTplt, HExpr $ Addr aSends)
+                                   , (RoleMember 1, HExpr $ Addr a) ] )
+          [[RoleMember 2]]
+        x :: [Museq String Note] <-
+          ifLefts $ map (evalToSynths r) museqAddrs
+        Right $ M.fromList $ zip (map show [1::Int ..]) x
+  in case museqs of
+    Left s -> putStrLn s
+    Right ms -> replaceAll d ms
