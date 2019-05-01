@@ -1,48 +1,49 @@
-* TODO split rels < reify
-** TODO how
-*** add type: Reif
-RAtom = RScale [Number]
-      | RStr String
-      | RNum Number
-RMuseq = RMScale (Museq String Scale)
-       | RMNum (Museq String Num)                 |
-       | RMMsg (Museq String Msg)                 |
-       | RMNote (Museq String Note)               |
-       | RMMeta (Museq String (Museq -> Museq))   |
-RFunction = RNum2 (Number -> Number)
-          | RNum3 (Number -> Number -> Number)  |
-          | RScale2 ([Number] -> [Number])      |
-          | RTransform (Museq -> Museq)         |
-          | RJoin (Museq -> Museq -> Museq)     |
-Reif = ReifAtom RAtom
-     | ReifFunc RFunction                          |
-     | ReifParam String Number                     |
-     | ReifAt Time Reif                            |
-     | ReifToSynth SynthDefEnum (Museq String Msg) |
-*** add: eval :: Disp -> Rslt -> Addr -> Reif
-*** add play  :: Reif -> IO ()
-*** leave unchanged: evalSynthParam :: Rslt -> Addr -> Either String Msg
-*** make polymorphic: evalParamEvent :: Rslt -> Addr -> Either String a
-** why
-The "_ in <pattern name> at <time>"
-relationship is polymorphic in its first member.
+* graph
+** split rels v. reify
+*** TODO how
+**** add type: Reif
+ RAtom = RScale [Number]
+       | RStr String
+       | RNum Number
+ RMuseq = RMScale (Museq String Scale)
+        | RMNum (Museq String Num)
+        | RMMsg (Museq String Msg)
+        | RMNote (Museq String Note)
+        | RMMeta (Museq String (Museq -> Museq))
+ RFunction = RNum2 (Number -> Number)
+           | RNum3 (Number -> Number -> Number)
+           | RScale2 ([Number] -> [Number])
+           | RTransform (Museq -> Museq)
+           | RJoin (Museq -> Museq -> Museq)
+ Reif = ReifAtom RAtom
+      | ReifFunc RFunction
+      | ReifParam String Number
+      | ReifAt Time Reif
+      | ReifToSynth SynthDefEnum (Museq String Msg)
+**** add: eval :: Disp -> Rslt -> Addr -> Reif
+**** add play  :: Reif -> IO ()
+**** leave unchanged: evalSynthParam :: Rslt -> Addr -> Either String Msg
+**** make polymorphic: evalParamEvent :: Rslt -> Addr -> Either String a
+*** why
+ The "_ in <pattern name> at <time>"
+ relationship is polymorphic in its first member.
 
-My two options are to split it into multiple rels
-("param _ in _ at _", "scale _ in _ at _", etc.)
-or to reify the elements of Dispatch into a single type.
+ My two options are to split it into multiple rels
+ ("param _ in _ at _", "scale _ in _ at _", etc.)
+ or to reify the elements of Dispatch into a single type.
 
-The first is nicer to code,
-but it means duplicating lots of functions,
-which sucks for the user who has to remember them.
-* extend graph language
-parameters (on, amp)
-functions
-function patterns
-scale patterns
-* play song from UI
-** modify Hode to let using code add to the UI
-* how to cut through the boilerplate in Vivid.Hode?
-HExpr helped, but there ought to be a way to build all those functions from a single HExprF.
+ The first is nicer to code,
+ but it means duplicating lots of functions,
+ which sucks for the user who has to remember them.
+** extend graph language
+ parameters (on, amp)
+ functions
+ function patterns
+ scale patterns
+** play song from UI
+*** modify Hode to let using code add to the UI
+** how to cut through the boilerplate in Vivid.Hode?
+ HExpr helped, but there ought to be a way to build all those functions from a single HExprF.
 * todo
 ** drums
 *** for how to load a buffer into a synth.

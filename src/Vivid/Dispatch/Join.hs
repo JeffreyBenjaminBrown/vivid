@@ -10,17 +10,20 @@ module Vivid.Dispatch.Join (
   , append -- ^ forall l a. Museq l a -> Museq l a -> Museq l a
   , cat    -- ^ [Museq l a] -> Museq l a -- the name "concat" is taken
   , stack  -- ^ forall a l m. (Show l, Show m)
-            -- => Museq l a  -> Museq m a -> Museq String a
+           -- => Museq l a  -> Museq m a -> Museq String a
   , stacks -- ^ [Museq l a] -> Museq String a
   , stack' -- ^  Museq l a  -> Museq l a -> Museq l a
   , merge  -- ^ forall a b c l m. (Show l, Show m)
-            -- =>         (a ->          b ->               c)
-            -- -> Museq l a -> Museq m b -> Museq String c
+           -- =>        (a ->         b ->              c)
+           -- -> Museq l a -> Museq m b -> Museq String c
   , merge0, merge1, mergea -- ^ forall l m. (Show l, Show m) =>
       -- Museq l Msg -> Museq m Msg -> Museq String Msg
+  , root -- ^ (Show l, Show m)
+         -- => Museq l Float -> Museq m Msg -> Museq String Msg
   , scale -- ^ forall l m. (Show l, Show m)
           -- => Museq l [Float] -> Museq m Msg -> Museq String Msg
-
+  , rootScale -- ^ forall l m. (Show l, Show m)
+             -- => Museq l (Float,[Float]) -> Museq m Msg -> Museq String Msg
   , meta -- ^ forall a b c l m. (Show l, Show m)
        -- => Museq l      (Museq String a -> Museq String b)
        -- -> Museq m      a
@@ -36,6 +39,7 @@ import Util
 import Vivid.Dispatch.Museq
 import Vivid.Dispatch.Types
 import Vivid.Dispatch.Internal.Join
+import Vivid.Dispatch.Transform
 
 
 -- | Play one after the other
@@ -171,6 +175,11 @@ mergea m n =
   where  f "amp" = (+) -- ^ add amplitudes, multiply others
          f _     = (*)
 
+root :: (Show l, Show m)
+     => Museq l Float -> Museq m Msg -> Museq String Msg
+root mr = meta $ f <$> mr where
+  f n = overParams [("freq", (+) n)]
+
 -- | Twelve tone scales (e.g. [0,2,4,5,7,9,11] = major).
 scale :: forall l m. (Show l, Show m)
       => Museq l [Float] -> Museq m Msg -> Museq String Msg
@@ -189,6 +198,12 @@ scale l0 m0 = merge h (labelsToStrings l0) (labelsToStrings m0) where
   h scale0 m = maybe m k $ M.lookup "freq" m where
     k :: Float -> Msg
     k freq = M.insert "freq" (g scale0 freq) m
+
+rootScale :: forall l m. (Show l, Show m)
+      => Museq l (Float,[Float]) -> Museq m Msg -> Museq String Msg
+rootScale mrs = let roots  = fst <$> mrs
+                    scales = snd <$> mrs
+  in scale scales . root roots
 
 meta :: forall a b l m. (Show l, Show m)
   => Museq l      (Museq String a -> Museq String b)
