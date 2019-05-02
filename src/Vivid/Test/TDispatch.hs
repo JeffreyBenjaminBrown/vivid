@@ -356,7 +356,7 @@ testMerge = TestCase $ do
                                                               ,("freq",2)]
                                    , mkEv "ac" 4 5 $ M.fromList [("amp",2)
                                                               ,("freq",2)] ] }
-  assertBool "mergea" $ mergea a' bc'
+  assertBool "merge0a" $ merge0a a' bc'
     == Museq { _dur = 3, _sup = 6,
                 _vec = V.fromList [ mkEv "ab" 0 1 $ M.fromList [("amp",2)
                                                               ,("freq",2)]

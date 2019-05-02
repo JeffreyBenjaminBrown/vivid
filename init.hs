@@ -1,6 +1,7 @@
 :set prompt "> "
 :set -XDataKinds
 :set -XTupleSections
+:set -XScopedTypeVariables
 :def! . readHsAsGhci
 
 import Control.Lens hiding (has)

@@ -17,13 +17,13 @@ rootPat = slow 8 $ mmh 8 $ pre2 "a"
   , ( 6, 0 )
   , ( 7, 7 ) ]
 
-s1 = mmh 2 $ pre2 "a"
-  [ ( 0 , dor2 )
-  , ( 1 , loc6 ) ]
-s2 = mmh 2 $ pre2 "a"
-  [ ( 0 , maj )
-  , ( 1 , lyd7 ) ]
-scalePat = slow 4 $ cat [dense 2 s1, dense 2 s2]
+scalePat = slow 4 $ cat [dense 2 s1, dense 2 s2] where
+  s1 = mmh 2 $ pre2 "a"
+    [ ( 0 , dor2 )
+    , ( 1 , loc6 ) ]
+  s2 = mmh 2 $ pre2 "a"
+    [ ( 0 , maj )
+    , ( 1 , lyd7 ) ]
 
 toScale = nBoop
           . ops [("freq", (*) 200 . \p -> 2**(p/12))]

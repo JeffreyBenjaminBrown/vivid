@@ -27,33 +27,33 @@
 hush -- don't worry if this is not defined
 off  -- don't worry if this is not defined
 
-disp <- newDispatch'
-tid <- startDispatchLoop' disp
-hush = replaceAll' disp M.empty
+disp <- newDispatch
+tid <- startDispatchLoop disp
+hush = replaceAll disp M.empty
   -- run "hush" to stop and delete all ongoing loops
 off = killThread tid >> freeAll -- run "off" to stop the program
 
-p f = mkMuseq'ho 3
+p f = mkMuseqHo 3
   [ ("a", 0, M.singleton "freq" f)
   , ("a", 1, M.singleton "freq" $ f*7/4)
   , ("a", 2, M.singleton "on" 0)]
 
-q f = mkMuseq'ho 1
+q f = mkMuseqHo 1
   [ ("a", 0, M.fromList [("freq",f)])
   , ("b", 0, M.fromList [("freq",f*5/4)]) ]
 
-m = mkMuseq' 9
+m = mkMuseq 9
   [ Event "a" (0,3) id
-  , Event "a" (3,6) $ fast' 2
-  , Event "b" (3,7) $ fast' 4
+  , Event "a" (3,6) $ fast 2
+  , Event "b" (3,7) $ fast 4
   -- Wart: For safety, to prevent hanging notes,
   -- both voices must be turned off explicitly, I think.
   , Event "a" (7,9) $ insertOffs
   , Event "b" (7,9) $ insertOffs
   ]
 
-replaceAll' disp $ M.fromList
-   [ ("1", Note' Boop <$> meta' m (p 400) ) ]
+replaceAll disp $ M.fromList
+   [ ("1", Note Boop <$> meta m (p 400) ) ]
 
---replaceAll' disp $ M.fromList
---   [ ("1", Note' Boop <$> meta' m (mergea' (p 1) (q 400))) ]
+--replaceAll disp $ M.fromList
+--   [ ("1", Note Boop <$> meta m (merge0a (p 1) (q 400))) ]

@@ -40,14 +40,14 @@ toScale = nBoop .
           scale (slow 2 s1) . root (slow 4 r1) .
           merge0 p0
 
-chAll $ mfl [
-    ("1", toScale $ ops [("freq",(+) 2)] $
-          meta (fast 2 t1) $ cat [sparse 2 p1, fast 2 p2] )
-  , ("2", toScale $ ops [("freq",(-) 8)] $
-          meta t1          $ cat [dense 2 p1, p2] )
-  ]
-
 --chAll $ mfl [
---    ("1", toScale $ cat                        [sparse 2 $ fe p1, fe p2] )
---  , ("2", toScale $ ops [("freq",(-) 7)] $ cat [dense  2 $ fe p1, fe p2] )
+--    ("1", toScale $ ops [("freq",(+) 2)] $
+--          meta (fast 2 t1) $ cat [sparse 2 p1, fast 2 p2] )
+--  , ("2", toScale $ ops [("freq",(-) 8)] $
+--          meta t1          $ cat [dense 2 p1, p2] )
 --  ]
+
+chAll $ mfl [
+    ("1", toScale $ cat                        [sparse 2 $ fe p1, fe p2] )
+  , ("2", toScale $ ops [("freq",(-) 7)] $ cat [dense  2 $ fe p1, fe p2] )
+  ]

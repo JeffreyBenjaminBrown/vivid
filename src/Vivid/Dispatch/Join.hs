@@ -16,7 +16,8 @@ module Vivid.Dispatch.Join (
   , merge  -- ^ forall a b c l m. (Show l, Show m)
            -- =>        (a ->         b ->              c)
            -- -> Museq l a -> Museq m b -> Museq String c
-  , merge0, merge1, mergea -- ^ forall l m. (Show l, Show m) =>
+  , merge0, merge1, merge0a, merge0f, merge0fa
+      -- ^ forall l m. (Show l, Show m) =>
       -- Museq l Msg -> Museq m Msg -> Museq String Msg
   , root -- ^ (Show l, Show m)
          -- => Museq l Float -> Museq m Msg -> Museq String Msg
@@ -163,17 +164,26 @@ instance Applicative (Museq String) where -- TODO ? generalize
 -- So named because in math, the additive identity is 0,
 -- the mutliplicative identity = 1, and "amp" starts with an "a".
 
-merge0, merge1, mergea
+merge0, merge1, merge0a, merge0f, merge0fa
   :: forall l m. (Show l, Show m) =>
   Museq l Msg -> Museq m Msg -> Museq String Msg
 merge0 m n =
   merge (M.unionWith (+))  (labelsToStrings m) (labelsToStrings n)
 merge1 m n =
   merge (M.unionWith (*))  (labelsToStrings m) (labelsToStrings n)
-mergea m n =
+merge0a m n =
   merge (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
-  where  f "amp" = (+) -- ^ add amplitudes, multiply others
-         f _     = (*)
+  where f "amp" = (+) -- ^ add amplitudes, multiply others
+        f _     = (*)
+merge0f m n =
+  merge (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
+  where f "freq" = (+) -- ^ add frequencies, multiply others
+        f _      = (*)
+merge0fa m n =
+  merge (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
+  where f "freq" = (+) -- ^ add frequencies
+        f "amp" = (+)  -- ^ add amplitudes
+        f _      = (*) -- ^ multiply others
 
 root :: (Show l, Show m)
      => Museq l Float -> Museq m Msg -> Museq String Msg
