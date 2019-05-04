@@ -4,7 +4,7 @@
 :set -XScopedTypeVariables
 :def! . readHsAsGhci
 
-import Control.Lens hiding (has)
+import Control.Lens hiding (has,set)
 import qualified Data.List as L
 import Control.Concurrent
 import Control.Concurrent.MVar

@@ -44,7 +44,24 @@
 *** modify Hode to let using code add to the UI
 ** how to cut through the boilerplate in Vivid.Hode?
  HExpr helped, but there ought to be a way to build all those functions from a single HExprF.
+* problems
+** can't adjust individual notes
+** can't understand why it souonds like it does
 * todo
+** easy shorthand
+*** functions to change parameters
+per parameter, a function to change it
+per parameter, a function to set it if absent
+  mmho does something like this for "on"
+per parameter, a function to change it or set it if absent
+*** noteToFreq = ops [("freq", (*) 300 . \p -> 2**(p/12))]
+*** mmho
+**** rewrite mmho so that duration is last\
+**** versions that don't expect a name
+**** a version that zips (map RTime [0..]) to a list of payloads
+and computes the duration automatically (as the length of the list)
+*** a chAll that adds names automatically
+** timbres
 ** drums
 *** for how to load a buffer into a synth.
 See Tom's first message here:
