@@ -90,19 +90,19 @@ mkMuseq d evs = sortMuseq $ Museq { _dur = d
                                   , _sup = d
                                   , _vec = V.fromList $ evs }
 
-mkMuseq_seqProc :: forall a l. Ord l
-  => ([(RDuration,a)] -> [((RDuration,RDuration),a)])
-  -> RDuration -> [(l,RDuration,a)] -> Museq l a
+mkMuseq_seqProc :: forall a b l. Ord l
+  => ([(RDuration,a)] -> [((RDuration,RDuration),b)])
+  -> RDuration -> [(l,RDuration,a)] -> Museq l b
 mkMuseq_seqProc seqProc d evs0 = let
   evs1 :: [(l,(RDuration,a))] =
     map (\(l,t,a) -> (l,(t,a))) evs0
   evs2 :: [(l,[(RDuration,a)])] =
     multiPartition evs1
-  evs3 :: [(l,[((RDuration,RDuration),a)])] =
+  evs3 :: [(l,[((RDuration,RDuration),b)])] =
     map (_2 %~ seqProc) evs2
-  evs4 :: [Ev l a] = concatMap f evs3 where
+  evs4 :: [Ev l b] = concatMap f evs3 where
     f (l,ttas) = map g ttas where
-      g :: ((RDuration,RDuration),a) -> Ev l a
+      g :: ((RDuration,RDuration),b) -> Ev l b
       g ((t,s),a) = Event { _evLabel = l
                           , _evArc = (t,s)
                           , _evData = a }
