@@ -47,19 +47,19 @@ act reg _ a@(New _ _)    = actNew  reg   a
 actNew :: SynthRegister -> Action -> IO (SynthRegister -> SynthRegister)
 actNew reg (New Boop name) = case M.lookup name $ _boops reg of
     Nothing -> do s <- synth boop ()
-                  return $ over boops $ M.insert name s
+                  return $ boops %~ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Boop named " ++ name
             return id
 
 actNew reg (New Vap name) = case M.lookup name $ _vaps reg of
     Nothing -> do s <- synth vap ()
-                  return $ over vaps $ M.insert name s
+                  return $ vaps %~ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Vap named " ++ name
             return id
 
 actNew reg (New Sqfm name) = case M.lookup name $ _sqfms reg of
     Nothing -> do s <- synth sqfm ()
-                  return $ over sqfms $ M.insert name s
+                  return $ sqfms %~ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Sqfm named " ++ name
             return id
 
@@ -75,7 +75,7 @@ actFree reg when (Free Boop name) = case M.lookup name $ _boops reg of
   Just s -> do
     doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
     doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
-    return $ over boops $ M.delete name
+    return $ boops %~ M.delete name
 
 actFree reg when (Free Vap name) = case M.lookup name $ _vaps reg of
   Nothing -> do
@@ -84,7 +84,7 @@ actFree reg when (Free Vap name) = case M.lookup name $ _vaps reg of
   Just s -> do
     doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
     doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
-    return $ over vaps $ M.delete name
+    return $ vaps %~ M.delete name
 
 actFree reg when (Free Sqfm name) = case M.lookup name $ _sqfms reg of
   Nothing -> do
@@ -93,7 +93,7 @@ actFree reg when (Free Sqfm name) = case M.lookup name $ _sqfms reg of
   Just s -> do
     doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
     doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
-    return $ over sqfms $ M.delete name
+    return $ sqfms %~ M.delete name
 
 actFree _ _ (Send _ _ _) = error "actFree received a Send."
 actFree _ _ (New _ _)    = error "actFree received a New."
@@ -155,8 +155,9 @@ replaceAll disp masNew = do
   now <- unTimestamp <$> getTime
 
   let masNew' = M.mapWithKey f masNew where
-        f :: MuseqName -> Museq String Note -> Museq String Note
-        f museqName m = over vec (V.map $ over evLabel (museqName ++)) m
+        f :: MuseqName -> Museq String Note
+                       -> Museq String Note
+        f name = vec %~ (V.map $ evLabel %~ (name ++))
           -- including the MuseqName guarantees different Museqs in the map
           -- will not conflict (and cannot cooperate in the same synth)
       when = nextPhase0 time0 frameDuration now + frameDuration
@@ -202,30 +203,34 @@ startDispatchLoop disp = do
   maybe (putMVar (mTempoPeriod disp) 1) (const $ return ()) mbTempo
 
   ((-) (0.8 * frameDuration)) . unTimestamp <$> getTime
-    -- subtract nearly an entire frameDuration so it starts soon
+  -- subtract nearly an entire frameDuration so it starts soon
     >>= putMVar (mTime0 disp)
   forkIO $ dispatchLoop disp
 
 dispatchLoop :: Dispatch -> IO ()
 dispatchLoop disp = do
-  time0  <-      takeMVar $ mTime0       disp
+  time0       <- takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
-  museqsMap <-   takeMVar $ mMuseqs      disp
-  reg <-         takeMVar $ mReg         disp
-  now <- unTimestamp <$> getTime
+  museqsMap   <- takeMVar $ mMuseqs      disp
+  reg         <- takeMVar $ mReg         disp
+  now         <- unTimestamp <$> getTime
 
   let
     startRender = nextPhase0 time0 frameDuration now
-    museqsMap' = M.map g museqsMap :: M.Map String(Museq String Action) where
-      g museq = over vec (V.map f) museq where
+    museqsMap' :: M.Map String(Museq String Action)
+      = M.map g museqsMap where
+      g :: Museq String Note -> Museq String Action
+        = vec %~ V.map f where
         f :: Ev String Note -> Ev String Action
-          -- todo ? awkward : The Ev label gets repeated within the Action. 
-        f ev = let note = ev ^. evData
-                   ac = Send (note^.noteSd) (ev^.evLabel) (note^.noteMsg)
-               in set evData ac ev
+        -- todo ? awkward : Ev label is repeated in Action.
+        f ev = evData .~ ac $ ev where
+          d = ev ^. evData
+          ac = Send (d^.noteSd) (ev^.evLabel) (d^.noteMsg)
 
-    evs0 = concatMap f $ M.elems museqsMap' :: [(Time, Action)] where
-      f :: Museq String Action -> [(Time, Action)] -- start times and actions
+    evs0 :: [(Time, Action)]
+      = concatMap f $ M.elems museqsMap' where
+      f :: Museq String Action
+        -> [(Time, Action)] -- start times and actions
       f m = map (\ev -> ((ev^.evStart), (ev^.evData))) evs
         where evs = arc time0 tempoPeriod startRender
                     (startRender + frameDuration) m
