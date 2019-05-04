@@ -8,15 +8,12 @@ module Vivid.Synths (
   module X
   , SynthDefEnum(..)
   , BoopParams
-  , BoopParam(..)
   , boop
   , boopSaw
   , boopPulse
   , SamplerParams
-  , SamplerParam(..)
   , sampler
   , SqfmParams
-  , SqfmParam(..)
   , sqfm
 ) where
 
@@ -39,7 +36,6 @@ data SynthDefEnum = -- PITFALL ! keep these alphabetically ordered
 -- | = Boop
 
 type BoopParams = '["freq",    "amp",    "on"]
-data BoopParam = BoopFreq | BoopAmp | BoopOn
 
 boop :: SynthDef BoopParams
 boop = sd ( 0    :: I "freq"
@@ -70,20 +66,20 @@ boopPulse = sd ( 0    :: I "freq"
 
 -- | = Sample
 
-type SamplerParams = '["buffer","speed","trigger"]
-data SamplerParam = Buffer | Speed | Trigger
+type SamplerParams = '["amp","buffer","speed","trigger"]
 
 sampler :: SynthDef SamplerParams
-sampler = sd ( 0 :: I "buffer"
+sampler = sd ( 0.01 :: I "amp"
+             , 0 :: I "buffer"
              , 1 :: I "speed"
              , 1 :: I "trigger" ) $ do
   let buffer = V::V "buffer"
-  s <- playBuf
-       ( trigger_ (V::V"trigger")
-       , buf_ buffer
-       , rate_ $ bufRateScale buffer ~* (V::V"speed")
-       , doneAction_ (0::Int) -- don't disappear when sample finishes
-       )
+  s <- (V::V "amp") ~*
+    playBuf ( trigger_ (V::V"trigger")
+            , buf_ buffer
+            , rate_ $ bufRateScale buffer ~* (V::V"speed")
+            , doneAction_ (0::Int) -- don't disappear when sample finishes
+            )
   out (0::Int) [s,s]
 
 
@@ -91,8 +87,6 @@ sampler = sd ( 0 :: I "buffer"
 
 type SqfmParams = '["freq","amp","width"
                    ,"width-vib-amp","width-vib-freq"]
-data SqfmParam = SqfmFreq | SqfmAmp | SqfmWidth
-               | SqfmWidthVibAmp | SqfmWidthVibFreq
 
 sqfm :: SynthDef SqfmParams
 sqfm = sd ( 0   :: I "freq"

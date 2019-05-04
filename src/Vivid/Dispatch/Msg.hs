@@ -46,8 +46,9 @@ boopOneMsg (param,val) = error $
   "boopOneMsg: unexpected message: " ++ show param ++ "=" ++ show val
 
 samplerOneMsg :: (ParamName, Float) -> Msg' SamplerParams
-samplerOneMsg ("speed",n)   = Msg' (toI n :: I "speed")
+samplerOneMsg ("amp",n)     = Msg' (toI n :: I "amp")
 samplerOneMsg ("buffer",n)  = Msg' (toI n :: I "buffer")
+samplerOneMsg ("speed",n)   = Msg' (toI n :: I "speed")
 samplerOneMsg ("trigger",n) = Msg' (toI n :: I "trigger")
 samplerOneMsg (param,val)   = error $
   "sqfmOneMsg: unexpected message: " ++ show param ++ "=" ++ show val

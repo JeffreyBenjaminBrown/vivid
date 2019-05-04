@@ -10,8 +10,8 @@
   -- `am-b` and `rm-b`, like `pulse`, add to the feedback input while
   -- subtracting from a competing one. `fm-b`, `pm-b`, `wm-b` do not.
 
-{-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
+{-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
 module Vivid.Synths.Zot where
 

@@ -55,6 +55,7 @@ library
     , Vivid.Random.Types.Other
     , Vivid.Scale
     , Vivid.Synths
+    , Vivid.Synths.Samples
     , Vivid.Synths.Vap
     , Vivid.Synths.Zot
   other-modules:

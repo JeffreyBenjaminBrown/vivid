@@ -10,6 +10,7 @@
 
 module Vivid.Dispatch.Types (
     SynthName, ParamName, MuseqName
+  , FileSubPath, Description, Nickname, Filename
   , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
   , NamedWith, mNamed, anon
@@ -20,7 +21,7 @@ module Vivid.Dispatch.Types (
   , Ev
   , Museq(..), dur, sup, vec
   , emptyMuseq
-  , SynthRegister(..), boops, samplers, sqfms, vaps
+  , SynthRegister(..), boops, samplers, samples, sqfms, vaps
   , emptySynthRegister
   , Note(..), noteSd, noteMsg
   , Dispatch(..), newDispatch
@@ -43,6 +44,11 @@ import Util
 type ParamName = String
 type SynthName = String
 type MuseqName = String
+
+type FileSubPath = String -- ^ `FilePath` is already defined in Base
+type Description = String
+type Nickname = String
+type Filename = String -- ^ without a path
 
 
 -- | = Time. Some durations are relative to something,
@@ -154,15 +160,18 @@ emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 -- | The global state
 
 data SynthRegister = -- per-synth boilerplate
-  SynthRegister { _boops    :: M.Map SynthName (Synth BoopParams)
-                , _vaps     :: M.Map SynthName (Synth VapParams)
-                , _samplers :: M.Map SynthName (Synth SamplerParams)
-                , _sqfms    :: M.Map SynthName (Synth SqfmParams)
-                } deriving (Show, Eq, Ord)
+  SynthRegister
+  { _boops    :: M.Map SynthName (Synth BoopParams)
+  , _vaps     :: M.Map SynthName (Synth VapParams)
+  , _samplers :: M.Map SynthName (Synth SamplerParams)
+  , _samples  :: M.Map String BufferId -- ^ the samplers will use these
+  , _sqfms    :: M.Map SynthName (Synth SqfmParams)
+  } deriving (Show, Eq, Ord)
 makeLenses ''SynthRegister
 
 emptySynthRegister :: SynthRegister
-emptySynthRegister = SynthRegister M.empty M.empty M.empty M.empty
+emptySynthRegister = SynthRegister
+  M.empty M.empty M.empty M.empty M.empty
 
 data Note = Note { _noteSd :: SynthDefEnum
                  , _noteMsg :: Msg } deriving (Show, Eq)

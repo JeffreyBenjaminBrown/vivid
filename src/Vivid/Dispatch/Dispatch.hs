@@ -31,6 +31,7 @@ import Vivid.Dispatch.Types
 import Vivid.Dispatch.Msg
 import Vivid.Dispatch.Museq
 import Vivid.Synths
+import Vivid.Synths.Samples
 import Util
 
 
@@ -45,29 +46,38 @@ act reg _ a@(New _ _)    = actNew  reg   a
 
 
 actNew :: SynthRegister -> Action -> IO (SynthRegister -> SynthRegister)
-actNew reg (New Boop name) = case M.lookup name $ _boops reg of
+actNew reg (New Boop name) =
+  case M.lookup name $ _boops reg of
     Nothing -> do s <- synth boop ()
                   return $ boops %~ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Boop named " ++ name
             return id
 
---actNew reg (New (Sampler b) name) =
---  case M.lookup name $ _samplers reg of
---    Nothing -> do s <- synth sampler (b2i b :: I "buffer")
---                  return $ samplers %~ M.insert name s
---    _ -> do writeTimeAndError $ "There is already a Sampler named " ++ name
---            return id
-
-actNew reg (New Vap name) = case M.lookup name $ _vaps reg of
-    Nothing -> do s <- synth vap ()
-                  return $ vaps %~ M.insert name s
-    _ -> do writeTimeAndError $ "There is already a Vap named " ++ name
+actNew reg (New (Sampler nickname) name) =
+  case M.lookup name $ _samplers reg of
+    Nothing -> do
+      case M.lookup nickname $ reg ^. samples of
+        Nothing -> do writeTimeAndError $
+                        "actNew: invalid sample nickname " ++ nickname
+                      return id
+        Just buf -> do
+          s <- synth sampler (b2i buf :: I "buffer")
+          return $ samplers %~ M.insert name s
+    _ -> do writeTimeAndError $ "There is already a Sampler named " ++ name
             return id
 
-actNew reg (New Sqfm name) = case M.lookup name $ _sqfms reg of
+actNew reg (New Sqfm name) =
+  case M.lookup name $ _sqfms reg of
     Nothing -> do s <- synth sqfm ()
                   return $ sqfms %~ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Sqfm named " ++ name
+            return id
+
+actNew reg (New Vap name) =
+  case M.lookup name $ _vaps reg of
+    Nothing -> do s <- synth vap ()
+                  return $ vaps %~ M.insert name s
+    _ -> do writeTimeAndError $ "There is already a Vap named " ++ name
             return id
 
 actNew _ (Send _ _ _) = error $ "actNew received a Send."
@@ -75,7 +85,8 @@ actNew _ (Free _ _)   = error $ "actNew received a Free."
 
 
 actFree :: SynthRegister -> Rational -> Action -> IO (SynthRegister -> SynthRegister)
-actFree reg when (Free Boop name) = case M.lookup name $ _boops reg of
+actFree reg when (Free Boop name) =
+  case M.lookup name $ _boops reg of
   Nothing -> do
     writeTimeAndError $ "There is no Boop named " ++ name ++ "to free."
     return id
@@ -84,16 +95,18 @@ actFree reg when (Free Boop name) = case M.lookup name $ _boops reg of
     doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
     return $ boops %~ M.delete name
 
-actFree reg when (Free Vap name) = case M.lookup name $ _vaps reg of
+actFree reg when (Free (Sampler _) name) =
+  case M.lookup name $ _samplers reg of
   Nothing -> do
-    writeTimeAndError $ "There is no Vap named " ++ name ++ "to free."
+    writeTimeAndError $ "There is no Sampler named " ++ name ++ "to free."
     return id
   Just s -> do
     doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
     doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
-    return $ vaps %~ M.delete name
+    return $ samplers %~ M.delete name
 
-actFree reg when (Free Sqfm name) = case M.lookup name $ _sqfms reg of
+actFree reg when (Free Sqfm name) =
+  case M.lookup name $ _sqfms reg of
   Nothing -> do
     writeTimeAndError $ "There is no Sqfm named " ++ name ++ "to free."
     return id
@@ -101,6 +114,16 @@ actFree reg when (Free Sqfm name) = case M.lookup name $ _sqfms reg of
     doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
     doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
     return $ sqfms %~ M.delete name
+
+actFree reg when (Free Vap name) =
+  case M.lookup name $ _vaps reg of
+  Nothing -> do
+    writeTimeAndError $ "There is no Vap named " ++ name ++ "to free."
+    return id
+  Just s -> do
+    doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
+    doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
+    return $ vaps %~ M.delete name
 
 actFree _ _ (Send _ _ _) = error "actFree received a Send."
 actFree _ _ (New _ _)    = error "actFree received a New."
@@ -114,6 +137,13 @@ actSend reg when (Send Boop name msg) =
     Just (s :: Synth BoopParams) ->
       doScheduledAt (Timestamp $ fromRational when)
       $ mapM_ (set' s) $ boopMsg msg
+
+actSend reg when (Send (Sampler _) name msg) =
+  case M.lookup name $ _samplers reg of
+    Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
+    Just (s :: Synth SamplerParams) ->
+      doScheduledAt (Timestamp $ fromRational when)
+      $ mapM_ (set' s) $ samplerMsg msg
 
 actSend reg when (Send Sqfm name msg) =
   case M.lookup name $ _sqfms reg of
@@ -205,9 +235,16 @@ chTempoPeriod disp newTempoPeriod = do
 -- | = The Dispatch loop
 startDispatchLoop :: Dispatch -> IO ThreadId
 startDispatchLoop disp = do
-  _ <- tryTakeMVar $ mTime0 disp -- empty it, just in case
+  _       <- tryTakeMVar $ mTime0       disp -- empty it, just in case
+
   mbTempo <- tryReadMVar $ mTempoPeriod disp
-  maybe (putMVar (mTempoPeriod disp) 1) (const $ return ()) mbTempo
+  case mbTempo of Nothing -> putMVar (mTempoPeriod disp) 1
+                  Just _ -> return ()
+
+  _       <- tryTakeMVar $ mReg         disp -- empty it, just in case
+  buffs :: M.Map Nickname BufferId <-
+    mapM newBufferFromFile $ samplePaths
+  putMVar (mReg disp) $ SynthRegister mempty mempty mempty buffs mempty
 
   ((-) (0.8 * frameDuration)) . unTimestamp <$> getTime
   -- subtract nearly an entire frameDuration so it starts soon
