@@ -15,9 +15,8 @@ beep = sd ( 0 :: I "buf"
      ( trigger_ (V::V"trigger")
      , buf_ buf
      , rate_ $ bufRateScale buf ~* (1::Float)
-     , doneAction_ (0::Int) -- with this, `s` persists
-       -- after it finishes playing. (With 2 instead of 0,
-       -- it would disappear.)
+     , doneAction_ (0::Int) -- with this, `s` persists after it
+       -- finishes playing. (With 2 instead of 0, it would disappear.)
      )
    out (0::Int) [s,s]
 

@@ -72,10 +72,7 @@ https://we.lurk.org/hyperkitty/list/livecode@we.lurk.org/thread/6JD5SHXPQQ25VZH4
 which will have to then use those sample buffers to create the new Synths.
 **** There will be one synth (type) for each sample -- kick, snare, hat ...
 **** A single `Museq Note` can send to synths of multiple types.
-*** important drums
-kick
-snare -- sharp, mellow
-hat -- closed, half, open
+*** important ? missing drums
 tom -- low, high
 cymbal -- ride, crash, cowbell
 woodblock
