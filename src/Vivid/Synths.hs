@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE DataKinds
            , ExtendedDefaultRules
            , ScopedTypeVariables
@@ -11,6 +12,9 @@ module Vivid.Synths (
   , boop
   , boopSaw
   , boopPulse
+  , SamplerParams
+  , SamplerParam(..)
+  , sampler
   , SqfmParams
   , SqfmParam(..)
   , sqfm
@@ -23,11 +27,12 @@ import Vivid.Synths.Zot as X
 
 -- | == Synths
 
-data SynthDefEnum = Boop -- PITFALL ! keep alphabetically ordered
-                    -- so that the derived Ord instance is predictable
-                  | Sqfm
-                  | Vap
-                  | Zot
+data SynthDefEnum = -- PITFALL ! keep these alphabetically ordered
+    Boop            -- so that the derived Ord instance is predictable
+  | Sampler String -- ^ String = what sample it's playing
+  | Sqfm
+  | Vap
+  | Zot
   deriving (Show,Eq,Ord)
 
 
@@ -61,6 +66,25 @@ boopPulse = sd ( 0    :: I "freq"
                ) $ do
    s1 <- (V::V "amp") ~* pulse (freq_ (V::V "freq"))
    out 0 [s1, s1]
+
+
+-- | = Sample
+
+type SamplerParams = '["buffer","speed","trigger"]
+data SamplerParam = Buffer | Speed | Trigger
+
+sampler :: SynthDef SamplerParams
+sampler = sd ( 0 :: I "buffer"
+             , 1 :: I "speed"
+             , 1 :: I "trigger" ) $ do
+  let buffer = V::V "buffer"
+  s <- playBuf
+       ( trigger_ (V::V"trigger")
+       , buf_ buffer
+       , rate_ $ bufRateScale buffer ~* (V::V"speed")
+       , doneAction_ (0::Int) -- don't disappear when sample finishes
+       )
+  out (0::Int) [s,s]
 
 
 -- | = Sqfm

@@ -20,7 +20,7 @@ module Vivid.Dispatch.Types (
   , Ev
   , Museq(..), dur, sup, vec
   , emptyMuseq
-  , SynthRegister(..), boops, vaps, sqfms
+  , SynthRegister(..), boops, samplers, sqfms, vaps
   , emptySynthRegister
   , Note(..), noteSd, noteMsg
   , Dispatch(..), newDispatch
@@ -154,14 +154,15 @@ emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 -- | The global state
 
 data SynthRegister = -- per-synth boilerplate
-  SynthRegister { _boops :: M.Map SynthName (Synth BoopParams)
-                , _vaps  :: M.Map SynthName (Synth VapParams)
-                , _sqfms :: M.Map SynthName (Synth SqfmParams)
+  SynthRegister { _boops    :: M.Map SynthName (Synth BoopParams)
+                , _vaps     :: M.Map SynthName (Synth VapParams)
+                , _samplers :: M.Map SynthName (Synth SamplerParams)
+                , _sqfms    :: M.Map SynthName (Synth SqfmParams)
                 } deriving (Show, Eq, Ord)
 makeLenses ''SynthRegister
 
 emptySynthRegister :: SynthRegister
-emptySynthRegister = SynthRegister M.empty M.empty M.empty
+emptySynthRegister = SynthRegister M.empty M.empty M.empty M.empty
 
 data Note = Note { _noteSd :: SynthDefEnum
                  , _noteMsg :: Msg } deriving (Show, Eq)

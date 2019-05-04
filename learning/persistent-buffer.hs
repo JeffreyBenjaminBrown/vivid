@@ -7,9 +7,9 @@
 import Vivid
 
 
-beep :: SynthDef '["buf", "trigger"]
-beep = sd ( 0 :: I "buf"
-          , 1 :: I "trigger") $ do
+bufferPlayer :: SynthDef '["buf", "trigger"]
+bufferPlayer = sd ( 0 :: I "buf"
+                  , 1 :: I "trigger") $ do
    let buf = V::V "buf"
    s <- playBuf
      ( trigger_ (V::V"trigger")
@@ -23,13 +23,13 @@ beep = sd ( 0 :: I "buf"
 main :: IO ()
 main = do
   buf <- newBufferFromFile $ "/home/jeff/code/Tidal/Dirt-Samples/latibro/000_Sound2.wav"
-  s <- synth beep ( b2i buf :: I "buf")
+  s <- synth bufferPlayer ( b2i buf :: I "buf")
   set s (0 :: I "trigger") -- get ready to be retriggered.
-  wait (1/2::Float) -- without this wait, the first beep
+  wait (1/2::Float) -- without this wait, the first bufferPlayer
     -- will be interrupted by the second before there's time to hear it.
   set s (1 :: I "trigger") -- whenever "trigger" goes from 0 to greater
     -- than 0, the buffer is replayed. (But some amount of time must
     -- be allowed to elapse between them.)
   wait (1/2::Float) -- without this wait, the synth would disappear
-    -- before the second beep was heard.
+    -- before the second bufferPlayer was heard.
   free s

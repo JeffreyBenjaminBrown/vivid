@@ -51,6 +51,13 @@ actNew reg (New Boop name) = case M.lookup name $ _boops reg of
     _ -> do writeTimeAndError $ "There is already a Boop named " ++ name
             return id
 
+--actNew reg (New (Sampler b) name) =
+--  case M.lookup name $ _samplers reg of
+--    Nothing -> do s <- synth sampler (b2i b :: I "buffer")
+--                  return $ samplers %~ M.insert name s
+--    _ -> do writeTimeAndError $ "There is already a Sampler named " ++ name
+--            return id
+
 actNew reg (New Vap name) = case M.lookup name $ _vaps reg of
     Nothing -> do s <- synth vap ()
                   return $ vaps %~ M.insert name s
