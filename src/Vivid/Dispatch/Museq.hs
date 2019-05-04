@@ -87,20 +87,19 @@ import Vivid.Synths (SynthDefEnum)
 -- | Make a Museq, specifying start and end times
 mkMuseq :: RDuration -> [Ev l a] -> Museq l a
 mkMuseq d evs = sortMuseq $ Museq { _dur = d
-                                     , _sup = d
-                                     , _vec = V.fromList $ evs }
+                                  , _sup = d
+                                  , _vec = V.fromList $ evs }
 
--- | Make a `Museq` from a list of `(label, start, value)` tuples,
--- using `hold` to sustain each event until the next.
-mkMuseqH :: forall a l. Ord l
-          => RDuration -> [(l,RDuration,a)] -> Museq l a
-mkMuseqH d evs0 = let
+mkMuseq_seqProc :: forall a l. Ord l
+  => ([(RDuration,a)] -> [((RDuration,RDuration),a)])
+  -> RDuration -> [(l,RDuration,a)] -> Museq l a
+mkMuseq_seqProc seqProc d evs0 = let
   evs1 :: [(l,(RDuration,a))] =
     map (\(l,t,a) -> (l,(t,a))) evs0
   evs2 :: [(l,[(RDuration,a)])] =
     multiPartition evs1
   evs3 :: [(l,[((RDuration,RDuration),a)])] =
-    map (_2 %~ hold d) evs2
+    map (_2 %~ seqProc) evs2
   evs4 :: [Ev l a] = concatMap f evs3 where
     f (l,ttas) = map g ttas where
       g :: ((RDuration,RDuration),a) -> Ev l a
@@ -109,11 +108,39 @@ mkMuseqH d evs0 = let
                           , _evData = a }
   in mkMuseq d evs4
 
+mkMuseqH :: forall a l. Ord l
+          => RDuration -> [(l,RDuration,a)] -> Museq l a
+mkMuseqH d = mkMuseq_seqProc (hold d) d
+
 -- | Like `mkMuseqH`, but inserts `on = 1` in `Event`s that do not
 -- mention the `on` parameter. Specialized to `Msg` payloads.
 mkMuseqHo :: forall l. Ord l
           => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
 mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
+
+prepareToRetrigger ::
+  RDuration -> [ (RDuration,             Msg)]
+            -> [((RDuration, RDuration), Msg)]
+prepareToRetrigger sup0 dms = f dms where
+  endTime = fst (head dms) + sup0
+
+  -- Given an event `(t,m)` and the time `next` of the event one,
+  -- create two messages. One sends `m + (trigger=1)` at time `t`,
+  -- and the other sends `m + (trigger=(-1))` halfway from `t` to `next`.
+  triggerPair :: RTime ->      (RDuration, Msg)
+              -> ( ( (RDuration,RDuration), Msg)
+                 , ( (RDuration,RDuration), Msg) )
+  triggerPair next (t,m) =
+    let halfway = (t+next) / 2
+    in ( ( (t      , halfway ), M.insert "trigger" 1 m)
+       , ( (halfway, next    ), M.insert "trigger" 0 m) )
+
+  f :: [(RDuration, Msg)] -> [((RDuration,RDuration),Msg)]
+  f []                      = []
+  f [(t,m)]                 = let (a,b) = triggerPair endTime (t,m)
+                              in [a,b]
+  f ((t0,a0):e@(t1,_):rest) = let (a,b) = triggerPair t1 (t0,a0)
+                              in [a,b] ++ f (e:rest)
 
 -- | `hold sup0 tas` sustains each event in `tas` until the next one starts.
 -- The `sup0` parameter indicates the total duration of the pattern,

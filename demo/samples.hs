@@ -1,7 +1,5 @@
-pd = mmh 1 $ pre2 "a"
-  [ (0,   Note (Sampler "kt") $ mfl [ ("trigger", 1)
-                                    , ("amp",0.3) ] )
-  , (1/2, Note (Sampler "kt") $ m1 "trigger" 0)
+pd = mmrt 1 $ pre2 "a"
+  [ (0, Note (Sampler "kd") $ mempty )
   ]
 
 pb = (<$>) (Note Boop) $ mmho 4 $ pre2 "a"
