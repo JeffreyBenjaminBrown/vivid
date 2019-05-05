@@ -31,35 +31,35 @@ library
     , FilepathSynonyms
     , ReadHsAsGhci
     , Util
-    , Vivid.Hode
+    , Hode
 
-    , Vivid.Test.TDispatch
-    , Vivid.Test.THode
-    , Vivid.Test.TMain
+    , Test.TDispatch
+    , Test.THode
+    , Test.TMain
 
-    , Vivid.Dispatch.Abbrevs
-    , Vivid.Dispatch.Config
-    , Vivid.Dispatch.Dispatch
-    , Vivid.Dispatch.Join
-    , Vivid.Dispatch.Internal.Join
-    , Vivid.Dispatch.Msg
-    , Vivid.Dispatch.Museq
-    , Vivid.Dispatch.Transform
-    , Vivid.Dispatch.Types
-    , Vivid.EarTrain
-    , Vivid.Hode
-    , Vivid.Random.MentionsSig
-    , Vivid.Random.RandomSignal
-    , Vivid.Random.RandomSynth
-    , Vivid.Random.Render
-    , Vivid.Random.Types
-    , Vivid.Random.Types.AbstractSignal
-    , Vivid.Random.Types.Other
-    , Vivid.Scale
-    , Vivid.Synths
-    , Vivid.Synths.Samples
-    , Vivid.Synths.Vap
-    , Vivid.Synths.Zot
+    , Dispatch.Abbrevs
+    , Dispatch.Config
+    , Dispatch.Dispatch
+    , Dispatch.Join
+    , Dispatch.Internal.Join
+    , Dispatch.Msg
+    , Dispatch.Museq
+    , Dispatch.Transform
+    , Dispatch.Types
+    , EarTrain
+    , Hode
+    , Random.MentionsSig
+    , Random.RandomSignal
+    , Random.RandomSynth
+    , Random.Render
+    , Random.Types
+    , Random.Types.AbstractSignal
+    , Random.Types.Other
+    , Scale
+    , Synths
+    , Synths.Samples
+    , Synths.Vap
+    , Synths.Zot
   other-modules:
       Paths_vivid_dispatch
   hs-source-dirs:

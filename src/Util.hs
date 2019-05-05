@@ -40,6 +40,7 @@ module Util (
   , lastIndexLTE
   ) where
 
+import Prelude hiding (abs)
 import Control.Monad.ST
 import Data.Ratio
 import qualified Data.List as L
