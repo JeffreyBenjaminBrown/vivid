@@ -58,7 +58,8 @@ writeTimeAndError msg = do now <- getTime
                            appendFile "errors.txt"
                              $ show now ++ ": " ++ msg
 
--- | abbreviations
+
+-- | = abbreviations
 
 fr :: Fractional a => Rational -> a
 fr = fromRational
@@ -73,7 +74,7 @@ mfl :: Ord k => [(k, a)] -> M.Map k a
 mfl = M.fromList
 
 
--- | Randomness
+-- | = Randomness
 
 pickSome :: forall a m. (Eq a, MonadRandom m)
          => Int -> [a] -> m [a]
@@ -104,6 +105,7 @@ no3Clusters chosen0 remaining0 =
 
 
 -- | = Strings
+
 unusedName :: [String] -> String
 unusedName names = head $ (L.\\) allStrings names where
   allStrings = [ c : s | s <- "" : allStrings

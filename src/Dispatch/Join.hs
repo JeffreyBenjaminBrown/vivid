@@ -16,9 +16,15 @@ module Dispatch.Join (
   , merge  -- ^ forall a b c l m. (Show l, Show m)
            -- =>        (a ->         b ->              c)
            -- -> Museq l a -> Museq m b -> Museq String c
+  , nMerge -- ^ forall l m. (Show l, Show m)
+           -- =>        (Msg ->         Msg ->               Msg)
+           -- -> Museq l Msg -> Museq m Note -> Museq String Note
   , merge0, merge1, merge0a, merge0f, merge0fa
       -- ^ forall l m. (Show l, Show m) =>
       -- Museq l Msg -> Museq m Msg -> Museq String Msg
+  , nMerge0, nMerge1, nMerge0a, nMerge0f, nMerge0fa
+      -- ^ forall l m. (Show l, Show m) =>
+      -- Museq l Msg -> Museq m Note -> Museq String Note
   , root -- ^ (Show l, Show m)
          -- => Museq l Float -> Museq m Msg -> Museq String Msg
   , scale -- ^ forall l m. (Show l, Show m)
@@ -36,7 +42,7 @@ import Data.Fixed (mod')
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
-import Util
+import Util hiding (m1)
 import Dispatch.Museq
 import Dispatch.Types
 import Dispatch.Internal.Join
@@ -164,26 +170,59 @@ instance Applicative (Museq String) where -- TODO ? generalize
 -- So named because in math, the additive identity is 0,
 -- the mutliplicative identity = 1, and "amp" starts with an "a".
 
+nMerge  :: forall l m. (Show l, Show m)
+  => (Msg -> Msg -> Msg)
+  -> Museq l Msg -> Museq m Note -> Museq String Note
+nMerge op m n = merge f (labelsToStrings m) (labelsToStrings n)
+  where f :: Msg -> Note -> Note
+        f m1 (Note synth m1') = Note synth $ op m1 m1'
+
 merge0, merge1, merge0a, merge0f, merge0fa
   :: forall l m. (Show l, Show m) =>
   Museq l Msg -> Museq m Msg -> Museq String Msg
+nMerge0, nMerge1, nMerge0a, nMerge0f, nMerge0fa
+  :: forall l m. (Show l, Show m) =>
+  Museq l Msg -> Museq m Note -> Museq String Note
+
 merge0 m n =
   merge (M.unionWith (+))  (labelsToStrings m) (labelsToStrings n)
+nMerge0 m n =
+  nMerge (M.unionWith (+))  (labelsToStrings m) (labelsToStrings n)
+
+nMerge1 m n =
+  nMerge (M.unionWith (*))  (labelsToStrings m) (labelsToStrings n)
 merge1 m n =
   merge (M.unionWith (*))  (labelsToStrings m) (labelsToStrings n)
+
+nMerge0a m n =
+  nMerge (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
+  where f "amp" = (+) -- ^ add amplitudes, multiply others
+        f _     = (*)
 merge0a m n =
   merge (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
   where f "amp" = (+) -- ^ add amplitudes, multiply others
         f _     = (*)
+
 merge0f m n =
   merge (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
   where f "freq" = (+) -- ^ add frequencies, multiply others
         f _      = (*)
+nMerge0f m n =
+  nMerge (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
+  where f "freq" = (+) -- ^ add frequencies, multiply others
+        f _      = (*)
+
 merge0fa m n =
   merge (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
   where f "freq" = (+) -- ^ add frequencies
         f "amp" = (+)  -- ^ add amplitudes
         f _      = (*) -- ^ multiply others
+nMerge0fa m n =
+  nMerge (M.unionWithKey f) (labelsToStrings m) $ labelsToStrings n
+  where f "freq" = (+) -- ^ add frequencies
+        f "amp" = (+)  -- ^ add amplitudes
+        f _      = (*) -- ^ multiply others
+
 
 root :: (Show l, Show m)
      => Museq l Float -> Museq m Msg -> Museq String Msg
