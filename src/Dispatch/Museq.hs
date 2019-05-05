@@ -4,17 +4,18 @@
 
 module Dispatch.Museq (
   -- | = Make a Museq
-    mkMuseq   -- ^ RDuration -> [Ev l a]            -> Museq l a
+    mkMuseq   -- ^ RDuration -> [Ev l a]              -> Museq l a
+  , mkMuseqOneMsg -- ^          Msg                   -> Museq String Msg
   , mkMuseqH  -- ^ forall a l. Ord l
-               -- => RDuration -> [(l,RDuration,a)]   -> Museq l a
+              -- => RDuration -> [(l,RDuration,a)]    -> Museq l a
   , mkMuseqHo -- ^ forall a l. Ord l
-               -- => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
+              -- => RDuration -> [(l,RDuration,Msg)]  -> Museq l Msg
   , mkMuseqRt -- ^ forall l. (Ord l, Show l)
-    -- => RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
-  , mkMuseqRt1 -- ^ RDuration -> [(RTime,Sample)] -> Museq String Note
+    -- => RDuration -> [(l,RTime,Sample,Msg)]         -> Museq String Note
+  , mkMuseqRt1 -- ^ RDuration -> [(RTime,Sample)]     -> Museq String Note
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
-  , insertOffs -- ^ Museq l Msg -> Museq l Msg
-  , insertOns  -- ^ Museq l Msg -> Museq l Msg
+  , insertOffs -- ^ Museq l Msg                       -> Museq l Msg
+  , insertOns  -- ^ Museq l Msg                       -> Museq l Msg
 
   -- | = Timing
   , timeToPlayThrough -- ^ Museq l a -> RTime
@@ -94,6 +95,9 @@ mkMuseq :: RDuration -> [Ev l a] -> Museq l a
 mkMuseq d evs = sortMuseq $ Museq { _dur = d
                                   , _sup = d
                                   , _vec = V.fromList $ evs }
+
+mkMuseqOneMsg :: Msg -> Museq String Msg
+mkMuseqOneMsg m = mkMuseq 1 [Event "a" (RTime 0, RTime 0) m]
 
 mkMuseq_seqProc :: forall a b l. Ord l
   => ([(RDuration,a)] -> [((RDuration,RDuration),b)])

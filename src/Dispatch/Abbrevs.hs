@@ -14,6 +14,9 @@ import Synths.Samples
 mmh :: forall a l. Ord l => RDuration -> [(l,RDuration,a)] -> Museq l a
 mmh = mkMuseqH
 
+mm1 :: Msg -> Museq String Msg
+mm1 = mkMuseqOneMsg
+
 mmho :: forall l. Ord l => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
 mmho = mkMuseqHo
 
