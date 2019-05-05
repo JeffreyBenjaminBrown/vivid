@@ -6,6 +6,7 @@ import Vivid.Dispatch.Museq
 import Vivid.Dispatch.Transform
 import Vivid.Dispatch.Types
 import Vivid.Synths
+import Vivid.Synths.Samples
 
 
 -- | = Abbreviations
@@ -15,6 +16,10 @@ mmh = mkMuseqH
 
 mmho :: forall l. Ord l => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
 mmho = mkMuseqHo
+
+mmrt :: forall l. (Ord l, Show l) =>
+  RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
+mmrt = mkMuseqRt
 
 offs :: Museq l Msg -> Museq l Msg
 offs = insertOffs

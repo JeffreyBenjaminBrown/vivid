@@ -9,6 +9,8 @@ module Vivid.Dispatch.Museq (
                -- => RDuration -> [(l,RDuration,a)]   -> Museq l a
   , mkMuseqHo -- ^ forall a l. Ord l
                -- => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
+  , mkMuseqRt -- ^ forall l. (Ord l, Show l)
+    -- => RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
   , insertOffs -- ^ Museq l Msg -> Museq l Msg
   , insertOns  -- ^ Museq l Msg -> Museq l Msg
@@ -59,6 +61,8 @@ import Data.Vector.Algorithms.Intro (sortBy)
 
 import Vivid.Dispatch.Types
 import Util
+import Vivid.Synths
+import Vivid.Synths.Samples
 import Vivid.Synths (SynthDefEnum)
 
 
@@ -117,6 +121,36 @@ mkMuseqH d = mkMuseq_seqProc (hold d) d
 mkMuseqHo :: forall l. Ord l
           => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
 mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
+
+-- | Any two `Msg` values should go to different synths unless
+-- they share the same label *and* the same `Sample`.
+-- This is guaranteed by computing new labels `show l ++ show Sample`.
+--
+-- Each (time,Msg) pair must become a pair of Msgs,
+-- in order for retriggering to work.
+-- `prepareToRetrigger` does that.
+mkMuseqRt :: forall l. (Ord l, Show l) =>
+  RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
+mkMuseqRt sup0 evs0 = let
+  -- rather than group by l and then Sample,
+  -- maybe group by l' = show l ++ show Sample?
+  evs1 :: [((l, Sample), (RTime,Msg)) ] =
+    map (\(l,t,n,m) -> ((l,n),(t,m))) evs0
+  evs2 :: [( (l, Sample), [(RTime,Msg)] )] =
+    multiPartition evs1
+  evs3 :: [( (l,Sample), [((RTime,RTime), Msg )] )] =
+    map (_2 %~ prepareToRetrigger sup0) evs2
+  evs4 :: [( (l,Sample), [((RTime,RTime), Note)] )] =
+    map f evs3
+    where f :: ( (l,Sample), [((RTime,RTime), Msg )] )
+            -> ( (l,Sample), [((RTime,RTime), Note)] )
+          f ((l,s),pairs) =
+            ((l,s), map (_2 %~ Note (Sampler s)) pairs)
+  evs5 :: [( String, [((RTime,RTime), Note)] )] =
+    map (_1 %~ \(l,s) -> show l ++ show s) evs4
+  evs6 :: [Event RTime String Note] =
+    concatMap (\(s,ps) -> map (\(ts,n) -> Event s ts n) ps) evs5
+  in mkMuseq sup0 evs6
 
 prepareToRetrigger ::
   RDuration -> [ (RDuration,             Msg)]

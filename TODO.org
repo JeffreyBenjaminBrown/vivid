@@ -1,15 +1,3 @@
-* drums
-** to Museq.hs
-mkMuseqRt :: forall l. Ord l =>
-  RDuration -> [(l,RTime,Nickname,Msg)] -> Museq l Note
-mkMuseqRt d evs0 = let
-  evs1 :: [(l,(Nickname,(RTime,Msg)))] =
-    map (\(l,t,n,m) -> (l,(n,(t,m)))) evs0
-  evs2 :: [(l,[(Nickname,(RTime,Msg))])] =
-    multiPartition evs1
-  evs3 :: [(l, [(Nickname, [(RDuration,Msg)] )] )] =
-    map (_2 %~ multiPartition) evs2
-  in error "tbc"
 * graph
 ** split rels v. reify
 *** TODO how
