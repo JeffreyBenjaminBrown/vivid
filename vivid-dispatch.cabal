@@ -27,8 +27,7 @@ source-repository head
 
 library
   exposed-modules:
-      Config
-    , FilepathSynonyms
+      FilepathSynonyms
     , ReadHsAsGhci
     , Util
     , Hode
@@ -57,6 +56,7 @@ library
     , Random.Types.Other
     , Scale
     , Synths
+      Synths.Config
     , Synths.Samples
     , Synths.Vap
     , Synths.Zot
