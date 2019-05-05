@@ -1,6 +1,6 @@
-pd = mmrt 2 [ ("a", 0, SampleKd, mempty)
-            , ("a", 1, SampleSm_m, mempty)
-            ]
+pd = mmrt1 2 [ (0, SampleKd)
+             , (1, SampleSm_m)
+             ]
 
 pb = (<$>) (Note Boop) $ mmho 4 $ pre2 "a"
   [ (0, m1 "freq" 220)

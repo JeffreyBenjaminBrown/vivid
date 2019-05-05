@@ -21,6 +21,9 @@ mmrt :: forall l. (Ord l, Show l) =>
   RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
 mmrt = mkMuseqRt
 
+mmrt1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
+mmrt1 = mkMuseqRt1
+
 offs :: Museq l Msg -> Museq l Msg
 offs = insertOffs
 

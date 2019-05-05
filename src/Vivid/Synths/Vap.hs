@@ -8,6 +8,8 @@ module Vivid.Synths.Vap where
 
 import Vivid
 
+import Config
+
 
 type VapParams = '[ "freq",      "amp"
                   , "saw"     -- between 0 and 1, else gets loud fast
@@ -18,7 +20,7 @@ type VapParams = '[ "freq",      "amp"
 
 vap :: SynthDef VapParams
 vap = sd ( 0   :: I "freq"
-         , 0.1 :: I "amp"
+         , defaultAmp :: I "amp"
          , 0   :: I "saw"
          , 0   :: I "delay-freq"
          , 0   :: I "delay-amp"

@@ -18,6 +18,8 @@ module Vivid.Synths.Zot where
 import Vivid
 import Vivid.LongVarLists()
 
+import Config
+
 
 type ZotParams = '["amp"
   ,"pulse"                    -- pulse + sin = 1
@@ -35,7 +37,7 @@ type ZotParams = '["amp"
   ,"del"]
 
 zot :: SynthDef ZotParams
-zot = sd ( 0 :: I "amp"
+zot = sd ( defaultAmp :: I "amp"
          , 0.5 :: I "pulse"
          , 0 :: I "f"
          , 0 :: I "fm-b"

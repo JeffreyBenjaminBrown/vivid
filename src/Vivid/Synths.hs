@@ -22,6 +22,8 @@ import Vivid.Synths.Samples
 import Vivid.Synths.Vap as X
 import Vivid.Synths.Zot as X
 
+import Config
+
 
 -- | == Synths
 
@@ -39,9 +41,9 @@ data SynthDefEnum = -- PITFALL ! keep these alphabetically ordered
 type BoopParams = '["freq",    "amp",    "on"]
 
 boop :: SynthDef BoopParams
-boop = sd ( 0    :: I "freq"
-          , 0.01 :: I "amp"
-          , 0    :: I "on"
+boop = sd ( 0          :: I "freq"
+          , defaultAmp :: I "amp"
+          , 0          :: I "on"
           ) $ do
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "freq"))
    s2 <- s1 ~* lag ( in_ (V::V "on")
@@ -49,17 +51,17 @@ boop = sd ( 0    :: I "freq"
    out 0 [s2, s2]
 
 boopSaw :: SynthDef BoopParams
-boopSaw = sd ( 0    :: I "freq"
-             , 0.01 :: I "amp"
-             , 1 :: I "on" -- TODO : use
+boopSaw = sd ( 0          :: I "freq"
+             , defaultAmp :: I "amp"
+             , 1          :: I "on" -- TODO : use
              ) $ do
    s1 <- (V::V "amp") ~* saw (freq_ (V::V "freq"))
    out 0 [s1, s1]
 
 boopPulse :: SynthDef BoopParams
-boopPulse = sd ( 0    :: I "freq"
-               , 0.01 :: I "amp"
-               , 1 :: I "on" -- TODO : use
+boopPulse = sd ( 0          :: I "freq"
+               , defaultAmp :: I "amp"
+               , 1          :: I "on" -- TODO : use
                ) $ do
    s1 <- (V::V "amp") ~* pulse (freq_ (V::V "freq"))
    out 0 [s1, s1]
@@ -70,10 +72,10 @@ boopPulse = sd ( 0    :: I "freq"
 type SamplerParams = '["amp","buffer","speed","trigger"]
 
 sampler :: SynthDef SamplerParams
-sampler = sd ( 0.01 :: I "amp"
-             , 0 :: I "buffer"
-             , 1 :: I "speed"
-             , 1 :: I "trigger" ) $ do
+sampler = sd ( defaultAmp :: I "amp"
+             , 0          :: I "buffer"
+             , 1          :: I "speed"
+             , 1          :: I "trigger" ) $ do
   let buffer = V::V "buffer"
   s <- (V::V "amp") ~*
     playBuf ( trigger_ (V::V"trigger")
@@ -90,11 +92,11 @@ type SqfmParams = '["freq","amp","width"
                    ,"width-vib-amp","width-vib-freq"]
 
 sqfm :: SynthDef SqfmParams
-sqfm = sd ( 0   :: I "freq"
-          , 0.1 :: I "amp"
-          , 50  :: I "width"
-          , 51  :: I "width-vib-amp"
-          , 51  :: I "width-vib-freq"
+sqfm = sd ( 0          :: I "freq"
+          , defaultAmp :: I "amp"
+          , 50         :: I "width"
+          , 51         :: I "width-vib-amp"
+          , 51         :: I "width-vib-freq"
           ) $ do
   s0 <- (V::V "width-vib-amp") ~* sinOsc (freq_ (V::V "width-vib-freq"))
   s1 <- (V::V "width") ~+ s0

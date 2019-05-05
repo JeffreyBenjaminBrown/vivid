@@ -1,6 +1,5 @@
 module Vivid.Synths.Samples (
-    FileSubPath, Description, Filename
-  , Sample(..)
+    Sample(..)
   , samplePaths        -- ^ M.Map Nickname FilePath
   , sampleDescriptions -- ^ M.Map Nickname Description
   ) where
@@ -9,10 +8,11 @@ import Control.Lens
 import Data.Tuple (swap)
 import qualified Data.Map as M
 
+import Config
+import FilepathSynonyms
 
-type FileSubPath = String -- ^ `FilePath` is already defined in Base
+
 type Description = String
-type Filename = String -- ^ without a path
 
 data Sample = SampleKd
             | SampleKm
@@ -53,9 +53,6 @@ data Sample = SampleKd
             | SampleHs_et
   deriving (Eq, Ord, Show)
 
-rootFolder :: FilePath
-rootFolder = "/home/jeff/code/Tidal/Dirt-Samples"
-
 samplePaths :: M.Map Sample FilePath
 samplePaths = M.fromList $ map f samples' where
   f ((_,nick),path) = (nick,path)
@@ -66,7 +63,7 @@ sampleDescriptions = M.fromList $ map (swap . fst) samples
 samples' :: [((Description, Sample), FilePath)]
 samples' = map (_2 %~ f) samples where
   f (subfolder,filename) =
-    rootFolder ++ "/" ++ subfolder ++ "/" ++ filename ++ ".wav"
+    dirtSamplesFolder ++ "/" ++ subfolder ++ "/" ++ filename ++ ".wav"
 
 samples :: [((Description, Sample), (FileSubPath, Filename))]
 samples =

@@ -11,6 +11,7 @@ module Vivid.Dispatch.Museq (
                -- => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
   , mkMuseqRt -- ^ forall l. (Ord l, Show l)
     -- => RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
+  , mkMuseqRt1 -- ^ RDuration -> [(RTime,Sample)] -> Museq String Note
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
   , insertOffs -- ^ Museq l Msg -> Museq l Msg
   , insertOns  -- ^ Museq l Msg -> Museq l Msg
@@ -122,13 +123,14 @@ mkMuseqHo :: forall l. Ord l
           => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
 mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
 
--- | Any two `Msg` values should go to different synths unless
+-- | `mkMuseqRt` sends any two `Msg` values to different synths, unless
 -- they share the same label *and* the same `Sample`.
 -- This is guaranteed by computing new labels `show l ++ show Sample`.
 --
 -- Each (time,Msg) pair must become a pair of Msgs,
 -- in order for retriggering to work.
 -- `prepareToRetrigger` does that.
+
 mkMuseqRt :: forall l. (Ord l, Show l) =>
   RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
 mkMuseqRt sup0 evs0 = let
@@ -151,6 +153,10 @@ mkMuseqRt sup0 evs0 = let
   evs6 :: [Event RTime String Note] =
     concatMap (\(s,ps) -> map (\(ts,n) -> Event s ts n) ps) evs5
   in mkMuseq sup0 evs6
+
+mkMuseqRt1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
+mkMuseqRt1 sup0 = mkMuseqRt sup0 . map f where
+  f (t,s) = ("a",t,s,mempty)
 
 prepareToRetrigger ::
   RDuration -> [ (RDuration,             Msg)]
