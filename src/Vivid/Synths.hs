@@ -18,6 +18,7 @@ module Vivid.Synths (
 ) where
 
 import Vivid
+import Vivid.Synths.Samples
 import Vivid.Synths.Vap as X
 import Vivid.Synths.Zot as X
 
@@ -26,7 +27,7 @@ import Vivid.Synths.Zot as X
 
 data SynthDefEnum = -- PITFALL ! keep these alphabetically ordered
     Boop            -- so that the derived Ord instance is predictable
-  | Sampler String -- ^ String = what sample it's playing
+  | Sampler Sample -- ^ Sample = what sample it's playing
   | Sqfm
   | Vap
   | Zot

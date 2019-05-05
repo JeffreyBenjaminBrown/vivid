@@ -10,7 +10,6 @@
 
 module Vivid.Dispatch.Types (
     SynthName, ParamName, MuseqName
-  , FileSubPath, Description, Nickname, Filename
   , Time, Duration, RTime(..), RDuration, unTimestamp
   , Msg, Msg'(..)
   , NamedWith, mNamed, anon
@@ -34,6 +33,7 @@ import qualified Data.Vector as V
 
 import Vivid
 import Vivid.Synths
+import Vivid.Synths.Samples
 import Util
 
 
@@ -44,11 +44,6 @@ import Util
 type ParamName = String
 type SynthName = String
 type MuseqName = String
-
-type FileSubPath = String -- ^ `FilePath` is already defined in Base
-type Description = String
-type Nickname = String
-type Filename = String -- ^ without a path
 
 
 -- | = Time. Some durations are relative to something,
@@ -164,7 +159,7 @@ data SynthRegister = -- per-synth boilerplate
   { _boops    :: M.Map SynthName (Synth BoopParams)
   , _vaps     :: M.Map SynthName (Synth VapParams)
   , _samplers :: M.Map SynthName (Synth SamplerParams)
-  , _samples  :: M.Map String BufferId -- ^ the samplers will use these
+  , _samples  :: M.Map Sample BufferId -- ^ the samplers will use these
   , _sqfms    :: M.Map SynthName (Synth SqfmParams)
   } deriving (Show, Eq, Ord)
 makeLenses ''SynthRegister

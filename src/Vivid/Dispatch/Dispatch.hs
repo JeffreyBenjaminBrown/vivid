@@ -53,12 +53,12 @@ actNew reg (New Boop name) =
     _ -> do writeTimeAndError $ "There is already a Boop named " ++ name
             return id
 
-actNew reg (New (Sampler nickname) name) =
+actNew reg (New (Sampler sample) name) =
   case M.lookup name $ _samplers reg of
     Nothing -> do
-      case M.lookup nickname $ reg ^. samples of
+      case M.lookup sample $ reg ^. samples of
         Nothing -> do writeTimeAndError $
-                        "actNew: invalid sample nickname " ++ nickname
+                        "actNew: Sample " ++ show sample ++ " not found."
                       return id
         Just buf -> do
           s <- synth sampler (b2i buf :: I "buffer")
@@ -242,7 +242,7 @@ startDispatchLoop disp = do
                   Just _ -> return ()
 
   _       <- tryTakeMVar $ mReg         disp -- empty it, just in case
-  buffs :: M.Map Nickname BufferId <-
+  buffs :: M.Map Sample BufferId <-
     mapM newBufferFromFile $ samplePaths
   putMVar (mReg disp) $ SynthRegister mempty mempty mempty buffs mempty
 
