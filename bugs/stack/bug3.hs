@@ -3,6 +3,7 @@ seq d e f = [ (0, d)
             , (2, d)
             , (2.5, e)
             , (3, f) ]
+
 patPitch = mmho 4 $ pre2 "a" $
            map (_2 %~ m1 "freq") $ seq 0 1 2
 

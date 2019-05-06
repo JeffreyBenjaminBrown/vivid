@@ -77,7 +77,7 @@ sampler = sd ( defaultAmp :: I "amp"
              , 1          :: I "speed"
              , 1          :: I "trigger" ) $ do
   let buffer = V::V "buffer"
-  s <- (2 ~* (V::V "amp")) ~*
+  s <- (6 ~* (V::V "amp")) ~*
     playBuf ( trigger_ (V::V"trigger")
             , buf_ buffer
             , rate_ $ bufRateScale buffer ~* (V::V"speed")

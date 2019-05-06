@@ -32,11 +32,11 @@ chAll $ mfl
           meta ( slow 4 $
                  modPat (fast 4 . early 1) (fast 2))
           patHat)
---  , ("3", toScale $
+--  , ("4", toScale $
 --          stack patPitch $ stack
 --          ( merge0 (mm1 $ m1 "freq" 6) $ fast 2 $ rev patPitch )
 --          ( merge0 (mm1 $ m1 "freq" 12) $ fast 6 $ rev patPitch ) )
-  , ("4", toScale $ stacks
+  , ("4.1", toScale $ stacks -- this takes advantage of a bug
           [ patPitch
           , merge0 (mm1 $ m1 "freq" 6) $ fast 2 $ rev patPitch
           , merge0 (mm1 $ m1 "freq" 12) $ fast 6 $ rev patPitch ] )
