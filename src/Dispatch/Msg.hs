@@ -6,6 +6,7 @@ module Dispatch.Msg (
   , samplerMsg -- ^ Msg -> [Msg' SamplerParams]
   , sqfmMsg    -- ^ Msg -> [Msg' SqfmParams]
   , vapMsg     -- ^ Msg -> [Msg' VapParams]
+  , zotMsg     -- ^ Msg -> [Msg' ZotParams]
   )
 where
 
@@ -34,6 +35,9 @@ sqfmMsg = map sqfmOneMsg . M.toList
 
 vapMsg :: Msg -> [Msg' VapParams]
 vapMsg = map vapOneMsg . M.toList
+
+zotMsg :: Msg -> [Msg' ZotParams]
+zotMsg = map zotOneMsg . M.toList
 
 
 -- | = send a message regarding a single parameter
@@ -75,3 +79,38 @@ vapOneMsg ("fm2-amp",n)    = Msg' (toI n :: I "fm2-amp")
 vapOneMsg ("nz-lpf",n)     = Msg' (toI n :: I "nz-lpf")
 vapOneMsg (param,val)      = error $
   "vapOneMsg: unexpected message: " ++ show param ++ "=" ++ show val
+
+zotOneMsg :: (ParamName, Float) -> Msg' ZotParams
+zotOneMsg ("on",n)    = Msg' (toI n :: I "on")
+zotOneMsg ("amp",n)   = Msg' (toI n :: I "amp")
+zotOneMsg ("pulse",n) = Msg' (toI n :: I "pulse")
+zotOneMsg ("freq",n)  = Msg' (toI n :: I "freq")
+zotOneMsg ("fm-b",n)  = Msg' (toI n :: I "fm-b")
+zotOneMsg ("fm-m",n)  = Msg' (toI n :: I "fm-m")
+zotOneMsg ("fm-f",n)  = Msg' (toI n :: I "fm-f")
+zotOneMsg ("pm-b",n)  = Msg' (toI n :: I "pm-b")
+zotOneMsg ("pm-m",n)  = Msg' (toI n :: I "pm-m")
+zotOneMsg ("pm-f",n)  = Msg' (toI n :: I "pm-f")
+zotOneMsg ("w",n)     = Msg' (toI n :: I "w")
+zotOneMsg ("wm-b",n)  = Msg' (toI n :: I "wm-b")
+zotOneMsg ("wm-m",n)  = Msg' (toI n :: I "wm-m")
+zotOneMsg ("wm-f",n)  = Msg' (toI n :: I "wm-f")
+zotOneMsg ("am",n)    = Msg' (toI n :: I "am")
+zotOneMsg ("am-b",n)  = Msg' (toI n :: I "am-b")
+zotOneMsg ("am-f",n)  = Msg' (toI n :: I "am-f")
+zotOneMsg ("rm",n)    = Msg' (toI n :: I "rm")
+zotOneMsg ("rm-b",n)  = Msg' (toI n :: I "rm-b")
+zotOneMsg ("rm-f",n)  = Msg' (toI n :: I "rm-f")
+zotOneMsg ("lpf",n)   = Msg' (toI n :: I "lpf")
+zotOneMsg ("lpf-m",n) = Msg' (toI n :: I "lpf-m")
+zotOneMsg ("bpf",n)   = Msg' (toI n :: I "bpf")
+zotOneMsg ("bpf-m",n) = Msg' (toI n :: I "bpf-m")
+zotOneMsg ("bpf-q",n) = Msg' (toI n :: I "bpf-q")
+zotOneMsg ("hpf",n)   = Msg' (toI n :: I "hpf")
+zotOneMsg ("hpf-m",n) = Msg' (toI n :: I "hpf-m")
+zotOneMsg ("lim",n)   = Msg' (toI n :: I "lim")
+zotOneMsg ("sh",n)    = Msg' (toI n :: I "sh")
+zotOneMsg ("sh-b",n)  = Msg' (toI n :: I "sh-b")
+zotOneMsg ("del",n)   = Msg' (toI n :: I "del")
+zotOneMsg (param,val) = error $
+  "zotOneMsg: unexpected message: " ++ show param ++ "=" ++ show val

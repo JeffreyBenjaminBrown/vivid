@@ -21,11 +21,13 @@ import LongVarLists()
 import Synths.Config
 
 
-type ZotParams = '["amp"
-  ,"pulse"                    -- pulse + sin = 1
-  ,"f", "fm-b","fm-m","fm-f"  -- baseline, fb mul, sin mul, sin freq
-      , "pm-b","pm-m","pm-f"            -- fb mul, sin mul, sin freq
-  ,"w", "wm-b","wm-m","wm-f"  -- baseline, fb mul, sin mul, sin freq
+type ZotParams = '[
+  "on", "amp"
+  ,"pulse"                   -- pulse + sin = 1
+  ,"freq"                    -- baseline freq
+       ,"fm-b","fm-m","fm-f" -- fb mul, sin mul, sin freq
+      , "pm-b","pm-m","pm-f" -- fb mul, sin mul, sin freq
+  ,"w", "wm-b","wm-m","wm-f" -- baseline, fb mul, sin mul, sin freq
   ,"am","am-b",       "am-f" -- amSig = am * am'd carrier + (1-am) * carrier
                              -- am'd carrier = am-b * fb + (1 - am-b) * sin
   ,"rm","rm-b",       "rm-f" -- same as am, just no bias
@@ -37,9 +39,10 @@ type ZotParams = '["amp"
   ,"del"]
 
 zot :: SynthDef ZotParams
-zot = sd ( defaultAmp :: I "amp"
+zot = sd ( 0 :: I "on"
+         , defaultAmp :: I "amp"
          , 0.5 :: I "pulse"
-         , 0 :: I "f"
+         , 0 :: I "freq"
          , 0 :: I "fm-b"
          , 0 :: I "fm-m"
          , 0 :: I "fm-f"
@@ -70,30 +73,30 @@ zot = sd ( defaultAmp :: I "amp"
          ) $ do
   fb_1 <- head <$> localIn(1)
   fb01 <- (fb_1 ~+ 1) ~/ 2
-  fm <- (V::V "f")
+  fm <- (V::V "freq")
         ~+ (V::V "fm-b") ~* fb_1
-        ~+ (V::V"fm-m") ~* sinOsc (freq_ $ (V::V"f") ~* (V::V"fm-f"))
+        ~+ (V::V"fm-m") ~* sinOsc (freq_ $ (V::V"freq") ~* (V::V"fm-f"))
   pm <- (pi/2) ~* (   (V::V"pm-b") ~* fb01
                    ~+ (V::V"pm-m")
-                      ~* sinOsc (freq_ $ (V::V"f") ~* (V::V"pm-f")))
+                      ~* sinOsc (freq_ $ (V::V"freq") ~* (V::V"pm-f")))
   wm <- (V :: V "w")
     ~+ 0.5 ~* (   (V::V"wm-b") ~* fb_1
                ~+ (V::V"wm-m")
-                  ~* sinOsc (freq_ $ (V::V"f") ~* (V::V"wm-f")))
+                  ~* sinOsc (freq_ $ (V::V"freq") ~* (V::V"wm-f")))
 
   aSin <- sinOsc  (freq_ fm, phase_ pm)
   aPulse <- pulse (freq_ fm, width_ wm)
   source <-          (V :: V "pulse" ) ~* aPulse
             ~+ (1 ~- (V :: V "pulse")) ~* aSin
 
-  amSin <- (sinOsc (freq_ $ (V::V"f") ~* (V::V"am-f")) ~+ 1) ~/ 2
+  amSin <- (sinOsc (freq_ $ (V::V"freq") ~* (V::V"am-f")) ~+ 1) ~/ 2
   am <- 2 ~* -- scale by 2 because AM makes it quieter
         (    fb01  ~*       (V::V"am-b")
           ~+ amSin ~* (1 ~- (V::V"am-b")) )
   amSig <- (1 ~- (V::V"am")) ~* source
            ~+    (V::V"am")  ~* source ~* am
 
-  rmSin <- sinOsc (freq_ $ (V::V"f") ~* (V::V"rm-f"))
+  rmSin <- sinOsc (freq_ $ (V::V"freq") ~* (V::V"rm-f"))
   rm <- 2 ~* -- scale by 2 because RM makes it quieter
         (    fb_1  ~*       (V::V"rm-b")
           ~+ rmSin ~* (1 ~- (V::V"rm-b")) )
@@ -104,25 +107,26 @@ zot = sd ( defaultAmp :: I "amp"
 
   filt_1 <- (1 ~- (V::V"lpf-m")) ~*          rmSig
             ~+    (V::V"lpf-m")  ~* lpf( in_ rmSig
-                                       , freq_ $ (V::V"f") ~* (V::V"lpf"))
+                                       , freq_ $ (V::V"freq") ~* (V::V"lpf"))
   filt_2 <- (1 ~- (V::V"bpf-m")) ~*          filt_1
             ~+    (V::V"bpf-m")  ~* bpf( in_ filt_1
-                                       , freq_ $ (V::V"f") ~* (V::V"bpf")
+                                       , freq_ $ (V::V"freq") ~* (V::V"bpf")
                                        , rq_ (V::V"bpf-q"))
   filt   <- (1 ~- (V::V"hpf-m")) ~*          filt_2
             ~+    (V::V"hpf-m")  ~* hpf( in_ filt_2
-                                       , freq_ $ (V::V"f") ~* (V::V"hpf"))
+                                       , freq_ $ (V::V"freq") ~* (V::V"hpf"))
 
   lim <- tanh' (filt ~/ (V::V"lim")) ~* (V::V"lim")
 
   shift <- freqShift ( in_ lim
-                     , freq_ $ (V::V"f") ~* (    (V::V"sh")
+                     , freq_ $ (V::V"freq") ~* (    (V::V"sh")
                                               ~+ (V::V"sh-b") ~* fb_1) )
 
   s1 <- delayL( in_ shift
                , maxDelaySecs_ 1
-               , delaySecs_ $ (V::V "del") ~/ (V::V"f") )
+               , delaySecs_ $ (V::V "del") ~/ (V::V"freq") )
 
   localOut( [s1] )
 
-  out 0 [(V::V "amp") ~* shift, (V::V "amp") ~* shift]
+  out 0 [ (V::V "on") ~* (V::V "amp") ~* shift
+        , (V::V "on") ~* (V::V "amp") ~* shift ]

@@ -103,12 +103,11 @@ stack x0 y0 = sortMuseq $
     fx = over evLabel $ deleteShowQuotes
     fy :: Ev String a -> Ev String a
     fy = over evLabel $ deleteShowQuotes . (++) unusedInX
-    unusedInX = unusedName $ map (view evLabel) $ V.toList $ _vec x
+    unusedInX = unusedName $ map (view evLabel) $
+      (V.toList $ _vec x) ++ (V.toList $ _vec y) 
 
 stacks :: [Museq String a] -> Museq String a
-stacks = foldl1 _stack where
-  _stack :: Museq String a -> Museq String a -> Museq String a
-  _stack = stack -- only the type signature is different
+stacks = foldl1 stack
 
 -- | Allows the two arguments' namespaces to conflict
 stack' :: Museq l a -> Museq l a -> Museq l a

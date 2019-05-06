@@ -20,7 +20,7 @@ module Dispatch.Types (
   , Ev
   , Museq(..), dur, sup, vec
   , emptyMuseq
-  , SynthRegister(..), boops, samplers, samples, sqfms, vaps
+  , SynthRegister(..), boops, samplers, samples, sqfms, vaps, zots
   , emptySynthRegister
   , Note(..), noteSd, noteMsg
   , Dispatch(..), newDispatch
@@ -161,12 +161,13 @@ data SynthRegister = -- per-synth boilerplate
   , _samplers :: M.Map SynthName (Synth SamplerParams)
   , _samples  :: M.Map Sample BufferId -- ^ the samplers will use these
   , _sqfms    :: M.Map SynthName (Synth SqfmParams)
+  , _zots     :: M.Map SynthName (Synth ZotParams)
   } deriving (Show, Eq, Ord)
 makeLenses ''SynthRegister
 
 emptySynthRegister :: SynthRegister
 emptySynthRegister = SynthRegister
-  M.empty M.empty M.empty M.empty M.empty
+  M.empty M.empty M.empty M.empty M.empty M.empty
 
 data Note = Note { _noteSd :: SynthDefEnum
                  , _noteMsg :: Msg } deriving (Show, Eq)

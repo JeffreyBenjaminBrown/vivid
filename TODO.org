@@ -1,3 +1,4 @@
+* ride cymbal
 * bugs
 ** patterns are interfering in stacks
 see j/bug2.hs and j/bug3.hs
@@ -66,15 +67,6 @@ and computes the duration automatically (as the length of the list)
 *** a chAll that adds names automatically
 ** timbres
 ** drums
-*** for how to load a buffer into a synth.
-See Tom's first message here:
-https://we.lurk.org/hyperkitty/list/livecode@we.lurk.org/thread/6JD5SHXPQQ25VZH4PVKIR5Y7HEAPXZWL/
-*** for where it hooks into my code
-**** The sample buffers will have to be created when the Dispatch is.
-**** replace and replaceAll call actNew,
-which will have to then use those sample buffers to create the new Synths.
-**** There will be one synth (type) for each sample -- kick, snare, hat ...
-**** A single `Museq Note` can send to synths of multiple types.
 *** important ? missing drums
 tom -- low, high
 cymbal -- ride, crash, cowbell

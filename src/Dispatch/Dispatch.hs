@@ -80,6 +80,13 @@ actNew reg (New Vap name) =
     _ -> do writeTimeAndError $ "There is already a Vap named " ++ name
             return id
 
+actNew reg (New Zot name) =
+  case M.lookup name $ _zots reg of
+    Nothing -> do s <- synth zot ()
+                  return $ zots %~ M.insert name s
+    _ -> do writeTimeAndError $ "There is already a Zot named " ++ name
+            return id
+
 actNew _ (Send _ _ _) = error $ "actNew received a Send."
 actNew _ (Free _ _)   = error $ "actNew received a Free."
 
@@ -125,6 +132,16 @@ actFree reg when (Free Vap name) =
     doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
     return $ vaps %~ M.delete name
 
+actFree reg when (Free Zot name) =
+  case M.lookup name $ _zots reg of
+  Nothing -> do
+    writeTimeAndError $ "There is no Zot named " ++ name ++ "to free."
+    return id
+  Just s -> do
+    doScheduledAt (Timestamp $ fr when) $ set' s $ Msg' (0 :: I "amp")
+    doScheduledAt (Timestamp $ fr $ when + frameDuration / 2) $ free s
+    return $ zots %~ M.delete name
+
 actFree _ _ (Send _ _ _) = error "actFree received a Send."
 actFree _ _ (New _ _)    = error "actFree received a New."
 
@@ -158,6 +175,13 @@ actSend reg when (Send Vap name msg) =
     Just (s :: Synth VapParams) ->
       doScheduledAt (Timestamp $ fromRational when)
       $ mapM_ (set' s) $ vapMsg msg
+
+actSend reg when (Send Zot name msg) =
+  case M.lookup name $ _zots reg of
+    Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
+    Just (s :: Synth ZotParams) ->
+      doScheduledAt (Timestamp $ fromRational when)
+      $ mapM_ (set' s) $ zotMsg msg
 
 actSend _ _ (Free _ _) = error "actFree received a Send."
 actSend _ _ (New _ _)  = error "actFree received a New."
@@ -244,7 +268,8 @@ startDispatchLoop disp = do
   _       <- tryTakeMVar $ mReg         disp -- empty it, just in case
   buffs :: M.Map Sample BufferId <-
     mapM newBufferFromFile $ samplePaths
-  putMVar (mReg disp) $ SynthRegister mempty mempty mempty buffs mempty
+  putMVar (mReg disp) $
+    SynthRegister mempty mempty mempty buffs mempty mempty
 
   ((-) (0.8 * frameDuration)) . unTimestamp <$> getTime
   -- subtract nearly an entire frameDuration so it starts soon
