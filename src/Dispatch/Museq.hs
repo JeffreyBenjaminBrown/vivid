@@ -97,7 +97,7 @@ mkMuseq d evs = sortMuseq $ Museq { _dur = d
                                   , _vec = V.fromList $ evs }
 
 mkMuseqOneMsg :: Msg -> Museq String Msg
-mkMuseqOneMsg m = mkMuseq 1 [Event "a" (RTime 0, RTime 0) m]
+mkMuseqOneMsg m = mkMuseqH 1 [("a", RTime 0, m)]
 
 mkMuseq_seqProc :: forall a b l. Ord l
   => ([(RDuration,a)] -> [((RDuration,RDuration),b)])
