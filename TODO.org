@@ -1,3 +1,6 @@
+* bugs
+** patterns are interfering in stacks
+see j/bug2.hs and j/bug3.hs
 * graph
 ** split rels v. reify
 *** TODO how

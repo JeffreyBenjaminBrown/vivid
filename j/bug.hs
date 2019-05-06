@@ -29,5 +29,6 @@ chAll $ mfl [
           merge0fa (slow 8 $ p2 4) $ merge0fa (p2 3) $
           cat [p1, p2 3, dense 2 p1])
     -- if I delete the "p2 3" from this last line,
-    -- it takes effect immediately.
+    -- it takes effect immediately. (Using two instances of append
+    -- instead of one cat has no effect.)
   ]
