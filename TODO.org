@@ -49,8 +49,17 @@ see j/bug2.hs and j/bug3.hs
 ** how to cut through the boilerplate in Vivid.Hode?
  HExpr helped, but there ought to be a way to build all those functions from a single HExprF.
 * problems
-** can't adjust individual notes
 ** can't understand why it souonds like it does
+** can't adjust individual notes
+** the proliferation of Museq sources (and payloads)
+*** illustration
+(l,time,time,Msg)
+(time,Note)
+etc.
+*** maybe better: add Maybe to Note, and banish bare Msg values in a Museq
+Stop using the Museq Msg type.
+Instead use Museq Note',
+where Note' is like Note but the synthdef is wrapped in a Maybe.
 * todo
 ** easy shorthand
 *** functions to change parameters
