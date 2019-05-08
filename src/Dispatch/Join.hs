@@ -147,9 +147,9 @@ merge op a b = _merge (labelsToStrings a) (labelsToStrings b) where
           -> Museq String b
           -> Museq String c
   _merge x y = Museq { _dur = _dur y -- arbitrary
-                       , _sup = tbr
-                       , _vec = V.fromList
-                                 $ alignAndJoin op xps yps } where
+                     , _sup = tbr
+                     , _vec = V.fromList
+                              $ alignAndJoin op xps yps } where
     tbr = timeForBothToRepeat x y
     xs, xps :: [Event RTime String a]
     ys, yps :: [Event RTime String b]
@@ -168,6 +168,7 @@ instance Applicative (Museq String) where -- TODO ? generalize
 -- | Some ways to merge `Museq Msg`s.
 -- So named because in math, the additive identity is 0,
 -- the mutliplicative identity = 1, and "amp" starts with an "a".
+-- The 'n' prefix indicates that the second arg is a Note, not a Msg.
 
 nMerge  :: forall l m. (Show l, Show m)
   => (Msg -> Msg -> Msg)
@@ -251,7 +252,7 @@ rootScale :: forall l m. (Show l, Show m)
       => Museq l (Float,[Float]) -> Museq m Msg -> Museq String Msg
 rootScale mrs = let roots  = fst <$> mrs
                     scales = snd <$> mrs
-  in scale scales . root roots
+  in root roots . scale scales
 
 meta :: forall a b l m. (Show l, Show m)
   => Museq l      (Museq String a -> Museq String b)

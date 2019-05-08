@@ -3,10 +3,8 @@
 
 module Synths.Config where
 
-import Vivid (I(..))
 
-
-defaultAmp :: I "amp"
+defaultAmp :: Float
 defaultAmp = 0.02
 
 dirtSamplesFolder :: FilePath

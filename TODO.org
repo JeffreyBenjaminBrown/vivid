@@ -1,4 +1,9 @@
-* ride cymbal
+* TODO easy
+** shorthand for merge (M.unionWith const)
+where if not present it gives the other one
+** a way to restore a Zot to reasonable parameter values
+** amplitude group for all drums, all pitched tracks
+** ride cymbal
 * bugs
 ** patterns are interfering in stacks
 see j/bug2.hs and j/bug3.hs
@@ -51,7 +56,7 @@ see j/bug2.hs and j/bug3.hs
 * problems
 ** can't understand why it souonds like it does
 ** can't adjust individual notes
-** the proliferation of Museq sources (and payloads)
+** TODO the proliferation of Museq sources (and payloads)
 *** illustration
 (l,time,time,Msg)
 (time,Note)
@@ -60,6 +65,11 @@ etc.
 Stop using the Museq Msg type.
 Instead use Museq Note',
 where Note' is like Note but the synthdef is wrapped in a Maybe.
+** can't insert silence into an abstract pattern generator
+e.g.
+seq d e f = [ (0, d)
+            , (1, e)
+            , (1.5, f) ]
 * todo
 ** easy shorthand
 *** functions to change parameters
