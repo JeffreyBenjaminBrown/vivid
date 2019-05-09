@@ -1,21 +1,20 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Util (
-  writeTimeAndError
+  -- | = shorthand
+    fr  -- ^ fromRational
+  , tr  -- ^ toRational
 
-  -- | abbreviations
-  , fr -- ^ fromRational
-  , tr -- ^ toRational
-  , m1 -- ^ M.singleton
-  , mfl -- ^ M.fromList
+  -- | = error IO
+  , writeTimeAndError
 
-  -- | randomness
+  -- | = randomness
   , pickSome
   , pickSome'
   , pickSomeWithout3Clusters
   , no3Clusters
 
-  -- | strings
+  -- | = strings
   , unusedName
 
   -- | = lists
@@ -53,13 +52,8 @@ import Data.Vector.Algorithms.Search
 import Vivid (getTime, pick, MonadRandom)
 
 
-writeTimeAndError :: String -> IO ()
-writeTimeAndError msg = do now <- getTime
-                           appendFile "errors.txt"
-                             $ show now ++ ": " ++ msg
-
-
--- | = abbreviations
+-- | = shorthand, universal enough to be here
+-- (most shorthand is in Abbrevs.hs instead).
 
 fr :: Fractional a => Rational -> a
 fr = fromRational
@@ -67,11 +61,13 @@ fr = fromRational
 tr :: Real a => a -> Rational
 tr = toRational
 
-m1 :: k -> a -> M.Map k a
-m1 = M.singleton
 
-mfl :: Ord k => [(k, a)] -> M.Map k a
-mfl = M.fromList
+-- | = error IO
+
+writeTimeAndError :: String -> IO ()
+writeTimeAndError msg = do now <- getTime
+                           appendFile "errors.txt"
+                             $ show now ++ ": " ++ msg
 
 
 -- | = Randomness

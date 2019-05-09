@@ -1,11 +1,12 @@
 -- | A few types are also defined in Jbb.Synths
 
 {-# LANGUAGE DataKinds
-           , ExtendedDefaultRules
-           , ScopedTypeVariables
-           , TupleSections
-           , TemplateHaskell
-           , GADTs
+, DeriveFunctor
+, ExtendedDefaultRules
+, ScopedTypeVariables
+, TupleSections
+, TemplateHaskell
+, GADTs
 #-}
 
 module Dispatch.Types (
@@ -111,7 +112,8 @@ actionToSynth (Send s n _) = (s,n)
 
 data Event time label a = Event { _evLabel :: label
                                 , _evArc :: (time,time)
-                                , _evData :: a} deriving (Show, Eq, Ord)
+                                , _evData :: a}
+                        deriving (Show, Eq, Ord, Functor)
 makeLenses ''Event
 
 type Ev = Event RTime
@@ -142,9 +144,10 @@ data Museq label a = Museq {
     -- If less than `dur`, the `Museq` will play the entire `vec` more than
     -- once each time it plays.
   , _vec :: V.Vector (Ev label a) }
-  deriving (Show,Eq)
+  deriving (Show, Eq)
 makeLenses ''Museq
 
+-- This could be derived, but it might be a handy reference.
 instance Functor (Museq label) where
   fmap = over vec . V.map . over evData
 

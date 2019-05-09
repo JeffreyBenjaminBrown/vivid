@@ -9,7 +9,6 @@ import           Test.HUnit
 import Hode.Hode hiding (Test)
 import Dispatch.Abbrevs
 import Hode
-import Util
 
 
 testRslt :: Rslt

@@ -4,10 +4,13 @@
 
 module Dispatch.Museq (
   -- | = Make a Museq
-    mkMuseq   -- ^ RDuration -> [Ev l a]              -> Museq l a
+    mkMuseqFromEvs   -- ^ RDuration -> [Ev l a]            -> Museq l a
+  , mkMuseq          -- ^ RDuration -> [(l,RTime,RTime,a)] -> Museq l a
   , mkMuseqOneMsg -- ^          Msg                   -> Museq String Msg
   , mkMuseqH  -- ^ forall a l. Ord l
               -- => RDuration -> [(l,RDuration,a)]    -> Museq l a
+  , mkMuseqHm -- ^ forall a l. Ord l =>
+              -- RDuration -> [(l, RTime, Maybe a)] -> Museq l a
   , mkMuseqHo -- ^ forall a l. Ord l
               -- => RDuration -> [(l,RDuration,Msg)]  -> Museq l Msg
   , mkMuseqRt -- ^ forall l. (Ord l, Show l)
@@ -55,6 +58,7 @@ import Control.Lens hiding (to,from)
 import Control.Monad.ST
 import Data.Fixed (div')
 import Data.Function (on)
+import Data.Maybe
 import qualified Data.List as L
 import qualified Data.Maybe as Mb
 import qualified Data.Map as M
@@ -91,10 +95,15 @@ import Synths (SynthDefEnum)
 
 -- | = Make a Museq
 -- | Make a Museq, specifying start and end times
-mkMuseq :: RDuration -> [Ev l a] -> Museq l a
-mkMuseq d evs = sortMuseq $ Museq { _dur = d
-                                  , _sup = d
-                                  , _vec = V.fromList $ evs }
+mkMuseqFromEvs :: RDuration -> [Ev l a] -> Museq l a
+mkMuseqFromEvs d evs =
+  sortMuseq $ Museq { _dur = d
+                    , _sup = d
+                    , _vec = V.fromList $ evs }
+
+mkMuseq :: RDuration -> [(l,RTime,RTime,a)] -> Museq l a
+mkMuseq d = mkMuseqFromEvs d . map f where
+  f (l,start,end,a) = Event l (start,end) a
 
 mkMuseqOneMsg :: Msg -> Museq String Msg
 mkMuseqOneMsg m = mkMuseqH 1 [("a", RTime 0, m)]
@@ -115,11 +124,25 @@ mkMuseq_seqProc seqProc d evs0 = let
       g ((t,s),a) = Event { _evLabel = l
                           , _evArc = (t,s)
                           , _evData = a }
-  in mkMuseq d evs4
+  in mkMuseqFromEvs d evs4
 
+-- | Makes a `Museq` using `hold`,
+-- so that each event lasts until the next.
 mkMuseqH :: forall a l. Ord l
           => RDuration -> [(l,RDuration,a)] -> Museq l a
 mkMuseqH d = mkMuseq_seqProc (hold d) d
+
+-- | Makes a `Museq` using `hold`, holding each `Just` value
+-- until the next `Maybe`, then discarding any `Nothing`s.
+mkMuseqHm :: forall a l. Ord l
+          => RDuration -> [(l, RTime, Maybe a)] -> Museq l a
+mkMuseqHm d = f . mkMuseqH d where
+  f :: Museq l (Maybe a) -> Museq l a
+  f = vec %~ ( V.map unwrap . V.filter test ) where
+    test :: Event RTime l (Maybe a) -> Bool
+    test = isJust . _evData
+    unwrap :: Event RTime l (Maybe a) -> Event RTime l a
+    unwrap = fmap $ maybe (error "impossible") id
 
 -- | Like `mkMuseqH`, but inserts `on = 1` in `Event`s that do not
 -- mention the `on` parameter. Specialized to `Msg` payloads.
@@ -156,7 +179,7 @@ mkMuseqRt sup0 evs0 = let
     map (_1 %~ \(l,s) -> show l ++ show s) evs4
   evs6 :: [Event RTime String Note] =
     concatMap (\(s,ps) -> map (\(ts,n) -> Event s ts n) ps) evs5
-  in mkMuseq sup0 evs6
+  in mkMuseqFromEvs sup0 evs6
 
 mkMuseqRt1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
 mkMuseqRt1 sup0 = mkMuseqRt sup0 . map f where

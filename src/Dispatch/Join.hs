@@ -19,10 +19,10 @@ module Dispatch.Join (
   , nMerge -- ^ forall l m. (Show l, Show m)
            -- =>        (Msg ->         Msg ->               Msg)
            -- -> Museq l Msg -> Museq m Note -> Museq String Note
-  , merge0, merge1, merge0a, merge0f, merge0fa
+  , mergec, merge0, merge1, merge0a, merge0f, merge0fa
       -- ^ forall l m. (Show l, Show m) =>
       -- Museq l Msg -> Museq m Msg -> Museq String Msg
-  , nMerge0, nMerge1, nMerge0a, nMerge0f, nMerge0fa
+  , nMergec, nMerge0, nMerge1, nMerge0a, nMerge0f, nMerge0fa
       -- ^ forall l m. (Show l, Show m) =>
       -- Museq l Msg -> Museq m Note -> Museq String Note
   , root -- ^ (Show l, Show m)
@@ -42,7 +42,7 @@ import Data.Fixed (mod')
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
-import Util hiding (m1)
+import Util
 import Dispatch.Museq
 import Dispatch.Types
 import Dispatch.Internal.Join
@@ -177,12 +177,17 @@ nMerge op m n = merge f (labelsToStrings m) (labelsToStrings n)
   where f :: Msg -> Note -> Note
         f m1 (Note synth m1') = Note synth $ op m1 m1'
 
-merge0, merge1, merge0a, merge0f, merge0fa
+mergec, merge0, merge1, merge0a, merge0f, merge0fa
   :: forall l m. (Show l, Show m) =>
   Museq l Msg -> Museq m Msg -> Museq String Msg
-nMerge0, nMerge1, nMerge0a, nMerge0f, nMerge0fa
+nMergec, nMerge0, nMerge1, nMerge0a, nMerge0f, nMerge0fa
   :: forall l m. (Show l, Show m) =>
   Museq l Msg -> Museq m Note -> Museq String Note
+
+mergec m n =
+  merge (M.unionWith const)  (labelsToStrings m) (labelsToStrings n)
+nMergec m n =
+  nMerge (M.unionWith const)  (labelsToStrings m) (labelsToStrings n)
 
 merge0 m n =
   merge (M.unionWith (+))  (labelsToStrings m) (labelsToStrings n)
