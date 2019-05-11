@@ -7,6 +7,11 @@ module Dispatch.Abbrevs (
   , m1  -- ^ M.singleton
   , mfl -- ^ M.fromList
 
+  , amp, freq       -- ^ (Float -> Float) -> Museq String Msg -> Museq String Msg
+  , ampTo, freqTo   -- ^ Float            -> Museq String Msg -> Museq String Msg
+  , nAmp, nFreq     -- ^ (Float -> Float) -> Museq String Note -> Museq String Note
+  , nAmpTo, nFreqTo -- ^ Float            -> Museq String Msg -> Museq String Msg
+
   , mm    -- ^ RDuration -> [(l,RTime,RTime,a)] -> Museq l a
   , mmh   -- ^ forall a l. Ord l =>
       -- RDuration -> [(l,RDuration,a)] -> Museq l a
@@ -35,6 +40,8 @@ module Dispatch.Abbrevs (
 
 import qualified Data.Map as M
 
+import Control.Lens
+import Dispatch.Join
 import Dispatch.Museq
 import Dispatch.Transform
 import Dispatch.Types
@@ -55,6 +62,22 @@ m1 = M.singleton
 
 mfl :: Ord k => [(k, a)] -> M.Map k a
 mfl = M.fromList
+
+amp, freq :: (Float -> Float) -> Museq String Msg -> Museq String Msg
+amp g = fmap $ M.adjust g "amp"
+freq g = fmap $ M.adjust g "freq"
+
+ampTo, freqTo :: Float -> Museq String Msg -> Museq String Msg
+ampTo g = fmap $ M.insert "amp" g
+freqTo g = fmap $ M.insert "freq" g
+
+nAmp, nFreq :: (Float -> Float) -> Museq String Note -> Museq String Note
+nAmp g  = fmap $ noteMsg %~ M.adjust g "amp"
+nFreq g = fmap $ noteMsg %~ M.adjust g "freq"
+
+nAmpTo, nFreqTo :: Float -> Museq String Note -> Museq String Note
+nAmpTo g  = fmap $ noteMsg %~ M.insert "amp" g
+nFreqTo g = fmap $ noteMsg %~ M.insert "freq" g
 
 mm :: RDuration -> [(l,RTime,RTime,a)] -> Museq l a
 mm = mkMuseq

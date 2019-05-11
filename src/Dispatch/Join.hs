@@ -144,8 +144,8 @@ merge :: forall a b c l m. (Show l, Show m)
        -> Museq l a -> Museq m b -> Museq String c
 merge op a b = _merge (labelsToStrings a) (labelsToStrings b) where
   _merge :: Museq String a
-          -> Museq String b
-          -> Museq String c
+         -> Museq String b
+         -> Museq String c
   _merge x y = Museq { _dur = _dur y -- arbitrary
                      , _sup = tbr
                      , _vec = V.fromList
@@ -173,7 +173,7 @@ instance Applicative (Museq String) where -- TODO ? generalize
 nMerge  :: forall l m. (Show l, Show m)
   => (Msg -> Msg -> Msg)
   -> Museq l Msg -> Museq m Note -> Museq String Note
-nMerge op m n = merge f (labelsToStrings m) (labelsToStrings n)
+nMerge op = merge f
   where f :: Msg -> Note -> Note
         f m1 (Note synth m1') = Note synth $ op m1 m1'
 

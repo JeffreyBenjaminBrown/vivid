@@ -36,4 +36,5 @@ chAll $ mfl [
   , ("3", toScale $ ops [("freq",((-) 9))] $ fast 2 $
           meta ( meta (slow 3 $ halfDur $ early 1 . fast 3) $
                  fast 2 $ halfDur $ ops [("on",const 0)] )
-          p1 ) ]
+          p1 )
+  ]

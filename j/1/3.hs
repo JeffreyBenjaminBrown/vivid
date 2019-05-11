@@ -11,7 +11,7 @@ hatPat = mmrt1 6 $ map (_2 %~ f) evs where
   f :: M.Map String Float -> Sample
   f = maybe SampleSl_b (const SampleHl_cg) . M.lookup "freq"
 kickSnarePat = mmrt1 2 [ (0, SampleKd)
-              , (1, SampleSp_t) ]
+                       , (1, SampleSp_t) ]
 
 scalePat = mmh (4*dur0) $ pre2 "a"
   [ ( 0     , maj3 )
@@ -28,8 +28,8 @@ toScale = nBoop
           . scale scalePat
 
 chAll $ mfl [
-    ("1", toScale $ ops [("freq",((-) 12))] $ meta revPat pat)
-  , ("2", toScale $ ops [("freq",(+ 2))] $ fast 2 $ meta revPat pat)
+    ("1", toScale $ ops [("freq",((-) 12))] $                 meta revPat pat)
+  , ("2", toScale $ ops [("freq",(+ 2))] $ fast 2 $           meta revPat pat)
   , ("3", toScale $ ops [("freq",(+ 4))] $ fast 4 $ early 2 $ meta revPat pat)
   , ("4", stacks [ fast 2 $ early (1/4) $ kickSnarePat
                  , append hatPat (rev $ fast 4 hatPat)

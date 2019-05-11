@@ -14,7 +14,7 @@ chord :: [Float] -> Museq String Msg =
   mmho 1 . pre2 "a" .
   map (\f -> (0,M.singleton "freq" f))
 
-amp :: Float -> Museq String Msg = \f ->
+ampSeq :: Float -> Museq String Msg = \f ->
   mmho 1 [("a",0,m1 "amp" f)]
 
 go = nBoop . toHz . rootScale rs where
@@ -32,6 +32,6 @@ chAll $ mfl [
   , ("2", go $ fast 4 $ meta wave $
           merge0fa (slow 8 $ run 4) $ merge0fa (run 3) $
           cat [p1, dense 2 p1])
-  , ("3", go $ merge0fa (merge0 (amp 0.001) $ chord [10,12]) $
+  , ("3", go $ merge0fa (merge0 (ampSeq 0.001) $ chord [10,12]) $
       merge0fa (slow 4 $ run 4) $ merge0fa (run 4) p1)
   ]
