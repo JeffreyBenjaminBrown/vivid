@@ -49,51 +49,21 @@ import Dispatch.Types
 import Dispatch.Internal.Join
 import Dispatch.Transform
 
-
--- | Play one after the other
 append :: forall l a. Museq l a -> Museq l a -> Museq l a
-append x0 y0 = let
-  durs = RTime $ lcmRatios
-         (tr $ dursToPlayThrough x0)
-         (tr $ dursToPlayThrough y0)
-    -- Since x and y both have to finish at the same time,
-    -- they must run through this many durs.
+append x y = cat [x,y]
 
-  xs = map adjustx ixs where
-    ixs :: [(Int,V.Vector (Ev l a))]
-      -- ixs uses a 0 because it starts with no ys before it
-    ixs = zip [0..] $ unsafeExplicitReps (durs * _dur x0) x0
-
-    adjustx :: (Int,V.Vector (Ev l a)) -> V.Vector (Ev l a)
-      -- adjustx: space out the xs to make room for the ys
-    adjustx (idx,v) = V.map f v where
-      f = evArc . both %~ g where
-        g = (+) $ fromIntegral idx * _dur y0
-
-  ys = map adjusty iys where
-    iys :: [(Int,V.Vector (Ev l a))]
-      -- iys uses a 1 because it starts with 1 (_dur x) worth of x before it
-    iys = zip [1..] $ unsafeExplicitReps (durs * _dur y0) y0
-    adjusty :: (Int,V.Vector (Ev l a)) -> V.Vector (Ev l a)
-      -- adjusty: space out the ys to make room for the xs
-    adjusty (idx,v) = V.map f v where
-      f = evArc . both %~ g where
-        g = (+) $ fromIntegral idx * _dur x0
-
-  in Museq { _sup = durs * (_dur x0 + _dur y0)
-           , _dur =         _dur x0 + _dur y0
-           , _vec = V.concat $ interleave xs ys }
-
-
--- | The `append` algorithm:
--- `ml` is a list of museqs
+-- | `cat` plays its arguments one after the other.
+-- It's like `Prelude.concatenate`.
+--
+-- The algorithm:
 -- `mm` is a map from ints to those museqs
--- `f` should take a `Museq`('s index) to
---   a list of its explicit reps,
---   spaced out to leave room for the other museqs
--- To space out rep `r` of `Museq` `i`
---   add `i` * (the duration of each `Museq` with index `j < i`)
---   add `r` * (the sum of the durations of every `Museq` except `i`)
+-- `f` should take a `Museq`('s index in `mm`)
+--   to a list of its explicit reps,
+--   spaced out to leave room for the other `Museq`s.
+-- To space out rep `r` of `Museq` `i`,
+-- add these to its start and end times:
+--   (1) the duration of each `Museq` with index `j < i`),
+--   (2) `r` * (the sum of the durations of every `Museq` except `i`)
 
 cat :: forall l a. [Museq l a] -> Museq l a
 cat ml = let
