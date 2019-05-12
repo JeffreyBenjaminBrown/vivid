@@ -8,8 +8,7 @@ ScopedTypeVariables
 module Dispatch.Join (
     Museq(..)
   , append -- ^ forall l a. Museq l a -> Museq l a -> Museq l a
-  , appends -- ^ [Museq l a] -> Museq l a
-  , cat     -- ^ [Museq l a] -> Museq l a -- the name "concat" is taken
+  , cat     -- ^ [Museq l a] -> Museq l a
   , stack  -- ^ forall a l m. (Show l, Show m)
            -- => Museq l a  -> Museq m a -> Museq String a
   , stacks -- ^ [Museq l a] -> Museq String a
@@ -96,8 +95,8 @@ append x0 y0 = let
 --   add `i` * (the duration of each `Museq` with index `j < i`)
 --   add `r` * (the sum of the durations of every `Museq` except `i`)
 
-appends' :: forall l a. [Museq l a] -> Museq l a
-appends' ml = let
+cat :: forall l a. [Museq l a] -> Museq l a
+cat ml = let
   durs = RTime $ foldr1 lcmRatios $
          map (tr . dursToPlayThrough) ml
 
@@ -121,21 +120,13 @@ appends' ml = let
                       S.filter (< n) $ -- everything before n
                       M.keysSet mm
       g = (+) $ fromIntegral r * sum (map _dur otherMuseqs)
-              + fromIntegral n * sum (map _dur earlierMuseqs)
+              +                  sum (map _dur earlierMuseqs)
 
   in Museq { _sup = durs * (sum $ map _dur $ M.elems mm)
            , _dur =         sum $ map _dur $ M.elems mm
            , _vec = V.concat $ interleaves $
                     map (f . fst) $ M.toList mm }
 
-
--- TODO : if `appends` works, this is obsolete
-
--- todo ? speed (unlikely to matter)
--- Speed this up dramatically by computing start times once, rather
--- than readjusting the whole series each time a new copy is folded into it.
-cat :: [Museq l a] -> Museq l a -- the name "concat" is taken
-cat = foldl1 append
 
 -- | Play both at the same time.
 -- PITFALL: The choice of the resulting Museqs _dur is arbitrary.

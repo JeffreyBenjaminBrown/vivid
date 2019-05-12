@@ -2,7 +2,7 @@ module Test.TDispatch where
 
 import Test.HUnit
 
-import qualified Control.Lens as L
+import Control.Lens hiding (op)
 import qualified Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
@@ -28,6 +28,7 @@ test_module_dispatch = TestList [
   , TestLabel "testFastAndSlow" testFastAndSlow
   , TestLabel "testDenseAndSparse" testDenseAndSparse
   , TestLabel "testAppend" testAppend
+  , TestLabel "testCat" testCat
   , TestLabel "testRep" testRep
   , TestLabel "testMuseqsDiff" testMuseqsDiff
   , TestLabel "testArc" testArc
@@ -136,22 +137,22 @@ testStack = TestCase $ do
   let y = mkMuseqFromEvs 2 [mkEv () 0 3 "()"]
       z = mkMuseqFromEvs 3 [mkEv "z" 1 2 "z"]
   assertBool "stack" $ stack y z ==
-    L.set dur (_dur y)
+    (dur .~ (_dur y))
     ( mkMuseqFromEvs 6 [ mkEv "()"  0 3 "()"
                        , mkEv "az" 1 2 "z"
                        , mkEv "()"  2 5 "()"
                        , mkEv "az" 4 5 "z"
                        , mkEv "()"  4 7 "()"] )
-  assertBool "stack" $ stack (L.set dur 1 y) z ==
-    L.set dur 1
+  assertBool "stack" $ stack (dur .~ 1 $ y) z ==
+    (dur .~ 1)
     ( mkMuseqFromEvs 6 [ mkEv "()"  0 3 "()"
                        , mkEv "az" 1 2 "z"
                        , mkEv "()"  2 5 "()"
                        , mkEv "az" 4 5 "z"
                        , mkEv "()"  4 7 "()" ] )
   assertBool "stack, where timeToRepeat differs from timeToPlayThrough"
-    $ stack (L.set sup 1 y) z ==
-    L.set dur 2
+    $ stack (sup .~ 1 $ y) z ==
+    (dur .~ 2)
     ( mkMuseqFromEvs 3 [ mkEv "()"  0 3 "()"
                        , mkEv "az" 1 2 "z"
                        , mkEv "()"  1 4 "()"
@@ -193,9 +194,9 @@ testDenseAndSparse :: Test
 testDenseAndSparse = TestCase $ do
   let x = mkMuseqFromEvs 10 [mkEv () 0 15 "a",mkEv () 2 2 "b"]
   assertBool "dense" $ dense 2 x ==
-    L.set dur 10 (mkMuseqFromEvs 5 [mkEv () 0 (15/2) "a",mkEv () 1 1 "b"])
+    (dur .~ 10) (mkMuseqFromEvs 5 [mkEv () 0 (15/2) "a",mkEv () 1 1 "b"])
   assertBool "sparse" $ sparse 2 x ==
-    L.set dur 10 (mkMuseqFromEvs 20 [mkEv () 0 30 "a",mkEv () 4 4 "b"])
+    (dur .~ 10) (mkMuseqFromEvs 20 [mkEv () 0 30 "a",mkEv () 4 4 "b"])
 
 -- This was written for the old Museq, where labels were attached
 -- in the wrong place. That was changed in the "one-museq" branch,
@@ -246,13 +247,27 @@ testAppend = TestCase $ do
                                , mkEv () 3 3 "b", mkEv () 5 5 "b"]
       in m {_sup = 6}
 
+testCat :: Test
+testCat = TestCase $ do
+  let a = mkMuseqH 1 [("a", RTime 0, "a")]
+      b = mkMuseqH 1 [("b", RTime 0, "b")]
+      c = mkMuseqH 1 [("c", RTime 0, "c")]
+  assertBool "1" $ cat [a,b,c] ==
+    mkMuseq 3  [ ("a", RTime 0, RTime 1, "a")
+               , ("b", RTime 1, RTime 2, "b")
+               , ("c", RTime 2, RTime 3, "c") ]
+  assertBool "1" $ cat [a, dur .~ 2 $ b] ==
+    mkMuseq 3  [ ("a", RTime 0, RTime 1, "a")
+               , ("b", RTime 1, RTime 2, "b")
+               , ("b", RTime 2, RTime 3, "b") ]
+
 testRep :: Test
 testRep = TestCase $ do
   let a = mkMuseqFromEvs 6 [mkEv () 0 7 "a"]
   assertBool "rep int" $ rep 2 a ==
-    L.set dur 12 (mkMuseqFromEvs 6 [mkEv () 0 7 "a"])
+    (dur .~ 12) (mkMuseqFromEvs 6 [mkEv () 0 7 "a"])
   assertBool "rep fraction" $ rep (3/2) a ==
-    L.set dur 9 (mkMuseqFromEvs 6 [mkEv () 0 7 "a"])
+    (dur .~ 9) (mkMuseqFromEvs 6 [mkEv () 0 7 "a"])
 
 testMuseqsDiff :: Test
 testMuseqsDiff = TestCase $ do
