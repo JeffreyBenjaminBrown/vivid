@@ -1,5 +1,7 @@
 module Test.TDispatch where
 
+import Test.HUnit
+
 import qualified Control.Lens as L
 import qualified Data.Map as M
 import Data.Ratio
@@ -12,7 +14,6 @@ import Dispatch.Internal.Join
 import Dispatch.Museq
 import Dispatch.Transform
 import Dispatch.Types
-import Test.HUnit
 
 
 test_module_dispatch :: Test

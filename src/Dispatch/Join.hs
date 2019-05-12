@@ -37,7 +37,7 @@ module Dispatch.Join (
        -- -> Museq String b
   ) where
 
-import Control.Lens (over, view, (^.))
+import Control.Lens
 import Data.Fixed (mod')
 import qualified Data.Map as M
 import qualified Data.Vector as V
@@ -52,34 +52,37 @@ import Dispatch.Transform
 -- | Play one after the other
 append :: forall l a. Museq l a -> Museq l a -> Museq l a
 append x0 y0 = let
-  durs = RTime
-    $ lcmRatios (tr $ dursToPlayThrough x0) (tr $ dursToPlayThrough y0)
+  durs = RTime $ lcmRatios
+         (tr $ dursToPlayThrough x0)
+         (tr $ dursToPlayThrough y0)
     -- Since x and y both have to finish at the same time,
     -- they must run through this many durs.
 
   xs = map adjustx ixs where
     ixs :: [(Int,V.Vector (Ev l a))]
-    ixs = zip [0..] $ unsafeExplicitReps (durs * _dur x0) x0
       -- ixs uses a 0 because it starts with no ys before it
-    -- adjustx: space out the xs to make room for the ys
+    ixs = zip [0..] $ unsafeExplicitReps (durs * _dur x0) x0
+
     adjustx :: (Int,V.Vector (Ev l a)) -> V.Vector (Ev l a)
+      -- adjustx: space out the xs to make room for the ys
     adjustx (idx,v) = V.map f v where
-      f = over evArc (\(x,y) -> (g x, g y)) where
+      f = evArc . both %~ g where
         g = (+) $ fromIntegral idx * _dur y0
 
   ys = map adjusty iys where
     iys :: [(Int,V.Vector (Ev l a))]
-    iys = zip [1..] $ unsafeExplicitReps (durs * _dur y0) y0
       -- iys uses a 1 because it starts with 1 (_dur x) worth of x before it
-    -- adjusty: space out the ys to make room for the xs
+    iys = zip [1..] $ unsafeExplicitReps (durs * _dur y0) y0
     adjusty :: (Int,V.Vector (Ev l a)) -> V.Vector (Ev l a)
+      -- adjusty: space out the ys to make room for the xs
     adjusty (idx,v) = V.map f v where
-      f = over evArc (\(x,y) -> (g x, g y)) where
-        g = (+) $ fromIntegral idx * _dur x0
+      f = evArc . both %~ g where
+        g = (+) $ fromIntegral idx * _dur y0
 
   in Museq { _sup = durs * (_dur x0 + _dur y0)
-            , _dur =         _dur x0 + _dur y0
-            , _vec = V.concat $ interleave xs ys }
+           , _dur =         _dur x0 + _dur y0
+           , _vec = V.concat $ interleave xs ys }
+
 
 -- todo ? speed (unlikely to matter)
 -- Speed this up dramatically by computing start times once, rather

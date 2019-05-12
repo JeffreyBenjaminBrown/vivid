@@ -22,6 +22,7 @@ module Util (
   , unique
   , unique' -- ^ Eq a => [a] -> [a]
   , interleave
+  , interleaves -- ^ [[a]] -> [a]
   , deleteAll
   , deleteShowQuotes
   , multiPartition -- ^ forall a b. Ord a => [(a,b)] -> [ (a,[b]) ]
@@ -138,6 +139,11 @@ unique' (a:as) = a : (unique' $ filter (not . (==) a) as)
 
 interleave :: [a] -> [a] -> [a]
 interleave xs ys = concat (zipWith (\x y -> [x]++[y]) xs ys)
+
+interleaves :: [[a]] -> [a]
+interleaves ls = case any null ls of
+  True -> []
+  False -> map head ls ++ interleaves (map tail ls)
 
 -- | Unlike Data.List.delete, this deletes more than the first instance.
 deleteAll :: Eq a => a -> [a] -> [a]

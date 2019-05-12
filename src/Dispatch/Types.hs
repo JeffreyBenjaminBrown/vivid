@@ -137,12 +137,12 @@ mkEv0 :: l -> Rational -> a -> Ev l a -- ^ duration-0 events
 mkEv0 l t a = Event l (fr t, fr t) a
 
 data Museq label a = Museq {
-  _dur :: RDuration -- ^ the play duration of the loop
+    _dur :: RDuration -- ^ the play duration of the loop
   , _sup :: RDuration -- ^ the supremum of the possible RTime values
     -- in `_vec`. If this is greater than `dur`, the `Museq`will rotate
     -- through different sections of the `vec` each time it plays.
-    -- If less than `dur`, the `Museq` will play the entire `vec` more than
-    -- once each time it plays.
+    -- If less than `dur`, the `Museq` will play the `vec` more than
+    -- once (but maybe not a whole number) each time it plays.
   , _vec :: V.Vector (Ev label a) }
   deriving (Show, Eq)
 makeLenses ''Museq
