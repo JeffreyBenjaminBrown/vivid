@@ -8,7 +8,8 @@ ScopedTypeVariables
 module Dispatch.Join (
     Museq(..)
   , append -- ^ forall l a. Museq l a -> Museq l a -> Museq l a
-  , cat    -- ^ [Museq l a] -> Museq l a -- the name "concat" is taken
+  , appends -- ^ [Museq l a] -> Museq l a
+  , cat     -- ^ [Museq l a] -> Museq l a -- the name "concat" is taken
   , stack  -- ^ forall a l m. (Show l, Show m)
            -- => Museq l a  -> Museq m a -> Museq String a
   , stacks -- ^ [Museq l a] -> Museq String a
@@ -37,9 +38,10 @@ module Dispatch.Join (
        -- -> Museq String b
   ) where
 
-import Control.Lens
+import Control.Lens hiding (op)
 import Data.Fixed (mod')
 import qualified Data.Map as M
+import qualified Data.Set as S
 import qualified Data.Vector as V
 
 import Util
@@ -77,12 +79,57 @@ append x0 y0 = let
       -- adjusty: space out the ys to make room for the xs
     adjusty (idx,v) = V.map f v where
       f = evArc . both %~ g where
-        g = (+) $ fromIntegral idx * _dur y0
+        g = (+) $ fromIntegral idx * _dur x0
 
   in Museq { _sup = durs * (_dur x0 + _dur y0)
            , _dur =         _dur x0 + _dur y0
            , _vec = V.concat $ interleave xs ys }
 
+
+-- | The `append` algorithm:
+-- `ml` is a list of museqs
+-- `mm` is a map from ints to those museqs
+-- `f` should take a `Museq`('s index) to
+--   a list of its explicit reps,
+--   spaced out to leave room for the other museqs
+-- To space out rep `r` of `Museq` `i`
+--   add `i` * (the duration of each `Museq` with index `j < i`)
+--   add `r` * (the sum of the durations of every `Museq` except `i`)
+
+appends' :: forall l a. [Museq l a] -> Museq l a
+appends' ml = let
+  durs = RTime $ foldr1 lcmRatios $
+         map (tr . dursToPlayThrough) ml
+
+  mm :: M.Map Int (Museq l a) =
+    M.fromList $ zip [0..] ml
+
+  f :: Int -> [V.Vector (Ev l a)]
+    -- Each `n` is the key bound to a `Museq` `m`.
+  f n = map adjust iReps where
+    m :: Museq l a = mm M.! n
+
+    iReps :: [(Int,V.Vector (Ev l a))]
+    iReps = zip [0..] $
+      unsafeExplicitReps (durs * _dur m) m
+
+    adjust :: (Int,V.Vector (Ev l a)) -> V.Vector (Ev l a)
+      -- Each `r` is a repetition of `m`.
+    adjust (r,v) = V.map (evArc . both %~ g) v where
+      otherMuseqs   = M.elems $ M.delete n mm -- everything but n
+      earlierMuseqs = M.elems $ M.restrictKeys mm $
+                      S.filter (< n) $ -- everything before n
+                      M.keysSet mm
+      g = (+) $ fromIntegral r * sum (map _dur otherMuseqs)
+              + fromIntegral n * sum (map _dur earlierMuseqs)
+
+  in Museq { _sup = durs * (sum $ map _dur $ M.elems mm)
+           , _dur =         sum $ map _dur $ M.elems mm
+           , _vec = V.concat $ interleaves $
+                    map (f . fst) $ M.toList mm }
+
+
+-- TODO : if `appends` works, this is obsolete
 
 -- todo ? speed (unlikely to matter)
 -- Speed this up dramatically by computing start times once, rather

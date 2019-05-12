@@ -3,7 +3,6 @@ j/6/3, for instance, takes maybe 1/4 second to load
 * TODO ! the bug in stack, cat
 ** in stack, I think it's name conflict
 It's names. See j/1/bugtest.hs
-** in cat, see the comment above it
 * TODO ? architectural changes
 ** can't adjust a parameter that's not in a Museq
 ** need: a way to restore a Zot to reasonable parameter values
