@@ -100,7 +100,7 @@ cat ml = let
 
 -- | Play both at the same time.
 -- PITFALL: The choice of the resulting Museqs _dur is arbitrary.
--- Here it's set to that of the first.
+-- Here it's set to their maximum.
 -- For something else, just compose `Lens.set dur _` after `stack`.
 stack :: forall a l m. (Show l, Show m)
        => Museq l a -> Museq m a -> Museq String a
@@ -117,8 +117,9 @@ stack x0 y0 = sortMuseq $
     unusedInX = unusedName $ map (view evLabel) $
       (V.toList $ _vec x) ++ (V.toList $ _vec y) 
 
+-- | Mystery: this misbehaves if `foldr1` is changed to `foldl1`.
 stacks :: [Museq String a] -> Museq String a
-stacks = foldl1 stack
+stacks = foldr1 stack
 
 -- | Allows the two arguments' namespaces to conflict
 stack' :: Museq l a -> Museq l a -> Museq l a
@@ -126,9 +127,9 @@ stack' x y =
   let t = timeForBothToRepeat x y
       xs = unsafeExplicitReps t x
       ys = unsafeExplicitReps t y
-  in sortMuseq $ Museq { _dur = _dur x
-                         , _sup = t
-                         , _vec = V.concat $ xs ++ ys}
+  in sortMuseq $ Museq { _dur = max (_dur x) (_dur y)
+                       , _sup = t
+                       , _vec = V.concat $ xs ++ ys}
 
 
 -- | `merge`` creates a hybrid.

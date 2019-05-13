@@ -134,6 +134,15 @@ testMuseqIsValid = TestCase $ do
 
 testStack :: Test
 testStack = TestCase $ do
+  let a = mkMuseqH 1 [("a", RTime 0, "a")]
+      b = mkMuseqH 1 [("a", RTime 0, "b")]
+      c = mkMuseqH 1 [("a", RTime 0, "c")]
+  assertBool "1" $ stacks [a,b,c] ==
+    Museq {_dur = 1, _sup = 1, _vec = V.fromList
+            [ Event "a"   (0, 1) "a"
+            , Event "aa"  (0, 1) "b"
+            , Event "aaa" (0, 1) "c" ] }
+
   let y = mkMuseqFromEvs 2 [mkEv () 0 3 "()"]
       z = mkMuseqFromEvs 3 [mkEv "z" 1 2 "z"]
   assertBool "stack" $ stack y z ==
