@@ -1,8 +1,7 @@
 * TODO ! learn to profile
 j/6/3, for instance, takes maybe 1/4 second to load
 * TODO ! the bugs in bugs/
-Stacking only 2 things doesn't do what I'd expect.
-Something takes a long time to load.
+** slow-load: no idea
 * TODO ? architectural changes
 ** can't adjust a parameter that's not in a Museq
 ** need: a way to restore a Zot to reasonable parameter values

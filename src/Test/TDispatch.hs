@@ -146,14 +146,14 @@ testStack = TestCase $ do
   let y = mkMuseqFromEvs 2 [mkEv () 0 3 "()"]
       z = mkMuseqFromEvs 3 [mkEv "z" 1 2 "z"]
   assertBool "stack" $ stack y z ==
-    (dur .~ (_dur y))
+    (dur .~ (_dur z))
     ( mkMuseqFromEvs 6 [ mkEv "()"  0 3 "()"
                        , mkEv "az" 1 2 "z"
                        , mkEv "()"  2 5 "()"
                        , mkEv "az" 4 5 "z"
                        , mkEv "()"  4 7 "()"] )
   assertBool "stack" $ stack (dur .~ 1 $ y) z ==
-    (dur .~ 1)
+    (dur .~ _dur z)
     ( mkMuseqFromEvs 6 [ mkEv "()"  0 3 "()"
                        , mkEv "az" 1 2 "z"
                        , mkEv "()"  2 5 "()"
@@ -161,7 +161,7 @@ testStack = TestCase $ do
                        , mkEv "()"  4 7 "()" ] )
   assertBool "stack, where timeToRepeat differs from timeToPlayThrough"
     $ stack (sup .~ 1 $ y) z ==
-    (dur .~ 2)
+    (dur .~ _dur z)
     ( mkMuseqFromEvs 3 [ mkEv "()"  0 3 "()"
                        , mkEv "az" 1 2 "z"
                        , mkEv "()"  1 4 "()"

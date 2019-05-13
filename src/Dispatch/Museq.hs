@@ -163,7 +163,7 @@ mkMuseqRt :: forall l. (Ord l, Show l) =>
 mkMuseqRt sup0 evs0 = let
   -- rather than group by l and then Sample,
   -- maybe group by l' = show l ++ show Sample?
-  evs1 :: [((l, Sample), (RTime,Msg)) ] =
+  evs1 :: [ ((l, Sample), (RTime,Msg)) ] =
     map (\(l,t,n,m) -> ((l,n),(t,m))) evs0
   evs2 :: [( (l, Sample), [(RTime,Msg)] )] =
     multiPartition evs1
@@ -179,7 +179,11 @@ mkMuseqRt sup0 evs0 = let
     map (_1 %~ \(l,s) -> show l ++ show s) evs4
   evs6 :: [Event RTime String Note] =
     concatMap (\(s,ps) -> map (\(ts,n) -> Event s ts n) ps) evs5
-  in mkMuseqFromEvs sup0 evs6
+  almost :: Museq String Note =
+    mkMuseqFromEvs sup0 evs6
+  g :: (RTime,RTime) -> (RTime,RTime)
+  g (s,e) = if s >= sup0 then (s-sup0,e-sup0) else (s,e)
+  in almost & vec %~ V.map (evArc %~ g)
 
 mkMuseqRt1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
 mkMuseqRt1 sup0 = mkMuseqRt sup0 . map f where
@@ -189,7 +193,6 @@ prepareToRetrigger ::
   RDuration -> [ (RDuration,             Msg)]
             -> [((RDuration, RDuration), Msg)]
 prepareToRetrigger sup0 dms = f dms where
-  endTime = fst (head dms) + sup0
 
   -- Given an event `(t,m)` and the time `next` of the event one,
   -- create two messages. One sends `m + (trigger=1)` at time `t`,
@@ -198,13 +201,15 @@ prepareToRetrigger sup0 dms = f dms where
               -> ( ( (RDuration,RDuration), Msg)
                  , ( (RDuration,RDuration), Msg) )
   triggerPair next (t,m) =
-    let halfway = (t+next) / 2
-    in ( ( (t      , halfway ), M.insert "trigger" 1 m)
-       , ( (halfway, next    ), M.insert "trigger" 0 m) )
+    let justAfter = (1023*t + next) / 1024
+    -- HACK! The off is sent soon after the on, so that even if the _sup
+    -- of the Museq is cut short, it probably won't lose the off signal.
+    in ( ( (t        , justAfter ), M.insert "trigger" 1 m)
+       , ( (justAfter, next      ), M.insert "trigger" 0 m) )
 
   f :: [(RDuration, Msg)] -> [((RDuration,RDuration),Msg)]
   f []                      = []
-  f [(t,m)]                 = let (a,b) = triggerPair endTime (t,m)
+  f [(t,m)]                 = let (a,b) = triggerPair sup0 (t,m)
                               in [a,b]
   f ((t0,a0):e@(t1,_):rest) = let (a,b) = triggerPair t1 (t0,a0)
                               in [a,b] ++ f (e:rest)

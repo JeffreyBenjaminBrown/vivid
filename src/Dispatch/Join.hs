@@ -129,7 +129,7 @@ stack' x y =
       ys = unsafeExplicitReps t y
   in sortMuseq $ Museq { _dur = max (_dur x) (_dur y)
                        , _sup = t
-                       , _vec = V.concat $ xs ++ ys}
+                       , _vec = V.concat $ xs ++ ys }
 
 
 -- | `merge`` creates a hybrid.
