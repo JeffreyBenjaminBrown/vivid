@@ -49,6 +49,19 @@ import Dispatch.Types
 import Dispatch.Internal.Join
 import Dispatch.Transform
 
+
+instance Applicative (Museq String) where -- TODO ? generalize
+  (<*>) = merge ($)
+  pure x = Museq { _dur=1, _sup=1
+                  , _vec = V.singleton $ mkEv "" 0 1 x }
+
+instance Semigroup (Museq label a) where
+  (<>) = append
+
+instance Monoid (Museq label a) where
+  mempty = Museq { _dur = 1, _sup = 1, _vec = mempty }
+
+
 append :: forall l a. Museq l a -> Museq l a -> Museq l a
 append x y = cat [x,y]
 
@@ -170,11 +183,6 @@ merge op a b = _merge (labelsToStrings a) (labelsToStrings b) where
     bs = boundaries $ map _evArc xs ++ map _evArc ys :: [RTime]
     xps = partitionAndGroupEventsAtBoundaries bs xs
     yps = partitionAndGroupEventsAtBoundaries bs ys
-
-instance Applicative (Museq String) where -- TODO ? generalize
-  (<*>) = merge ($)
-  pure x = Museq { _dur=1, _sup=1
-                  , _vec = V.singleton $ mkEv "" 0 1 x }
 
 
 -- | Some ways to merge `Museq Msg`s.

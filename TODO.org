@@ -1,7 +1,7 @@
-* TODO ! learn to profile
-j/6/3, for instance, takes maybe 1/4 second to load
-* TODO ! the bugs in bugs/
-** slow-load: no idea
+* TODO ! the bug in bugs/slow-load.hs, or j/6/3.hs
+j/6/3 takes maybe 1/4 second to load
+** learn to profile
+* TODO are early and late causing silence?
 * TODO ? architectural changes
 ** can't adjust a parameter that's not in a Museq
 ** need: a way to restore a Zot to reasonable parameter values
@@ -27,6 +27,16 @@ seq d e f = mmh [ (0, d)
                 , (1.5, f) ]
 *** another solution: an mmh that expects Maybe values
 * problems
+** changing _sup or _dur can ruin a Sampler sequence
+*** easier solution: manage Sampler trigger values from Dispatch
+Don't include "trigger" as a parameter in a Museq.
+Instead, add trigger=1 to every Museq message,
+and follow it closely by a trigger=0.
+*** hard (current) solution: manage trigger on-off within Museqs
+It ought to be that mkMuseqRt puts the trigger=0 right between
+the trigger=1 and the next event, rather than closer to the trigger=1.
+But then changes to the _dur or _sup of the sequence should ensure
+that any time the last message is "trigger=1", it is followed by "trigger=0".
 ** can't understand why it souonds like it does
 ** can't adjust individual notes
 * TODO easy

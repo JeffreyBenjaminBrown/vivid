@@ -10,8 +10,8 @@ meta3 = mmh 2 $ pre2 "a" $
         seq id (early (1/2)) (fast 2)
 patPitch k = mmho 2 $ pre2 "a" $
              map (_2 %~ m1 "freq") $ seq 0 k $ 2*k
-patKs  = mmrt1 2 $ seq SampleSm_peb SampleKm     SampleKm
-patHat = mmrt1 2 $ seq SampleHl_dc  SampleHl_tfc SampleHl_tfc
+patKs  = mmrt1 2 $ seq SampleKm SampleSm_peb SampleSl_blip
+patHat = mmrt1 2 $ seq SampleHl_et  SampleHl_tfc SampleHl_tfc
 
 go = nZot . toHz . rootScale rs where
   toHz = ops [("freq", (*) 200 . \p -> 2**(p/12))]
@@ -19,7 +19,7 @@ go = nZot . toHz . rootScale rs where
                                    , (1, (4, lyd))
                                    , (2, (1, lyd7)) ]
 
-toDrums = nAmpTo $ defaultAmp * 2.5
+modDrums = nAmpTo $ defaultAmp * 2.5
 
 zotTones = mergec $
              mmh 2 $ pre2 "a" $ map (_2 %~ mfl)
@@ -43,8 +43,7 @@ chAll $ mfl
   , ("2", go $ (\x -> stack x $ amp (*0.7) $ zotTones x) $
           meta meta1 $ merge0 (mm1 $ m1 "freq" 2) $
           merge0 (fast 3 $ patPitch 2) (patPitch 1))
-
-  , ("d1", toDrums $
+  , ("d1", modDrums $
            meta meta1 $ meta meta2 $ meta meta3 $
            fast 2 $ stack patKs $ fast 2 patHat )
   ]

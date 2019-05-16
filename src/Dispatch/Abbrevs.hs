@@ -1,8 +1,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Dispatch.Abbrevs (
+    viewDurs -- ^ Museq l a -> Museq l a
+
   -- | abbreviations
-    j   -- ^ Just
+  , j   -- ^ Just
   , n   -- ^ Nothing
   , m1  -- ^ M.singleton
   , mfl -- ^ M.fromList
@@ -47,6 +49,10 @@ import Dispatch.Transform
 import Dispatch.Types
 import Synths
 import Synths.Samples
+
+
+viewDurs :: Museq l a -> Museq l a
+viewDurs = vec .~ mempty
 
 
 -- | = Abbreviations

@@ -201,7 +201,7 @@ prepareToRetrigger sup0 dms = f dms where
               -> ( ( (RDuration,RDuration), Msg)
                  , ( (RDuration,RDuration), Msg) )
   triggerPair next (t,m) =
-    let justAfter = (1023*t + next) / 1024
+    let justAfter = (15*t + next) / 16
     -- HACK! The off is sent soon after the on, so that even if the _sup
     -- of the Museq is cut short, it probably won't lose the off signal.
     in ( ( (t        , justAfter ), M.insert "trigger" 1 m)
@@ -219,12 +219,11 @@ prepareToRetrigger sup0 dms = f dms where
 -- so that the last one can wrap around appropriately.
 hold :: forall a t. Num t => t -> [(t,a)] -> [((t,t),a)]
 hold sup0 tas = _hold tas where
-  endTime = fst (head tas) + sup0
 
   _hold :: [(t,a)] -> [((t,t),a)]
   _hold [] = []
   _hold [(t,a)] =
-    [((t,endTime),a)]
+    [((t,sup0),a)]
   _hold ((t0,a0):(t1,a1):rest) =
     ((t0,t1),a0) : _hold ((t1,a1):rest)
 
