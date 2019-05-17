@@ -35,6 +35,8 @@ module Dispatch.Join (
        -- => Museq l      (Museq String a -> Museq String b)
        -- -> Museq m      a
        -- -> Museq String b
+  , meta'
+  , meta''
   ) where
 
 import Control.Lens hiding (op)
@@ -132,7 +134,7 @@ stack x0 y0 = sortMuseq $
     fy :: Ev String a -> Ev String a
     fy = over evLabel $ deleteShowQuotes . (++) unusedInX
     unusedInX = unusedName $ map (view evLabel) $
-      (V.toList $ _vec x) ++ (V.toList $ _vec y) 
+      (V.toList $ _vec x) ++ (V.toList $ _vec y)
 
 -- | Mystery: this misbehaves if `foldr1` is changed to `foldl1`.
 stacks :: [Museq String a] -> Museq String a
@@ -159,7 +161,7 @@ stack' x y =
 --
 -- When merging parameters, you'll probably usually want to use * or +,
 -- on a per-parameter basis. For instance, you might want merging
--- frequencies 2 and 440 to produce a (multiplied) frequency of 880, but 
+-- frequencies 2 and 440 to produce a (multiplied) frequency of 880, but
 -- merging amplitudes 1 and 2 to give an (added) amplitude of 3.
 --
 -- `merge` is very abstract -- the two inputs can have different types.
@@ -293,6 +295,7 @@ meta f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
   _meta :: Museq String (Museq String x -> Museq String y)
         -> Museq String x
         -> Museq String y
+
   _meta f x = sortMuseq $ Museq { _dur = _dur x -- arbitrary
                                 , _sup = tbr
                                 , _vec = V.fromList evs } where
@@ -302,7 +305,74 @@ meta f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
     prefixLabels :: String -> Museq String x -> Museq String x
     prefixLabels s = over vec $ V.map
       $ over evLabel $ deleteShowQuotes . ((++) s)
-    evs = map (over evArc $ \(s,t) -> (RTime s, RTime t))
-      $ concat [arc 0 1 a b $ _evData anF $ prefixLabels (_evLabel anF) x
+    evs :: [Ev String y]
+    evs = map (evArc . both %~ RTime)
+      $ concat [ arc 0 1 a b $ _evData anF $
+                 prefixLabels (_evLabel anF) x
                | anF <- fs, let a = tr $ anF ^. evStart
                                 b = tr $ anF ^. evEnd ]
+
+meta' :: forall l m x y. (Show l, Show m)
+  => Museq l      (Museq String x -> Museq String y)
+  -> Museq m      x
+  -> [Ev String y]
+meta' f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
+  _meta :: Museq String (Museq String x -> Museq String y)
+        -> Museq String x
+        -> [Ev String y]
+
+  _meta f x = evs where
+    tbr = timeForBothToRepeat f x
+    fs :: [Ev String (Museq String x -> Museq String y)]
+    fs = concatMap V.toList $ unsafeExplicitReps tbr f
+    prefixLabels :: String -> Museq String x -> Museq String x
+    prefixLabels s = over vec $ V.map
+      $ over evLabel $ deleteShowQuotes . ((++) s)
+    evs :: [Ev String y]
+    evs = map (evArc . both %~ RTime)
+      $ concat [ arc 0 1 a b $ _evData anF $
+                 prefixLabels (_evLabel anF) x
+               | anF <- fs, let a = tr $ anF ^. evStart
+                                b = tr $ anF ^. evEnd ]
+
+-- | Unfinished. The idea is to let me see what's going on in `meta`,
+-- by pairing each function in the first argument with a string.
+-- To be used in conjunction with "bugs/empty-stream.hs".
+meta'' :: forall l m x y. (Show l, Show m)
+  => Museq l      ( String
+                  , Museq String x -> Museq String y)
+  -> Museq m      x
+  -> ( RTime
+     , [( Ev String (String, Museq String x -> Museq String y)
+        , Museq String x )] )
+meta'' f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
+  _meta :: Museq String ( String
+                        , Museq String x -> Museq String y)
+        -> Museq String x
+        -> ( RTime
+           , [( Ev String (String, Museq String x -> Museq String y)
+              , Museq String x )] )
+
+  _meta f x = (tbr, ffxs) where
+    tbr = timeForBothToRepeat f x
+
+    fs :: [Ev String ( String
+                     , Museq String x -> Museq String y )]
+    fs = concatMap V.toList $ unsafeExplicitReps tbr f
+    prefixLabels :: String -> Museq String x -> Museq String x
+    prefixLabels s = over vec $ V.map
+      $ over evLabel $ deleteShowQuotes . ((++) s)
+
+-- A bug in Intero won't let me format code after this type signature
+-- so I'm commenting it out.
+--    ffxs :: [( Ev String (String, Museq String x -> Museq String y)
+--            , Museq String x )]
+    ffxs = [ ( anF, prefixLabels (_evLabel anF) x)
+           | anF <- fs ]
+
+    ews :: [Event RTime String y]
+    ews = concatMap g ffxs where
+      g (ff,x) = let a = tr $ ff ^. evStart
+                     b = tr $ ff ^. evEnd
+                     f = snd $ _evData ff
+        in map (evArc . both %~ RTime) $ arc 0 1 a b $ f x
