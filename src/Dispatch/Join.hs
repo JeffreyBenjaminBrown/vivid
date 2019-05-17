@@ -285,24 +285,24 @@ rootScale mrs = let roots  = fst <$> mrs
                     scales = snd <$> mrs
   in root roots . scale scales
 
-meta :: forall a b l m. (Show l, Show m)
-  => Museq l      (Museq String a -> Museq String b)
-  -> Museq m      a
-  -> Museq String b
-meta x0 y0 = _meta (labelsToStrings x0) (labelsToStrings y0) where
-  _meta :: Museq String (Museq String a -> Museq String b)
-         -> Museq String a 
-         -> Museq String b
-  _meta x y = sortMuseq $ Museq { _dur = _dur y -- arbitrary
-                                   , _sup = tbr
-                                   , _vec = V.fromList evs } where
-    tbr = timeForBothToRepeat x y
-    xs :: [Ev String (Museq String a -> Museq String b)]
-    xs = concatMap V.toList $ unsafeExplicitReps tbr x
-    prefixLabels :: String -> Museq String a -> Museq String a
+meta :: forall l m x y. (Show l, Show m)
+  => Museq l      (Museq String x -> Museq String y)
+  -> Museq m      x
+  -> Museq String y
+meta f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
+  _meta :: Museq String (Museq String x -> Museq String y)
+        -> Museq String x
+        -> Museq String y
+  _meta f x = sortMuseq $ Museq { _dur = _dur x -- arbitrary
+                                , _sup = tbr
+                                , _vec = V.fromList evs } where
+    tbr = timeForBothToRepeat f x
+    fs :: [Ev String (Museq String x -> Museq String y)]
+    fs = concatMap V.toList $ unsafeExplicitReps tbr f
+    prefixLabels :: String -> Museq String x -> Museq String x
     prefixLabels s = over vec $ V.map
       $ over evLabel $ deleteShowQuotes . ((++) s)
     evs = map (over evArc $ \(s,t) -> (RTime s, RTime t))
-      $ concat [arc 0 1 a b $ _evData anX $ prefixLabels (_evLabel anX) y
-               | anX <- xs, let a = tr $ anX ^. evStart
-                                b = tr $ anX ^. evEnd ]
+      $ concat [arc 0 1 a b $ _evData anF $ prefixLabels (_evLabel anF) x
+               | anF <- fs, let a = tr $ anF ^. evStart
+                                b = tr $ anF ^. evEnd ]
