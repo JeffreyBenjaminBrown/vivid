@@ -219,11 +219,12 @@ prepareToRetrigger sup0 dms = f dms where
 -- so that the last one can wrap around appropriately.
 hold :: forall a t. Num t => t -> [(t,a)] -> [((t,t),a)]
 hold sup0 tas = _hold tas where
+  endTime = fst (head tas) + sup0
 
   _hold :: [(t,a)] -> [((t,t),a)]
   _hold [] = []
   _hold [(t,a)] =
-    [((t,sup0),a)]
+    [((t,endTime),a)]
   _hold ((t0,a0):(t1,a1):rest) =
     ((t0,t1),a0) : _hold ((t1,a1):rest)
 

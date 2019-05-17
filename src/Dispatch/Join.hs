@@ -117,6 +117,10 @@ cat ml = let
 -- For something else, just compose `Lens.set dur _` after `stack`.
 stack :: forall a l m. (Show l, Show m)
        => Museq l a -> Museq m a -> Museq String a
+stack (null . _vec -> True) x =
+  x & vec %~ fmap (evLabel %~ show)
+stack x (null . _vec -> True) =
+  x & vec %~ fmap (evLabel %~ show)
 stack x0 y0 = sortMuseq $
   _stack (labelsToStrings x0) (labelsToStrings y0)
   where
@@ -136,6 +140,8 @@ stacks = foldr1 stack
 
 -- | Allows the two arguments' namespaces to conflict
 stack' :: Museq l a -> Museq l a -> Museq l a
+stack' (null . _vec -> True) x = x
+stack' x (null . _vec -> True) = x
 stack' x y =
   let t = timeForBothToRepeat x y
       xs = unsafeExplicitReps t x
