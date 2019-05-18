@@ -427,8 +427,10 @@ _arcFold :: forall l a. Int -> Duration -> V.Vector RTime
   -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
   -> Museq l a -> [Ev l a]
 _arcFold cycle period startVec time0 from to m =
-  if from >= to then [] -- todo ? Be sure of `arc` boundary condition
-  else let
+  if null (m ^. vec) ||
+     from >= to
+    -- todo ? Be sure of `arc` boundary condition
+  then [] else let
     pp0 = prevPhase0 time0 period from :: Time
     fromInCycles = fr $ (from - pp0) / period :: RTime
     toInCycles   = fr $ (to   - pp0) / period :: RTime
