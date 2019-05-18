@@ -50,6 +50,7 @@ that any time the last message is "trigger=1", it is followed by "trigger=0".
 * TODO easy
 ** amplitude group for all drums, all pitched tracks
 ** ride cymbal
+** redundant: ev4 ~ mkEv
 * graph
 ** split rels v. reify
 *** TODO how
@@ -126,6 +127,29 @@ the many voices will not create huge waveform peaks.
 ** ? the Join functions that accept two kinds of labels are dumb
 They should accept only one kind, in the Monoid class,
 and join them if needed with (<>).
+* PITFALLS
+** timeForBothToPlayThrough v. timeForBothToRepeat
+*** the tradeoff
+**** timeForBothToPlayThrough is "safer"
+stack used to be written in terms of timeForBothToRepeat,
+but that led to this bug
+
+> c2 = dur .~ 2 $ mmh 1 $ pre2 "" $ [ (0, "a") ]
+> c2
+Museq {_dur = 2 % 1, _sup = 1 % 1, _vec = [Event {_evLabel = "", _evArc = (0 % 1,1 % 1), _evData = "a"}]}
+> stack c2 c2
+Museq {_dur = 2 % 1, _sup = 1 % 1, _vec = []}
+**** timeForBothToRepeat can be more efficient
+In the case of stack, if the time to repeat is less than the time to play through,
+the result of stacking two things can be a lot smaller if they are not looped all the way through.
+*** solutions
+**** it's not really that timeForBothToPlayThrough is "safer"
+ I'm sure there's a good way to do it -- just, like, check that it won't fuck up.
+**** another, also best-of-both-worlds, solution
+ Use timeToPlayThrough,
+ but then rewrite the result more concisely if possible.
+*** might be a problem with merge
+although I've only actually noticed it in stack
 * leads
 ./Dispatch/Dispatch.hs: -- todo ? awkward : The Ev' label gets repeated within the Action.
 * also whatever is in org/todo.org

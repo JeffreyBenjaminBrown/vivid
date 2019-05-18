@@ -1,7 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns, TupleSections #-}
 
 module Dispatch.Internal.Join (
-    timeForBothToRepeat -- ^ Museq l a -> Museq m b -> RTime
+    timeForBothToRepeat      -- ^ Museq l a -> Museq m b -> RTime
+  , timeForBothToPlayThrough -- ^ Museq l a -> Museq m b -> RTime
   , explicitReps -- ^ forall a. Museq l a -> [V.Vector (Ev l a)]
   , unsafeExplicitReps -- ^ forall l a.
      -- RTime -> Museq l a -> [V.Vector (Ev l a)]
@@ -29,6 +30,10 @@ import Dispatch.Types
 timeForBothToRepeat :: Museq l a -> Museq m b -> RTime
 timeForBothToRepeat x y =
   RTime $ lcmRatios (tr $ timeToRepeat x) (tr $ timeToRepeat y)
+
+timeForBothToPlayThrough :: Museq l a -> Museq m b -> RTime
+timeForBothToPlayThrough x y =
+  RTime $ lcmRatios (tr $ timeToPlayThrough x) (tr $ timeToPlayThrough y)
 
 -- | If L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.

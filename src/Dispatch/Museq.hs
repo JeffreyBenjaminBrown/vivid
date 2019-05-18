@@ -255,9 +255,12 @@ supsToPlayThrough m = timeToPlayThrough m / (_sup m)
 dursToPlayThrough :: Museq l a -> RTime
 dursToPlayThrough m = timeToPlayThrough m / (_dur m)
 
+-- | After `timeToRepeat`, the `Museq` always sounds like it's repeating.
+-- That doesn't mean it's played all the way through, though.
 timeToRepeat :: Museq l a -> RTime
-timeToRepeat m = let x = timeToPlayThrough m
-                  in if x == _dur m then _sup m else x
+timeToRepeat m = let tp = timeToPlayThrough m
+                 in if tp == _dur m -- implies `_dur m > _sup m`
+                    then _sup m else tp
 
 supsToRepeat :: Museq l a -> RTime
 supsToRepeat m = timeToRepeat m / _sup m

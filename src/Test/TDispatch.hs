@@ -173,10 +173,18 @@ testStack = TestCase $ do
   assertBool "stack, where timeToRepeat differs from timeToPlayThrough"
     $ stack (sup .~ 1 $ y) z ==
     (dur .~ _dur z)
-    ( mkMuseqFromEvs 3 [ mkEv "()"  0 3 "()"
-                       , mkEv "az" 1 2 "z"
+    ( sup .~ 6 $
+      mkMuseqFromEvs 3 [ mkEv "()"  0 3 "()"
+                       , mkEv "az"  1 2 "z"
                        , mkEv "()"  1 4 "()"
-                       , mkEv "()"  2 5 "()" ] )
+                       , mkEv "()"  2 5 "()"
+
+    -- If I used timeToRepeat instead of timeToPlayThrough,
+    -- this redundant second half would not be present.
+                       , mkEv "()"  3 6 "()"
+                       , mkEv "az"  4 5 "z"
+                       , mkEv "()"  4 7 "()"
+                       , mkEv "()"  5 8 "()" ] )
 
 testRev :: Test
 testRev = TestCase $ do
@@ -221,39 +229,33 @@ testDenseAndSparse = TestCase $ do
 testExplicitReps :: Test
 testExplicitReps = TestCase $ do
 
-  -- MESS : This is related, I think, to the bug in bugs/stack.hs
+  let y = Museq {_dur = 3, _sup = 4,
+                 _vec = V.fromList [ ev4 "" 0 3 ()
+                                   , ev4 "" 1 1 () ] }
 
-  assertBool "2" $ not $ null $ unsafeExplicitReps 1 $
-    sup .~ 2 $ mkMuseqH 1 $ pre2 "" $ [ (0, "a") ]
-  assertBool "2" $ not $ null $ unsafeExplicitReps 1 $
-    sup .~ 1 $ mkMuseqH 2 $ pre2 "" $ [ (0, "a") ]
---  assertBool "1" $ not $ null $ unsafeExplicitReps 1 $
---    dur .~ 2 $ mkMuseqH 1 $ pre2 "" $ [ (0, "a") ]
-  assertBool "restore the old testExplicitReps code" False
+  assertBool "unsafeExplicitReps" $ unsafeExplicitReps 24 y ==
+    [ V.fromList [ ev4 "" 0  3  ()
+                 , ev4 "" 1  1  () ]
+    , V.fromList [ ev4 "" 4  7  ()
+                 , ev4 "" 5  5  () ]
+    , V.fromList [ ev4 "" 8  11 () ]
+    , V.fromList [ ev4 "" 9  9  () ]
+    , V.fromList [ ev4 "" 12 15 ()
+                 , ev4 "" 13 13 () ]
+    , V.fromList [ ev4 "" 16 19 ()
+                 , ev4 "" 17 17 () ]
+    , V.fromList [ ev4 "" 20 23 () ]
+    , V.fromList [ ev4 "" 21 21 () ]
+    ]
 
--- This was written for the old Museq, where labels were attached
--- in the wrong place. That was changed in the "one-museq" branch,
--- but the test was not updated to use the new type.
---testExplicitReps :: Test
---testExplicitReps = TestCase $ do
---  let y = Museq {_dur = 3, _sup = 4
---                , _vec = V.fromList [((0,3),()), ((1,1),())]}
---  assertBool "explicitReps" $ explicitReps y ==
---    [ V.fromList [((0,3),()), ((1,1),())]
---    , V.fromList [((4,7),()), ((5,5),())] -- starts at 3
---    , V.fromList [((8,11),())]         -- starts at 6
---    , V.fromList [((9,9),())]         -- starts at 9
---    ]
---  assertBool "unsafeExplicitReps" $ unsafeExplicitReps 24 y ==
---    [ V.fromList [((0,3),()), ((1,1),())]
---    , V.fromList [((4,7),()), ((5,5),())]
---    , V.fromList [((8,11),())]
---    , V.fromList [((9,9),())]
---    , V.fromList [((12,15),()), ((13,13),())]
---    , V.fromList [((16,19),()), ((17,17),())]
---    , V.fromList [((20,23),())]
---    , V.fromList [((21,21),())]
---    ]
+  assertBool "explicitReps" $ explicitReps y ==
+    [ V.fromList [ ev4 "" 0 3  ()
+                 , ev4 "" 1 1  () ]
+    , V.fromList [ ev4 "" 4 7  ()   -- starts at 3
+                 , ev4 "" 5 5  () ]
+    , V.fromList [ ev4 "" 8 11 () ] -- starts at 6
+    , V.fromList [ ev4 "" 9 9  () ] -- starts at 9
+    ]
 
 testAppend :: Test
 testAppend = TestCase $ do

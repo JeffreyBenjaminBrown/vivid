@@ -146,7 +146,7 @@ stack' :: Museq l a -> Museq l a -> Museq l a
 stack' (null . _vec -> True) x = x
 stack' x (null . _vec -> True) = x
 stack' x y =
-  let t = timeForBothToRepeat x y
+  let t = timeForBothToPlayThrough x y
       xs = unsafeExplicitReps t x
       ys = unsafeExplicitReps t y
   in sortMuseq $ Museq { _dur = max (_dur x) (_dur y)
