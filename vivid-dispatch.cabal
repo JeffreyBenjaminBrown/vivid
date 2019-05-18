@@ -35,7 +35,7 @@ library
     , Util
 
     , Test.TDispatch
-    , Test.THode
+--    , Test.THode
     , Test.TMain
     , Test.TUtil
 
@@ -48,15 +48,15 @@ library
     , Dispatch.Museq
     , Dispatch.Transform
     , Dispatch.Types
-    , EarTrain
-    , Hode
-    , Random.MentionsSig
-    , Random.RandomSignal
-    , Random.RandomSynth
-    , Random.Render
-    , Random.Types
-    , Random.Types.AbstractSignal
-    , Random.Types.Other
+--    , EarTrain
+--    , Hode
+--    , Random.MentionsSig
+--    , Random.RandomSignal
+--    , Random.RandomSynth
+--    , Random.Render
+--    , Random.Types
+--    , Random.Types.AbstractSignal
+--    , Random.Types.Other
     , Scale
     , Synths
       Synths.Config
@@ -74,7 +74,7 @@ library
     , lens
     , megaparsec
     , random
-    , hode
+--    , hode
     , vector
     , vector-algorithms
 
