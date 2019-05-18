@@ -344,22 +344,22 @@ meta'' :: forall l m x y. (Show l, Show m)
                   , Museq String x -> Museq String y)
   -> Museq m      x
   -> ( RTime
-     , [( Ev String (String, Museq String x -> Museq String y)
-        , Museq String x )] )
+     , [( Ev String String, Museq String x )]
+     , [Event Time String y] )
 meta'' ff0 x0 = _meta (labelsToStrings ff0) (labelsToStrings x0) where
 
   _meta :: Museq String ( String
                         , Museq String x -> Museq String y)
         -> Museq String x
         -> ( RTime
-           , [( Ev String (String, Museq String x -> Museq String y)
-              , Museq String x )] )
+           , [( Ev String String, Museq String x )]
+           , [Event Time String y] )
 
-  _meta ff1 x1 = (tbr, ffxs) where
+  _meta ff1 x1 = (tbr, fxs, ews) where
     tbr = timeForBothToRepeat ff1 x1
 
     ffs :: [Ev String ( String
-                     , Museq String x -> Museq String y )]
+                      , Museq String x -> Museq String y )]
     ffs = concatMap V.toList $ unsafeExplicitReps tbr ff1
     prefixLabels :: String -> Museq String x -> Museq String x
     prefixLabels s = vec %~ V.map
@@ -371,11 +371,12 @@ meta'' ff0 x0 = _meta (labelsToStrings ff0) (labelsToStrings x0) where
 --            , Museq String x )]
     ffxs = [ ( anFf, prefixLabels (_evLabel anFf) x1)
            | anFf <- ffs ]
+    fxs :: [( Ev String String, Museq String x )]
+    fxs = map (_1 %~ fmap fst) ffxs
 
-    ews :: [Event RTime String y]
+    ews :: [Event Time String y]
     ews = concatMap g ffxs where
       g (ff,x2) = let a = tr $ ff ^. evStart
                       b = tr $ ff ^. evEnd
                       f = snd $ _evData ff
-        in map (evArc . both %~ RTime) $
-           arc 0 1 a b $ f x2
+        in arc 0 1 a b $ f x2
