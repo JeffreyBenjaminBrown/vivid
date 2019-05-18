@@ -1,45 +1,18 @@
 * report "backend is unhealthy" error
 https://downloads.haskell.org/~ghc/6.12.1/docs/html/users_guide/runtime-control.html
-* TODO ! the bug in bugs/slow-load.hs, or j/6/3.hs
-** things that are slow
-    inherited
- %time %alloc COST CENTRE                                                        MODULE                               SRC
-
- 48.6   45.9      meta._meta                                                     Dispatch.Join                        src/Dispatch/Join.hs:(300,3)-(314,55)
- 48.4   45.8       meta._meta.evs                                                Dispatch.Join                        src/Dispatch/Join.hs:(310,5)-(314,55)
- 11.0   15.8        arc                                                          Dispatch.Museq                       src/Dispatch/Museq.hs:(402,1)-(427,75)
- 34.4   21.0        main.wave                                                    Main                                 app/Main.hs:(45,7)-(46,28)
- 34.4   21.0         early                                                       Dispatch.Transform                   src/Dispatch/Transform.hs:(37,1)-(41,62)
- 29.7   14.7          sortMuseq                                                  Dispatch.Museq                       src/Dispatch/Museq.hs:(376,1)-(379,30)
- 25.8   14.7           #.                                                        Data.Profunctor.Unsafe               src/Data/Profunctor/Unsafe.hs:175:3-71
- 25.8   14.7            sortMuseq.\                                              Dispatch.Museq                       src/Dispatch/Museq.hs:(377,9)-(379,30)
-
- 46.2   49.9      rootScale                                                      Dispatch.Join                        src/Dispatch/Join.hs:(287,1)-(289,30)
- 27.3   16.2       scale                                                         Dispatch.Join                        src/Dispatch/Join.hs:(269,1)-(283,46)
- 27.3   16.2        merge                                                        Dispatch.Join                        src/Dispatch/Join.hs:(179,1)-(194,51)
- 27.3   16.1         merge._merge                                                Dispatch.Join                        src/Dispatch/Join.hs:(183,3)-(194,51)
- 21.2    9.4          merge._merge.yps                                           Dispatch.Join                        src/Dispatch/Join.hs:194:5-51
- 21.2    9.4           partitionAndGroupEventsAtBoundaries                       Dispatch.Internal.Join               src/Dispatch/Internal/Join.hs:(92,1)-(97,48)
- 21.0    9.3            partitionAndGroupEventsAtBoundaries.partitionEv          Dispatch.Internal.Join               src/Dispatch/Internal/Join.hs:(95,7)-(96,53)
- 21.0    9.3             partitionArcAtTimes                                     Dispatch.Internal.Join               src/Dispatch/Internal/Join.hs:(81,1)-(86,54)
- 14.7    9.3              >                                                      Dispatch.Types                       src/Dispatch/Types.hs:57:42-44
-  5.5    5.8          merge._merge.ys                                            Dispatch.Join                        src/Dispatch/Join.hs:191:5-54
-  5.5    5.8           unsafeExplicitReps                                        Dispatch.Internal.Join               src/Dispatch/Internal/Join.hs:(48,1)-(63,76)
-  5.4    5.7            unsafeExplicitReps.reps                                  Dispatch.Internal.Join               src/Dispatch/Internal/Join.hs:63:3-76
-  5.0    5.7             divideAtMaxima                                          Util                                 src/Util.hs:(218,1)-(226,27)
-  5.0    5.7              divideAtMaxima.go                                      Util                                 src/Util.hs:(223,3)-(226,27)
-  5.0    5.7               divideAtMaxima.go.(...)                               Util                                 src/Util.hs:225:9-49
- 18.9   33.7       root                                                          Dispatch.Join                        src/Dispatch/Join.hs:(263,1)-(264,36)
- 16.1   26.3        meta                                                         Dispatch.Join                        src/Dispatch/Join.hs:(295,1)-(314,55)
- 16.1   26.2         meta._meta                                                  Dispatch.Join                        src/Dispatch/Join.hs:(300,3)-(314,55)
- 15.7   25.9          meta._meta.evs                                             Dispatch.Join                        src/Dispatch/Join.hs:(310,5)-(314,55)
- 12.2   16.7           arc                                                       Dispatch.Museq                       src/Dispatch/Museq.hs:(402,1)-(427,75)
-
-** how to profile
-*** I think these both work
+* TODO : speed
+basically, merge and meta need work
+see prof/ for details
+* how to profile
+** run these to build the .prof file
 stack run --profile -- vivid-dispatch-exe --ghci-options="-O"
 stack exec -- vivid-dispatch-exe +RTS -p
-*** more supposedly-good options
+** then run something like this to make it readable
+This assumes that I've moved the last two columns (inherited percentages) to be first.
+
+egrep -v "^ *[0-9]\." vivid-dispatch-exe.prof > double-digits.prof
+egrep -v "^ *[0-2]\." vivid-dispatch-exe.prof > more-than-2-percent.prof
+** more supposedly-good options
 (according to http://www.fatvat.co.uk/2010/08/speeding-up-ants-program.html)
 -prof - Enables profiling
 -caf-all - Constant Applicative form for all top-level items (constant costs, one for each module.)

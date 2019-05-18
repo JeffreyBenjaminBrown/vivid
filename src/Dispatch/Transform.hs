@@ -25,20 +25,28 @@ import Dispatch.Types
 -- todo ? sorting in `rev` is overkill; faster would be to move the
 -- elements at time=1, if they exist, to time=0
 rev :: Museq l a -> Museq l a -- the name "reverse" is taken
-rev m = sortMuseq $ over vec g m where
+rev m = vec %~ sortIt . g $ m where
+  g :: V.Vector (Ev l a) -> V.Vector (Ev l a)
   g = V.reverse . V.map (over evArc f) where
     s = _sup m
     f (x,y) = if x > 0
               then (s-x, (s-x) + (y-x))
               else (x,y)
+  sortIt :: V.Vector (Ev l a) -> V.Vector (Ev l a)
+  sortIt v = let (a,b) = V.partition ((==) 0 . fst . _evArc) v
+             in a V.++ b
 
 -- todo ? sorting in `early` or `late` is overkill, similar to `rev`
 early, late :: RDuration -> Museq l a -> Museq l a
-early t m = sortMuseq $ over vec (V.map $ over evArc shift) m
-  where shiftStart :: RTime -> RTime
-        shiftStart rt = mod' (rt - t) (_sup m)
-        shift :: (RTime,RTime) -> (RTime,RTime)
-        shift (x,y) = let x' = shiftStart x in (x',x' + (y-x))
+early t m =
+  vec %~ (sortIt . V.map (evArc %~ shift)) $ m where
+  shift :: (RTime,RTime) -> (RTime,RTime)
+  shift (x,y) = (x',x' + (y-x)) where
+    x' = shiftStart x where
+      shiftStart :: RTime -> RTime
+      shiftStart rt = mod' (rt - t) (_sup m)
+  sortIt v = let (a,b) = V.partition ((>=) t . fst . _evArc ) v
+             in a V.++ b
 late t = early (-t)
 
 fast,slow,dense,sparse :: Rational -> Museq l a -> Museq l a
