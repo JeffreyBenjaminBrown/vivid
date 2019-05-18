@@ -9,6 +9,7 @@ import qualified Data.Vector as V
 
 import Util
 import Synths
+import Dispatch.Abbrevs
 import Dispatch.Join
 import Dispatch.Internal.Join
 import Dispatch.Museq
@@ -27,6 +28,7 @@ test_module_dispatch = TestList [
   , TestLabel "testEarlyAndLate" testEarlyAndLate
   , TestLabel "testFastAndSlow" testFastAndSlow
   , TestLabel "testDenseAndSparse" testDenseAndSparse
+  , TestLabel "testExplicitReps" testExplicitReps
   , TestLabel "testAppend" testAppend
   , TestLabel "testCat" testCat
   , TestLabel "testRep" testRep
@@ -42,7 +44,16 @@ test_module_dispatch = TestList [
   , TestLabel "testNameAnonEvents" testNameAnonEvents
   , TestLabel "testMultiPartition" testMultiPartition
   , TestLabel "testHold" testHold
+  , TestLabel "test_timeToPlayThrough" test_timeToPlayThrough
   ]
+
+test_timeToPlayThrough :: Test
+test_timeToPlayThrough = TestCase $ do
+  assertBool "1" $ 1 == timeToPlayThrough mempty
+  assertBool "1" $ 2 == timeToPlayThrough
+    (sup .~ 1 $ mmh 2 $ pre2 "" $ [ (0, "a") ] )
+  assertBool "1" $ 2 == timeToPlayThrough
+    (dur .~ 1 $ mmh 2 $ pre2 "" $ [ (0, "a") ] )
 
 testHold :: Test
 testHold = TestCase $ do
@@ -207,6 +218,19 @@ testDenseAndSparse = TestCase $ do
   assertBool "sparse" $ sparse 2 x ==
     (dur .~ 10) (mkMuseqFromEvs 20 [mkEv () 0 30 "a",mkEv () 4 4 "b"])
 
+testExplicitReps :: Test
+testExplicitReps = TestCase $ do
+
+  -- MESS : This is related, I think, to the bug in bugs/stack.hs
+
+  assertBool "2" $ not $ null $ unsafeExplicitReps 1 $
+    sup .~ 2 $ mkMuseqH 1 $ pre2 "" $ [ (0, "a") ]
+  assertBool "2" $ not $ null $ unsafeExplicitReps 1 $
+    sup .~ 1 $ mkMuseqH 2 $ pre2 "" $ [ (0, "a") ]
+--  assertBool "1" $ not $ null $ unsafeExplicitReps 1 $
+--    dur .~ 2 $ mkMuseqH 1 $ pre2 "" $ [ (0, "a") ]
+  assertBool "restore the old testExplicitReps code" False
+
 -- This was written for the old Museq, where labels were attached
 -- in the wrong place. That was changed in the "one-museq" branch,
 -- but the test was not updated to use the new type.
@@ -281,7 +305,7 @@ testRep = TestCase $ do
 testMuseqsDiff :: Test
 testMuseqsDiff = TestCase $ do
   let msg = M.singleton "amp" 1
-      m1 = M.fromList [("a", mkMuseqFromEvs 10
+      m3 = M.fromList [("a", mkMuseqFromEvs 10
                              [ mkEv0 "1" 0  (Note Boop msg)])
                       ,("b", mkMuseqFromEvs 15 [ mkEv0 "1" 0  (Note Boop msg)
                                                , mkEv0 "2" 10 (Note Boop msg)
@@ -292,11 +316,11 @@ testMuseqsDiff = TestCase $ do
                              [ mkEv0 "2" 0  (Note Boop msg)
                              , mkEv0 "3" 10 (Note Boop msg)
                              ] ) ]
-  assertBool "museqDiff" $ museqsDiff m1 m2 == ( [ (Boop,"1") ]
+  assertBool "museqDiff" $ museqsDiff m3 m2 == ( [ (Boop,"1") ]
                                                , [ (Boop,"3")
                                                  , (Vap ,"2")
                                                  ] )
-  assertBool "museqDiff" $ museqsDiff m2 m1 == ( [ (Boop,"3")
+  assertBool "museqDiff" $ museqsDiff m2 m3 == ( [ (Boop,"3")
                                                  , (Vap ,"2") ]
                                                , [ (Boop,"1")
                                                  ] )

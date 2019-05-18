@@ -50,9 +50,6 @@ that any time the last message is "trigger=1", it is followed by "trigger=0".
 * TODO easy
 ** amplitude group for all drums, all pitched tracks
 ** ride cymbal
-* bugs
-bugs/slow-load.hs
-bugs/stack-interference/
 * graph
 ** split rels v. reify
 *** TODO how

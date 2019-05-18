@@ -127,12 +127,13 @@ stack x0 y0 = sortMuseq $
   _stack (labelsToStrings x0) (labelsToStrings y0)
   where
   _stack :: Museq String a -> Museq String a -> Museq String a
-  _stack x y = stack' (over vec (V.map fx) x) (over vec (V.map fy) y)
+  _stack x y = stack' (vec %~ V.map fx $ x)
+                      (vec %~ V.map fy $ y)
     where -- append a label unused in x's events to all of y's event labels
     fx :: Ev String a -> Ev String a
-    fx = over evLabel $ deleteShowQuotes
+    fx = evLabel %~ deleteShowQuotes
     fy :: Ev String a -> Ev String a
-    fy = over evLabel $ deleteShowQuotes . (++) unusedInX
+    fy = evLabel %~ deleteShowQuotes . (unusedInX ++)
     unusedInX = unusedName $ map (view evLabel) $
       (V.toList $ _vec x) ++ (V.toList $ _vec y)
 
