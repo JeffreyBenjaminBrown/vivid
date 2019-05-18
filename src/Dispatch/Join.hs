@@ -338,6 +338,7 @@ meta' f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
 -- | Unfinished. The idea is to let me see what's going on in `meta`,
 -- by pairing each function in the first argument with a string.
 -- To be used in conjunction with "bugs/empty-stream.hs".
+
 meta'' :: forall l m x y. (Show l, Show m)
   => Museq l      ( String
                   , Museq String x -> Museq String y)
@@ -345,7 +346,8 @@ meta'' :: forall l m x y. (Show l, Show m)
   -> ( RTime
      , [( Ev String (String, Museq String x -> Museq String y)
         , Museq String x )] )
-meta'' f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
+meta'' ff0 x0 = _meta (labelsToStrings ff0) (labelsToStrings x0) where
+
   _meta :: Museq String ( String
                         , Museq String x -> Museq String y)
         -> Museq String x
@@ -353,26 +355,27 @@ meta'' f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
            , [( Ev String (String, Museq String x -> Museq String y)
               , Museq String x )] )
 
-  _meta f x = (tbr, ffxs) where
-    tbr = timeForBothToRepeat f x
+  _meta ff1 x1 = (tbr, ffxs) where
+    tbr = timeForBothToRepeat ff1 x1
 
-    fs :: [Ev String ( String
+    ffs :: [Ev String ( String
                      , Museq String x -> Museq String y )]
-    fs = concatMap V.toList $ unsafeExplicitReps tbr f
+    ffs = concatMap V.toList $ unsafeExplicitReps tbr ff1
     prefixLabels :: String -> Museq String x -> Museq String x
-    prefixLabels s = over vec $ V.map
-      $ over evLabel $ deleteShowQuotes . ((++) s)
+    prefixLabels s = vec %~ V.map
+                     (evLabel %~ deleteShowQuotes . (s ++))
 
--- A bug in Intero won't let me format code after this type signature
--- so I'm commenting it out.
+-- See here[1] for why I'm commenting this out.
+-- https://github.com/haskell/haskell-mode/issues/1652
 --    ffxs :: [( Ev String (String, Museq String x -> Museq String y)
 --            , Museq String x )]
-    ffxs = [ ( anF, prefixLabels (_evLabel anF) x)
-           | anF <- fs ]
+    ffxs = [ ( anFf, prefixLabels (_evLabel anFf) x1)
+           | anFf <- ffs ]
 
     ews :: [Event RTime String y]
     ews = concatMap g ffxs where
-      g (ff,x) = let a = tr $ ff ^. evStart
-                     b = tr $ ff ^. evEnd
-                     f = snd $ _evData ff
-        in map (evArc . both %~ RTime) $ arc 0 1 a b $ f x
+      g (ff,x2) = let a = tr $ ff ^. evStart
+                      b = tr $ ff ^. evEnd
+                      f = snd $ _evData ff
+        in map (evArc . both %~ RTime) $
+           arc 0 1 a b $ f x2

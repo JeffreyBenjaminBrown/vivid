@@ -1,9 +1,8 @@
-chars = mmh 2 $ pre2 "a" $ [ (0, "a")
-                           , (1, "b") ]
+chars = mmh 2 $ pre2 "" $ [ (0, "a") ]
 
-ops = mmh 8 $ pre2 "a" $
+ops = mmh 2 $ pre2 "a" $
   [ (0, id)
-  , (7, \x -> stack x x ) ]
+  , (1, \x -> stack x x ) ]
 
-(\x -> stack x x) $ dense 4 chars -- works
-meta' ops $ dense 4 $ chars       -- doesn't work
+-- (\x -> stack x x) $ dense 4 chars -- works
+meta' ops $ dense 2 $ chars       -- doesn't work
