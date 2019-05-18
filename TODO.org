@@ -26,6 +26,14 @@ seq d e f = mmh [ (0, d)
                 , (1, e)
                 , (1.5, f) ]
 *** another solution: an mmh that expects Maybe values
+* TODO stereo
+http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/index.html
+** try first: the "constant power" rule
+Let L(theta) = cos theta,
+    R(theta) = sin theta
+where theta ranges from 0 (left) to pi/2 (right)
+** if that makes the center position too loud
+try the "compromise" described later in the article
 * problems
 ** changing _sup or _dur can ruin a Sampler sequence
 *** easier solution: manage Sampler trigger values from Dispatch

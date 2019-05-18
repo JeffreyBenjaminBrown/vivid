@@ -6,4 +6,4 @@ ops = mmh 8 $ pre2 "a" $
   , (7, \x -> stack x x ) ]
 
 (\x -> stack x x) $ dense 4 chars -- works
-meta' ops $ dense 4 $ chars        -- doesn't work
+meta' ops $ dense 4 $ chars       -- doesn't work
