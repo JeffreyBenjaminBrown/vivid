@@ -1,4 +1,4 @@
-# Vivid-Dispatch: like Tidal, using Vivid and Hode
+# Vivid-Dispatch: a music toolkit
 
 
 ## prerequisites
@@ -23,6 +23,9 @@ Run `:s init.hs` to set up a dispatcher
 To see how controlling `Vivid-Dispatch` from code works,
 try running `:. demo/x`
 (where `x` is the name of some file in the `demo/` folder).
+
+
+## Super-experimental
 
 To see how controlling `Vivid-Dispatch` using
 [Hode](https://github.com/JeffreyBenjaminBrown/hode) works,

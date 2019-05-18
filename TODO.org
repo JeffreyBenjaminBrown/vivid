@@ -1,7 +1,8 @@
+* report "backend is unhealthy" error
+https://downloads.haskell.org/~ghc/6.12.1/docs/html/users_guide/runtime-control.html
 * TODO ! the bug in bugs/slow-load.hs, or j/6/3.hs
 j/6/3 takes maybe 1/4 second to load
 ** learn to profile
-* TODO are early and late causing silence?
 * TODO ? architectural changes
 ** can't adjust a parameter that's not in a Museq
 ** need: a way to restore a Zot to reasonable parameter values
@@ -22,18 +23,10 @@ seq d e f = mmh [ (0, d)
                 , (1, e)
                 , (1.5, f) ]
 *** one solution: define the endpoints
-seq d e f = mmh [ (0, d)
-                , (1, e)
-                , (1.5, f) ]
+seq d e f = mm [ (0, 1, d)
+               , (1, 1.25, e) -- there's a silence from 1.25 to 1.5
+               , (1.5, 2, f) ]
 *** another solution: an mmh that expects Maybe values
-* TODO stereo
-http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/index.html
-** try first: the "constant power" rule
-Let L(theta) = cos theta,
-    R(theta) = sin theta
-where theta ranges from 0 (left) to pi/2 (right)
-** if that makes the center position too loud
-try the "compromise" described later in the article
 * problems
 ** changing _sup or _dur can ruin a Sampler sequence
 *** easier solution: manage Sampler trigger values from Dispatch
@@ -51,6 +44,15 @@ that any time the last message is "trigger=1", it is followed by "trigger=0".
 ** amplitude group for all drums, all pitched tracks
 ** ride cymbal
 ** redundant: ev4 ~ mkEv
+** stereo
+ http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/index.html
+*** try first: the "constant power" rule
+ Let L(theta) = cos theta,
+     R(theta) = sin theta
+ where theta ranges from 0 (left) to pi/2 (right)
+*** if that makes the center position too loud
+ try the "compromise" described later in the article
+
 * graph
 ** split rels v. reify
 *** TODO how
