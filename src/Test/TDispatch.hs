@@ -148,7 +148,7 @@ testStack = TestCase $ do
   let a = mkMuseqH 1 [("a", RTime 0, "a")]
       b = mkMuseqH 1 [("a", RTime 0, "b")]
       c = mkMuseqH 1 [("a", RTime 0, "c")]
-  assertBool "1" $ stacks [a,b,c] ==
+  assertBool "1" $ stack [a,b,c] ==
     Museq {_dur = 1, _sup = 1, _vec = V.fromList
             [ Event "a"   (0, 1) "a"
             , Event "aa"  (0, 1) "b"
@@ -156,14 +156,14 @@ testStack = TestCase $ do
 
   let y = mkMuseqFromEvs 2 [mkEv () 0 3 "()"]
       z = mkMuseqFromEvs 3 [mkEv "z" 1 2 "z"]
-  assertBool "stack" $ stack y z ==
+  assertBool "stack" $ stack2 y z ==
     (dur .~ (_dur z))
     ( mkMuseqFromEvs 6 [ mkEv "()"  0 3 "()"
                        , mkEv "az" 1 2 "z"
                        , mkEv "()"  2 5 "()"
                        , mkEv "az" 4 5 "z"
                        , mkEv "()"  4 7 "()"] )
-  assertBool "stack" $ stack (dur .~ 1 $ y) z ==
+  assertBool "stack" $ stack2 (dur .~ 1 $ y) z ==
     (dur .~ _dur z)
     ( mkMuseqFromEvs 6 [ mkEv "()"  0 3 "()"
                        , mkEv "az" 1 2 "z"
@@ -171,7 +171,7 @@ testStack = TestCase $ do
                        , mkEv "az" 4 5 "z"
                        , mkEv "()"  4 7 "()" ] )
   assertBool "stack, where timeToRepeat differs from timeToPlayThrough"
-    $ stack (sup .~ 1 $ y) z ==
+    $ stack2 (sup .~ 1 $ y) z ==
     (dur .~ _dur z)
     ( sup .~ 6 $
       mkMuseqFromEvs 3 [ mkEv "()"  0 3 "()"

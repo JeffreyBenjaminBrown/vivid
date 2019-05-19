@@ -27,17 +27,20 @@ toScale = nZot
           . rootScale scalePat
 
 chAll $ mfl
-  [ ("1", meta ( slow 4 $ early 2 $
-                 modPat (fast 2) (late 1)) $
-          append patKs $ dense 2 patKs)
-  , ("2", meta ( slow 8 $
-                 modPat (early $ 1/4) (early $ 1/2)) $ 
-          meta ( slow 4 $
-                 modPat (fast 4 . early 1) (fast 2))
-          patHat)
-  , ("4.1", toScale $ stacks $ -- this takes advantage of a bug
+  [ ("1", stack
+      [ nAmpTo 0.04 $
+        meta ( slow 4 $ early 2 $
+               modPat (fast 2) (late 1)) $
+        append patKs $ dense 2 patKs
+      , nAmpTo 0.05 $
+        meta ( slow 8 $
+               modPat (early $ 1/4) (early $ 1/2)) $ 
+        meta ( slow 4 $
+               modPat (fast 4 . early 1) (fast 2))
+        patHat ] )
+  , ("4.1", toScale $ stack $ -- this takes advantage of a bug
             let p = append patPitch $ rev patPitch in
-              [ merge0 (stack (mm1 $ m1 "freq" $ -7)
+              [ merge0 (stack2 (mm1 $ m1 "freq" $ -7)
                          (mm1 $ m1 "freq" $ -14)) $ 
                 merge0 (fast 2 patPitch) $
                 meta (mmh 4 $ pre2 "e" $ seq (fast 2) (early 1) id) $

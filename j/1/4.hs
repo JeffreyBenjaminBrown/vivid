@@ -34,13 +34,13 @@ chAll $ mfl [
 --          meta revPat $ append pat $ dur %~ (/2) $ pat )
 --  , ("3", toScale $ ops [("freq",(+ 4))] $ fast 4 $ early 2 $
 --          meta revPat $ append pat $ dur %~ (/2) $ pat )
-   ("5", toScale $ stacks $
+   ("5", toScale $ stack $
          map ($ append pat $ dur %~ (/2) $ pat) $
          [ ops [("freq",((-) 12))]
          , ops [("freq",(+ 2))] . fast 2 
          , ops [("freq",(+ 4))] . fast 4 . early 2 ] )
           
-  , ("4", stacks [ fast 2 $ early (1/4) $ kickSnarePat
+  , ("4", stack [ fast 2 $ early (1/4) $ kickSnarePat
                  , append hatPat (rev $ fast 4 hatPat)
                  , fast 4 $ early (1/2) $ meta revPat $ hatPat
                  , kickSnarePat ] )

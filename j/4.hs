@@ -6,7 +6,7 @@ p1 = fast 2 $ early 1 $ mmho 4 $ pre2 "a"
 p2 f = mmho 1 $ [ ("a", 0, m1 "freq" f)
                 , ("b", 0, m1 "freq" 0)
                 ]
-p3 = merge0 p1 $ stack (p2 3) (p2 10)
+p3 = merge0 p1 $ stack2 (p2 3) (p2 10)
   
 rootPat = slow 8 $ mmh 8 $ pre2 "a"
   [ ( 0, 0 )

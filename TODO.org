@@ -1,33 +1,18 @@
-* report "backend is unhealthy" error
-https://downloads.haskell.org/~ghc/6.12.1/docs/html/users_guide/runtime-control.html
-* speed
-** no longer critical
-This no longer causes the app to hang,
-thanks to the parallelization introduced just after
-commit 9247c4c82c89a2d6577c7b7b40cb18cdff65ed7c
-** which functions are slow
-merge, meta, and subfunctions
-see prof/ for details
-* how to profile
-** run these to build the .prof file
-stack run --profile -- vivid-dispatch-exe --ghci-options="-O"
-stack exec -- vivid-dispatch-exe +RTS -p
-** then run something like this to make it readable
-This assumes that I've moved the last two columns (inherited percentages) to be first.
-
-egrep -v "^ *[0-9]\." vivid-dispatch-exe.prof > double-digits.prof
-egrep -v "^ *[0-2]\." vivid-dispatch-exe.prof > more-than-2-percent.prof
-** more supposedly-good options
-(according to http://www.fatvat.co.uk/2010/08/speeding-up-ants-program.html)
--prof - Enables profiling
--caf-all - Constant Applicative form for all top-level items (constant costs, one for each module.)
--auto-all - Cost-centre analysis for every top-level function
-* TODO ? architectural changes
-** can't adjust a parameter that's not in a Museq
-** need: a way to restore a Zot to reasonable parameter values
-*** Idea: a map from voices to all params that have been modified in it.
-*** Idea: a way to change the synth without using a Museq.
-** problem: the proliferation of Museq sources (and payloads)
+* TODO important
+** obvious: move retrigger handling
+*** two motivations
+Including retrigger as a Museq parameter bloats them.
+Changing _sup or _dur can ruin a Sampler sequence.
+*** better solution: manage Sampler trigger values from Dispatch
+Don't include "trigger" as a parameter in a Museq.
+Instead, add trigger=1 to every Museq message,
+and follow it closely by a trigger=0.
+** background states for voices
+*** motivation: can't adjust a parameter that's not in a Museq
+*** motivation: restore a Zot to reasonable parameter values
+**** Idea: a map from voices to all params that have been modified in it.
+**** Idea: a way to change the synth without using a Museq.
+** unify the mkMuseq methods
 *** illustration of the problem
 (l,time,time,Msg)
 (time,Note)
@@ -36,32 +21,24 @@ etc.
 Stop using the Museq Msg type.
 Instead use Museq Note',
 where Note' is like Note but the synthdef is wrapped in a Maybe.
-** problem: can't insert silence into an abstract pattern generator
-*** illustration of the problem
-seq d e f = mmh [ (0, d)
-                , (1, e)
-                , (1.5, f) ]
-*** one solution: define the endpoints
-seq d e f = mm [ (0, 1, d)
-               , (1, 1.25, e) -- there's a silence from 1.25 to 1.5
-               , (1.5, 2, f) ]
-*** another solution: an mmh that expects Maybe values
-* problems
-** changing _sup or _dur can ruin a Sampler sequence
-*** easier solution: manage Sampler trigger values from Dispatch
-Don't include "trigger" as a parameter in a Museq.
-Instead, add trigger=1 to every Museq message,
-and follow it closely by a trigger=0.
-*** hard (current) solution: manage trigger on-off within Museqs
-It ought to be that mkMuseqRt puts the trigger=0 right between
-the trigger=1 and the next event, rather than closer to the trigger=1.
-But then changes to the _dur or _sup of the sequence should ensure
-that any time the last message is "trigger=1", it is followed by "trigger=0".
-** can't understand why it souonds like it does
-** can't adjust individual notes
+** use defaults in, e.g., amp :: (Float -> Float) -> Museq -> Museq
+Currently there are both "amp" and "ampTo";
+one takes a function, the other a value.
+I could stick to the one that takes a function,
+if it assumed the default value when that value is not present.
+** a chAll that adds names automatically
+Maybe just use big stacks.
+** delete duplicate drums
+Or at least reduce the volume of one of them.
 * TODO easy
+** TODO zotOneMsg should not use error
+when it receives an unexpected message
+** mmho
+*** rewrite mmho so that duration is last
+*** versions that don't expect a name
+*** a version that zips (map RTime [0..]) to a list of payloads
+and computes the duration automatically (as the length of the list)
 ** amplitude group for all drums, all pitched tracks
-** ride cymbal
 ** redundant: ev4 ~ mkEv
 ** stereo
  http://www.cs.cmu.edu/~music/icm-online/readings/panlaws/index.html
@@ -72,6 +49,74 @@ that any time the last message is "trigger=1", it is followed by "trigger=0".
 *** if that makes the center position too loud
  try the "compromise" described later in the article
 
+** shorthand
+*** TODO noteToFreq = ops [("freq", (*) 300 . \p -> 2**(p/12))]
+*** ? per parameter, a function to change it or set it if absent
+* TODO more
+** important ? missing drums
+tom -- low, high
+cymbal -- ride, crash, cowbell
+woodblock
+clap
+tambourine
+** to prevent loud unisons during polyphonic merges
+Use per-voice explicit or random phase|freq variation.
+This way, when a polyphonic Museq is joined with another,
+and the poly one is silent,
+the many voices will not create huge waveform peaks.
+** ? the Join functions that accept two kinds of labels are dumb
+They should accept only one kind, in the Monoid class,
+and join them if needed with (<>).
+* gui
+** motivation: can't understand why it souonds like it does
+** motivation: can't adjust individual notes
+* PITFALLS
+** timeForBothToPlayThrough v. timeForBothToRepeat
+*** the tradeoff
+**** timeForBothToPlayThrough is "safer"
+stack used to be written in terms of timeForBothToRepeat,
+but that led to this bug
+
+> c2 = dur .~ 2 $ mmh 1 $ pre2 "" $ [ (0, "a") ]
+> c2
+Museq {_dur = 2 % 1, _sup = 1 % 1, _vec = [Event {_evLabel = "", _evArc = (0 % 1,1 % 1), _evData = "a"}]}
+> stack c2 c2
+Museq {_dur = 2 % 1, _sup = 1 % 1, _vec = []}
+**** timeForBothToRepeat can be more efficient
+In the case of stack, if the time to repeat is less than the time to play through,
+the result of stacking two things can be a lot smaller if they are not looped all the way through.
+*** solutions
+**** it's not really that timeForBothToPlayThrough is "safer"
+ I'm sure there's a good way to do it -- just, like, check that it won't fuck up.
+**** another, also best-of-both-worlds, solution
+ Use timeToPlayThrough,
+ but then rewrite the result more concisely if possible.
+*** might be a problem with merge
+although I've only actually noticed it in stack
+* leads
+./Dispatch/Dispatch.hs: -- todo ? awkward : The Ev' label gets repeated within the Action.
+* speed
+** no longer critical
+Complex patterns no longer causes the app to hang notes until it evaluates,
+thanks to the parallelization introduced just after
+commit 9247c4c82c89a2d6577c7b7b40cb18cdff65ed7c
+** which functions are slow
+merge, meta, and subfunctions
+see prof/ for details
+** how to profile
+*** run these to build the .prof file
+ stack run --profile -- vivid-dispatch-exe --ghci-options="-O"
+ stack exec -- vivid-dispatch-exe +RTS -p
+*** then run something like this to make it readable
+ This assumes that I've moved the last two columns (inherited percentages) to be first.
+
+ egrep -v "^ *[0-9]\." vivid-dispatch-exe.prof > double-digits.prof
+ egrep -v "^ *[0-2]\." vivid-dispatch-exe.prof > more-than-2-percent.prof
+*** more supposedly-good options
+ (according to http://www.fatvat.co.uk/2010/08/speeding-up-ants-program.html)
+ -prof - Enables profiling
+ -caf-all - Constant Applicative form for all top-level items (constant costs, one for each module.)
+ -auto-all - Cost-centre analysis for every top-level function
 * graph
 ** split rels v. reify
 *** TODO how
@@ -118,61 +163,6 @@ that any time the last message is "trigger=1", it is followed by "trigger=0".
 *** modify Hode to let using code add to the UI
 ** how to cut through the boilerplate in Vivid.Hode?
  HExpr helped, but there ought to be a way to build all those functions from a single HExprF.
-* TODO more
-** easy shorthand
-*** functions to change parameters
-per parameter, a function to change it
-per parameter, a function to set it if absent
-  mmho does something like this for "on"
-per parameter, a function to change it or set it if absent
-*** noteToFreq = ops [("freq", (*) 300 . \p -> 2**(p/12))]
-*** mmho
-**** rewrite mmho so that duration is last
-**** versions that don't expect a name
-**** a version that zips (map RTime [0..]) to a list of payloads
-and computes the duration automatically (as the length of the list)
-*** a chAll that adds names automatically
-** timbres
-** drums
-*** important ? missing drums
-tom -- low, high
-cymbal -- ride, crash, cowbell
-woodblock
-clap
-tambourine
-** to prevent loud unisons during polyphonic merges
-Use per-voice explicit or random phase|freq variation.
-This way, when a polyphonic Museq is joined with another,
-and the poly one is silent,
-the many voices will not create huge waveform peaks.
-** ? the Join functions that accept two kinds of labels are dumb
-They should accept only one kind, in the Monoid class,
-and join them if needed with (<>).
-* PITFALLS
-** timeForBothToPlayThrough v. timeForBothToRepeat
-*** the tradeoff
-**** timeForBothToPlayThrough is "safer"
-stack used to be written in terms of timeForBothToRepeat,
-but that led to this bug
-
-> c2 = dur .~ 2 $ mmh 1 $ pre2 "" $ [ (0, "a") ]
-> c2
-Museq {_dur = 2 % 1, _sup = 1 % 1, _vec = [Event {_evLabel = "", _evArc = (0 % 1,1 % 1), _evData = "a"}]}
-> stack c2 c2
-Museq {_dur = 2 % 1, _sup = 1 % 1, _vec = []}
-**** timeForBothToRepeat can be more efficient
-In the case of stack, if the time to repeat is less than the time to play through,
-the result of stacking two things can be a lot smaller if they are not looped all the way through.
-*** solutions
-**** it's not really that timeForBothToPlayThrough is "safer"
- I'm sure there's a good way to do it -- just, like, check that it won't fuck up.
-**** another, also best-of-both-worlds, solution
- Use timeToPlayThrough,
- but then rewrite the result more concisely if possible.
-*** might be a problem with merge
-although I've only actually noticed it in stack
-* leads
-./Dispatch/Dispatch.hs: -- todo ? awkward : The Ev' label gets repeated within the Action.
 * also whatever is in org/todo.org
 * the best licks
 2/3

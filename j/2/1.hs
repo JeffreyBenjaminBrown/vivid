@@ -36,7 +36,7 @@ chAll $ mfl
           meta ( slow 4 $
                  modPat (fast 4 . early 1) (fast 2))
           patHat)
-  , ("4.1", toScale $ stacks $ -- this takes advantage of a bug
+  , ("4.1", toScale $ stack $ -- this takes advantage of a bug
             let p = append patPitch $ rev patPitch in
               [ merge0 (fast 2 patPitch) $
                 meta (mmh 4 $ pre2 "d" $ seq (fast 2) (early 1) id) $

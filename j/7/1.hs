@@ -40,10 +40,10 @@ zotTones = mergec $
 chAll $ mfl
   [ ("1", go $ meta meta1 $
           slow 2 $ merge0 (fast 3 $ patPitch 1) (patPitch 2))
-  , ("2", go $ (\x -> stack x $ amp (*0.7) $ zotTones x) $
+  , ("2", go $ (\x -> stack2 x $ amp (*0.7) $ zotTones x) $
           meta meta1 $ merge0 (mm1 $ m1 "freq" 2) $
           merge0 (fast 3 $ patPitch 2) (patPitch 1))
   , ("d1", modDrums $
            meta meta1 $ meta meta2 $ meta meta3 $
-           fast 2 $ stack patKs $ fast 2 patHat )
+           fast 2 $ stack2 patKs $ fast 2 patHat )
   ]

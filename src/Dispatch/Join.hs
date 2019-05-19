@@ -9,9 +9,9 @@ module Dispatch.Join (
     Museq(..)
   , append -- ^ forall l a. Museq l a -> Museq l a -> Museq l a
   , cat     -- ^ [Museq l a] -> Museq l a
-  , stack  -- ^ forall a l m. (Show l, Show m)
+  , stack2  -- ^ forall a l m. (Show l, Show m)
            -- => Museq l a  -> Museq m a -> Museq String a
-  , stacks -- ^ [Museq l a] -> Museq String a
+  , stack -- ^ [Museq l a] -> Museq String a
   , stack' -- ^  Museq l a  -> Museq l a -> Museq l a
   , merge  -- ^ forall a b c l m. (Show l, Show m)
            -- =>        (a ->         b ->              c)
@@ -117,13 +117,13 @@ cat ml = let
 -- PITFALL: The choice of the resulting Museqs _dur is arbitrary.
 -- Here it's set to their maximum.
 -- For something else, just compose `Lens.set dur _` after `stack`.
-stack :: forall a l m. (Show l, Show m)
+stack2 :: forall a l m. (Show l, Show m)
        => Museq l a -> Museq m a -> Museq String a
-stack (null . _vec -> True) x =
+stack2 (null . _vec -> True) x =
   x & vec %~ fmap (evLabel %~ show)
-stack x (null . _vec -> True) =
+stack2 x (null . _vec -> True) =
   x & vec %~ fmap (evLabel %~ show)
-stack x0 y0 = sortMuseq $
+stack2 x0 y0 = sortMuseq $
   _stack (labelsToStrings x0) (labelsToStrings y0)
   where
   _stack :: Museq String a -> Museq String a -> Museq String a
@@ -138,8 +138,8 @@ stack x0 y0 = sortMuseq $
       (V.toList $ _vec x) ++ (V.toList $ _vec y)
 
 -- | Mystery: this misbehaves if `foldr1` is changed to `foldl1`.
-stacks :: [Museq String a] -> Museq String a
-stacks = foldr1 stack
+stack :: [Museq String a] -> Museq String a
+stack = foldr1 stack2
 
 -- | Allows the two arguments' namespaces to conflict
 stack' :: Museq l a -> Museq l a -> Museq l a

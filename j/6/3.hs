@@ -1,4 +1,4 @@
-p1 = stack a b & dur .~ 4 where
+p1 = stack2 a b & dur .~ 4 where
   a = mmho 3 $ pre2 "a" [(0, m1 "freq" 0)
                         ,(1, m1 "freq" 2)]
   b = mmho 2 $ pre2 "b" [(0, m1 "on" 0)
@@ -28,7 +28,7 @@ wave = slow 4 $ mmh 2 $ pre2 "a" $ zip (map RTime [0..]) $
        [id, early $ 1]
 
 chAll $ mfl [
-  ("1", go $ fast 2 $ merge0fa (slow 4 $ run 4) $ merge0fa (run 4) p1)
+    ("1", go $ fast 2 $ merge0fa (slow 4 $ run 4) $ merge0fa (run 4) p1)
   , ("2", go $ fast 4 $ meta wave $
           merge0fa (slow 8 $ run 4) $ merge0fa (run 3) $
           cat [p1, dense 2 p1])

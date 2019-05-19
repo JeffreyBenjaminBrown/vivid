@@ -1,4 +1,4 @@
-p1 = stack a b where
+p1 = stack2 a b where
   a = mmho 2 $ pre2 "a" [(0, m1 "freq" 0)
                         ,(1, m1 "freq" 2)]
   b = mmho 2 $ pre2 "b" [(0, m1 "on" 0)

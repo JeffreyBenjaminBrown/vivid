@@ -73,7 +73,7 @@ zot = sd ( 0 :: I "on"
          ) $ do
   fb_1 <- head <$> localIn(1)
   fb01 <- (fb_1 ~+ 1) ~/ 2
-  fm <- (V::V "freq")
+  fm <-    (V::V "freq")
         ~+ (V::V "fm-b") ~* fb_1
         ~+ (V::V"fm-m") ~* sinOsc (freq_ $ (V::V"freq") ~* (V::V"fm-f"))
   pm <- (pi/2) ~* (   (V::V"pm-b") ~* fb01
