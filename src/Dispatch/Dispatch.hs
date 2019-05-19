@@ -206,13 +206,16 @@ replace disp newName newMuseq = do
 -- and which need creation. Create the latter immediately. Wait to delete
 -- the former until it's safe, and before deleting them, send silence
 -- (set "amp" to 0).
+--
+-- This computes the next thing to play in parallel, rather than
+-- halting SuperCollider communication until the next thing is computed.
 
 replaceAll :: Dispatch -> M.Map MuseqName (Museq String Note) -> IO ()
 replaceAll disp masNew = do
-  time0  <-      takeMVar $ mTime0       disp
-  tempoPeriod <- takeMVar $ mTempoPeriod disp
-  masOld <-      takeMVar $ mMuseqs      disp
-  reg <-         takeMVar $ mReg         disp
+  time0  <-      readMVar $ mTime0       disp
+  tempoPeriod <- readMVar $ mTempoPeriod disp
+  masOld <-      readMVar $ mMuseqs      disp
+  reg <-         readMVar $ mReg         disp
   now <- unTimestamp <$> getTime
 
   let masNew' = M.mapWithKey f masNew where
@@ -229,10 +232,15 @@ replaceAll disp masNew = do
   newTransform  <- mapM (actNew  reg)      $ map (uncurry New)  toCreate
   freeTransform <- mapM (actFree reg when) $ map (uncurry Free) toFree
 
-  putMVar (mTime0       disp) time0       -- unchnaged
-  putMVar (mTempoPeriod disp) tempoPeriod -- unchanged
+  let synthRegisterNew = foldl (.) id newTransform reg
+
+  -- make sure everything we need is calculated,
+  -- then empty all the MVars and replace them with this new stuff
+  seq (masNew', synthRegisterNew) $ return ()
+  _ <- takeMVar $ mMuseqs      disp
+  _ <- takeMVar $ mReg         disp
   putMVar (mMuseqs      disp) masNew'
-  putMVar (mReg         disp) $ foldl (.) id newTransform reg
+  putMVar (mReg         disp) synthRegisterNew
 
   _ <- forkIO $ do
     wait $ when - now -- delete register's synths once it's safe
