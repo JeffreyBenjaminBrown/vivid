@@ -2,6 +2,7 @@
 
 
 ## prerequisites
+
 To use this code you'll need to have first installed:
 
 * [Stack](https://docs.haskellstack.org/en/stable/README/),
@@ -21,8 +22,11 @@ Run `:s init.hs` to set up a dispatcher
 (a thing that talks to SuperCollider).
 
 To see how controlling `Vivid-Dispatch` from code works,
-try running `:. demo/x`
-(where `x` is the name of some file in the `demo/` folder).
+try running `:. docs/x` or `sketches/x`
+(where `x` is the name of some file in the `demo/` folder,
+minus the `.hs` extension).
+The files in `docs/` are simple and commented;
+the files in `sketches/`, not so much.
 
 
 ## Super-experimental
