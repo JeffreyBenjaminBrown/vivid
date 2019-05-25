@@ -75,7 +75,9 @@ zot = sd ( 0 :: I "on"
   fb01 <- (fb_1 ~+ 1) ~/ 2
   fm <-    (V::V "freq")
         ~+ (V::V "fm-b") ~* fb_1
-        ~+ (V::V"fm-m") ~* sinOsc (freq_ $ (V::V"freq") ~* (V::V"fm-f"))
+        ~+ ( (V::V"fm-m") ~*
+             (V::V"freq") ~*
+             sinOsc (freq_ $ (V::V"freq") ~* (V::V"fm-f") ) )
   pm <- (pi/2) ~* (   (V::V"pm-b") ~* fb01
                    ~+ (V::V"pm-m")
                       ~* sinOsc (freq_ $ (V::V"freq") ~* (V::V"pm-f")))

@@ -4,17 +4,22 @@
 -- and continuously receiving instructions to change
 -- frequency or other parameters.
 
--- a melody (in Hz)
-patFreq = mmho 4 $ pre2 ""
+patFreq = -- a melody (in Hz)
+  mmho 4  -- The duration will be 4.
+  -- "mmho" = "mm" (make a Museq)
+  --           + "h" (hold each note until the next one)
+  --           + "o" (insert "on=1" messages whereer "on" is not mentioned)
+  $ pre2 ""
   [ (0,   mfl [("freq",70)])
   , (1,   mfl [("freq",90)])
   , (2,   mfl [("freq",60)])
+  , (3,   mfl [("on"  ,0 )])      -- "on=0" means "note off"
   , (3.5, mfl [("freq",140)])
   ]
 
 -- A "timbre melody". It refers to parameters defined for the Zot synth.
--- (It's not really important what these parameters mean;
--- the point is that you can merge these signals.)
+-- It's not really important what these parameters mean;
+-- the point is that each parameter can be updated while the synth plays.
 patTimbre = fast 2 $ mmh 2 $ pre2 ""
   [ (0, mfl [ ("pulse",1)   -- the carrier is entirely a pulse wave
             , ("amp", 0.02) -- amplitude
