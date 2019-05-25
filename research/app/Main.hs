@@ -14,7 +14,7 @@ import VividDispatch
 
 main :: IO ()
 main = do
-  putStrLn $ "\\nPress any key to quit. " ++
+  putStrLn $ "\nPress any key to quit. " ++
     "(You'll probably want to wait until you hear something first.)"
   disp <- newDispatch
   tid <- startDispatchLoop disp
@@ -58,4 +58,3 @@ main = do
   _ <- getLine
   hush
   off
-
