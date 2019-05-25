@@ -7,11 +7,6 @@ Changing _sup or _dur can ruin a Sampler sequence.
 Don't include "trigger" as a parameter in a Museq.
 Instead, add trigger=1 to every Museq message,
 and follow it closely by a trigger=0.
-** background states for voices
-*** motivation: can't adjust a parameter that's not in a Museq
-*** motivation: restore a Zot to reasonable parameter values
-**** Idea: a map from voices to all params that have been modified in it.
-**** Idea: a way to change the synth without using a Museq.
 ** unify the mkMuseq methods
 *** illustration of the problem
 (l,time,time,Msg)
@@ -21,13 +16,16 @@ etc.
 Stop using the Museq Msg type.
 Instead use Museq Note',
 where Note' is like Note but the synthdef is wrapped in a Maybe.
+** background states for voices
+*** motivation: can't adjust a parameter that's not in a Museq
+*** motivation: restore a Zot to reasonable parameter values
+**** Idea: a map from voices to all params that have been modified in it.
+**** Idea: a way to change the synth without using a Museq.
 ** use defaults in, e.g., amp :: (Float -> Float) -> Museq -> Museq
 Currently there are both "amp" and "ampTo";
 one takes a function, the other a value.
 I could stick to the one that takes a function,
 if it assumed the default value when that value is not present.
-** a chAll that adds names automatically
-Maybe just use big stacks.
 ** delete duplicate drums
 Or at least reduce the volume of one of them.
 * TODO easy
@@ -52,6 +50,8 @@ and computes the duration automatically (as the length of the list)
 ** shorthand
 *** TODO noteToFreq = ops [("freq", (*) 300 . \p -> 2**(p/12))]
 *** ? per parameter, a function to change it or set it if absent
+** a chAll that adds names automatically
+Maybe just use big stacks.
 * TODO more
 ** important ? missing drums
 tom -- low, high
