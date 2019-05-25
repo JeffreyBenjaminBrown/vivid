@@ -1,4 +1,4 @@
-# Vivid-Dispatch: a music toolkit
+# Montevideo: a music toolkit
 
 
 ## prerequisites
@@ -34,3 +34,10 @@ the files in `sketches/`, not so much.
 To see how controlling `Vivid-Dispatch` using
 [Hode](https://github.com/JeffreyBenjaminBrown/hode) works,
 try running `playSong disp testRslt 10`.
+
+
+## Why the name
+
+It's a mashup of monome, Tidal(Cycles) and Vivid.
+(The [monome code](https://github.com/JeffreyBenjaminBrown/monome)
+is elsewhere at the moment.)
