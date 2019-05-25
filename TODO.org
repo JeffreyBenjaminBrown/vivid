@@ -1,3 +1,11 @@
+* TODO documentation
+** durations
+cat
+dense v. fast, sparse v. slow
+** synths
+*** on-messages
+*** send a message to an ongoing synth
+** reading order for the docs
 * TODO important
 ** obvious: move retrigger handling
 *** two motivations
