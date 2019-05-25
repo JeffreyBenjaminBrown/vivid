@@ -1,6 +1,6 @@
 # Montevideo: a music toolkit
 
-See the wiki for [why this software exists](https://github.com/JeffreyBenjaminBrown/montevideo/wiki/Why-Montevideo).
+See the wiki for [what it's for|why it exists](https://github.com/JeffreyBenjaminBrown/montevideo/wiki/Why-Montevideo).
 
 
 ## prerequisites
