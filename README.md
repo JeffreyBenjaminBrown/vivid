@@ -26,7 +26,7 @@ Run `stack ghci` to start the Haskell repl.
 Run `:s init.hs` to set up a dispatcher
 (a thing that talks to SuperCollider).
 
-To see how controlling `Vivid-Dispatch` from code works,
+To see how controlling `Montevideo` from code works,
 try running `:. docs/x` or `sketches/x`
 (where `x` is the name of some file in the `demo/` folder,
 minus the `.hs` extension).
@@ -36,7 +36,7 @@ the files in `sketches/`, not so much.
 
 ## Super-experimental
 
-To see how controlling `Vivid-Dispatch` using
+To see how controlling `Montevideo` using
 [Hode](https://github.com/JeffreyBenjaminBrown/hode) works,
 try running `playSong disp testRslt 10`.
 

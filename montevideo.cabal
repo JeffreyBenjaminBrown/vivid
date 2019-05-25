@@ -64,7 +64,7 @@ library
     , Synths.Vap
     , Synths.Zot
   other-modules:
-      Paths_vivid_dispatch
+      Paths_montevideo
   hs-source-dirs:
       src
   build-depends:
@@ -87,7 +87,7 @@ library
 executable montevideo-exe
   main-is: Main.hs
   other-modules:
-      Paths_vivid_dispatch
+      Paths_montevideo
   hs-source-dirs:
       research/app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
@@ -103,7 +103,7 @@ executable montevideo-exe
 --  type: exitcode-stdio-1.0
 --  main-is: Spec.hs
 --  other-modules:
---      Paths_vivid_dispatch
+--      Paths_montevideo
 --  hs-source-dirs:
 --      test
 --  ghc-options: -threaded -rtsopts -with-rtsopts=-N

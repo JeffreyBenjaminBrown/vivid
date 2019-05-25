@@ -107,13 +107,13 @@ merge, meta, and subfunctions
 see prof/ for details
 ** how to profile
 *** run these to build the .prof file
- stack run --profile -- vivid-dispatch-exe --ghci-options="-O"
- stack exec -- vivid-dispatch-exe +RTS -p
+ stack run --profile -- montevideo-exe --ghci-options="-O"
+ stack exec -- montevideo-exe +RTS -p
 *** then run something like this to make it readable
  This assumes that I've moved the last two columns (inherited percentages) to be first.
 
- egrep -v "^ *[0-9]\." vivid-dispatch-exe.prof > double-digits.prof
- egrep -v "^ *[0-2]\." vivid-dispatch-exe.prof > more-than-2-percent.prof
+ egrep -v "^ *[0-9]\." montevideo-exe.prof > double-digits.prof
+ egrep -v "^ *[0-2]\." montevideo-exe.prof > more-than-2-percent.prof
 *** more supposedly-good options
  (according to http://www.fatvat.co.uk/2010/08/speeding-up-ants-program.html)
  -prof - Enables profiling
