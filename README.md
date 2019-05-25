@@ -1,5 +1,7 @@
 # Montevideo: a music toolkit
 
+See the wiki for [why this software exists](https://github.com/JeffreyBenjaminBrown/montevideo/wiki/Why-Montevideo).
+
 
 ## prerequisites
 
@@ -10,6 +12,9 @@ the Haskell toolkit
 
 * SuperCollider,
 as described in the documentation for [Vivid](https://www.vivid-synth.com/).
+
+
+You'll also need to clone the [Dirt-Samples](https://github.com/tidalcycles/Dirt-Samples) repository, and then amend `src/Synths/Config.hs` to point to that repo. (You could use other samples, too; just edit that path to point to the folder your samples are in, and then edit `src/Synths/Samples.hs` to point to each sample individually.)
 
 
 ## to see how it works

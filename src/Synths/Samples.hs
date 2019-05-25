@@ -53,6 +53,7 @@ data Sample = SampleKd
             | SampleHs_et
   deriving (Eq, Ord, Show)
 
+
 samplePaths :: M.Map Sample FilePath
 samplePaths = M.fromList $ map f samples' where
   f ((_,nick),path) = (nick,path)
