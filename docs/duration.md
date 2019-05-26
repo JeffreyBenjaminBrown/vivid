@@ -1,5 +1,7 @@
 # How durations work
 
+## The idea
+
 Patterns in Montevideo are represented by the `Museq` type. 
 For each `Museq` there are two associated durations.
 
@@ -8,6 +10,9 @@ For each `Museq` there are two associated durations.
 * `sup` is the amount of time it takes a pattern to play all the way through.
 
 This is necessary because it might be that you want the `Museq` to do something different from one iteration to the next.
+
+
+## An example
 
 Suppose we create the following `Museq`s:
 

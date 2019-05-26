@@ -54,11 +54,31 @@ Run `:s init.hs` to set up a dispatcher
 (a thing that talks to SuperCollider).
 
 To see how controlling `Montevideo` from code works,
-try running `:. docs/x` or `sketches/x`
-(where `x` is the name of some file in the `demo/` folder,
-minus the `.hs` extension).
+try running `:. docs/x` or `sketches/x`,
+where `x` is the name of some file in the `demo/` folder,
+minus the `.hs` extension.
+
 The files in `docs/` are simple and commented;
 the files in `sketches/`, not so much.
+
+
+## learning it
+
+The following might be a good order in which to study the example code.
+(Each of these lines is something you can evaluate from GHCI,
+assuming you ran `:s init.hs` as described above.)
+
+```
+:. docs/samples
+:. docs/merge-two-patterns
+:. docs/syn
+:. docs/duration.md
+:. docs/scale-progression
+:. docs/scale-and-root-progression
+:. docs/pattern-of-transformations
+```
+
+Anytime you want to know more about a function, if it's called `func`, you can run `:i func` from GHCI to find out where in the source code it's defined. There might be good comments above and within it in the source code. And if there aren't, you can search for it in the test modules (e.g. by running "grep func -r src/Test/" from the command line). Those tests might still give a good idea of what func is for and how it works.
 
 
 ## why the name

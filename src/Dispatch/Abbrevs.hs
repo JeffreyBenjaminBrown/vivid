@@ -9,6 +9,7 @@ module Dispatch.Abbrevs (
   , m1  -- ^ M.singleton
   , mfl -- ^ M.fromList
 
+  , hsToHz          -- ^ Float            -> Museq l Msg -> Museq l Msg
   , amp, freq       -- ^ (Float -> Float) -> Museq String Msg -> Museq String Msg
   , ampTo, freqTo   -- ^ Float            -> Museq String Msg -> Museq String Msg
   , nAmp, nFreq     -- ^ (Float -> Float) -> Museq String Note -> Museq String Note
@@ -69,7 +70,11 @@ m1 = M.singleton
 mfl :: Ord k => [(k, a)] -> M.Map k a
 mfl = M.fromList
 
-amp, freq :: (Float -> Float) -> Museq String Msg -> Museq String Msg
+hsToHz :: Float -> Museq l Msg -> Museq l Msg
+hsToHz fundamental =
+  freq $ (*) 300 . (\p -> 2**(p/12))
+
+amp, freq :: (Float -> Float) -> Museq l Msg -> Museq l Msg
 amp g = fmap $ M.adjust g "amp"
 freq g = fmap $ M.adjust g "freq"
 
