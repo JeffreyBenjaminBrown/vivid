@@ -1,4 +1,5 @@
-resolver: lts-13.18
+resolver: nightly-2020-01-04
+
 extra-deps:
 #  - /home/jeff/logic/hode
   - git: https://github.com/JeffreyBenjaminBrown/hode
@@ -8,3 +9,6 @@ extra-deps:
   - word-wrap-0.4.1@sha256:f72233b383ef569c557bfd9812cbb8e306c415ce509082c0bd15ee51c0239ccc
   - config-ini-0.2.4.0@sha256:38a6d484d471c6fac81445de2eac8c4e8c82760962fca5491ae1c3bfca9c4047
   - data-clist-0.1.2.2@sha256:4d70add0a200a178853cd37c6469101bac3c36aebb3aa9c503ff225211b1a8c9
+  - vivid-0.4.2.3@sha256:00d6bf34c982d747c3171e4279ef109f6fef7dcd39e55ee666dbcefb0f95cf3d,8219
+  - vivid-osc-0.5.0.0@sha256:633e5c1c87633feaa26019442c3ae63946001c7afe2afa4d2cf22586bd4b182c,2786
+  - vivid-supercollider-0.4.1.2@sha256:c7493f2a67b04589df8943e58a7445803e3365c6ad439603bf35695734b9bd65,1738

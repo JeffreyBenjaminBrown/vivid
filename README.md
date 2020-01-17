@@ -41,7 +41,12 @@ the Haskell toolkit
 * SuperCollider,
 as described in the documentation for [Vivid](https://www.vivid-synth.com/).
 
-You'll also need to clone the [Dirt-Samples](https://github.com/tidalcycles/Dirt-Samples) repository, and then amend `src/Synths/Config.hs` to point to that repo. (You could use other samples, too; just edit that path to point to the folder your samples are in, and then edit `src/Synths/Samples.hs` to point to each sample individually.)
+You'll also need to clone the
+[Dirt-Samples](https://github.com/tidalcycles/Dirt-Samples) repository,
+and then amend `src/Synths/Config.hs` to point to that repo.
+(You could use other samples, too;
+just edit that path to point to the folder your samples are in,
+and then edit `src/Synths/Samples.hs` to point to each sample individually.)
 
 
 ## using it
@@ -55,11 +60,11 @@ Run `:s init.hs` to set up a dispatcher
 
 To see how controlling `Montevideo` from code works,
 try running `:. docs/x` or `sketches/x`,
-where `x` is the name of some file in the `demo/` folder,
+where `x` is some file therein,
 minus the `.hs` extension.
 
-The files in `docs/` are simple and commented;
-the files in `sketches/`, not so much.
+The files in `docs/` are simple and commented.
+The files in `sketches/`, not so much.
 
 
 ## learning it
@@ -78,7 +83,15 @@ assuming you ran `:s init.hs` as described above.)
 :. docs/pattern-of-transformations
 ```
 
-Anytime you want to know more about a function, if it's called `func`, you can run `:i func` from GHCI to find out where in the source code it's defined. There might be good comments above and within it in the source code. And if there aren't, you can search for it in the test modules (e.g. by running "grep func -r src/Test/" from the command line). Those tests might still give a good idea of what func is for and how it works.
+Anytime you want to know more about a function,
+if it's called `func`,
+you can run `:i func`
+from GHCI to find out where in the source code it's defined.
+There might be good comments above and within it in the source code.
+
+You can also search for it in the test modules
+(e.g. by running "grep func -r src/Test/" from the command line).
+Those tests might still give a good idea of what func is for and how it works.
 
 
 ## why the name

@@ -8,4 +8,4 @@ defaultAmp :: Float
 defaultAmp = 0.02
 
 dirtSamplesFolder :: FilePath
-dirtSamplesFolder = "/home/jeff/code/Tidal/Dirt-Samples"
+dirtSamplesFolder = "/home/jeff/code/music/Tidal/Dirt-Samples"
