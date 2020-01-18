@@ -1,6 +1,10 @@
 * TODO documentation
 ** reading order for the docs
 * TODO important
+** laziness
+Because evaluating a whole sequence before playing any of it can cause a huge dealy.
+*** compromise: keep both instructions and maybe the data
+The maybe data is nothing until the user asks, say, to display it.
 ** obvious: move retrigger handling
 *** two motivations
 Including retrigger as a Museq parameter bloats them.
