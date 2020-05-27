@@ -6,6 +6,7 @@ module EarTrain.Audio where
 
 import Vivid
 import Synths
+import EarTrain.Types
 
 
 -- | = Making sounds
@@ -17,5 +18,6 @@ playFreqs freqs = do
   wait (2 :: Int)
   mapM_ free synths
 
-et12toFreq :: Floating a => a -> a -> a
-et12toFreq baseFreq p = 2**(p/31) * baseFreq
+edoValToFreq :: Floating a => Edo -> a -> a -> a
+edoValToFreq edo baseFreq p =
+  2**(p/fromIntegral edo) * baseFreq
