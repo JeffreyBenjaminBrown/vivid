@@ -76,29 +76,34 @@ writeTimeAndError msg = do now <- getTime
 pickSome :: forall a m. (Eq a, MonadRandom m)
          => Int -> [a] -> m [a]
 pickSome 0 _ = return []
-pickSome n as = do (b  ::  a ) <- pick as
-                   (bs :: [a]) <- pickSome (n-1) (L.delete b as)
-                   -- if deleting b isn't enough, consider pickSome'
-                   return $ b:bs
+pickSome n as = do
+  b  ::  a  <- pick as
+  bs :: [a] <- pickSome (n-1) (L.delete b as)
+    -- if deleting b isn't enough, consider pickSome'
+  return $ b:bs
 
 pickSome' :: forall a m. (Eq a, MonadRandom m)
-         => (a -> [a] -> [a]) -> Int -> [a] -> m [a]
+  => (a -> [a] -> [a]) -> Int -> [a] -> m [a]
 pickSome' _ 0 _ = return []
-pickSome' f n as = do (b  ::  a ) <- pick as
-                      (bs :: [a]) <- pickSome (n-1) (f b as)
-                      return $ b:bs
+pickSome' f n as = do
+  b  ::  a   <- pick as
+  bs :: [a] <- pickSome (n-1) (f b as)
+  return $ b:bs
 
-pickSomeWithout3Clusters :: forall a m. (Num a, Eq a, MonadRandom m)
-                         => Int -> [a] -> m [a]
+pickSomeWithout3Clusters ::
+  forall a m. (Num a, Eq a, MonadRandom m)
+  => Int -> [a] -> m [a]
 pickSomeWithout3Clusters = pickSome' no3Clusters
 
 no3Clusters :: (Num a, Eq a) => a -> [a] -> [a]
 no3Clusters chosen0 remaining0 =
   L.delete chosen0 $ f chosen0 $ g chosen0 $ remaining0 where
-  f chosen remaining = if elem       (chosen + 1) remaining
-                       then L.delete (chosen - 1) remaining else remaining
-  g chosen remaining = if elem       (chosen - 1) remaining
-                       then L.delete (chosen + 1) remaining else remaining
+  f chosen remaining =
+    if elem       (chosen + 1) remaining
+    then L.delete (chosen - 1) remaining else remaining
+  g chosen remaining =
+    if elem       (chosen - 1) remaining
+    then L.delete (chosen + 1) remaining else remaining
 
 
 -- | = Strings

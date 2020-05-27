@@ -18,8 +18,8 @@ import FilepathSynonyms as M
 import Scale as M
 import Synths.Config as M
 import Synths.Samples as M
-import Synths.Zot as M
-import Synths.Vap as M
+--import Synths.Zot as M -- already imported in Synths
+--import Synths.Vap as M -- already imported in Synths
 --import Random.Types as M
 --import Random.RandomSynth as M
 --import Random.RandomSignal as M

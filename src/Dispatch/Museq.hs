@@ -69,7 +69,6 @@ import Dispatch.Types
 import Util
 import Synths
 import Synths.Samples
-import Synths (SynthDefEnum)
 
 
 -- | = Figuring out when a Museq will repeat.

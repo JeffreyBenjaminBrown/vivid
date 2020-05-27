@@ -213,7 +213,6 @@ replace disp newName newMuseq = do
 replaceAll :: Dispatch -> M.Map MuseqName (Museq String Note) -> IO ()
 replaceAll disp masNew = do
   time0  <-      readMVar $ mTime0       disp
-  tempoPeriod <- readMVar $ mTempoPeriod disp
   masOld <-      readMVar $ mMuseqs      disp
   reg <-         readMVar $ mReg         disp
   now <- unTimestamp <$> getTime

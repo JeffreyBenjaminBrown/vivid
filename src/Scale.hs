@@ -1,7 +1,5 @@
 module Scale where
 
-import Data.List ((!!))
-
 
 -- | = scales
 
