@@ -270,33 +270,9 @@ showChoices = putStrLn $ "\nPlease press a key:\n"
 
 -- | = Test-producing functions (used by earTrainChromatic)
 
-pickTestFromPitchSet :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
-                   => (a -> [a] -> [a]) -> [a] -> Int -> IO Test
-pickTestFromPitchSet howToDelete range numberOfFreqs = do
-  freqs <- L.sort <$>
-    pickSome' howToDelete numberOfFreqs range -- randomness
-  let bass = minimum freqs
-      normFreqs = fmap (\n -> n - bass) freqs
-      showFreqs = putStrLn $ "  bass: " ++ show bass
-                               ++ " semitones above A (220 Hz)\n"
-                             ++ "  chord: " ++ show normFreqs
-                               ++ " relative to the bass"
-      playSound = playFreqs $ fmap (et12toFreq 220) freqs :: IO ()
-  return (playSound, showFreqs)
-
 pickTestFromScale :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
   => [a] -> Int -> IO Test
 pickTestFromScale = pickTestFromPitchSet L.delete
-
-_pickChromaticTest :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
-                   => (a -> [a] -> [a]) -> Int -> Int -> IO Test
-_pickChromaticTest howToDelete numberOfFreqs range =
-  pickTestFromPitchSet howToDelete (map fromIntegral [0..range]) numberOfFreqs
-
-pickChromaticTest :: Int -> Int -> IO Test
-pickChromaticTest = _pickChromaticTest x
-  where x :: Float -> [Float] -> [Float]
-        x = L.delete
 
 -- | play two chords in serial
 pickChromatic2SerialTest :: Int -> Int -> IO Test
@@ -310,6 +286,10 @@ pick3ClusterFreeTest = _pickChromaticTest x
   where x :: Float -> [Float] -> [Float]
         x = no3Clusters
 
+pickChromaticTest :: Int -> Int -> IO Test
+pickChromaticTest = _pickChromaticTest x
+  where x :: Float -> [Float] -> [Float]
+        x = L.delete
 
 -- | builds and picks Tests from a list of chords.
 pickTestFromChordList :: [[Float]] -> IO Test
@@ -334,6 +314,25 @@ pickPolyChordTest chords = do
       least = minimum allTransposedFreqs
       playSound = playFreqs $ fmap (et12toFreq 110) allTransposedFreqs
       showFreqs = putStrLn $ show $ ((+) (- least)) <$> allTransposedFreqs
+  return (playSound, showFreqs)
+
+_pickChromaticTest :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
+                   => (a -> [a] -> [a]) -> Int -> Int -> IO Test
+_pickChromaticTest howToDelete numberOfFreqs range =
+  pickTestFromPitchSet howToDelete (map fromIntegral [0..range]) numberOfFreqs
+
+pickTestFromPitchSet :: (Num a, Eq a, Ord a, Enum a, Show a, Real a, Floating a)
+                   => (a -> [a] -> [a]) -> [a] -> Int -> IO Test
+pickTestFromPitchSet howToDelete range numberOfFreqs = do
+  freqs <- L.sort <$>
+    pickSome' howToDelete numberOfFreqs range -- randomness
+  let bass = minimum freqs
+      normFreqs = fmap (\n -> n - bass) freqs
+      showFreqs = putStrLn $ "  bass: " ++ show bass
+                               ++ " semitones above A (220 Hz)\n"
+                             ++ "  chord: " ++ show normFreqs
+                               ++ " relative to the bass"
+      playSound = playFreqs $ fmap (et12toFreq 220) freqs :: IO ()
   return (playSound, showFreqs)
 
 
