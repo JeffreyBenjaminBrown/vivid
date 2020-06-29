@@ -1,0 +1,40 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.1.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 34934cdc357aa3d841ae35295fb72477ba9151be3d178f49c564415c6af19b65
+
+name:           montevideo-synth
+version:        0.1.0.0
+description:    https://github.com/JeffreyBenjaminBrown/montevideo
+homepage:       https://github.com/JeffreyBenjaminBrown/montevideo
+bug-reports:    https://github.com/JeffreyBenjaminBrown/montevideo/issues
+author:         Jeffrey Benjamin Brown
+maintainer:     jeffbrown.the@gmail.com
+copyright:      Jeffrey Benjamin Brown
+license:        GPL-3
+license-file:   LICENSE
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/jeffreybenjaminbrown/montevideo/
+
+library
+  exposed-modules:
+      Montevideo.Synths
+    , Montevideo.Synths.Config
+    , Montevideo.Synths.Samples
+    , Montevideo.Synths.Vap
+    , Montevideo.Synths.Zot
+  other-modules:
+      Paths_montevideo
+  build-depends:
+      base
+    , containers
+    , lens
+    , vivid
+
+  default-language: Haskell2010

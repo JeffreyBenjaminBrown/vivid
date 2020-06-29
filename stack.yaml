@@ -1,5 +1,11 @@
 resolver: lts-16.0
 
+packages:
+- ./montevideo
+- ./montevideo-synth
+- ./montevideo-earTrain
+- ./montevideo-test
+
 extra-deps:
 #  - /home/jeff/logic/hode
   - git: https://github.com/JeffreyBenjaminBrown/hode
