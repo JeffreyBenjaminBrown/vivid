@@ -7,6 +7,7 @@ import qualified Montevideo.Monome.Test.Sustain
 import qualified Montevideo.Monome.Test.Windows
 import qualified Montevideo.Monome.Test.JI
 
+
 doTests :: IO Counts
 doTests = runTestTT $ TestList
   [ Montevideo.Monome.Test.Misc.tests

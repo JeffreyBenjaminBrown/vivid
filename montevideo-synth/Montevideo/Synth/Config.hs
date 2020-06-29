@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE DataKinds #-}
 
-module Montevideo.Synths.Config where
+module Montevideo.Synth.Config where
 
 
 defaultAmp :: Float

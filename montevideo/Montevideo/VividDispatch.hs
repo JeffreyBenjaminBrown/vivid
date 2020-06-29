@@ -2,8 +2,8 @@ module Montevideo.VividDispatch (module M) where
 
 --import Montevideo.Hode as M
 --import Montevideo.EarTrain as M
---import Montevideo.Synths.Zot as M -- already imported in Synths
---import Montevideo.Synths.Vap as M -- already imported in Synths
+--import Montevideo.Synth.Zot as M -- already imported in Synths
+--import Montevideo.Synth.Vap as M -- already imported in Synths
 --import Montevideo.Random.Types as M
 --import Montevideo.Random.RandomSynth as M
 --import Montevideo.Random.RandomSignal as M
@@ -23,9 +23,9 @@ import Montevideo.Dispatch.Internal.Join as M
 import Montevideo.Dispatch.Dispatch as M
 import Montevideo.LongVarLists as M
 import Montevideo.Util as M
-import Montevideo.Synths as M
+import Montevideo.Synth as M
 import Montevideo.FilepathSynonyms as M
 import Montevideo.Scale as M
-import Montevideo.Synths.Config as M
-import Montevideo.Synths.Samples as M
+import Montevideo.Synth.Config as M
+import Montevideo.Synth.Samples as M
 import Montevideo.ReadHsAsGhci as M

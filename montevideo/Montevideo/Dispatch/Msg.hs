@@ -13,7 +13,7 @@ where
 import qualified Data.Map as M
 
 import Vivid hiding (synth)
-import Montevideo.Synths
+import Montevideo.Synth
 import Montevideo.Dispatch.Types
 
 

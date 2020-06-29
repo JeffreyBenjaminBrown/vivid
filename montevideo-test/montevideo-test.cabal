@@ -24,9 +24,9 @@ source-repository head
 
 library
   exposed-modules:
-      Montevideo.Test.TDispatch
-    , Montevideo.Test.TMain
-    , Montevideo.Test.TUtil
+      Montevideo.Test.TMain
+--    , Montevideo.Test.TDispatch
+--    , Montevideo.Test.TUtil
   other-modules:
       Paths_montevideo
   build-depends:

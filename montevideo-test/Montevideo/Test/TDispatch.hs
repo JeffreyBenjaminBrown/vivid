@@ -8,7 +8,7 @@ import Data.Ratio
 import qualified Data.Vector as V
 
 import Montevideo.Util
-import Montevideo.Synths
+import Montevideo.Synth
 import Montevideo.Dispatch.Abbrevs
 import Montevideo.Dispatch.Join
 import Montevideo.Dispatch.Internal.Join

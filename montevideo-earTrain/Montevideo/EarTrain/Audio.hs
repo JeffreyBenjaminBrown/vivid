@@ -5,7 +5,7 @@
 module Montevideo.EarTrain.Audio where
 
 import Vivid
-import Montevideo.Synths
+import Montevideo.Synth
 import Montevideo.EarTrain.Types
 
 

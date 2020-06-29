@@ -67,8 +67,8 @@ import Data.Vector.Algorithms.Intro (sortBy)
 
 import Montevideo.Dispatch.Types
 import Montevideo.Util
-import Montevideo.Synths
-import Montevideo.Synths.Samples
+import Montevideo.Synth
+import Montevideo.Synth.Samples
 
 
 -- | = Figuring out when a Museq will repeat.

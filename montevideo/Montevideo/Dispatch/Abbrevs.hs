@@ -48,8 +48,8 @@ import Montevideo.Dispatch.Join
 import Montevideo.Dispatch.Museq
 import Montevideo.Dispatch.Transform
 import Montevideo.Dispatch.Types
-import Montevideo.Synths
-import Montevideo.Synths.Samples
+import Montevideo.Synth
+import Montevideo.Synth.Samples
 
 
 viewDurs :: Museq l a -> Museq l a

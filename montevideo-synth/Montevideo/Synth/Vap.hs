@@ -4,11 +4,11 @@
            , ScopedTypeVariables
            , GADTs #-}
 
-module Montevideo.Synths.Vap where
+module Montevideo.Synth.Vap where
 
 import Vivid
 
-import Montevideo.Synths.Config
+import Montevideo.Synth.Config
 
 
 type VapParams = '[ "freq",      "amp"

@@ -4,7 +4,7 @@
            , ScopedTypeVariables
            , GADTs #-}
 
-module Montevideo.Synths (
+module Montevideo.Synth (
   module X
   , SynthDefEnum(..)
   , BoopParams
@@ -19,10 +19,10 @@ module Montevideo.Synths (
 
 import Vivid
 
-import Montevideo.Synths.Samples
-import Montevideo.Synths.Vap as X
-import Montevideo.Synths.Zot as X
-import Montevideo.Synths.Config
+import Montevideo.Synth.Samples
+import Montevideo.Synth.Vap as X
+import Montevideo.Synth.Zot as X
+import Montevideo.Synth.Config
 
 
 -- | == Synths

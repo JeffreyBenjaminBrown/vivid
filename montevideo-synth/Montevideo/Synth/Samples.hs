@@ -1,4 +1,4 @@
-module Montevideo.Synths.Samples (
+module Montevideo.Synth.Samples (
     Sample(..)
   , samplePaths        -- ^ M.Map Nickname FilePath
   , sampleDescriptions -- ^ M.Map Nickname Description
@@ -8,7 +8,7 @@ import Control.Lens
 import Data.Tuple (swap)
 import qualified Data.Map as M
 
-import Montevideo.Synths.Config
+import Montevideo.Synth.Config
 import Montevideo.FilepathSynonyms
 
 

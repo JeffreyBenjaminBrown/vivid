@@ -33,8 +33,8 @@ import qualified Data.Map as M
 import qualified Data.Vector as V
 import Vivid
 
-import Montevideo.Synths
-import Montevideo.Synths.Samples
+import Montevideo.Synth
+import Montevideo.Synth.Samples
 import Montevideo.Util
 
 

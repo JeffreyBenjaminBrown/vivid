@@ -24,11 +24,11 @@ source-repository head
 
 library
   exposed-modules:
-      Montevideo.Synths
-    , Montevideo.Synths.Config
-    , Montevideo.Synths.Samples
-    , Montevideo.Synths.Vap
-    , Montevideo.Synths.Zot
+      Montevideo.Synth
+    , Montevideo.Synth.Config
+    , Montevideo.Synth.Samples
+    , Montevideo.Synth.Vap
+    , Montevideo.Synth.Zot
   other-modules:
       Paths_montevideo
   build-depends:

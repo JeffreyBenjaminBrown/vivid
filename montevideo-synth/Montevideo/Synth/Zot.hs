@@ -13,12 +13,12 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
-module Montevideo.Synths.Zot where
+module Montevideo.Synth.Zot where
 
 import Vivid
 import Montevideo.LongVarLists()
 
-import Montevideo.Synths.Config
+import Montevideo.Synth.Config
 
 
 type ZotParams = '[
