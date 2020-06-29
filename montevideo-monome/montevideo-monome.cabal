@@ -1,0 +1,65 @@
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 9311a6d228a3be4f277306fd17241c9945beab3a23ed1152eaaa889c12a317a4
+
+name:           montevideo-monome
+version:        0.1.0.0
+description:    https://github.com/JeffreyBenjaminBrown/montevideo
+homepage:       https://github.com/JeffreyBenjaminBrown/montevideo
+bug-reports:    https://github.com/JeffreyBenjaminBrown/montevideo/issues
+author:         Jeffrey Benjamin Brown
+maintainer:     jeffbrown.the@gmail.com
+copyright:      Jeffrey Benjamin Brown
+license:        GPL-3
+license-file:   LICENSE
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/jeffreybenjaminbrown/montevideo/
+
+library
+  exposed-modules:
+      Montevideo.Monome.Config
+    , Montevideo.Monome.Instances.TypesafeArgs
+    , Montevideo.Monome.JiScales
+    , Montevideo.Monome.Main
+    , Montevideo.Monome.Math31
+    , Montevideo.Monome.Network.ListenAndPrintOsc
+    , Montevideo.Monome.Network.Monome
+    , Montevideo.Monome.Network.Util
+    , Montevideo.Monome.Synth.Boop
+    , Montevideo.Monome.Synth.Zot
+    , Montevideo.Monome.Test
+    , Montevideo.Monome.Test.Data
+    , Montevideo.Monome.Test.HandTest
+    , Montevideo.Monome.Test.JI
+    , Montevideo.Monome.Test.Misc
+    , Montevideo.Monome.Test.Sustain
+    , Montevideo.Monome.Test.Windows
+    , Montevideo.Monome.Types.Button
+    , Montevideo.Monome.Types.Device
+    , Montevideo.Monome.Types.Initial
+    , Montevideo.Monome.Types.Window
+    , Montevideo.Monome.Util
+    , Montevideo.Monome.Window.Common
+    , Montevideo.Monome.Window.JI
+    , Montevideo.Monome.Window.Keyboard
+    , Montevideo.Monome.Window.Shift
+    , Montevideo.Monome.Window.Sustain
+  other-modules:
+      Paths_monome
+  build-depends:
+                base
+              , bytestring
+              , containers
+              , HUnit
+              , lens
+              , network
+              , NumInstances
+              , text
+              , vivid
+              , vivid-osc
+  default-language: Haskell2010

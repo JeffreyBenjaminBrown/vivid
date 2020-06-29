@@ -1,0 +1,75 @@
+diff --git a/Monome/Types/Initial.hs b/Monome/Types/Initial.hs
+index 071f344..64142cc 100644
+--- a/Monome/Types/Initial.hs
++++ b/Monome/Types/Initial.hs
+@@ -123,10 +123,7 @@ data St = St {
+ 
+   , _stSustainOn :: Bool
+     -- ^ TODO ? This could be eliminated by making the next field a Maybe.
+-  , _stSustained :: Set (VoiceId, PitchClass)
+-    -- ^ PITFALL: In spirit, the thing sustained is a Pitch,
+-    -- but it's represented as a voice,
+-    -- identified by the key that originally launched it.
++  , _stSustained :: Set VoiceId
+   } deriving (Show, Eq)
+ 
+ makeLenses ''SoundMsg
+diff --git a/Monome/Window/Common.hs b/Monome/Window/Common.hs
+index 79d4f17..6820cf4 100644
+--- a/Monome/Window/Common.hs
++++ b/Monome/Window/Common.hs
+@@ -39,7 +39,7 @@ silenceMsg xy = SoundMsg {
+ soundKeySt :: St -> ((X,Y), Switch) -> [SoundMsg]
+ soundKeySt st (xy, sw) = do
+   let pitch = xyToEt31 xy - xyToEt31 (_stXyShift st)
+-  if S.member xy $ S.map fst $ _stSustained st
++  if S.member xy $ _stSustained st
+     then [] -- it's already sounding due to sustain
+     else if sw
+          then let freqMsg = SoundMsg { _soundMsgVoiceId = xy
+diff --git a/Monome/Window/Sustain.hs b/Monome/Window/Sustain.hs
+index 2571408..39014f1 100644
+--- a/Monome/Window/Sustain.hs
++++ b/Monome/Window/Sustain.hs
+@@ -56,7 +56,7 @@ get_voicesToSilence :: St -> Set VoiceId
+ get_voicesToSilence oldSt =
+     -- If a voice was sustained before sustain was released,
+     -- and it is not fingered, it should be darkened.
+-    S.difference (S.map fst $ _stSustained oldSt)
++    S.difference (_stSustained oldSt)
+                  (S.fromList $ M.keys $ _stFingers oldSt)
+ 
+ get_pitchClassesToDarken :: St -> St -> Set PitchClass
+@@ -74,10 +74,16 @@ get_pitchClassesToDarken oldSt newSt =
+       Just s -> if null s
+         then error "Sustain handler: null value in LitPitches."
+         else True
+-    voicesToSilence_pcs :: Set PitchClass =
+-      S.map snd $ S.filter f $ _stSustained oldSt
+-      where f :: (VoiceId, PitchClass) -> Bool
+-            f (b,_) = S.member b $ get_voicesToSilence oldSt
++    voicesToSilence_pcs :: Set PitchClass = let
++      vs :: Set VoiceId =
++        S.filter f $ _stSustained oldSt
++        where f :: VoiceId -> Bool =
++                flip S.member $ get_voicesToSilence oldSt
++      pc :: VoiceId -> PitchClass
++      pc v = maybe (error "get_pitchClassesToDarken: voice not found")
++             (mod 31 . _voicePitch) $
++             M.lookup v $ _stVoices oldSt
++      in S.map pc vs
+ 
+ -- | When the sustain button is toggled --
+ -- which happens only when it is pressed, not when it is released --
+@@ -87,9 +93,9 @@ updateSt :: St -> St
+ updateSt st = let
+   sustainOn' :: Bool = -- new sustain state
+     not $ _stSustainOn st
+-  sustained' :: Set (VoiceId, PitchClass) = -- new sustained pitches
++  sustained' :: Set VoiceId = -- new sustained pitches
+     if not sustainOn' then S.empty
+-    else S.fromList $ M.elems $ _stFingers st
++    else S.map fst $ S.fromList $ M.elems $ _stFingers st
+ 
+   lit' | sustainOn' =
+          foldr insertOneSustainedNote (_stLit st)

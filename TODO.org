@@ -73,6 +73,74 @@ the many voices will not create huge waveform peaks.
 ** ? the Join functions that accept two kinds of labels are dumb
 They should accept only one kind, in the Monoid class,
 and join them if needed with (<>).
+* TODO monome
+** PITFALL: If I need to see the voice_jit or jit_test branches
+they are in the old monome/ repo.
+** TODO generalize to all EDOs
+*** make Math31 "generators" into user-defined parameter
+ maybe defined in Params or Common or whatever, instead of Math31
+** TODO for JI synth
+*** print each note as it is played
+** TODO clean
+*** unify the handlers for JI and Keyboard
+** TODO create voices on the fly
+*** Vivid: voice creation, use and deletion
+ use "synth" to make a synth, "free" to free it:
+   s <- synth boop
+   set s (toI f :: I "amp")
+   free s
+** TODO sustained pitches should not disable keys
+*** after spatial drift
+ Currently, because each voice is identified with a key,
+ if that voice is sustained, that key cannot sound a new note,
+ even when it no longer represents the same pitch.
+*** ? or at all
+** TODO features
+*** two keyboards, split keyboard
+*** sustain: two buttons, "add these" and "release all"
+ "add these" has on/off state, stays in effect until it is released.
+ "release all" has no state -- it fires as soon as it's touched, and holding it does nothing.
+*** store pitchsets from sustain
+*** transpose {pitchsets, ongoing notes, either keyboard}
+*** make pitchsets available on a per-degree basis
+*** timbre the board
+ higher tones are harsher
+ rightward tones are (warblier?)
+*** redraw the whole screen often
+**** why
+ Dropped messages to LEDs stop being a (hypothetical) problem.
+ Shading on both monomes becomes easier.
+*** flash the anchor
+*** volume, timbre control for {sustained notes, either keyboard}
+*** reset buttons
+**** silence all voices
+**** redraw entire grid
+**** ? restore shift to identity vector
+ to remove floating point error
+*** sustain to middle of bottom, and duplicate at both top corners
+ so that usually something can touch it
+** infrastructure
+*** add tests
+**** TODO test multiple handlers
+***** hold 2 notes, press sustain, shift, release one of them
+***** hold 2 notes, press sustain, shift, release one of them, release sustain
+***** hold a note, shift, press another note, press sustain
+***** hold a note, shift, press another note, press sustain, release them
+*** LedBecause: maybe don't distinguish between keys and sustain
+  just use VoiceId
+** Montevideo - Monome Tidal Vivid
+ esp. for looping
+** separate projects
+*** separate Vivid.Jbb from Vivid
+ this will make starting the repl faster
+*** separate my own Vivid projects
+**** namely these
+ Vivid (clone, for reference)
+ Vivid.Synths.Jbb
+ Vivid.Dispatch
+ Monome
+**** use symlinks between them as needed
+ e.g. from Monome to Synths
 * gui
 ** motivation: can't understand why it souonds like it does
 ** motivation: can't adjust individual notes
@@ -205,3 +273,7 @@ Tom Murphy wrote, May 19, 2020, 4:55 PM:
 **** rewrite time0 so it's still true at the new tempo
 ** once it's publishable
 *** add Cabal install notes. Tom made suggestions in the seventh message of the haskell-art thread, "Vivid: Some code that parses instructions to synths polymorphically"
+* refs
+** Haksell For All on breaking from a loop gracefully
+http://www.haskellforall.com/2012/07/breaking-from-loop.html
+I can't find EitherT in recent versions of Stackage
