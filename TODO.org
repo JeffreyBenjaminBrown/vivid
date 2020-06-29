@@ -1,10 +1,11 @@
-* TODO documentation
-** reading order for the docs
+* TODO mysteries
+** Why is "trigger" a parameter for Sampler Museqs?
 * TODO important
 ** laziness
 Because evaluating a whole sequence before playing any of it can cause a huge dealy.
-*** compromise: keep both instructions and maybe the data
-The maybe data is nothing until the user asks, say, to display it.
+*** ugly compromise: keep both instructions and maybe the data
+The data would still be evaluated in its entirely rather than as needed.
+But once it is evaluated, it is kept.
 ** obvious: move retrigger handling
 *** two motivations
 Including retrigger as a Museq parameter bloats them.
@@ -13,7 +14,7 @@ Changing _sup or _dur can ruin a Sampler sequence.
 Don't include "trigger" as a parameter in a Museq.
 Instead, add trigger=1 to every Museq message,
 and follow it closely by a trigger=0.
-** unify the mkMuseq methods
+** unify the many mkMuseq methods
 *** illustration of the problem
 (l,time,time,Msg)
 (time,Note)
@@ -52,7 +53,6 @@ and computes the duration automatically (as the length of the list)
  where theta ranges from 0 (left) to pi/2 (right)
 *** if that makes the center position too loud
  try the "compromise" described later in the article
-
 ** shorthand
 *** TODO noteToFreq = ops [("freq", (*) 300 . \p -> 2**(p/12))]
 *** ? per parameter, a function to change it or set it if absent
@@ -191,6 +191,10 @@ see prof/ for details
 ** supercollider mysteries
 *** envelopes
 *** many voices to one distortion
+**** a recent reference
+Tom Murphy wrote, May 19, 2020, 4:55 PM:
+""" If you want to do the literal version of the above (separate synths, with their output fed into an audio effect), the term you're looking for is audio buses. I can whip up a quick example later, but the functions you need are "synthBefore" (to make sure the execution order is right) and aIn. You then send your signals to an audio bus instead of to bus 0 with "out." """
+**** an early reference
  https://we.lurk.org/hyperkitty/list/haskell-art@we.lurk.org/thread/2BZIBR3DDOF3XPZ5UYBXJPYEPSPKIYFH/
 *** slow changes, e.g. for slide guitar
 ** DONE problems that seem solved
@@ -200,4 +204,4 @@ see prof/ for details
 **** when changing tempo, figure out how many cycles have passed since time0
 **** rewrite time0 so it's still true at the new tempo
 ** once it's publishable
-*** add Cabal install notes. Tom made suggestions in the seventh message of the haskell-art thread, "fVivid: Some code that parses instructions to synths polymorphically"
+*** add Cabal install notes. Tom made suggestions in the seventh message of the haskell-art thread, "Vivid: Some code that parses instructions to synths polymorphically"
