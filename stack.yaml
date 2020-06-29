@@ -2,8 +2,9 @@ resolver: lts-16.0
 
 packages:
 - ./montevideo
-- ./montevideo-synth
 - ./montevideo-earTrain
+- ./montevideo-ji
+- ./montevideo-synth
 - ./montevideo-test
 
 extra-deps:
