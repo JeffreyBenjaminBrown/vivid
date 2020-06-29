@@ -3,14 +3,14 @@
 , LambdaCase
 #-}
 
-module Montevideo.EarTrain.EarTrain where
+module Montevideo.EarTrain where
 
 import qualified Data.List as L
 
 import Vivid
-import Util
-import EarTrain.Audio
-import EarTrain.Types
+import Montevideo.Util
+import Montevideo.EarTrain.Audio
+import Montevideo.EarTrain.Types
 
 
 -- | = User-facing quiz functions.

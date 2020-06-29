@@ -31,11 +31,6 @@ library
     , Montevideo.ReadHsAsGhci
     , Montevideo.Util
 
-    , Montevideo.Test.TDispatch
---    Montevideo., Test.THode
-    , Montevideo.Test.TMain
-    , Montevideo.Test.TUtil
-
     , Montevideo.Dispatch.Abbrevs
     , Montevideo.Dispatch.Config
     , Montevideo.Dispatch.Dispatch
@@ -45,21 +40,8 @@ library
     , Montevideo.Dispatch.Museq
     , Montevideo.Dispatch.Transform
     , Montevideo.Dispatch.Types
---    , Montevideo.EarTrain
---    , Montevideo.Hode
---    , Montevideo.Random.MentionsSig
---    , Montevideo.Random.RandomSignal
---    , Montevideo.Random.RandomSynth
---    , Montevideo.Random.Render
---    , Montevideo.Random.Types
---    , Montevideo.Random.Types.AbstractSignal
---    , Montevideo.Random.Types.Other
     , Montevideo.Scale
-    , Montevideo.Synths
-      Montevideo.Synths.Config
-    , Montevideo.Synths.Samples
-    , Montevideo.Synths.Vap
-    , Montevideo.Synths.Zot
+
   other-modules:
       Paths_montevideo
   build-depends:
@@ -76,5 +58,7 @@ library
     , vivid
     , vivid-osc
     , vivid-supercollider
+
+    , montevideo-synth
 
   default-language: Haskell2010

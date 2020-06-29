@@ -10,8 +10,8 @@ import           Data.Ratio
 import           Data.Fixed
 import           Data.Ord (comparing)
 
-import Util
-import Harmonics
+import Montevideo.JI.Util
+import Montevideo.JI.Harmonics
 
 
 minNotes = 12

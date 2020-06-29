@@ -30,8 +30,6 @@ library
     , Montevideo.JI.Util
   other-modules:
       Paths_ji
-  hs-source-dirs:
-      src
   build-depends:
       base >=4.7 && <5
     , lens

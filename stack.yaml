@@ -4,6 +4,7 @@ packages:
 - ./montevideo
 - ./montevideo-earTrain
 - ./montevideo-ji
+- ./montevideo-monome
 - ./montevideo-synth
 - ./montevideo-test
 

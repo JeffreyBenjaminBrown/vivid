@@ -1,11 +1,9 @@
 -- module Montevideo.EarTrain.Convenience where
 
-import EarTrain.EarTrain
-import EarTrain.Audio
-import EarTrain.Types
+import Montevideo.EarTrain.EarTrain
+import Montevideo.EarTrain.Audio
+import Montevideo.EarTrain.Types
 
-
-:l src/EarTrain/EarTrain.hs
 
 earTrainChromatic 31 2 31
 earTrainFromChordList 31 $ map (\n -> [0,n]) [24..29]
