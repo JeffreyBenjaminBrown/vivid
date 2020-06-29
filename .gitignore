@@ -4,3 +4,6 @@ Vivid/Jbb/stale/
 temp*
 t.hs
 git-comment
+.emacs.desktop*
+TAGS
+stack.yaml.lock
