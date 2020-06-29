@@ -2,14 +2,14 @@
 
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Main where
+module Montevideo.Main where
 
 import Control.Lens
 import Control.Concurrent (killThread)
 import qualified Data.Map as M
 
 import Vivid
-import VividDispatch
+import Montevideo.VividDispatch
 
 
 main :: IO ()

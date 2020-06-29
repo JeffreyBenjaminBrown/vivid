@@ -27,46 +27,44 @@ source-repository head
 
 library
   exposed-modules:
-      VividDispatch
+      Montevideo.VividDispatch
 
-    , FilepathSynonyms
-    , LongVarLists
-    , ReadHsAsGhci
-    , Util
+    , Montevideo.FilepathSynonyms
+    , Montevideo.LongVarLists
+    , Montevideo.ReadHsAsGhci
+    , Montevideo.Util
 
-    , Test.TDispatch
---    , Test.THode
-    , Test.TMain
-    , Test.TUtil
+    , Montevideo.Test.TDispatch
+--    Montevideo., Test.THode
+    , Montevideo.Test.TMain
+    , Montevideo.Test.TUtil
 
-    , Dispatch.Abbrevs
-    , Dispatch.Config
-    , Dispatch.Dispatch
-    , Dispatch.Join
-    , Dispatch.Internal.Join
-    , Dispatch.Msg
-    , Dispatch.Museq
-    , Dispatch.Transform
-    , Dispatch.Types
---    , EarTrain
---    , Hode
---    , Random.MentionsSig
---    , Random.RandomSignal
---    , Random.RandomSynth
---    , Random.Render
---    , Random.Types
---    , Random.Types.AbstractSignal
---    , Random.Types.Other
-    , Scale
-    , Synths
-      Synths.Config
-    , Synths.Samples
-    , Synths.Vap
-    , Synths.Zot
+    , Montevideo.Dispatch.Abbrevs
+    , Montevideo.Dispatch.Config
+    , Montevideo.Dispatch.Dispatch
+    , Montevideo.Dispatch.Join
+    , Montevideo.Dispatch.Internal.Join
+    , Montevideo.Dispatch.Msg
+    , Montevideo.Dispatch.Museq
+    , Montevideo.Dispatch.Transform
+    , Montevideo.Dispatch.Types
+--    , Montevideo.EarTrain
+--    , Montevideo.Hode
+--    , Montevideo.Random.MentionsSig
+--    , Montevideo.Random.RandomSignal
+--    , Montevideo.Random.RandomSynth
+--    , Montevideo.Random.Render
+--    , Montevideo.Random.Types
+--    , Montevideo.Random.Types.AbstractSignal
+--    , Montevideo.Random.Types.Other
+    , Montevideo.Scale
+    , Montevideo.Synths
+      Montevideo.Synths.Config
+    , Montevideo.Synths.Samples
+    , Montevideo.Synths.Vap
+    , Montevideo.Synths.Zot
   other-modules:
       Paths_montevideo
-  hs-source-dirs:
-      src
   build-depends:
       base
     , containers

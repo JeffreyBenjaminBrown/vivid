@@ -1,7 +1,7 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
-module Vivid (
-     module Vivid.NoPlugins
+module Montevideo.Vivid (
+     module Montevideo.Vivid.NoPlugins
    ) where
 
 import Vivid.NoPlugins

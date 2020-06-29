@@ -1,4 +1,4 @@
-resolver: lts-15.10
+resolver: lts-16.0
 
 extra-deps:
 #  - /home/jeff/logic/hode
