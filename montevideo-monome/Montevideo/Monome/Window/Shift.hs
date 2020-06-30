@@ -41,7 +41,7 @@ shift xy | xy == rightArrow = (-1, 0)
          | xy == downArrow  = ( 0,-1)
            -- origin at top-left => down means add to Y
          | xy == leftArrow  = ( 1, 0)
-         | xy == upOctave   = mulPair (-1) hv
+         | xy == upOctave   = pairMul (-1) hv
            -- lowering the origin raises the coordinate values of a given key, hence raising its pitch
          | xy == upArrow    = ( 0, 1)
          | xy == downOctave = hv
@@ -61,7 +61,7 @@ shiftWindow = Window {
 handler :: St EdoApp -> ((X,Y), Switch) -> St EdoApp
 handler    st0         (_,  False)      = st0
 handler    st0         (xy, True )      = let
-  st' :: St EdoApp = st0 & stApp . etXyShift %~ addPair (shift xy)
+  st' :: St EdoApp = st0 & stApp . etXyShift %~ pairAdd (shift xy)
   lit :: [PitchClass EdoApp] = M.keys $ st0 ^. stApp . etLit
   msgs :: [LedMsg] =
     map (Kbd.label,) $

@@ -32,8 +32,8 @@ module Montevideo.Util (
   , numBetween -- ^ (Num a, Ord a) => a -> a -> a -> Bool
   , dot        -- ^ Num a => (a,a) -> (a,a) -> a
   , taxiMetric -- ^ Num a => (a,a) -> (a,a) -> a
-  , addPair    -- ^ Num a => (a,a) -> (a,a) -> (a,a)
-  , mulPair    -- ^ Num a => a -> (a,a) -> (a,a)
+  , pairAdd    -- ^ Num a => (a,a) -> (a,a) -> (a,a)
+  , pairMul    -- ^ Num a => a -> (a,a) -> (a,a)
   , uniq       -- ^ Ord a => [a] -> [a]
 
   , lcmRatios
@@ -192,11 +192,11 @@ dot (a,b) (c,d) = a*c + b*d
 taxiMetric :: Num a => (a,a) -> (a,a) -> a
 taxiMetric (a,b) (c,d) = abs (a-c) + abs (b-d)
 
-addPair :: Num a => (a,a) -> (a,a) -> (a,a)
-addPair (a,b) (c,d) = (a+c, b+d)
+pairAdd :: Num a => (a,a) -> (a,a) -> (a,a)
+pairAdd (a,b) (c,d) = (a+c, b+d)
 
-mulPair :: Num a => a -> (a,a) -> (a,a)
-mulPair n (a,b) = (n*a,n*b)
+pairMul :: Num a => a -> (a,a) -> (a,a)
+pairMul n (a,b) = (n*a,n*b)
 
 uniq :: Ord a => [a] -> [a]
 uniq = S.toList . S.fromList

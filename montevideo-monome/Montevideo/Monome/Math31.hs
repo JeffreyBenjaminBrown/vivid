@@ -36,7 +36,7 @@ hv = let
   x = -- the first multiple of spacing greater than or equal to edo
     head $ filter (>= edo) $ (*spacing) <$> [1..]
   v1 = (div x spacing, edo - x)
-  v2 = addPair v1 vv
+  v2 = pairAdd v1 vv
   in if abs (dot vv v1) <= abs (dot vv v2)
      then           v1  else           v2
 
@@ -53,7 +53,7 @@ xyToEt31 (x,y) = spacing * x + (skip*y)
 
 xyToEt31_st :: St EdoApp -> (X,Y) -> Pitch EdoApp
 xyToEt31_st st xy =
-  xyToEt31 $ addPair xy $ mulPair (-1) $ _etXyShift $ _stApp st
+  xyToEt31 $ pairAdd xy $ pairMul (-1) $ _etXyShift $ _stApp st
 
 -- | The numerically lowest (closest to the top-left corner)
 -- member of a pitch class, if the monome is not shifted (modulo octaves).
@@ -77,9 +77,9 @@ enharmonicToXYs btn = let
       j <- [      -   (div 15 v2 + 1)
                .. 2 * (div 15 v2 + 1) ] ]
   -- `j` needs a wide range because `hv` might be diagonal.
-  in map (addPair low) wideGrid
+  in map (pairAdd low) wideGrid
 
 pcToXys :: (X,Y) -> PitchClass EdoApp -> [(X,Y)]
 pcToXys shift pc =
   enharmonicToXYs $
-  addPair (et31ToLowXY pc) shift
+  pairAdd (et31ToLowXY pc) shift

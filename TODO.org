@@ -1,7 +1,4 @@
 * TODO organize
-** TODO the pair functions
-rename addPair, mulPair -> pairAdd, pairMul
-delete negPair, use mulPair instead
 ** TODO unify the utilities
 *** DONE motivation
 **** It will help ensure test coverage.
