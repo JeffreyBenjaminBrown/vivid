@@ -6,7 +6,7 @@ cabal-version: 1.12
 --
 -- hash: 34934cdc357aa3d841ae35295fb72477ba9151be3d178f49c564415c6af19b65
 
-name:           montevideo
+name:           montevideo-util
 version:        0.1.0.0
 description:    https://github.com/JeffreyBenjaminBrown/montevideo
 homepage:       https://github.com/JeffreyBenjaminBrown/montevideo
@@ -15,7 +15,7 @@ author:         Jeffrey Benjamin Brown
 maintainer:     jeffbrown.the@gmail.com
 copyright:      Jeffrey Benjamin Brown
 license:        GPL-3
-license-file:   LICENSE
+license-file:   ../LICENSE
 build-type:     Simple
 
 source-repository head
@@ -24,41 +24,17 @@ source-repository head
 
 library
   exposed-modules:
-      Montevideo.VividDispatch
-
-    , Montevideo.FilepathSynonyms
-    , Montevideo.LongVarLists
-    , Montevideo.ReadHsAsGhci
-
-    , Montevideo.Dispatch.Abbrevs
-    , Montevideo.Dispatch.Config
-    , Montevideo.Dispatch.Dispatch
-    , Montevideo.Dispatch.Join
-    , Montevideo.Dispatch.Internal.Join
-    , Montevideo.Dispatch.Msg
-    , Montevideo.Dispatch.Museq
-    , Montevideo.Dispatch.Transform
-    , Montevideo.Dispatch.Types
-    , Montevideo.Scale
-
-  other-modules:
-      Paths_montevideo
+      Montevideo.Util
   build-depends:
       base
     , containers
-    , HUnit
     , lens
-    , megaparsec
     , random
---    , hode
     , vector
     , vector-algorithms
 
     , vivid
     , vivid-osc
     , vivid-supercollider
-
-    , montevideo-synth
-    , montevideo-util
 
   default-language: Haskell2010

@@ -33,12 +33,12 @@ library
     , Montevideo.Monome.Synth.Boop
     , Montevideo.Monome.Synth.Zot
     , Montevideo.Monome.Test
-    , Montevideo.Monome.Test.Data
-    , Montevideo.Monome.Test.HandTest
-    , Montevideo.Monome.Test.JI
-    , Montevideo.Monome.Test.Misc
-    , Montevideo.Monome.Test.Sustain
-    , Montevideo.Monome.Test.Windows
+--    , Montevideo.Monome.Test.Data
+--    , Montevideo.Monome.Test.HandTest
+--    , Montevideo.Monome.Test.JI
+--    , Montevideo.Monome.Test.Misc
+--    , Montevideo.Monome.Test.Sustain
+--    , Montevideo.Monome.Test.Windows
     , Montevideo.Monome.Types.Button
     , Montevideo.Monome.Types.Device
     , Montevideo.Monome.Types.Initial

@@ -7,6 +7,7 @@ packages:
 - ./montevideo-monome
 - ./montevideo-synth
 - ./montevideo-test
+- ./montevideo-util
 
 extra-deps:
 #  - /home/jeff/logic/hode
