@@ -11,7 +11,7 @@ import Vivid.OSC
 import Montevideo.Monome.Network.Monome
 import Montevideo.Monome.Types.Initial
 import Montevideo.Util
-import Montevideo.Monome.Util
+import Data.ByteString (ByteString)
 
 
 fromBool :: Num a => Bool -> a

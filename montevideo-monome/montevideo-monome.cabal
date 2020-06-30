@@ -43,7 +43,6 @@ library
     , Montevideo.Monome.Types.Device
     , Montevideo.Monome.Types.Initial
     , Montevideo.Monome.Types.Window
-    , Montevideo.Monome.Util
     , Montevideo.Monome.Window.Common
     , Montevideo.Monome.Window.JI
     , Montevideo.Monome.Window.Keyboard

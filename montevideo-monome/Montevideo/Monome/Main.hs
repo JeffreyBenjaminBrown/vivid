@@ -12,11 +12,11 @@ module Montevideo.Monome.Main (
   , ji
   ) where
 
-import Control.Concurrent (forkIO, killThread)
-import Control.Concurrent.MVar
-import Control.Lens
+import           Control.Concurrent (forkIO, killThread)
+import           Control.Concurrent.MVar
+import           Control.Lens
+import           Data.ByteString.Char8 (unpack)
 import qualified Data.Map as M
---import qualified Data.Set as S
 import Vivid
 import Vivid.OSC
 
@@ -26,7 +26,6 @@ import Montevideo.Monome.Synth.Boop
 import Montevideo.Monome.Types.Button
 import Montevideo.Monome.Types.Initial
 import Montevideo.Monome.Types.Window
-import Montevideo.Monome.Util
 import Montevideo.Monome.Window.JI
 import Montevideo.Monome.Window.Keyboard
 import Montevideo.Monome.Window.Shift

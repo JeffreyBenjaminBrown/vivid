@@ -5,7 +5,8 @@ module Montevideo.Monome.Network.Monome where
 import Vivid.OSC
 
 import Montevideo.Util
-import Montevideo.Monome.Util
+import Data.ByteString (ByteString)
+import Data.ByteString.Char8 (pack)
 import Montevideo.Monome.Network.Util (localhost)
 
 

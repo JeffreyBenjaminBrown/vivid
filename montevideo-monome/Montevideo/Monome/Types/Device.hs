@@ -10,7 +10,8 @@ import Vivid.OSC
 import Montevideo.Monome.Network.Util
 import Montevideo.Monome.Types.Button
 import Montevideo.Util
-import Montevideo.Monome.Util
+import Data.ByteString (ByteString)
+import Data.ByteString.Char8 (unpack)
 
 
 -- | SerialOsc responds to /serialosc/list messages with this information.
