@@ -11,6 +11,7 @@ import Data.Ratio
 
 import Montevideo.Monome.Main
 import Montevideo.Monome.Types.Initial
+import Montevideo.Util
 import Montevideo.Monome.Util
 
 

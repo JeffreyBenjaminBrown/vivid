@@ -4,6 +4,7 @@ module Montevideo.Monome.Network.Monome where
 
 import Vivid.OSC
 
+import Montevideo.Util
 import Montevideo.Monome.Util
 import Montevideo.Monome.Network.Util (localhost)
 

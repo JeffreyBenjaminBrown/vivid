@@ -15,6 +15,7 @@ module Montevideo.Monome.Math31 (
   ) where
 
 import Montevideo.Monome.Types.Initial
+import Montevideo.Util
 import Montevideo.Monome.Util
 
 -- | Some (edo,spacing) pairs I like:

@@ -1,4 +1,7 @@
 * TODO organize
+** TODO orphaned
+-- fi is used a lot in Monome 
+  -- because OSC needs a lot of Int32 values while I prefer Int.
 ** TODO unify the utilities
 *** DONE motivation
 **** It will help ensure test coverage.

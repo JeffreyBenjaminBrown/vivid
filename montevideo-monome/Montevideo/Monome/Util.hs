@@ -1,7 +1,5 @@
 module Montevideo.Monome.Util (
   ByteString, pack, unpack
-  , fi         -- ^ (Integral a, Num b) => a -> b
-  , fr         -- ^ Fractional a => Rational -> a
   , numBetween -- ^ (Num a, Ord a) => a -> a -> a -> Bool
   , dot        -- ^ Num a => (a,a) -> (a,a) -> a
   , taxiMetric -- ^ Num a => (a,a) -> (a,a) -> a
@@ -17,13 +15,6 @@ import qualified Data.Set as S
 import Data.ByteString (ByteString)
 import Data.ByteString.Char8 (pack, unpack)
 
-
--- | Because OSC needs a lot of Int32 values while I prefer Int.
-fi :: (Integral a, Num b) => a -> b
-fi = fromIntegral
-
-fr :: Fractional a => Rational -> a
-fr = fromRational
 
 numBetween :: (Num a, Ord a) => a -> a -> a -> Bool
 numBetween low high x = x >= low && x <= high

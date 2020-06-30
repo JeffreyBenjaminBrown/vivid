@@ -2,8 +2,9 @@
 
 module Montevideo.Util (
   -- | = shorthand
-    fr  -- ^ fromRational
-  , tr  -- ^ toRational
+    fi -- ^ fromIntegral
+  , fr -- ^ fromRational
+  , tr -- ^ toRational
 
   -- | = error IO
   , writeTimeAndError
@@ -55,6 +56,9 @@ import Vivid (getTime, pick, MonadRandom)
 
 -- | = shorthand, universal enough to be here
 -- (most shorthand is in Abbrevs.hs instead).
+
+fi :: (Integral a, Num b) => a -> b
+fi = fromIntegral
 
 fr :: Fractional a => Rational -> a
 fr = fromRational

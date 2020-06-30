@@ -26,6 +26,7 @@ import Montevideo.Monome.Synth.Boop
 import Montevideo.Monome.Types.Button
 import Montevideo.Monome.Types.Initial
 import Montevideo.Monome.Types.Window
+import Montevideo.Util
 import Montevideo.Monome.Util
 import Montevideo.Monome.Window.JI
 import Montevideo.Monome.Window.Keyboard

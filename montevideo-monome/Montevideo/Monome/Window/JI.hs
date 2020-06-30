@@ -20,6 +20,7 @@ import qualified Data.Map as M
 import qualified Montevideo.Monome.Config as Config
 import Montevideo.Monome.Types.Button
 import Montevideo.Monome.Types.Initial
+import Montevideo.Util
 import Montevideo.Monome.Util
 import Montevideo.Monome.Window.Common
 
