@@ -4,10 +4,7 @@ module Montevideo.JI.Lib where
 
 import           Control.Lens
 import qualified Data.List as L
-import qualified Data.Set as S
-import           Data.Decimal
 import           Data.Ratio
-import           Data.Fixed
 import           Data.Ord (comparing)
 
 import Montevideo.JI.Util

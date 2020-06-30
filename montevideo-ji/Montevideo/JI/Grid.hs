@@ -33,11 +33,9 @@
 module Montevideo.JI.Grid where
 
 import           Control.Lens
-import           Data.Ratio
 import           Data.Fixed
 
 import Montevideo.JI.Lib
-import Montevideo.JI.Util
 
 
 compareGrids_filt :: Int -> Int -> [(Int,Int,Int,Int,[Int])]

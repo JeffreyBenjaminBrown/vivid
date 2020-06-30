@@ -16,7 +16,7 @@ module Montevideo.Monome.Math31 (
 
 import Montevideo.Monome.Types.Initial
 import Montevideo.Util
-import Montevideo.Monome.Util
+
 
 -- | Some (edo,spacing) pairs I like:
 -- (31,6), (41,6), (46,7), (87,12 or 13)

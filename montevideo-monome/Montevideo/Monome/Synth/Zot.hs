@@ -8,7 +8,7 @@ module Montevideo.Monome.Synth.Zot (
 
 import Vivid
 
-import Montevideo.Monome.Instances.TypesafeArgs
+import Montevideo.Monome.Instances.TypesafeArgs ()
 
 
 type BoopParams = '["amp"

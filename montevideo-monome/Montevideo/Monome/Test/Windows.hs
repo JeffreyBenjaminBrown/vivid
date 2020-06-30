@@ -14,7 +14,6 @@ import Montevideo.Monome.Test.Data
 import Montevideo.Monome.Types.Button
 import Montevideo.Monome.Types.Initial
 import Montevideo.Util
-import Montevideo.Monome.Util
 import Montevideo.Monome.Window.Common
 import Montevideo.Monome.Window.Keyboard as K
 import Montevideo.Monome.Window.Shift    as Sh

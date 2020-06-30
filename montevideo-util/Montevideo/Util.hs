@@ -35,13 +35,21 @@ module Montevideo.Util (
   , nextPhase0
   , prevPhase0
 
+  , numBetween -- ^ (Num a, Ord a) => a -> a -> a -> Bool
+  , dot        -- ^ Num a => (a,a) -> (a,a) -> a
+  , taxiMetric -- ^ Num a => (a,a) -> (a,a) -> a
+  , addPair    -- ^ Num a => (a,a) -> (a,a) -> (a,a)
+  , mulPair    -- ^ Num a => a -> (a,a) -> (a,a)
+  , negPair    -- ^ Num a => (a,a) -> (a,a)
+  , uniq       -- ^ Ord a => [a] -> [a]
+
   -- | = vectors
   , divideAtMaxima
   , firstIndexGTE
   , lastIndexLTE
   ) where
 
-import Prelude hiding (abs)
+import Prelude
 import Control.Monad.ST
 import Data.Ratio
 import qualified Data.List as L
@@ -174,7 +182,29 @@ multiPartition abs = let
   in M.toList $ foldr f M.empty abs
 
 
--- | = Time
+-- | = numbers & time
+
+numBetween :: (Num a, Ord a) => a -> a -> a -> Bool
+numBetween low high x = x >= low && x <= high
+
+dot :: Num a => (a,a) -> (a,a) -> a
+dot (a,b) (c,d) = a*c + b*d
+
+taxiMetric :: Num a => (a,a) -> (a,a) -> a
+taxiMetric (a,b) (c,d) = abs (a-c) + abs (b-d)
+
+addPair :: Num a => (a,a) -> (a,a) -> (a,a)
+addPair (a,b) (c,d) = (a+c, b+d)
+
+mulPair :: Num a => a -> (a,a) -> (a,a)
+mulPair n (a,b) = (n*a,n*b)
+
+negPair :: Num a => (a,a) -> (a,a)
+negPair (a,b) = (-a,-b)
+
+uniq :: Ord a => [a] -> [a]
+uniq = S.toList . S.fromList
+
 
 -- | least common denominator
 lcmRatios :: Rational -> Rational -> Rational
