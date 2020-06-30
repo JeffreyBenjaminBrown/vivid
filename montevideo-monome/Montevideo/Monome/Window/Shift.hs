@@ -41,7 +41,7 @@ shift xy | xy == rightArrow = (-1, 0)
          | xy == downArrow  = ( 0,-1)
            -- origin at top-left => down means add to Y
          | xy == leftArrow  = ( 1, 0)
-         | xy == upOctave   = negPair hv
+         | xy == upOctave   = mulPair (-1) hv
            -- lowering the origin raises the coordinate values of a given key, hence raising its pitch
          | xy == upArrow    = ( 0, 1)
          | xy == downOctave = hv

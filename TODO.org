@@ -1,7 +1,4 @@
 * TODO organize
-** TODO orphaned
--- fi is used a lot in Monome 
-  -- because OSC needs a lot of Int32 values while I prefer Int.
 ** TODO the pair functions
 rename addPair, mulPair -> pairAdd, pairMul
 delete negPair, use mulPair instead

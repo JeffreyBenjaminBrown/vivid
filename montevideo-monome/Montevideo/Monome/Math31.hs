@@ -53,7 +53,7 @@ xyToEt31 (x,y) = spacing * x + (skip*y)
 
 xyToEt31_st :: St EdoApp -> (X,Y) -> Pitch EdoApp
 xyToEt31_st st xy =
-  xyToEt31 $ addPair xy $ negPair $ _etXyShift $ _stApp st
+  xyToEt31 $ addPair xy $ mulPair (-1) $ _etXyShift $ _stApp st
 
 -- | The numerically lowest (closest to the top-left corner)
 -- member of a pitch class, if the monome is not shifted (modulo octaves).

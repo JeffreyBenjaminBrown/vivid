@@ -29,19 +29,18 @@ module Montevideo.Util (
   , multiPartition -- ^ forall a b. Ord a => [(a,b)] -> [ (a,[b]) ]
 
   -- | = numbers & time
-  , lcmRatios
-  , bumpArc
-  , overlap
-  , nextPhase0
-  , prevPhase0
-
   , numBetween -- ^ (Num a, Ord a) => a -> a -> a -> Bool
   , dot        -- ^ Num a => (a,a) -> (a,a) -> a
   , taxiMetric -- ^ Num a => (a,a) -> (a,a) -> a
   , addPair    -- ^ Num a => (a,a) -> (a,a) -> (a,a)
   , mulPair    -- ^ Num a => a -> (a,a) -> (a,a)
-  , negPair    -- ^ Num a => (a,a) -> (a,a)
   , uniq       -- ^ Ord a => [a] -> [a]
+
+  , lcmRatios
+  , bumpArc
+  , overlap
+  , nextPhase0
+  , prevPhase0
 
   -- | = vectors
   , divideAtMaxima
@@ -198,9 +197,6 @@ addPair (a,b) (c,d) = (a+c, b+d)
 
 mulPair :: Num a => a -> (a,a) -> (a,a)
 mulPair n (a,b) = (n*a,n*b)
-
-negPair :: Num a => (a,a) -> (a,a)
-negPair (a,b) = (-a,-b)
 
 uniq :: Ord a => [a] -> [a]
 uniq = S.toList . S.fromList
