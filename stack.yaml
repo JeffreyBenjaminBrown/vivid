@@ -1,7 +1,7 @@
 resolver: lts-16.0
 
 packages:
-- ./montevideo
+- ./mtv
 - ./montevideo-earTrain
 - ./montevideo-ji
 - ./montevideo-monome

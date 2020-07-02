@@ -6,7 +6,7 @@ cabal-version: 1.12
 --
 -- hash: 34934cdc357aa3d841ae35295fb72477ba9151be3d178f49c564415c6af19b65
 
-name:           montevideo
+name:           mtv
 version:        0.1.0.0
 description:    https://github.com/JeffreyBenjaminBrown/montevideo
 homepage:       https://github.com/JeffreyBenjaminBrown/montevideo
