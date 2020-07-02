@@ -1,13 +1,13 @@
 resolver: lts-16.0
 
 packages:
-- ./mtv
-- ./montevideo-earTrain
-- ./montevideo-ji
-- ./montevideo-monome
-- ./montevideo-synth
-- ./montevideo-test
-- ./montevideo-util
+- ./mtv-earTrain
+- ./mtv-ji
+- ./mtv-lang
+- ./mtv-monome
+- ./mtv-synth
+- ./mtv-test
+- ./mtv-util
 
 extra-deps:
 #  - /home/jeff/logic/hode

@@ -1,12 +1,12 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.1.
+-- This file has been generated from package.yaml by hpack version 0.32.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 34934cdc357aa3d841ae35295fb72477ba9151be3d178f49c564415c6af19b65
+-- hash: 3cc5476926b8501480551380c0d40dddb7f2668c24663458dd4a6d0c203bca83
 
-name:           montevideo-earTrain
+name:           mtv-ji
 version:        0.1.0.0
 description:    https://github.com/JeffreyBenjaminBrown/montevideo
 homepage:       https://github.com/JeffreyBenjaminBrown/montevideo
@@ -20,19 +20,19 @@ build-type:     Simple
 
 source-repository head
   type: git
-  location: https://github.com/jeffreybenjaminbrown/montevideo/
+  location: https://github.com/JeffreyBenjaminBrown/montevideo
 
 library
   exposed-modules:
-      Montevideo.EarTrain
+      Montevideo.JI.Lib
+    , Montevideo.JI.Grid
+    , Montevideo.JI.Harmonics
+    , Montevideo.JI.Util
   other-modules:
-      Paths_montevideo
+      Paths_ji
   build-depends:
-      base
-    , containers
+      base >=4.7 && <5
     , lens
-    , random
-    , vivid
-
-    , montevideo-synth
+    , Decimal
+    , containers
   default-language: Haskell2010
