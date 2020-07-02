@@ -1,7 +1,28 @@
-# Montevideo: a toolkit for live-coding music in Haskell
+# Montevideo is some music tools for
+
+* `mtv-lang`: live-coding
+* `mtv-monome`: playing via a [monome](https://monome.org/)
+* `mtv-earTrain`: ear training
+* `mtv-ji`: music theory
 
 
-## what it's for
+# quickstart
+
+* Clone the [Dirt Samples](https://github.com/tidalcycles/Dirt-Samples).
+* Edit `mtv-synth/Montevideo/Synth/Config.hs`, changing the definition of `dirtSamplesFolder` to its location on your computer.
+* Go to the root of the folder.
+* Run `./sc-start.sh` to start SuperCollider.
+* Go to `mtv-lang/`.
+* Run`stack ghci`.
+* Evaluate `:s init.hs`.
+* Evaluate `:. sketches/2/3`.
+* Press "hush" to stop the music.
+* Load another sketch with `:. sketches/something/else`. 
+* Turn it off with `off`. (This will leave SC running, so you can another dispatch object by running `:s init.hs` again without restarting SC.)
+
+# The rest of this README is really old, and pertains only to `mtv-lang`
+
+# what it's for
 
 Montevideo is inspired by
 [TidalCycles](https://tidalcycles.org/index.php/Welcome).
@@ -31,7 +52,7 @@ Montevideo permits aall that.
 There are examples in the `docs/` folder.
 
 
-## setting it up
+# setting it up
 
 To use this code you'll need to have first installed:
 
@@ -49,7 +70,7 @@ just edit that path to point to the folder your samples are in,
 and then edit `src/Synths/Samples.hs` to point to each sample individually.)
 
 
-## using it
+# using it
 
 Run `bash sc-start.sh` from the command line to start SuperCollider
 (listening on an appropriate channel).
@@ -67,7 +88,7 @@ The files in `docs/` are simple and commented.
 The files in `sketches/`, not so much.
 
 
-## learning it
+# learning it
 
 The following might be a good order in which to study the example code.
 (Each of these lines is something you can evaluate from GHCI,
@@ -94,8 +115,6 @@ You can also search for it in the test modules
 Those tests might still give a good idea of what func is for and how it works.
 
 
-## why the name
+# why the name
 
 It's a mashup of monome, Tidal(Cycles) and Vivid.
-(The [monome code](https://github.com/JeffreyBenjaminBrown/monome)
-is elsewhere at the moment.)
