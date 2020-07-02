@@ -1,12 +1,17 @@
+-- PITFALL: There are two Zot synths in this folder.
+  -- I was using them in different repos.
+  -- They aren't quite the same.
+  -- Each passage where they differ is marked with the comment
+  -- "differs from the other Zot".
+
 -- TODO
-  -- next ? taps
   -- should ? frequencies all be expressed as multiples of the fundamental
 
 -- Notes on usage
   -- The AM and RM scale factors of 2 would cause no change in the integral
   -- of the signal if the modulator was a triangle wave. A modulator that
   -- spent more time at the extremes would cause its volume to rise.
-
+  --x
   -- `am-b` and `rm-b`, like `pulse`, add to the feedback input while
   -- subtracting from a competing one. `fm-b`, `pm-b`, `wm-b` do not.
 
@@ -71,13 +76,19 @@ zot = sd ( 0 :: I "on"
          , 0 :: I "sh-b"
          , 1 :: I "del"
          ) $ do
+
+  -- differs from the other Zot
   fb_1 <- head <$> localIn(1)
+
   fb01 <- (fb_1 ~+ 1) ~/ 2
+
+  -- differs from the other Zot
   fm <-    (V::V "freq")
         ~+ (V::V "fm-b") ~* fb_1
         ~+ ( (V::V"fm-m") ~*
              (V::V"freq") ~*
              sinOsc (freq_ $ (V::V"freq") ~* (V::V"fm-f") ) )
+
   pm <- (pi/2) ~* (   (V::V"pm-b") ~* fb01
                    ~+ (V::V"pm-m")
                       ~* sinOsc (freq_ $ (V::V"freq") ~* (V::V"pm-f")))
@@ -130,5 +141,6 @@ zot = sd ( 0 :: I "on"
 
   localOut( [s1] )
 
+  -- differs from the other Zot
   out 0 [ (V::V "on") ~* (V::V "amp") ~* shift
         , (V::V "on") ~* (V::V "amp") ~* shift ]

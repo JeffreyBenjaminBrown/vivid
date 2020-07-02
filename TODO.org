@@ -1,12 +1,4 @@
 * TODO organize
-** TODO unify the utilities
-*** DONE motivation
-**** It will help ensure test coverage.
-and make test coverage less work.
-**** It will give a bit of an intro to all projects.
-** TODO unify the test suites
-./montevideo-monome/Montevideo/Monome/Test.hs
-./montevideo/Montevideo/Dispatch-Unused/Test.hs
 ** TODO unify the synth definitions
 * TODO path, high-level
 ** understand both libraries

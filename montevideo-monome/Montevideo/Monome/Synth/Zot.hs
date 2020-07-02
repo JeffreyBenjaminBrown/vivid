@@ -58,14 +58,21 @@ boop = sd ( 0 :: I "amp"
          , 0 :: I "sh-b"
          , 1 :: I "del"
          ) $ do
+
+  -- differs from the other Zot
   fb_1 <- localIn(1)
   fb_1 <- return $ head fb_1 -- PITFALL: Earlier, I could write
     -- [fb_1] <- localIn(1), thus avoiding this reassignment,
     -- but this GHC version requires a MonadFail instance for that.
+
   fb01 <- (fb_1 ~+ 1) ~/ 2
-  fm <- (V::V "freq")
+
+  -- differs from the other Zot
+  fm <-    (V::V "freq")
         ~+ (V::V "fm-b") ~* fb_1
-        ~+ (V::V"fm-m") ~* sinOsc (freq_ $ (V::V"freq") ~* (V::V"fm-f"))
+        ~+ (V::V"fm-m") ~*
+           sinOsc (freq_ $ (V::V"freq") ~* (V::V"fm-f"))
+
   pm <- (pi/2) ~* (   (V::V"pm-b") ~* fb01
                    ~+ (V::V"pm-m")
                       ~* sinOsc (freq_ $ (V::V"freq") ~* (V::V"pm-f")))
@@ -118,4 +125,5 @@ boop = sd ( 0 :: I "amp"
 
   localOut( [s1] )
 
+  -- differs from the other Zot
   out 0 [(V::V "amp") ~* shift, (V::V "amp") ~* shift]
