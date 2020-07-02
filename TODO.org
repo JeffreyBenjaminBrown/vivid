@@ -4,16 +4,6 @@
 **** It will help ensure test coverage.
 and make test coverage less work.
 **** It will give a bit of an intro to all projects.
-*** Make a new project called montevideo-util.
-*** Transfer functions into it one at a time.
-  There are only 388 lines' worth:
-  [jeff@jbb-dell:~/mtv]$ find . -name Util.hs | xargs wc
-     63   304  1912 ./montevideo-monome/Montevideo/Monome/Network/Util.hs
-     47   282  1320 ./montevideo-monome/Montevideo/Monome/Util.hs
-     20    81   509 ./montevideo-ji/Montevideo/JI/Util.hs
-    250  1361  7466 ./montevideo/Montevideo/Util.hs
-    380  2028 11207 total
-*** Then delete where they came from.
 ** TODO unify the test suites
 ./montevideo-monome/Montevideo/Monome/Test.hs
 ./montevideo/Montevideo/Dispatch-Unused/Test.hs

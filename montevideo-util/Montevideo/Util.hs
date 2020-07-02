@@ -34,7 +34,7 @@ module Montevideo.Util (
   , taxiMetric -- ^ Num a => (a,a) -> (a,a) -> a
   , pairAdd    -- ^ Num a => (a,a) -> (a,a) -> (a,a)
   , pairMul    -- ^ Num a => a -> (a,a) -> (a,a)
-  , uniq       -- ^ Ord a => [a] -> [a]
+  , myMod      -- ^ Int -> Int -> Int
 
   , lcmRatios
   , bumpArc
@@ -50,6 +50,7 @@ module Montevideo.Util (
 
 import Prelude
 import Control.Monad.ST
+import Data.Fixed
 import Data.Ratio
 import qualified Data.List as L
 import qualified Data.Map as M
@@ -57,8 +58,9 @@ import qualified Data.Set as S
 import qualified Data.Vector as V
 import Data.Vector.Algorithms.Search
   (binarySearchLBy, binarySearchRBy, Comparison)
-
 import Vivid (getTime, pick, MonadRandom)
+
+import Montevideo.JI.Util as U
 
 
 -- | = shorthand, universal enough to be here
@@ -145,8 +147,15 @@ unusedName names = head $ (L.\\) allStrings names where
 
 -- | There's a Hackage package for this surely that's maybe faster, but
 -- it's not compatible with the stack snapshot I'm using.
-unique :: (Ord a, Eq a) => [a] -> [a]
+unique :: Ord a => [a] -> [a]
 unique = S.toList . S.fromList
+
+-- | like `mod` but minimized, rather than centered, at 0
+myMod :: Int -> Int -> Int
+myMod x b =
+  let m = mod' x b
+  in if m > round (fromIntegral b/2)
+     then m-b else m
 
 -- | Slower, but does not require `Ord a`
 unique' :: Eq a => [a] -> [a]
@@ -197,9 +206,6 @@ pairAdd (a,b) (c,d) = (a+c, b+d)
 
 pairMul :: Num a => a -> (a,a) -> (a,a)
 pairMul n (a,b) = (n*a,n*b)
-
-uniq :: Ord a => [a] -> [a]
-uniq = S.toList . S.fromList
 
 
 -- | least common denominator

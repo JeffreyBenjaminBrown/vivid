@@ -3,10 +3,8 @@ module Montevideo.JI.Harmonics where
 import qualified Data.Set as S
 
 
-uniq :: Ord a => [a] -> [a]
-uniq = S.toList . S.fromList
-
--- | ALl the 15-odd-limit intervals.
+-- | The "15-odd-limit tonality diamond":
+-- ALl the 15-odd-limit intervals.
 lim_15 :: Fractional a => [a]
 lim_15 =
   [3/2,4/3,5/4,5/3,6/5
