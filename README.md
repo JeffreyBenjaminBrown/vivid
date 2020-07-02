@@ -18,7 +18,7 @@
 * Evaluate `:. sketches/2/3`.
 * Press "hush" to stop the music.
 * Load another sketch with `:. sketches/something/else`. 
-* Turn it off with `off`. (This will leave SC running, so you can another dispatch object by running `:s init.hs` again without restarting SC.)
+* Turn it off with `off`. (This will leave SC running, so you can start another dispatcher by running `:s init.hs` again without restarting SC.)
 
 # The rest of this README is really old, and pertains only to `mtv-lang`
 
