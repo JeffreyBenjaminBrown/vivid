@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
-module Montevideo.Monome.Synth.Boop (
+module Montevideo.Synth.Boop_Monome (
   BoopParams
   , boop
   ) where

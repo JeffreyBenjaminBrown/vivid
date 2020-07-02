@@ -26,7 +26,7 @@ import           Data.Set
 import qualified Network.Socket as NS
 import           Vivid hiding (Param)
 
-import Montevideo.Monome.Synth.Boop
+import Montevideo.Synth.Boop_Monome
 
 
 type HostName = NS.HostName

@@ -22,7 +22,7 @@ import Vivid.OSC
 
 import qualified Montevideo.Monome.Config as Config
 import Montevideo.Monome.Network.Util
-import Montevideo.Monome.Synth.Boop
+import Montevideo.Synth.Boop_Monome
 import Montevideo.Monome.Types.Button
 import Montevideo.Monome.Types.Initial
 import Montevideo.Monome.Types.Window

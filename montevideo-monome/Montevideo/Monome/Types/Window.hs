@@ -25,7 +25,7 @@ import qualified Data.Map as M
 import           Vivid hiding (pitch, synth, Param)
 
 import Montevideo.Monome.Network.Util
-import Montevideo.Monome.Synth.Boop
+import Montevideo.Synth.Boop_Monome
 import Montevideo.Monome.Types.Button
 import Montevideo.Monome.Types.Initial
 
