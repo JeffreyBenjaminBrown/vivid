@@ -6,7 +6,7 @@
 * `mtv-ji`: music theory
 
 
-# quickstart
+# quickstart to live-coding in `mtv-lang`
 
 * Clone the [Dirt Samples](https://github.com/tidalcycles/Dirt-Samples).
 * Edit `mtv-synth/Montevideo/Synth/Config.hs`, changing the definition of `dirtSamplesFolder` to its location on your computer.
