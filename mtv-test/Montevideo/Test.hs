@@ -1,9 +1,9 @@
-module Montevideo.Test.TMain where
+module Montevideo.Test where
 
 import Test.HUnit
 
-import Montevideo.Test.TDispatch
-import Montevideo.Test.TUtil
+import Montevideo.Test.Dispatch
+import Montevideo.Test.Util
 import Montevideo.Monome.Test.Misc
 import Montevideo.Monome.Test.Sustain
 import Montevideo.Monome.Test.Windows
@@ -12,8 +12,8 @@ import Montevideo.Monome.Test.JI
 
 tests :: IO Counts
 tests = runTestTT $ TestList [
-    test_module_dispatch
-  , test_module_util
+    Montevideo.Test.Dispatch.tests
+  , Montevideo.Test.Util.tests
   , Montevideo.Monome.Test.Misc.tests
   , Montevideo.Monome.Test.Windows.tests
   , Montevideo.Monome.Test.Sustain.tests

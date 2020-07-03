@@ -1,4 +1,4 @@
-module Montevideo.Test.TDispatch where
+module Montevideo.Test.Dispatch where
 
 import Test.HUnit
 
@@ -17,8 +17,8 @@ import Montevideo.Dispatch.Transform
 import Montevideo.Dispatch.Types
 
 
-test_module_dispatch :: Test
-test_module_dispatch = TestList [
+tests :: Test
+tests = TestList [
     TestLabel "testOverlap" testOverlap
   , TestLabel "testPrevPhase0" testPrevPhase0
   , TestLabel "testNextPhase0" testNextPhase0

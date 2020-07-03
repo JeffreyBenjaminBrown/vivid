@@ -1,14 +1,14 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
-module Montevideo.Test.TUtil where
+module Montevideo.Test.Util where
 
 import Test.HUnit
 
 import Montevideo.Util
 
 
-test_module_util :: Test
-test_module_util = TestList [
+tests :: Test
+tests = TestList [
     TestLabel "test_interleaves" test_interleaves
     ]
 

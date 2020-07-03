@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Montevideo.Test.THode where
+module Montevideo.Test.Hode where
 
 import           Data.Either
 import qualified Data.Map as M
