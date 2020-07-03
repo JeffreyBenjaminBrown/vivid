@@ -10,7 +10,6 @@ packages:
 - ./mtv-util
 
 extra-deps:
-#  - /home/jeff/logic/hode
   - git: https://github.com/JeffreyBenjaminBrown/hode
     commit: db800a86e202cbc250e543e480829c24aece18ef
   - brick-0.47@sha256:4936c50acfdf09620dad5217fb384fc0d59626f75abed8b48250b419ec2ab623

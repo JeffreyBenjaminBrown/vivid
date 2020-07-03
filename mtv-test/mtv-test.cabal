@@ -39,4 +39,9 @@ library
     , vector
     , vector-algorithms
 
+    -- TODO Mystery: Why does it work without including these lines?
+    -- and why does including them break it?
+    -- , mtv-lang
+    -- , mtv-monome
+
   default-language: Haskell2010
