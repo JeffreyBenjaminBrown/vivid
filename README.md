@@ -1,4 +1,6 @@
-# Montevideo is some music tools for
+# Montevideo is some music tools
+
+It can be used for:
 
 * `mtv-lang`: live-coding
 * `mtv-monome`: playing via a [monome](https://monome.org/)
