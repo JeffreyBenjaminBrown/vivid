@@ -67,17 +67,17 @@ instance Show RTime where
 
 instance Num RTime where
   (+) (RTime t) (RTime s) = RTime (t + s)
-                         (-) (RTime t) (RTime s) = RTime (t - s)
-                         (*) (RTime t) (RTime s) = RTime (t * s)
-                         negate (RTime t) = RTime (negate t)
-                         abs (RTime t) = RTime (abs t)
-                         signum (RTime t) = RTime (signum t)
-                         fromInteger int = RTime (fromInteger int)
+  (-) (RTime t) (RTime s) = RTime (t - s)
+  (*) (RTime t) (RTime s) = RTime (t * s)
+  negate (RTime t) = RTime (negate t)
+  abs (RTime t) = RTime (abs t)
+  signum (RTime t) = RTime (signum t)
+  fromInteger int = RTime (fromInteger int)
 
 instance Fractional RTime where
   (/) (RTime t) (RTime s) = RTime (t / s)
-                                recip (RTime t) = RTime (recip t)
-                                fromRational rat = RTime rat
+  recip (RTime t) = RTime (recip t)
+  fromRational rat = RTime rat
 
 instance Real RTime where
   toRational (RTime t) = t
@@ -120,7 +120,7 @@ data Msg' sdArgs where
 data Action
   = New  SynthDefEnum SynthName -- ^ create it
   | Free SynthDefEnum SynthName -- ^ destroy it
-            | Send SynthDefEnum SynthName Msg
+  | Send SynthDefEnum SynthName Msg
   deriving (Show,Eq,Ord)
 
 -- | From an action, extract the synth it is for.
@@ -135,8 +135,8 @@ actionToSynth (Send s n _) = (s,n)
 data Event time label a =
   Event { _evLabel :: label
         , _evArc :: (time,time) -- ^ start time, end time
-                                , _evData :: a}
-                        deriving (Show, Eq, Ord, Functor)
+        , _evData :: a}
+  deriving (Show, Eq, Ord, Functor)
 makeLenses ''Event
 
 type Ev = Event RTime
@@ -144,7 +144,7 @@ type Ev = Event RTime
 eventRTimeToEventTime :: Event RTime l a -> Event Time l a
 eventRTimeToEventTime ev =
   let (s,t) = _evArc ev
-                           in ev { _evArc = (tr s, tr t) }
+  in ev { _evArc = (tr s, tr t) }
 
 evStart, evEnd :: Lens' (Event t l a) t
 evStart = evArc . _1
@@ -210,7 +210,7 @@ emptySynthRegister = SynthRegister
 
 data Note = Note
   { _noteSd :: SynthDefEnum
-                 , _noteMsg :: Msg } deriving (Show, Eq)
+  , _noteMsg :: Msg } deriving (Show, Eq)
 makeLenses ''Note
 
 data Dispatch = Dispatch {
