@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections
 , ScopedTypeVariables #-}
 
-module Montevideo.Monome.Test.Sustain where
+module Montevideo.Test.Monome.Sustain where
 
 import Test.HUnit
 
@@ -12,7 +12,7 @@ import qualified Data.Set as S
 import           Data.Set (Set)
 
 import Montevideo.Monome.Math31
-import Montevideo.Monome.Test.Data
+import Montevideo.Test.Monome.Data
 import Montevideo.Monome.Types.Button
 import Montevideo.Monome.Types.Initial
 import Montevideo.Monome.Window.Keyboard as K

@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings
 , TupleSections #-}
 
-module Montevideo.Monome.Test.HandTest where
+module Montevideo.Test.Monome.HandTest where
 
 import qualified Network.Socket.ByteString as NSB
 import Vivid.OSC
