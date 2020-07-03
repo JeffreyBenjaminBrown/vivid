@@ -17,7 +17,7 @@
 * Evaluate `:s init.hs`.
 * Evaluate `:. sketches/2/3`.
 * Press "hush" to stop the music.
-* Load another sketch with `:. sketches/something/else`. 
+* Load another sketch with `:. sketches/something/else`.
 * Turn it off with `off`. (This will leave SC running, so you can start another dispatcher by running `:s init.hs` again without restarting SC.)
 
 # The rest of this README is really old, and pertains only to `mtv-lang`
@@ -114,6 +114,13 @@ You can also search for it in the test modules
 (e.g. by running "grep func -r src/Test/" from the command line).
 Those tests might still give a good idea of what func is for and how it works.
 
+# hacking it
+
+I'm not sure how helpful they are,
+but my own notes on montevideo can be found at my public org-roam knowledge graph,
+at  https://github.com/JeffreyBenjaminBrown/notes-in-org-format-on-tech
+You don't need to use org-roam to read them;
+they are ordinary .org-formatted notes.
 
 # why the name
 
