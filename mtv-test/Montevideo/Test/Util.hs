@@ -8,9 +8,17 @@ import Montevideo.Util
 
 
 tests :: Test
-tests = TestList [
-    TestLabel "test_interleaves" test_interleaves
-    ]
+tests = TestList
+  [ TestLabel "test_interleaves" test_interleaves
+  , TestLabel "test_lcmRatios" test_lcmRatios
+  ]
+
+test_lcmRatios :: Test
+test_lcmRatios = TestCase $ do
+  assertBool "lcmRatios 2 3 == 6"            $ lcmRatios 2 3 == 6
+  assertBool "lcmRatios (2/3) (3/2) == 6"    $ lcmRatios (2/3) (3/2) == 6
+  assertBool "lcmRatios (1/2) (3/4) == 3/2"  $ lcmRatios (1/2) (3/4) == 3/2
+  assertBool "lcmRatios (5/3) (4/3) == 20/3" $ lcmRatios (5/3) (4/3) == 20/3
 
 test_interleaves :: Test
 test_interleaves = TestCase $ do
