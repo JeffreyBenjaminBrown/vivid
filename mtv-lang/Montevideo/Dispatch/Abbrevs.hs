@@ -45,7 +45,7 @@ import           Control.Lens
 import qualified Data.Map as M
 
 import Montevideo.Dispatch.Join
-import Montevideo.Dispatch.Museq
+import Montevideo.Dispatch.Museq.Mk
 import Montevideo.Dispatch.Transform
 import Montevideo.Dispatch.Types
 import Montevideo.Synth

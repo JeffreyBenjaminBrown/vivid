@@ -13,6 +13,7 @@ import Montevideo.Dispatch.Abbrevs
 import Montevideo.Dispatch.Join
 import Montevideo.Dispatch.Join.Internal
 import Montevideo.Dispatch.Museq
+import Montevideo.Dispatch.Museq.Mk
 import Montevideo.Dispatch.Transform
 import Montevideo.Dispatch.Types
 

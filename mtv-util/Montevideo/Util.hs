@@ -60,8 +60,6 @@ import Data.Vector.Algorithms.Search
   (binarySearchLBy, binarySearchRBy, Comparison)
 import Vivid (getTime, pick, MonadRandom)
 
-import Montevideo.JI.Util as U
-
 
 -- | = shorthand, universal enough to be here
 -- (most shorthand is in Abbrevs.hs instead).

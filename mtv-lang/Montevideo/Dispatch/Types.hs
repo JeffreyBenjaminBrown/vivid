@@ -112,7 +112,7 @@ anon = (Nothing , )
 -- | A `Msg'`, unlike a `Msg`, is typed for a particular kind of synth,
 -- and to send it anywhere else is a type error.
 -- (This innovation is Vivid's, not my own --
--- in fact I actively circumvent it, with the `Msg` type.)
+-- in fact I circumvent it with the `Msg` type.)
 data Msg' sdArgs where
   Msg' :: forall params sdArgs.
           ( Vivid.VarList params

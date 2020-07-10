@@ -37,6 +37,7 @@ library
     , Montevideo.Dispatch.Join.Internal
     , Montevideo.Dispatch.Msg
     , Montevideo.Dispatch.Museq
+    , Montevideo.Dispatch.Museq.Mk
     , Montevideo.Dispatch.Transform
     , Montevideo.Dispatch.Types
     , Montevideo.Scale
