@@ -54,7 +54,7 @@ type Start     = Time
 type End       = Time
 type Duration  = Rational -- ^ a length of time
 
--- | TODO ? Maybe `RTime` means "relative time"
+-- | TODO ? Maybe `RTime` means "relative time" --
 -- relative to something, e.g. the global cycle duration.
 -- Or maybe (I hope not) it means "wrapped time"?
 newtype RTime  = RTime Rational deriving (Ord,Eq)
@@ -98,6 +98,7 @@ unTimestamp (Timestamp x) = toRational x
 
 -- | = (synth) Messages and (synth) Actions
 
+-- | A message type that knows nothing about Vivid's type-fussiness.
 type Msg = M.Map ParamName Float
 
 type NamedWith name a = (name, a)
@@ -108,6 +109,10 @@ mNamed n = (Just n , )
 anon :: a -> NamedWith (Maybe n) a
 anon = (Nothing , )
 
+-- | A `Msg'`, unlike a `Msg`, is typed for a particular kind of synth,
+-- and to send it anywhere else is a type error.
+-- (This innovation is Vivid's, not my own --
+-- in fact I actively circumvent it, with the `Msg` type.)
 data Msg' sdArgs where
   Msg' :: forall params sdArgs.
           ( Vivid.VarList params

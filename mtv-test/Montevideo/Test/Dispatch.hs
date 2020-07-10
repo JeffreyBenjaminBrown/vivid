@@ -192,9 +192,9 @@ testRev = TestCase $ do
                            , mkEv () (1/3) 3     "b"
                            , mkEv () (1/2) (1/2) "c" ]
   assertBool "rev" $ rev a ==
-    mkMuseqFromEvs 2 [ mkEv () 0     1      "a"
-                     , mkEv () (3/2) (3 /2) "c"
-                     , mkEv () (5/3) (13/3) "b" ]
+    mkMuseqFromEvs 2 [ mkEv () 0     1               "a"
+                     , mkEv () (3/2) (          3/2) "c"
+                     , mkEv () (5/3) ((3-1/3) + 5/3) "b" ]
 
 testEarlyAndLate :: Test
 testEarlyAndLate = TestCase $ do
@@ -220,11 +220,14 @@ testFastAndSlow = TestCase $ do
 
 testDenseAndSparse :: Test
 testDenseAndSparse = TestCase $ do
-  let x = mkMuseqFromEvs 10 [mkEv () 0 15 "a",mkEv () 2 2 "b"]
+  let x = mkMuseqFromEvs 10 [mkEv () 0 15 "a",
+                             mkEv () 2 2 "b"]
   assertBool "dense" $ dense 2 x ==
-    (dur .~ 10) (mkMuseqFromEvs 5 [mkEv () 0 (15/2) "a",mkEv () 1 1 "b"])
+    (dur .~ 10 $ mkMuseqFromEvs 5 [ mkEv () 0 (15/2) "a"
+                                  , mkEv () 1 1 "b"] )
   assertBool "sparse" $ sparse 2 x ==
-    (dur .~ 10) (mkMuseqFromEvs 20 [mkEv () 0 30 "a",mkEv () 4 4 "b"])
+    (dur .~ 10 $ mkMuseqFromEvs 20 [ mkEv () 0 30 "a"
+                                   , mkEv () 4 4 "b"] )
 
 testExplicitReps :: Test
 testExplicitReps = TestCase $ do
