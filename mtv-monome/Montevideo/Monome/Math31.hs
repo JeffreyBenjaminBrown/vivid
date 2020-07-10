@@ -32,9 +32,11 @@ hv = let
   in if abs (dot vv v1) <= abs (dot vv v2)
      then           v1  else           v2
 
-
 et31ToFreq :: Pitch EdoApp -> Float
-et31ToFreq f = 2**(fi f / edo)
+et31ToFreq f =
+  let two :: Float = realToFrac $ fromCents $
+                     10 * (1200 + octaveStretchInCents)
+  in two**(fi f / edo)
 
 -- | on the PitchClass domain, xyToEt31 and et31ToLowXY are inverses:
 -- xyToEt31 <$> et31ToLowXY <$> [0..31] == [0,1,2,3,4,5,6,7,8,9,10,11,12,
