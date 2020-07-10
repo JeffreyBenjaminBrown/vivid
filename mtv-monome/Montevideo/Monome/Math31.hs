@@ -14,19 +14,11 @@ module Montevideo.Monome.Math31 (
   , pcToXys         -- ^ PitchClass -> (X,Y) -> [(X,Y)]
   ) where
 
+import Montevideo.JI.Util (fromCents)
+import Montevideo.Monome.Config
 import Montevideo.Monome.Types.Initial
 import Montevideo.Util
 
-
--- | Some (edo,spacing) pairs I like:
--- (31,6), (41,6), (46,7), (87,12 or 13)
-edo, spacing, skip :: Num a => a
-edo = 46  -- ^ Pick your temperament.
-spacing = 9 -- ^ Pick the number of edo steps between one row
-            -- and the next. Negative doesn't work yet.
-skip = 1 -- ^ For the Kite Guitar tuning, set (edo,spacing,skip) = (41,13,2).
-  -- For any other tuning (barring another Kite-ish breakthrough), set skip=1.
-  -- TODO : Make the LEDs understand this.
 
 -- | `hv` and `vv` form The smallest, most orthogonal set of
 -- basis vectors possible for the octave grid.

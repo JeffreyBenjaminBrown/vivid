@@ -86,7 +86,10 @@ errs n r =
     , err r           $ fromIntegral i / fromIntegral n )
   | i <- [0..n-1 :: Integer] ]
 
-err :: Floating a => Rational -> a -> a
+err :: Floating a
+  => Rational -- ^ what to approximate
+  -> a        -- ^ the EDO approximating it
+  -> a        -- ^ a step of that EDO
 err true_frac approx_edo =
   stretch approx_edo - cents true_frac
 
