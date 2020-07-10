@@ -7,8 +7,6 @@ import qualified Data.Map as M
 import Data.Ratio
 import qualified Data.Vector as V
 
-import Montevideo.Util
-import Montevideo.Synth
 import Montevideo.Dispatch.Abbrevs
 import Montevideo.Dispatch.Join
 import Montevideo.Dispatch.Join.Internal
@@ -16,6 +14,9 @@ import Montevideo.Dispatch.Museq
 import Montevideo.Dispatch.Museq.Mk
 import Montevideo.Dispatch.Transform
 import Montevideo.Dispatch.Types
+import Montevideo.Dispatch.Util
+import Montevideo.Synth
+import Montevideo.Util
 
 
 tests :: Test

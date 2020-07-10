@@ -40,6 +40,7 @@ library
     , Montevideo.Dispatch.Museq.Mk
     , Montevideo.Dispatch.Transform
     , Montevideo.Dispatch.Types
+    , Montevideo.Dispatch.Util
     , Montevideo.Scale
 
   other-modules:

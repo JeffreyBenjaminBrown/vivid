@@ -46,8 +46,9 @@ import qualified Data.Vector as V
 import Data.Vector.Algorithms.Intro (sortBy)
 
 import Montevideo.Dispatch.Types
-import Montevideo.Util
+import Montevideo.Dispatch.Util
 import Montevideo.Synth
+import Montevideo.Util
 
 
 -- | = Figuring out when a Museq will repeat.
@@ -192,18 +193,25 @@ sortMuseq = vec %~
                    sortBy (compare `on` view evArc) v'
                    V.freeze v'
 
+-- | `arc time0 period from to m`
+-- find the events of `m` that fall in `[from,to)` (a half-open interval).
+arc :: forall l a.
+    Time -- ^ a reference point in the past
+  -> Duration -- ^ tempo period ("bar length")
+  -> Time -- ^
+  -> Time
+  -> Museq l a
+  -> [Event Time l a]
 -- todo ? `arc` could be ~2x faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid searching the first part
 -- of the vector again.
--- | Finds the events in [from,to).
-arc :: forall l a. Time -> Duration -> Time -> Time
-     -> Museq l a -> [Event Time l a]
+
 arc time0 tempoPeriod from to m = let
   period = tempoPeriod * tr (_sup m) :: Duration
   startVec = V.map (view evStart) $ _vec $ m :: V.Vector RTime
   latestPhase0 = prevPhase0 time0 period from :: Time
     -- It would be natural to start here, but long events from
-    -- earlier cycles could carry into now, so we must back up.
+    -- earlier cycles could carry into this one.
   earlierFrom = latestPhase0 - tr (longestDur m) * tempoPeriod :: Time
   oldestRelevantCycle = div' (earlierFrom - latestPhase0) period :: Int
   correctAbsoluteTimes :: (Time,Time) -> (Time,Time)

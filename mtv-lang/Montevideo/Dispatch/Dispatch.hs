@@ -27,9 +27,10 @@ import qualified Data.Vector as V
 import           Vivid hiding (set, when)
 
 import Montevideo.Dispatch.Config (frameDuration)
-import Montevideo.Dispatch.Types
 import Montevideo.Dispatch.Msg
 import Montevideo.Dispatch.Museq
+import Montevideo.Dispatch.Types
+import Montevideo.Dispatch.Util
 import Montevideo.Synth
 import Montevideo.Synth.Samples
 import Montevideo.Util
