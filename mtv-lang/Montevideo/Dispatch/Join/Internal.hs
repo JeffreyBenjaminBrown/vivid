@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns, TupleSections #-}
 
-module Montevideo.Dispatch.Internal.Join (
+module Montevideo.Dispatch.Join.Internal (
     timeForBothToRepeat      -- ^ Museq l a -> Museq m b -> RTime
   , timeForBothToPlayThrough -- ^ Museq l a -> Museq m b -> RTime
   , explicitReps -- ^ forall a. Museq l a -> [V.Vector (Ev l a)]

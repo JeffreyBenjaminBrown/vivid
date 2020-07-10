@@ -48,7 +48,7 @@ import qualified Data.Vector as V
 import Montevideo.Util
 import Montevideo.Dispatch.Museq
 import Montevideo.Dispatch.Types
-import Montevideo.Dispatch.Internal.Join
+import Montevideo.Dispatch.Join.Internal
 import Montevideo.Dispatch.Transform
 
 

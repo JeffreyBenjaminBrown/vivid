@@ -11,7 +11,7 @@ import Montevideo.Util
 import Montevideo.Synth
 import Montevideo.Dispatch.Abbrevs
 import Montevideo.Dispatch.Join
-import Montevideo.Dispatch.Internal.Join
+import Montevideo.Dispatch.Join.Internal
 import Montevideo.Dispatch.Museq
 import Montevideo.Dispatch.Transform
 import Montevideo.Dispatch.Types
