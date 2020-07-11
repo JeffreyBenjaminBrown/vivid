@@ -9,7 +9,7 @@ import Data.Tuple (swap)
 import qualified Data.Map as M
 
 import Montevideo.Synth.Config
-import Montevideo.FilepathSynonyms
+import Montevideo.Util (Filename, FileSubPath)
 
 
 type Description = String

@@ -1,8 +1,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Montevideo.Util (
+    Filename, FileSubPath
+
   -- | = shorthand
-    fi -- ^ fromIntegral
+  , fi -- ^ fromIntegral
   , fr -- ^ fromRational
   , tr -- ^ toRational
 
@@ -57,6 +59,12 @@ import qualified Data.Vector as V
 import Data.Vector.Algorithms.Search
   (binarySearchLBy, binarySearchRBy, Comparison)
 import Vivid (getTime, pick, MonadRandom)
+
+
+type Filename = String
+
+-- | the part before the filename, i.e. before the first `/`
+type FileSubPath = String
 
 
 -- | = shorthand, universal enough to be here

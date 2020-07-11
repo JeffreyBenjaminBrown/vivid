@@ -26,7 +26,6 @@ library
   exposed-modules:
       Montevideo.VividDispatch
 
-    , Montevideo.FilepathSynonyms
     , Montevideo.LongVarLists
     , Montevideo.ReadHsAsGhci
 

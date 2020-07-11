@@ -372,10 +372,10 @@ meta'' ff0 x0 = _meta (labelsToStrings ff0) (labelsToStrings x0) where
     prefixLabels s = vec %~ V.map
                      (evLabel %~ deleteShowQuotes . (s ++))
 
--- See here[1] for why I'm commenting this out.
--- https://github.com/haskell/haskell-mode/issues/1652
---    ffxs :: [( Ev String (String, Museq String x -> Museq String y)
---            , Museq String x )]
+    -- See here for why I'm commenting out this type signature.
+      -- https://github.com/haskell/haskell-mode/issues/1652
+    -- ffxs :: [( Ev String (String, Museq String x -> Museq String y)
+    --          , Museq String x )]
     ffxs = [ ( anFf, prefixLabels (_evLabel anFf) x1)
            | anFf <- ffs ]
     fxs :: [( Ev String String, Museq String x )]
