@@ -328,11 +328,11 @@ testMuseqsDiff = TestCase $ do
                              [ mkEv0 "2" 0  (Note Boop msg)
                              , mkEv0 "3" 10 (Note Boop msg)
                              ] ) ]
-  assertBool "museqDiff" $ museqsDiff m3 m2 == ( [ (Boop,"1") ]
+  assertBool "museqDiff" $ museqSynthsDiff m3 m2 == ( [ (Boop,"1") ]
                                                , [ (Boop,"3")
                                                  , (Vap ,"2")
                                                  ] )
-  assertBool "museqDiff" $ museqsDiff m2 m3 == ( [ (Boop,"3")
+  assertBool "museqDiff" $ museqSynthsDiff m2 m3 == ( [ (Boop,"3")
                                                  , (Vap ,"2") ]
                                                , [ (Boop,"1")
                                                  ] )

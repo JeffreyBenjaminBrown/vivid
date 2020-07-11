@@ -237,7 +237,7 @@ replaceAll disp masNew = do
       when = nextPhase0 time0 frameDuration now + frameDuration
         -- `when` = the start of the first not-yet-rendered frame
       toFree, toCreate :: [(SynthDefEnum, SynthName)]
-      (toFree,toCreate) = museqsDiff masOld masNew'
+      (toFree,toCreate) = museqSynthsDiff masOld masNew'
 
   newTransform  <- mapM (actNew  reg)      $ map (uncurry New)  toCreate
   freeTransform <- mapM (actFree reg when) $ map (uncurry Free) toFree

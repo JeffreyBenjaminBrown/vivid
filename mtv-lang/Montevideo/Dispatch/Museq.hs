@@ -14,7 +14,7 @@ module Montevideo.Dispatch.Museq (
 
   -- | = analyze a `Museq`
   , museqSynths -- ^ Museq String Note -> [(SynthDefEnum, SynthName)]
-  , museqsDiff -- ^ M.Map MuseqName (Museq String Note)
+  , museqSynthsDiff -- ^ M.Map MuseqName (Museq String Note)
                -- -> M.Map MuseqName (Museq String Note)
                -- -> ([(SynthDefEnum, SynthName)],
                --     [(SynthDefEnum, SynthName)])
@@ -119,11 +119,11 @@ _intNameEvents sup0 ev1 ongoing (ev : more) =
 -- which synths need to be created, and which destroyed.
 -- PITFALL: Both resulting lists are ordered on the first element,
 -- likely differing from either of the input maps.
-museqsDiff :: M.Map MuseqName (Museq String Note) -- ^ old
+museqSynthsDiff :: M.Map MuseqName (Museq String Note) -- ^ old
            -> M.Map MuseqName (Museq String Note) -- ^ new
            -> ( [(SynthDefEnum, SynthName)],  -- ^ create these
                 [(SynthDefEnum, SynthName)] ) -- ^ destroy these
-museqsDiff old new = (toFree,toCreate) where
+museqSynthsDiff old new = (toFree,toCreate) where
   oldMuseqs = M.elems old :: [Museq String Note]
   newMuseqs = M.elems new :: [Museq String Note]
   oldSynths = unique $ concatMap museqSynths oldMuseqs
