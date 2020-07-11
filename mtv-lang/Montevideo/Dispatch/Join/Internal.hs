@@ -79,7 +79,9 @@ boundaries arcs0 = doubleTheDurationZeroBoundaries arcs0
     instants = S.fromList $ map fst $ filter (\(s,e) -> s == e) arcs
     f t = if S.member t instants then [t,t] else [t]
 
--- | ASSUMES the first input includes each value in the second.
+-- | Divides long events at any intermediate boundaries from other events.
+-- Then sorts those events.
+-- ASSUMES the first input includes each value in the second.
 -- (If the first list comes from `boundaries`, it will include those.)
 partitionAndGroupEventsAtBoundaries :: forall a l t. Real t
   => [t] -> [Event t l a] -> [Event t l a]

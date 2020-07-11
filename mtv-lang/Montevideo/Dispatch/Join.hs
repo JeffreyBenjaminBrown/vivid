@@ -1,3 +1,7 @@
+-- | Functions to join two museqs:
+-- play both simultaneously, play one after the other,
+-- apply one to the other ...
+
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 {-# LANGUAGE
@@ -11,7 +15,7 @@ module Montevideo.Dispatch.Join (
   , cat     -- ^ [Museq l a] -> Museq l a
   , stack2  -- ^ forall a l m. (Show l, Show m)
            -- => Museq l a  -> Museq m a -> Museq String a
-  , stack -- ^ [Museq l a] -> Museq String a
+  , stack  -- ^ [Museq l a] -> Museq String a
   , stack' -- ^  Museq l a  -> Museq l a -> Museq l a
   , merge  -- ^ forall a b c l m. (Show l, Show m)
            -- =>        (a ->         b ->              c)
@@ -27,14 +31,14 @@ module Montevideo.Dispatch.Join (
       -- Museq l Msg -> Museq m Note -> Museq String Note
   , root -- ^ (Show l, Show m)
          -- => Museq l Float -> Museq m Msg -> Museq String Msg
-  , scale -- ^ forall l m. (Show l, Show m)
-          -- => Museq l [Float] -> Museq m Msg -> Museq String Msg
+  , scale     -- ^ forall l m. (Show l, Show m)
+              -- => Museq l [Float] -> Museq m Msg -> Museq String Msg
   , rootScale -- ^ forall l m. (Show l, Show m)
-             -- => Museq l (Float,[Float]) -> Museq m Msg -> Museq String Msg
-  , meta -- ^ forall a b c l m. (Show l, Show m)
-       -- => Museq l      (Museq String a -> Museq String b)
-       -- -> Museq m      a
-       -- -> Museq String b
+              -- => Museq l (Float,[Float]) -> Museq m Msg -> Museq String Msg
+  , meta      -- ^ forall a b c l m. (Show l, Show m)
+              -- => Museq l      (Museq String a -> Museq String b)
+              -- -> Museq m      a
+              -- -> Museq String b
   , meta'
   , meta''
   ) where
@@ -53,17 +57,18 @@ import Montevideo.Dispatch.Types
 import Montevideo.Util
 
 
-instance Applicative (Museq String) where -- TODO ? generalize
+instance Applicative (Museq String) where
   (<*>) = merge ($)
   pure x = Museq { _dur=1, _sup=1
-                  , _vec = V.singleton $ mkEv "" 0 1 x }
+                 , _vec = V.singleton $ mkEv "" 0 1 x }
 
 instance Semigroup (Museq label a) where
   (<>) = append
 
 instance Monoid (Museq label a) where
   mempty = Museq { _dur = 1, _sup = 1, _vec = mempty }
-
+  mappend = append
+  mconcat = cat
 
 append :: forall l a. Museq l a -> Museq l a -> Museq l a
 append x y = cat [x,y]

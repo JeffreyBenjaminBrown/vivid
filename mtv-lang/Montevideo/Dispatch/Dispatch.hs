@@ -37,6 +37,13 @@ import Montevideo.Util
 
 
 -- | = Act on a Msg
+--
+-- `New`s are sent immediately; schedule time is disregarded.
+-- `Send`s are scheduled for the requested time.
+-- `Free`s are scheduled so that:
+--   At the requested time, the synth is silenced.
+--   Half a frame later, the synth is deleted.
+
 
 -- TODO ? use
 act :: SynthRegister -> Time -> Action
@@ -92,7 +99,10 @@ actNew _ (Send _ _ _) = error $ "actNew received a Send."
 actNew _ (Free _ _)   = error $ "actNew received a Free."
 
 
-actFree :: SynthRegister -> Rational -> Action -> IO (SynthRegister -> SynthRegister)
+actFree :: SynthRegister
+        -> Rational
+        -> Action
+        -> IO (SynthRegister -> SynthRegister)
 actFree reg when (Free Boop name) =
   case M.lookup name $ _boops reg of
   Nothing -> do
