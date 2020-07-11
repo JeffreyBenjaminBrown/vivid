@@ -27,7 +27,6 @@ library
       Montevideo.VividDispatch
 
     , Montevideo.LongVarLists
-    , Montevideo.ReadHsAsGhci
 
     , Montevideo.Dispatch.Abbrevs
     , Montevideo.Dispatch.Config
