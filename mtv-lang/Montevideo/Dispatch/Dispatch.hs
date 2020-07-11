@@ -47,7 +47,7 @@ import Montevideo.Util
 
 -- TODO ? use
 act :: SynthRegister -> Time -> Action
-     -> IO (SynthRegister -> SynthRegister)
+    -> IO (SynthRegister -> SynthRegister)
 act reg t a@(Send _ _ _) = actSend reg t a >> return id
 act reg t a@(Free _ _)   = actFree reg t a
 act reg _ a@(New _ _)    = actNew  reg   a
