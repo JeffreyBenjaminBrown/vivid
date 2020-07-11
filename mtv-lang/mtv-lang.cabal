@@ -26,8 +26,6 @@ library
   exposed-modules:
       Montevideo.VividDispatch
 
-    , Montevideo.LongVarLists
-
     , Montevideo.Dispatch.Abbrevs
     , Montevideo.Dispatch.Config
     , Montevideo.Dispatch.Dispatch

@@ -21,7 +21,7 @@
 module Montevideo.Synth.Zot where
 
 import Vivid
-import Montevideo.LongVarLists()
+import Montevideo.Monome.Instances.TypesafeArgs ()
 
 import Montevideo.Synth.Config
 
