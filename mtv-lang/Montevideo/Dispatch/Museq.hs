@@ -1,43 +1,33 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Montevideo.Dispatch.Museq (
-  -- | = Timing
-    timeToPlayThrough -- ^ Museq l a -> RTime
-  , supsToPlayThrough -- ^ Museq l a -> RTime
-  , dursToPlayThrough -- ^ Museq l a -> RTime
-  , timeToRepeat      -- ^ Museq l a -> RTime
-  , supsToRepeat      -- ^ Museq l a -> RTime
-  , dursToRepeat      -- ^ Museq l a -> RTime
-  , longestDur -- ^ Museq l a -> RDuration
-
-  -- | = Naming events
-  , labelsToStrings -- ^ Show l => Museq l a -> Museq String a
+  -- | = Naming things
+    labelsToStrings         -- ^ Show l => Museq l a -> Museq String a
   , museqMaybeNamesAreValid -- ^ forall l a. Eq l
-       -- => Museq (Maybe l) a -> Bool
+                            -- => Museq (Maybe l) a -> Bool
   , nameAnonEvents -- ^ forall a.
-                --    Museq (Maybe String) a
-                -- -> Museq        String  a
+                   --    Museq (Maybe String) a
+                   -- -> Museq        String  a
   , intNameEvents -- ^ RDuration -- ^ _sup of the Museq these Evs come from
                   -- -> [Ev () a] -- ^ these are being named
                   -- -> [Ev Int a]
 
-  -- | = More
+  -- | = analyze a `Museq`
   , museqSynths -- ^ Museq String Note -> [(SynthDefEnum, SynthName)]
   , museqsDiff -- ^ M.Map MuseqName (Museq String Note)
                -- -> M.Map MuseqName (Museq String Note)
                -- -> ([(SynthDefEnum, SynthName)],
                --     [(SynthDefEnum, SynthName)])
-  , sortMuseq    -- ^ Museq l a -> Museq l a
   , museqIsValid -- ^ (Eq a, Eq l) => Museq l a -> Bool
-  , arc          -- ^ forall l a. Time -> Duration -> Time -> Time
-                 -- -> Museq l a -> [Event Time l a]
+
+  -- | = sort a `Museq`
+  , sortMuseq    -- ^ Museq l a -> Museq l a
   ) where
 
 import Prelude hiding (cycle)
 
 import Control.Lens hiding (to,from)
 import Control.Monad.ST
-import Data.Fixed (div')
 import Data.Function (on)
 import qualified Data.List as L
 import qualified Data.Maybe as Mb
@@ -46,7 +36,6 @@ import qualified Data.Vector as V
 import Data.Vector.Algorithms.Intro (sortBy)
 
 import Montevideo.Dispatch.Types
-import Montevideo.Dispatch.Util
 import Montevideo.Synth
 import Montevideo.Util
 
@@ -72,7 +61,7 @@ import Montevideo.Util
 -- "stack, where timeToRepeat differs from timeToPlayThrough".
 
 
--- | = Naming events
+-- | = Naming things
 
 labelsToStrings :: Show l => Museq l a -> Museq String a
 labelsToStrings = over vec $ V.map $ over evLabel show
@@ -144,16 +133,16 @@ _intNameEvents sup0 ev1 ongoing (ev : more) =
     name = head $ (L.\\) [1..] overlappingMaybeNames
 
 
--- | = More
+-- | = Analyze a `Museq`
 
--- | Given an old set of Museqs and a new one, figure out
+-- | Given an old collection of Museqs and a new one, figure out
 -- which synths need to be created, and which destroyed.
 -- PITFALL: Both resulting lists are ordered on the first element,
 -- likely differing from either of the input maps.
-museqsDiff :: M.Map MuseqName (Museq String Note)
-            -> M.Map MuseqName (Museq String Note)
-            -> ([(SynthDefEnum, SynthName)],
-                 [(SynthDefEnum, SynthName)])
+museqsDiff :: M.Map MuseqName (Museq String Note) -- ^ old
+           -> M.Map MuseqName (Museq String Note) -- ^ new
+           -> ( [(SynthDefEnum, SynthName)],  -- ^ create these
+                [(SynthDefEnum, SynthName)] ) -- ^ destroy these
 museqsDiff old new = (toFree,toCreate) where
   oldMuseqs = M.elems old :: [Museq String Note]
   newMuseqs = M.elems new :: [Museq String Note]
@@ -170,133 +159,30 @@ museqSynths m = map f evs where
   f ev = ( view (evData . noteSd) ev
          , view evLabel ev )
 
-
 -- | A valid Museq m is sorted on start and then end times,
 -- with all end times >= the corresponding start times,
 -- has (relative) duration > 0, and all events at time < _sup m.
--- (todo ? I'm not sure the end-time sort helps.)
--- PITFALL : The end times are permitted to be greater than the _sup.
+-- TODO ? I'm not sure the end-time sort helps.
+-- PITFALL : The end times can be greater than _sup.
+-- That's important, as you might want events from one cycle
+-- to reach into the next.
 museqIsValid :: (Eq a, Eq l) => Museq l a -> Bool
 museqIsValid mu = and [a,b,c,d,e] where
   v = _vec mu
   a = if V.length v == 0 then True
-      else (view evEnd $ V.last v) < _sup mu
+      else view evEnd (V.last v) < _sup mu
   b = mu == sortMuseq mu
   c = _dur mu > 0
   d = _sup mu > 0
   e = V.all (uncurry (<=) . view evArc) v
 
--- | Sort a Museq
+
+-- | = Sort a Museq
+
 sortMuseq :: Museq l a -> Museq l a
 sortMuseq = vec %~
+  -- V.Vector is immuatble. V.thaw gives a mutable one,
+  -- which is what Vector.Algorithms.Intro.sortBy needs.
   \v -> runST $ do v' <- V.thaw v
                    sortBy (compare `on` view evArc) v'
                    V.freeze v'
-
--- | `arc time0 period from to m`
--- find the events of `m` that fall in `[from,to)` (a half-open interval).
-arc :: forall l a.
-    Time -- ^ a reference point in the past
-  -> Duration -- ^ tempo period ("bar length")
-  -> Time -- ^
-  -> Time
-  -> Museq l a
-  -> [Event Time l a]
--- todo ? `arc` could be ~2x faster by using binarySearchRByBounds
--- instead of binarySearchR, to avoid searching the first part
--- of the vector again.
-
-arc time0 tempoPeriod from to m = let
-  period = tempoPeriod * tr (_sup m) :: Duration
-  startVec = V.map (view evStart) $ _vec $ m :: V.Vector RTime
-  latestPhase0 = prevPhase0 time0 period from :: Time
-    -- It would be natural to start here, but long events from
-    -- earlier cycles could carry into this one.
-  earlierFrom = latestPhase0 - tr (longestDur m) * tempoPeriod :: Time
-  oldestRelevantCycle = div' (earlierFrom - latestPhase0) period :: Int
-  correctAbsoluteTimes :: (Time,Time) -> (Time,Time)
-    -- HACK: The inputs ought to be RTimes,
-    -- but then I'd be switching types, from Ev to AbsEv.
-  correctAbsoluteTimes (a,b) = (f a, f b) where
-    f rt = tr rt * tempoPeriod + latestPhase0
-  chopStarts :: (Time,Time) -> (Time,Time)
-  chopStarts = over _1 $ max from
-  chopEnds :: (Time,Time) -> (Time,Time)
-  chopEnds = over _2 $ min to
-  dropImpossibles :: [Event Time l a] -> [Event Time l a]
-    -- Because chopStarts can leave an old event starting after it ended.
-  dropImpossibles = filter $ uncurry (<=) . view evArc
-  futzTimes :: Event RTime l a -> Event Time l a
-  futzTimes ev = over evArc f $ eventRTimeToEventTime ev
-    where f = chopEnds . chopStarts . correctAbsoluteTimes
-  in dropImpossibles $ map futzTimes $ _arcFold
-     oldestRelevantCycle period startVec time0 earlierFrom to m
-
-_arcFold :: forall l a. Int -> Duration -> V.Vector RTime
-  -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
-  -> Museq l a -> [Ev l a]
-_arcFold cycle period startVec time0 from to m =
-  if null (m ^. vec) || from >= to
-    -- TODO ? Be sure of `arc` boundary condition
-  then [] else let
-    pp0 = prevPhase0 time0 period from :: Time
-    fromInCycles = fr $ (from - pp0) / period :: RTime
-    toInCycles   = fr $ (to   - pp0) / period :: RTime
-    startOrOOBIndex =
-      firstIndexGTE compare startVec $ fromInCycles * _sup m :: Int
-  in if startOrOOBIndex >= V.length startVec
---     then let nextFrom = if pp0 + period > from
--- -- todo ? delete
--- -- If `from = pp0 + period - epsilon`, maybe `pp0 + period <= from`.
--- -- Thus floating point error used to make this if-then statement necessary
--- -- Now that all times are Rational, it's probably unnecessary.
---                         then pp0 + period
---                         else pp0 + 2*period
---          in _arcFold (cycle+1) period startVec time0 nextFrom to m
-     then _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
-     else
-       let startIndex = startOrOOBIndex :: Int
-           endIndex = lastIndexLTE compare' startVec
-                      $ toInCycles * _sup m :: Int
-             where compare' x y =
-                     if x < y then LT else GT -- to omit the endpoint
-           eventsThisCycle = V.toList
-             $ V.map (over evEnd   (+(_sup m * fromIntegral cycle)))
-             $ V.map (over evStart (+(_sup m * fromIntegral cycle)))
-             $ V.slice startIndex (endIndex-startIndex) $ _vec m
-       in eventsThisCycle
-          ++ _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
-
--- | = Timing a Museq
-
-supsToRepeat :: Museq l a -> RTime
-supsToRepeat m = timeToRepeat m / _sup m
-
-dursToRepeat :: Museq l a -> RTime
-dursToRepeat m = timeToRepeat m / _dur m
-
-longestDur :: Museq l a -> RDuration
-longestDur m = let eventDur ev = (ev ^. evEnd) - (ev ^. evStart)
-               in V.maximum $ V.map eventDur $ _vec m
-
-supsToPlayThrough :: Museq l a -> RTime
-supsToPlayThrough m = timeToPlayThrough m / (_sup m)
-
-dursToPlayThrough :: Museq l a -> RTime
-dursToPlayThrough m = timeToPlayThrough m / (_dur m)
-
--- | After `timeToRepeat`, the `Museq` always *sounds* like it's repeating.
--- That doesn't mean it's played all the way through, though.
-timeToRepeat :: Museq l a -> RTime
-timeToRepeat m = let tp = timeToPlayThrough m
-                 in if tp == _dur m -- implies `_dur m > _sup m`
-                    then _sup m else tp
-
--- | If `sup` is 3s and `dur` is 2s, then when 2s have passed,
--- the Museq is not done --
--- the stuff stored in the 3rd second hasn't happened yet.
--- When 3s have passed, it's not done either --
--- it's halfway through the second iteration.
--- It's only done after 6 seconds -- the LCM of the sup and the dur.
-timeToPlayThrough :: Museq l a -> RTime
-timeToPlayThrough m = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)

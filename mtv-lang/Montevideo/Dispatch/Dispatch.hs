@@ -30,7 +30,7 @@ import Montevideo.Dispatch.Config (frameDuration)
 import Montevideo.Dispatch.Msg
 import Montevideo.Dispatch.Museq
 import Montevideo.Dispatch.Types
-import Montevideo.Dispatch.Util
+import Montevideo.Dispatch.Time
 import Montevideo.Synth
 import Montevideo.Synth.Samples
 import Montevideo.Util

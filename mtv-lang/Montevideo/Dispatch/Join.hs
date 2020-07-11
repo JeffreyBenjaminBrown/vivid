@@ -45,11 +45,12 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 import qualified Data.Vector as V
 
-import Montevideo.Util
-import Montevideo.Dispatch.Museq
-import Montevideo.Dispatch.Types
 import Montevideo.Dispatch.Join.Internal
+import Montevideo.Dispatch.Museq
+import Montevideo.Dispatch.Time
 import Montevideo.Dispatch.Transform
+import Montevideo.Dispatch.Types
+import Montevideo.Util
 
 
 instance Applicative (Museq String) where -- TODO ? generalize
