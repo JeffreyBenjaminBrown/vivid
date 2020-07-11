@@ -40,27 +40,6 @@ import Montevideo.Synth
 import Montevideo.Util
 
 
--- | = Figuring out when a Museq will repeat.
--- There are two senses in which a Museq can repeat. One is that
--- it sounds like it's repeating. If _dur = 2 and _sup = 1, then
--- it sounds like it's repeating after a single _sup.
--- The *ToRepeat functions below use that sense.
---
--- The other sense is that the Museq has cycled through what it
--- "is supposed to cycle through". (This is useful when `append`ing Museqs.)
--- If _dur = 2 and _sup = 1, it won't have played all the way through
--- until _dur has gone by, even though a listener hears it start to repeat
--- halfway through that _dur.
--- The *ToPlayThrough functions below use that sense.
---
--- The results of the two families only differ when _sup divides _dur.
---
--- I could have used the *PlayThrough functions everywhere, but
--- in some situations that would waste space. For an example of one,
--- see in Tests.testStack the assertion labeled
--- "stack, where timeToRepeat differs from timeToPlayThrough".
-
-
 -- | = Naming things
 
 labelsToStrings :: Show l => Museq l a -> Museq String a
@@ -101,12 +80,13 @@ nameAnonEvents m =
       where f = ((++) $ unusedName names) . show
             -- The ++ ensures no name conflicts.
 
--- | Assign a minimal number of names (which are integers in string form),
+-- | Assign a minimal number of names
+-- (integers here, but they probably become strings downstream)
 -- starting from 1, so that like-named events do not overlap.
--- ASSUMES the input list is sorted on (start,end) times.
+-- PITFALL: ASSUMES the input list is sorted on (start,end) times.
 intNameEvents :: RDuration -- ^ _sup of the Museq these Evs come from
-               -> [Ev () a] -- ^ these are being named
-               -> [Ev Int a]
+              -> [Ev () a] -- ^ These are being named.
+              -> [Ev Int a]
 intNameEvents sup0 (ev1:more) =
   ev1' : _intNameEvents sup0 ev1' [ev1'] more
   where ev1' = over evLabel (const 1) ev1

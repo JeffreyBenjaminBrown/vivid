@@ -115,6 +115,26 @@ prevPhase0 time0 period now =
 
 -- | = Timing a Museq
 
+-- | = Figuring out when a Museq will repeat.
+-- There are two senses in which a Museq can repeat. One is that
+-- it sounds like it's repeating. If _dur = 2 and _sup = 1, then
+-- it sounds like it's repeating after a single _sup.
+-- The *ToRepeat functions below use that sense.
+--
+-- The other sense is that the Museq has cycled through what it
+-- "is supposed to cycle through". (This is useful when `append`ing Museqs.)
+-- If _dur = 2 and _sup = 1, it won't have played all the way through
+-- until _dur has gone by, even though a listener hears it start to repeat
+-- halfway through that _dur.
+-- The *ToPlayThrough functions below use that sense.
+--
+-- The results of the two families only differ when _sup divides _dur.
+--
+-- I could have used the *PlayThrough functions everywhere, but
+-- in some situations that would waste space. For an example of one,
+-- see in Tests.testStack the assertion labeled
+-- "stack, where timeToRepeat differs from timeToPlayThrough".
+
 supsToRepeat :: Museq l a -> RTime
 supsToRepeat m = timeToRepeat m / _sup m
 
@@ -131,18 +151,16 @@ supsToPlayThrough m = timeToPlayThrough m / (_sup m)
 dursToPlayThrough :: Museq l a -> RTime
 dursToPlayThrough m = timeToPlayThrough m / (_dur m)
 
--- | After `timeToRepeat`, the `Museq` always *sounds* like it's repeating.
+-- | After `timeToRepeat`, the `Museq` *sounds* like it's repeating.
 -- That doesn't mean it's played all the way through, though.
 timeToRepeat :: Museq l a -> RTime
 timeToRepeat m = let tp = timeToPlayThrough m
                  in if tp == _dur m -- implies `_dur m > _sup m`
                     then _sup m else tp
 
--- | If `sup` is 3s and `dur` is 2s, then when 2s have passed,
--- the Museq is not done --
--- the stuff stored in the 3rd second hasn't happened yet.
--- When 3s have passed, it's not done either --
--- it's halfway through the second iteration.
--- It's only done after 6 seconds -- the LCM of the sup and the dur.
+-- | A `Museq` has "played through" when it has played for a time
+-- that is an integer multiple of both _dur and _sup.
+-- Remember, if it is concatenated to another pattern,
+-- the clock is paused, so to speak, while the other pattern plays.
 timeToPlayThrough :: Museq l a -> RTime
 timeToPlayThrough m = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)

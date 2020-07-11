@@ -39,6 +39,8 @@ tests = TestList [
   , TestLabel "testOverParams" testOverParams
   , TestLabel "testBoundaries" testBoundaries
   , TestLabel "testPartitionArcAtTimes" testPartitionArcAtTimes
+  , TestLabel "testPartitionAndGroupEventsAtBoundaries"
+               testPartitionAndGroupEventsAtBoundaries
   , TestLabel "testMerge" testMerge
   , TestLabel "testMeta" testMeta
   , TestLabel "testMuseqNamesAreValid" testMuseqNamesAreValid
@@ -233,33 +235,36 @@ testDenseAndSparse = TestCase $ do
 
 testExplicitReps :: Test
 testExplicitReps = TestCase $ do
-
   let y = Museq {_dur = 3, _sup = 4,
-                 _vec = V.fromList [ ev4 "" 0 3 ()
-                                   , ev4 "" 1 1 () ] }
+                 _vec = V.fromList [ ev4 "a" 0 3 ()
+                                   , ev4 "b" 1 1 () ] }
 
   assertBool "unsafeExplicitReps" $ unsafeExplicitReps 24 y ==
-    [ V.fromList [ ev4 "" 0  3  ()
-                 , ev4 "" 1  1  () ]
-    , V.fromList [ ev4 "" 4  7  ()
-                 , ev4 "" 5  5  () ]
-    , V.fromList [ ev4 "" 8  11 () ]
-    , V.fromList [ ev4 "" 9  9  () ]
-    , V.fromList [ ev4 "" 12 15 ()
-                 , ev4 "" 13 13 () ]
-    , V.fromList [ ev4 "" 16 19 ()
-                 , ev4 "" 17 17 () ]
-    , V.fromList [ ev4 "" 20 23 () ]
-    , V.fromList [ ev4 "" 21 21 () ]
+    [ V.fromList [ ev4 "a" 0  3  ()
+                 , ev4 "b" 1  1  () ]
+    , V.fromList [ ev4 "a" 4  7  ()
+                 , ev4 "b" 5  5  () ]
+    , V.fromList [ ev4 "a" 8  11 () ]
+    , V.fromList [ ev4 "b" 9  9  () ]
+    , V.fromList [ ev4 "a" 12 15 ()
+                 , ev4 "b" 13 13 () ]
+    , V.fromList [ ev4 "a" 16 19 ()
+                 , ev4 "b" 17 17 () ]
+    , V.fromList [ ev4 "a" 20 23 () ]
+    , V.fromList [ ev4 "b" 21 21 () ]
     ]
 
   assertBool "explicitReps" $ explicitReps y ==
-    [ V.fromList [ ev4 "" 0 3  ()
-                 , ev4 "" 1 1  () ]
-    , V.fromList [ ev4 "" 4 7  ()   -- starts at 3
-                 , ev4 "" 5 5  () ]
-    , V.fromList [ ev4 "" 8 11 () ] -- starts at 6
-    , V.fromList [ ev4 "" 9 9  () ] -- starts at 9
+    [ V.fromList [ ev4 "a" 0 3  ()
+                 , ev4 "b" 1 1  () ]
+    , V.fromList [ ev4 "a" 4 7  ()   -- Starts at time 3.
+                 -- This rep only lasts until time = 6, but the end of the event that starts at 4 can be later than 6).
+                 , ev4 "b" 5 5  () ]
+    , V.fromList [ ev4 "a" 8 11 () ] -- Starts at 6 mod 4 = 2 in `y`.\
+      -- The zero-duration event "b" starts at time 9.
+      -- Repetitions are half-open (they do not include their endpoint),
+      -- so the 3rd "b" is part of the 4th rep, not the 3rd.
+    , V.fromList [ ev4 "b" 9 9  () ] -- Starts at 9 mod 4 = 1 in `y`.
     ]
 
 testAppend :: Test
@@ -371,6 +376,9 @@ testBoundaries :: Test
 testBoundaries = TestCase $ do
   assertBool "boundaries" $ boundaries [(0,1),(1,1),(2,3::Int)]
     == [0,1,1,2,3]
+  assertBool "boundaries" $
+    boundaries [(0,2), (1,10), (3,4), (3,5), (4,4)]
+    == [0,1,2,3,4,4,5,10]
 
 testPartitionArcAtTimes :: Test
 testPartitionArcAtTimes = TestCase $ do
@@ -378,22 +386,18 @@ testPartitionArcAtTimes = TestCase $ do
     (0,5)
     == [(0,2),(2,2),(2,5)]
 
--- This was written for the old Museq, where labels were attached
--- in the wrong place. That was changed in the "one-museq" branch,
--- but the test was not updated to use the new type.
---testPartitionAndGroupEventsAtBoundaries :: Test
---testPartitionAndGroupEventsAtBoundaries = TestCase $ do
---  assertBool "partitionAndGroupEventsAtBoundaries" $
---    partitionAndGroupEventsAtBoundaries [0, 1, 1, 2, 3, 4 :: Int]
---      [ ((0,3),"a")
---      , ((2,4),"b") ]
---    == [((0,1),"a")
---       ,((1,1),"a")
---       ,((1,2),"a")
---       ,((2,3),"a")
---       ,((2,3),"b")
---       ,((3,4),"b")
---       ]
+testPartitionAndGroupEventsAtBoundaries :: Test
+testPartitionAndGroupEventsAtBoundaries = TestCase $ do
+  let a   = ev4 () 0 1 'a'
+      b   = ev4 () 0 1 'b'
+      c   = ev4 () 0 2 'c'
+      c01 = ev4 () 0 1 'c'
+      c12 = ev4 () 1 2 'c'
+      es = [a,b,c]
+  assertBool "partitionAndGroupEventsAtBoundaries" $
+    partitionAndGroupEventsAtBoundaries
+    (boundaries $ map _evArc es) es
+    == [a,b,c01,c12]
 
 testMerge :: Test
 testMerge = TestCase $ do

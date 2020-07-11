@@ -138,9 +138,11 @@ actionToSynth (Send s n _) = (s,n)
 -- | = an `Event` happens in time, and might have a name
 
 data Event time label a =
-  Event { _evLabel :: label
+  Event { _evLabel :: label -- ^ Sometimes you need to name your events,
+        -- so that they can interact. For instance, in a slide guitar melody,
+        -- if one note transitions into the next, they would share a name.
         , _evArc :: (time,time) -- ^ start time, end time
-        , _evData :: a}
+        , _evData :: a } -- ^ the thing that happens
   deriving (Show, Eq, Ord, Functor)
 makeLenses ''Event
 
@@ -172,6 +174,8 @@ mkEv0 l t a = Event l (fr t, fr t) a
 data Museq label a = Museq {
     _dur :: RDuration -- ^ the play duration of the sequence (usually a loop)
   , _sup :: RDuration -- ^ supremum of the possible RTime values in `_vec`.
+    -- The events in `_vec` can start at any time in the half-open
+    -- interval [0,_sup).
     -- If this is greater than `dur`, the `Museq`will rotate
     -- through different sections of the `vec` each time it plays.
     -- If less than `dur`, the `Museq` will play the `vec` more than

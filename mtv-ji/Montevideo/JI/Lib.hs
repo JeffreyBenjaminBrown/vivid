@@ -128,5 +128,3 @@ just_intervals = let
 -- of `d`-edo in approximating the harmonics of interest.
 sum_errs d = sum $ abs . err_of_best <$> bests d
 err_of_best (_,(_,_,e)) = e
-s = stretch
-c = cents

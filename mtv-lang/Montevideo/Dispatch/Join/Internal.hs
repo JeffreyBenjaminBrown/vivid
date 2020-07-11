@@ -7,9 +7,9 @@ module Montevideo.Dispatch.Join.Internal (
   , unsafeExplicitReps -- ^ forall l a.
      -- RTime -> Museq l a -> [V.Vector (Ev l a)]
   , boundaries -- ^ forall a. Real a => [(a,a)] -> [a]
-  , partitionArcAtTimes -- ^ Real a => [a] -> (a,a) -> [(a,a)]
   , partitionAndGroupEventsAtBoundaries -- ^ forall a l t v. Real t
      -- => [t] -> [Event t l a] -> [Event t l a]
+  , partitionArcAtTimes -- ^ Real a => [a] -> (a,a) -> [(a,a)]
   , alignAndJoin,joinEvents -- ^ forall a b c t. Real t
      --                       => (a -> b -> c)
      --                       -> [Event t String a]
@@ -62,10 +62,14 @@ unsafeExplicitReps totalDuration m = reps where
   maixima = [fromIntegral i * _dur m | i <- [1..durs]]
   reps = divideAtMaxima (view evStart) maixima spread :: [V.Vector (Ev l a)]
 
+
 -- | = Merge-ish (`merge`, `<*>` and `meta`) functions.
 
--- | Produces a sorted list of arc endpoints.
--- If `arcs` includes `(x,x)`, then `x` will appear twice in the output.
+-- | Produces a sorted list of arc endpoints,
+-- such that the start and the end of every event is among those endpoints.
+-- The tests make it clear.
+-- If `arcs` includes `(x,x)`, then `x` will appear twice in the output;
+-- otherwise the arc `(x,x)` would not be constructible from the endpoints.
 boundaries :: forall a. Real a => [(a,a)] -> [a]
 boundaries arcs0 = doubleTheDurationZeroBoundaries arcs0
                   $ L.sort $ unique $ map fst arcs0 ++ map snd arcs0 where
@@ -74,16 +78,6 @@ boundaries arcs0 = doubleTheDurationZeroBoundaries arcs0
     instants :: S.Set a
     instants = S.fromList $ map fst $ filter (\(s,e) -> s == e) arcs
     f t = if S.member t instants then [t,t] else [t]
-
--- | ASSUMES list of times is sorted, uniqe, and includes endpoints of `arc`.
--- (If the times come from `boundaries`, they will include those.)
-partitionArcAtTimes :: Real a => [a] -> (a,a) -> [(a,a)]
-partitionArcAtTimes (a:b:ts) (c,d)
-  | c > a = partitionArcAtTimes (b:ts) (c,d)
-  | b == d = [(a,b)]
-  | otherwise = (a,b) : partitionArcAtTimes (b:ts) (b,d)
-partitionArcAtTimes _ _ =
-  error "partitionArcAtTimes: uncaught input pattern."
 
 -- | ASSUMES the first input includes each value in the second.
 -- (If the first list comes from `boundaries`, it will include those.)
@@ -96,7 +90,21 @@ partitionAndGroupEventsAtBoundaries bs evs =
         where rebuild someArc = ev {_evArc = someArc}
   in L.sortOn _evArc $ concatMap partitionEv evs
 
--- | `alignAndJoin`  and `joinEvents` are mutually recursive.
+-- | ASSUMES list of times is sorted, uniqe, and includes endpoints of `arc`.
+-- (If the times come from `boundaries`, they will include those.)
+partitionArcAtTimes :: Real a
+                    => [a]   -- ^ the times to partition at
+                    -> (a,a) -- ^ the arc to partition
+                    -> [(a,a)]
+partitionArcAtTimes (a:b:ts) (c,d)
+  | c > a = partitionArcAtTimes (b:ts) (c,d)
+  | b == d = [(a,b)]
+  | otherwise = (a,b) : partitionArcAtTimes (b:ts) (b,d)
+partitionArcAtTimes _ _ =
+  error "partitionArcAtTimes: uncaught input pattern."
+
+
+-- | = `alignAndJoin`  and `joinEvents` are mutually recursive.
 -- `alignAndJoin` checks whether events are aligned.
 -- If so, it hands work off to `joinEvents`.
 -- `joinEvents` finds events in the second input aligned with first event
@@ -106,10 +114,10 @@ partitionAndGroupEventsAtBoundaries bs evs =
 -- two inputs are concatenated, which prevents interference.
 -- TODO ? A version that permits interference.
 alignAndJoin,joinEvents :: forall a b c t. Real t
-                          => (a -> b -> c)
-                          -> [Event t String a]
-                          -> [Event t String b]
-                          -> [Event t String c]
+  => (a -> b -> c) -- ^ how to join them
+  -> [Event t String a]
+  -> [Event t String b]
+  -> [Event t String c]
 
 alignAndJoin _ [] _ = []
 alignAndJoin _ _ [] = []

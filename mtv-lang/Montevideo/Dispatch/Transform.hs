@@ -55,9 +55,10 @@ late t = early (-t)
 -- | `dense` and `sparse` are like `fast` and `slow`, but whereas
 -- making something e.g. twice as fast shrinks its sup and its dur,
 -- making it twice as dense shrinks only is sup.
--- For a single music, they are indistinguishable.
--- But when concatenated alongside other patterns,
--- `fast` and `slow` will change the duration of the pattern,
+-- For a single Museq, the two kinds of function are indistinguishable.
+-- But when a Museq is concatenated next to others,
+-- `fast` and `slow` will change its duration
+-- ("time in the spotlight", before yielding to the next Museq)
 -- while `dense` and `sparse` will not.
 fast,slow,dense,sparse :: Rational -> Museq l a -> Museq l a
 fast d m = let f = (/ (RTime d))
