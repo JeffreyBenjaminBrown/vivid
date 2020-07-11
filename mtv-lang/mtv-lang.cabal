@@ -31,7 +31,8 @@ library
     , Montevideo.Dispatch.Dispatch
     , Montevideo.Dispatch.Join
     , Montevideo.Dispatch.Join.Internal
-    , Montevideo.Dispatch.Msg
+    , Montevideo.Dispatch.Msg.Act
+    , Montevideo.Dispatch.Msg.Mk
     , Montevideo.Dispatch.Museq
     , Montevideo.Dispatch.Museq.Mk
     , Montevideo.Dispatch.Transform

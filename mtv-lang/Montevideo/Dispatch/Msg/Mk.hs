@@ -1,8 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 
-module Montevideo.Dispatch.Msg (
-    set'    -- ^ VividAction m => Synth params -> Msg' params -> m ()
-  , boopMsg    -- ^ Msg -> [Msg' BoopParams]
+module Montevideo.Dispatch.Msg.Mk (
+    boopMsg    -- ^ Msg -> [Msg' BoopParams]
   , samplerMsg -- ^ Msg -> [Msg' SamplerParams]
   , sqfmMsg    -- ^ Msg -> [Msg' SqfmParams]
   , vapMsg     -- ^ Msg -> [Msg' VapParams]
@@ -12,13 +11,13 @@ where
 
 import qualified Data.Map as M
 
-import Vivid hiding (synth)
+import Vivid
 import Montevideo.Synth
 import Montevideo.Dispatch.Types
 
 
 set' :: VividAction m => Synth params -> Msg' params -> m ()
-set' synth (Msg' m) = set synth m
+set' _synth (Msg' m) = set _synth m
 
 
 -- | == per-synth boilerplate
