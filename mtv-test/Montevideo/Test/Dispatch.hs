@@ -48,15 +48,15 @@ tests = TestList [
   , TestLabel "testNameAnonEvents" testNameAnonEvents
   , TestLabel "testMultiPartition" testMultiPartition
   , TestLabel "testHold" testHold
-  , TestLabel "test_timeToPlayThrough" test_timeToPlayThrough
+  , TestLabel "test_timeToFinish" test_timeToFinish
   ]
 
-test_timeToPlayThrough :: Test
-test_timeToPlayThrough = TestCase $ do
-  assertBool "1" $ 1 == timeToPlayThrough mempty
-  assertBool "1" $ 2 == timeToPlayThrough
+test_timeToFinish :: Test
+test_timeToFinish = TestCase $ do
+  assertBool "1" $ 1 == timeToFinish mempty
+  assertBool "1" $ 2 == timeToFinish
     (sup .~ 1 $ mmh 2 $ pre2 "" $ [ (0, "a") ] )
-  assertBool "1" $ 2 == timeToPlayThrough
+  assertBool "1" $ 2 == timeToFinish
     (dur .~ 1 $ mmh 2 $ pre2 "" $ [ (0, "a") ] )
 
 testHold :: Test
@@ -174,7 +174,7 @@ testStack = TestCase $ do
                        , mkEv "()"  2 5 "()"
                        , mkEv "az" 4 5 "z"
                        , mkEv "()"  4 7 "()" ] )
-  assertBool "stack, where timeToRepeat differs from timeToPlayThrough"
+  assertBool "stack, where timeToAppearToFinish differs from timeToFinish"
     $ stack2 (sup .~ 1 $ y) z ==
     (dur .~ _dur z)
     ( sup .~ 6 $
@@ -183,7 +183,7 @@ testStack = TestCase $ do
                        , mkEv "()"  1 4 "()"
                        , mkEv "()"  2 5 "()"
 
-    -- If I used timeToRepeat instead of timeToPlayThrough,
+    -- If I used timeToAppearToFinish instead of timeToFinish,
     -- this redundant second half would not be present.
                        , mkEv "()"  3 6 "()"
                        , mkEv "az"  4 5 "z"

@@ -89,7 +89,7 @@ append x y = cat [x,y]
 cat :: forall l a. [Museq l a] -> Museq l a
 cat ml = let
   durs = RTime $ foldr1 lcmRatios $
-         map (tr . dursToPlayThrough) ml
+         map (tr . dursToFinish) ml
 
   mm :: M.Map Int (Museq l a) =
     M.fromList $ zip [0..] ml

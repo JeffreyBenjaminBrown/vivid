@@ -5,13 +5,13 @@ module Montevideo.Dispatch.Time (
   , prevPhase0 -- ^ RealFrac a => a -> a -> a -> a
 
   -- | = Timing a Museq
-  , supsToRepeat      -- ^ Museq l a -> RTime
-  , dursToRepeat      -- ^ Museq l a -> RTime
-  , longestDur -- ^ Museq l a -> RDuration
-  , supsToPlayThrough -- ^ Museq l a -> RTime
-  , dursToPlayThrough -- ^ Museq l a -> RTime
-  , timeToRepeat      -- ^ Museq l a -> RTime
-  , timeToPlayThrough -- ^ Museq l a -> RTime
+  , supsToAppearToFinish -- ^ Museq l a -> RTime
+  , dursToAppearToFinish -- ^ Museq l a -> RTime
+  , longestDur           -- ^ Museq l a -> RDuration
+  , supsToFinish         -- ^ Museq l a -> RTime
+  , dursToFinish         -- ^ Museq l a -> RTime
+  , timeToAppearToFinish -- ^ Museq l a -> RTime
+  , timeToFinish         -- ^ Museq l a -> RTime
   ) where
 
 import Control.Lens hiding (to,from)
@@ -133,28 +133,28 @@ prevPhase0 time0 period now =
 -- I could have used the *PlayThrough functions everywhere, but
 -- in some situations that would waste space. For an example of one,
 -- see in Tests.testStack the assertion labeled
--- "stack, where timeToRepeat differs from timeToPlayThrough".
+-- "stack, where timeToAppearToFinish differs from timeToFinish".
 
-supsToRepeat :: Museq l a -> RTime
-supsToRepeat m = timeToRepeat m / _sup m
+supsToAppearToFinish :: Museq l a -> RTime
+supsToAppearToFinish m = timeToAppearToFinish m / _sup m
 
-dursToRepeat :: Museq l a -> RTime
-dursToRepeat m = timeToRepeat m / _dur m
+dursToAppearToFinish :: Museq l a -> RTime
+dursToAppearToFinish m = timeToAppearToFinish m / _dur m
 
 longestDur :: Museq l a -> RDuration
 longestDur m = let eventDur ev = (ev ^. evEnd) - (ev ^. evStart)
                in V.maximum $ V.map eventDur $ _vec m
 
-supsToPlayThrough :: Museq l a -> RTime
-supsToPlayThrough m = timeToPlayThrough m / (_sup m)
+supsToFinish :: Museq l a -> RTime
+supsToFinish m = timeToFinish m / (_sup m)
 
-dursToPlayThrough :: Museq l a -> RTime
-dursToPlayThrough m = timeToPlayThrough m / (_dur m)
+dursToFinish :: Museq l a -> RTime
+dursToFinish m = timeToFinish m / (_dur m)
 
--- | After `timeToRepeat`, the `Museq` *sounds* like it's repeating.
+-- | After `timeToAppearToFinish`, the `Museq` *sounds* like it's repeating.
 -- That doesn't mean it's played all the way through, though.
-timeToRepeat :: Museq l a -> RTime
-timeToRepeat m = let tp = timeToPlayThrough m
+timeToAppearToFinish :: Museq l a -> RTime
+timeToAppearToFinish m = let tp = timeToFinish m
                  in if tp == _dur m -- implies `_dur m > _sup m`
                     then _sup m else tp
 
@@ -162,5 +162,5 @@ timeToRepeat m = let tp = timeToPlayThrough m
 -- that is an integer multiple of both _dur and _sup.
 -- Remember, if it is concatenated to another pattern,
 -- the clock is paused, so to speak, while the other pattern plays.
-timeToPlayThrough :: Museq l a -> RTime
-timeToPlayThrough m = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)
+timeToFinish :: Museq l a -> RTime
+timeToFinish m = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)

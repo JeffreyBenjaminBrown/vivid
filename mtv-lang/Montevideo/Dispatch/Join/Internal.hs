@@ -29,20 +29,20 @@ import Montevideo.Util
 
 timeForBothToRepeat :: Museq l a -> Museq m b -> RTime
 timeForBothToRepeat x y =
-  RTime $ lcmRatios (tr $ timeToRepeat x) (tr $ timeToRepeat y)
+  RTime $ lcmRatios (tr $ timeToAppearToFinish x) (tr $ timeToAppearToFinish y)
 
 timeForBothToPlayThrough :: Museq l a -> Museq m b -> RTime
 timeForBothToPlayThrough x y =
-  RTime $ lcmRatios (tr $ timeToPlayThrough x) (tr $ timeToPlayThrough y)
+  RTime $ lcmRatios (tr $ timeToFinish x) (tr $ timeToFinish y)
 
 -- | If L is the length of time such that `m` finishes at phase 0,
 -- divide the events of L every multiple of _dur.
 -- See the test suite for an example.
 explicitReps :: forall a l. Museq l a -> [V.Vector (Ev l a)]
-explicitReps m = unsafeExplicitReps (timeToPlayThrough m) m
+explicitReps m = unsafeExplicitReps (timeToFinish m) m
 
 -- | PITFALL: I don't know what this will do if
--- `totalDuration` is not an integer multiple of `timeToPlayThrough m`
+-- `totalDuration` is not an integer multiple of `timeToFinish m`
 unsafeExplicitReps :: forall l a.
   RTime -> Museq l a -> [V.Vector (Ev l a)]
 unsafeExplicitReps totalDuration m = reps where
@@ -58,7 +58,7 @@ unsafeExplicitReps totalDuration m = reps where
     f = over evArc (\(x,y) -> (g x, g y)) where
       g = (+) $ fromIntegral idx * _sup m
   spread = V.concat $ map adjustTimes indexed :: V.Vector (Ev l a)
-    -- the times in `spread` range from 0 to `timeToRepeat m`
+    -- the times in `spread` range from 0 to `timeToAppearToFinish m`
   maixima = [fromIntegral i * _dur m | i <- [1..durs]]
   reps = divideAtMaxima (view evStart) maixima spread :: [V.Vector (Ev l a)]
 
