@@ -29,6 +29,7 @@ library
     , Montevideo.Synth.Samples
     , Montevideo.Synth.Vap
     , Montevideo.Synth.Zot
+    , Montevideo.Vivid.LongVarLists
   other-modules:
       Paths_montevideo
   build-depends:

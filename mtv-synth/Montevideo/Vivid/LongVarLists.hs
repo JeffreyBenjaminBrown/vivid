@@ -1,35 +1,33 @@
 -- | This adds VarList instances for synths with more than 26 parameters.
 -- It goes up to 32.
---
--- With minor changes, this is a simple duplication of
--- Vivid.Synthdef.TypesafeArgs
+
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-{-# LANGUAGE NoIncoherentInstances #-}
--- {-# LANGUAGE ConstraintKinds -}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FunctionalDependencies #-}
+-- {-# LANGUAGE ConstraintKinds -} -- (was?) for a nested type family instance
 -- {-# LANGUAGE GADTSyntax, NoMonoLocalBinds #-}
-{-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE PolyKinds #-}
 -- {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeFamilies, NoMonoLocalBinds #-}
-{-# LANGUAGE TypeOperators #-}
--- Needed for a nested type family instance:
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
+
+{-# LANGUAGE DataKinds
+, ExistentialQuantification
+, FlexibleContexts
+, FlexibleInstances
+, FunctionalDependencies
+, InstanceSigs
+, LambdaCase
+, MultiParamTypeClasses
+, NoIncoherentInstances
+, NoMonomorphismRestriction
+, PolyKinds
+, ScopedTypeVariables
+, StandaloneDeriving
+, TypeFamilies, NoMonoLocalBinds
+, TypeOperators
+, UndecidableInstances
+, ViewPatterns #-}
 
 
-module Montevideo.Monome.Instances.TypesafeArgs where
+module Montevideo.Vivid.LongVarLists where
 
 import GHC.TypeLits
 import Vivid

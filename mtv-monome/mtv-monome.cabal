@@ -23,7 +23,6 @@ source-repository head
 library
   exposed-modules:
       Montevideo.Monome.Config
-    , Montevideo.Monome.Instances.TypesafeArgs
     , Montevideo.Monome.JiScales
     , Montevideo.Monome.Main
     , Montevideo.Monome.Math31
