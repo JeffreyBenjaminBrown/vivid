@@ -144,14 +144,8 @@ startDispatchLoop disp = do
   buffs :: M.Map Sample BufferId <-
     mapM newBufferFromFile $ samplePaths
   _ <- tryTakeMVar $ mReg disp -- empty it, just in case
-  putMVar (mReg disp) $ SynthRegister
-    { _samples  = buffs
-    , _boops    = mempty
-    , _samplers = mempty
-    , _sqfms    = mempty
-    , _vaps     = mempty
-    , _zots     = mempty
-    }
+  putMVar (mReg disp) $
+    emptySynthRegister & samples .~ buffs
 
   forkIO $ dispatchLoop disp
 
@@ -159,35 +153,36 @@ dispatchLoop :: Dispatch -> IO ()
 dispatchLoop disp = do
   time0       <- takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
-  museqsMap   <- takeMVar $ mMuseqs      disp
+  mqs :: M.Map MuseqName (Museq String Note)
+              <- takeMVar $ mMuseqs      disp
   reg         <- takeMVar $ mReg         disp
   now         <- unTimestamp <$> getTime
 
   let
     startRender = nextPhase0 time0 frameDuration now
-    museqsMap' :: M.Map String(Museq String Action)
-      = M.map g museqsMap where
-      g :: Museq String Note -> Museq String Action
-        = vec %~ V.map f where
+    mqs' :: M.Map String (Museq String Action)
+      -- Whereas mqs has `Note`s, mqs' has `Action`s.
+      = M.map (vec %~ V.map f) mqs where
         f :: Ev String Note -> Ev String Action
-        -- todo ? awkward : Ev label is repeated in Action.
+        -- TODO ? awkward : Ev label is repeated in Action.
         f ev = evData .~ ac $ ev where
           d = ev ^. evData
           ac = Send (d^.noteSd) (ev^.evLabel) (d^.noteMsg)
 
     evs0 :: [(Time, Action)]
-      = concatMap f $ M.elems museqsMap' where
+      = concatMap f $ M.elems mqs' where
       f :: Museq String Action
         -> [(Time, Action)] -- start times and actions
       f m = map (\ev -> ((ev^.evStart), (ev^.evData))) evs
-        where evs = arc time0 tempoPeriod startRender
-                    (startRender + frameDuration) m
+        where evs :: [Event Time String Action] =
+                arc time0 tempoPeriod startRender
+                (startRender + frameDuration) m
 
   mapM_ (uncurry $ actSend reg) evs0
 
   putMVar (mTime0       disp) time0
   putMVar (mTempoPeriod disp) tempoPeriod
-  putMVar (mMuseqs      disp) museqsMap
+  putMVar (mMuseqs      disp) mqs
   putMVar (mReg         disp) reg
 
   wait $ fromRational startRender - now

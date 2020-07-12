@@ -126,7 +126,7 @@ data Action
   = New  SynthDefEnum SynthName -- ^ create it
   | Free SynthDefEnum SynthName -- ^ destroy it
   | Send SynthDefEnum SynthName Msg
-  deriving (Show,Eq,Ord)
+  deriving (Show, Eq, Ord)
 
 -- | From an action, extract the synth it is for.
 actionToSynth :: Action -> (SynthDefEnum, SynthName)

@@ -25,11 +25,11 @@ import Montevideo.Util
 -- | `arc time0 period from to m`
 -- find the events of `m` that fall in `[from,to)` (a half-open interval).
 arc :: forall l a.
-    Time -- ^ a reference point in the past
-  -> Duration -- ^ tempo period ("bar length")
-  -> Time -- ^
-  -> Time
-  -> Museq l a
+    Time       -- ^ a reference point in the past
+  -> Duration  -- ^ tempo period ("bar length")
+  -> Time      -- ^ start here (inclusive)
+  -> Time      -- ^ end here (not inclusive)
+  -> Museq l a -- ^ pluck Events from here
   -> [Event Time l a]
 -- todo ? `arc` could be ~2x faster by using binarySearchRByBounds
 -- instead of binarySearchR, to avoid searching the first part
