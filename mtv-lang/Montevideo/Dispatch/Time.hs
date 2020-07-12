@@ -1,5 +1,7 @@
 module Montevideo.Dispatch.Time (
-    arc -- ^ forall l a. Time -> Duration -> Time -> Time
+    museqFrame -- ^ Museq String Action
+               -- -> [(Time, Action)] -- ^ `Time`s are start times
+  , arc -- ^ forall l a. Time -> Duration -> Time -> Time
         -- -> Museq l a -> [Event Time l a]
   , nextPhase0 -- ^ RealFrac a => a -> a -> a -> a
   , prevPhase0 -- ^ RealFrac a => a -> a -> a -> a
@@ -18,9 +20,21 @@ import Control.Lens hiding (to,from)
 import Data.Fixed (div',mod')
 import qualified Data.Vector as V
 
+import Montevideo.Dispatch.Config (frameDuration)
 import Montevideo.Dispatch.Types
 import Montevideo.Util
 
+
+museqFrame :: Time                -- ^ time0, historical reference point
+           -> Duration            -- ^ tempo period
+           -> Time                -- ^ when to start rendering
+           -> Museq String Action -- ^ what to pluck events from
+           -> [(Time, Action)]    -- ^ the `Time`s are start times
+museqFrame time0 tempoPeriod start m = let
+  evs :: [Event Time String Action] =
+    arc time0 tempoPeriod start
+    (start + frameDuration) m
+  in map (\ev -> ((ev^.evStart), (ev^.evData))) evs
 
 -- | `arc time0 period from to m`
 -- find the events of `m` that fall in `[from,to)` (a half-open interval).

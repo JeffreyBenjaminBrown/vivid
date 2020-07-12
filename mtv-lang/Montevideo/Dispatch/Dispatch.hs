@@ -153,37 +153,25 @@ dispatchLoop :: Dispatch -> IO ()
 dispatchLoop disp = do
   time0       <- takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp
-  mqs :: M.Map MuseqName (Museq String Note)
+  notes :: M.Map MuseqName (Museq String Note)
               <- takeMVar $ mMuseqs      disp
   reg         <- takeMVar $ mReg         disp
   now         <- unTimestamp <$> getTime
 
   let
-    startRender = nextPhase0 time0 frameDuration now
-    mqs' :: M.Map String (Museq String Action)
-      -- Whereas mqs has `Note`s, mqs' has `Action`s.
-      = M.map (vec %~ V.map f) mqs where
-        f :: Ev String Note -> Ev String Action
-        -- TODO ? awkward : Ev label is repeated in Action.
-        f ev = evData .~ ac $ ev where
-          d = ev ^. evData
-          ac = Send (d^.noteSd) (ev^.evLabel) (d^.noteMsg)
-
-    evs0 :: [(Time, Action)]
-      = concatMap f $ M.elems mqs' where
-      f :: Museq String Action
-        -> [(Time, Action)] -- start times and actions
-      f m = map (\ev -> ((ev^.evStart), (ev^.evData))) evs
-        where evs :: [Event Time String Action] =
-                arc time0 tempoPeriod startRender
-                (startRender + frameDuration) m
+    start :: Time = nextPhase0 time0 frameDuration now
+    actions :: M.Map String (Museq String Action) =
+      museq_NotesToActions notes
+    evs0 :: [(Time, Action)] =
+      concatMap (museqFrame time0 tempoPeriod start)
+      $ M.elems actions
 
   mapM_ (uncurry $ actSend reg) evs0
 
   putMVar (mTime0       disp) time0
   putMVar (mTempoPeriod disp) tempoPeriod
-  putMVar (mMuseqs      disp) mqs
+  putMVar (mMuseqs      disp) notes
   putMVar (mReg         disp) reg
 
-  wait $ fromRational startRender - now
+  wait $ fromRational start - now
   dispatchLoop disp
