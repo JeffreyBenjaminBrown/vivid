@@ -31,6 +31,7 @@ import Montevideo.Synth.Samples
 
 -- | = Change the music
 
+-- | Stop one of the `Museq`s running in a `Dispatch`.
 stopDispatch :: Dispatch -> MuseqName -> IO ()
 stopDispatch disp name = do
   masOld <- readMVar $ mMuseqs disp
@@ -46,20 +47,23 @@ replace disp newName newMuseq = do
 --
 -- Strategy: Upon changing Museqs, compute which synths need deletion,
 -- and which need creation. Create the latter immediately. Wait to delete
--- the former until it's safe, and before deleting them, send silence
+-- the former until it's safe (half a `frameDuration`,
+-- and before deleting them, send silence
 -- (set "amp" to 0).
 --
 -- This computes the next thing to play in parallel, rather than
 -- halting SuperCollider communication until the next thing is computed.
 
-replaceAll :: Dispatch -> M.Map MuseqName (Museq String Note) -> IO ()
-replaceAll disp masNew = do
-  time0  <-      readMVar $ mTime0       disp
-  masOld <-      readMVar $ mMuseqs      disp
-  reg <-         readMVar $ mReg         disp
+replaceAll :: Dispatch -- ^ What plays stuff.
+           -> M.Map MuseqName (Museq String Note) -- ^ What to play next.
+           -> IO ()
+replaceAll disp mqsNew = do
+  time0  <- readMVar $ mTime0  disp
+  mqsOld <- readMVar $ mMuseqs disp
+  reg    <- readMVar $ mReg    disp
   now <- unTimestamp <$> getTime
 
-  let masNew' = M.mapWithKey f masNew where
+  let mqsNew' = M.mapWithKey f mqsNew where
         f :: MuseqName -> Museq String Note
                        -> Museq String Note
         f name = vec %~ (V.map $ evLabel %~ (name ++))
@@ -68,7 +72,7 @@ replaceAll disp masNew = do
       when = nextPhase0 time0 frameDuration now + frameDuration
         -- `when` = the start of the first not-yet-rendered frame
       toFree, toCreate :: [(SynthDefEnum, SynthName)]
-      (toFree,toCreate) = museqSynthsDiff masOld masNew'
+      (toFree,toCreate) = museqSynthsDiff mqsOld mqsNew'
 
   newTransform  <- mapM (actNew  reg)      $ map (uncurry New)  toCreate
   freeTransform <- mapM (actFree reg when) $ map (uncurry Free) toFree
@@ -77,10 +81,10 @@ replaceAll disp masNew = do
 
   -- make sure everything we need is calculated,
   -- then empty all the MVars and replace them with this new stuff
-  seq (masNew', synthRegisterNew) $ return ()
+  seq (mqsNew', synthRegisterNew) $ return ()
   _ <- takeMVar $ mMuseqs      disp
   _ <- takeMVar $ mReg         disp
-  putMVar (mMuseqs      disp) masNew'
+  putMVar (mMuseqs      disp) mqsNew'
   putMVar (mReg         disp) synthRegisterNew
 
   _ <- forkIO $ do

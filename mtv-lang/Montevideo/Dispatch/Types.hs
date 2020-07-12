@@ -194,10 +194,10 @@ emptyMuseq = Museq { _dur = 1, _sup = 1, _vec = V.empty }
 -- | The global state
 
 data SynthRegister =
-  -- You might not have any zots, for instance, but you still need a
-  -- `_zots` field, since you might use the Zot synth later.
-  -- I believe this per-synth boilerplate is unavoidable.
-  -- That's because Vivid types each synth by the arguments it accepts.
+  -- | You might not have any `Zot`s, for instance, but you still need a
+  -- `_zots` field, since you might use a `Zot` synth later.
+  -- I believe this per-synth boilerplate is unavoidable,
+  -- because Vivid types each synth by the arguments it accepts.
   SynthRegister
   { _boops    :: M.Map SynthName (Synth BoopParams)
   , _vaps     :: M.Map SynthName (Synth VapParams)
