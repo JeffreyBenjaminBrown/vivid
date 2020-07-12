@@ -258,15 +258,15 @@ divideAtMaxima view upperBounds stuff =
 -- | = Functions to find a range of items of interest in a sorted vector.
 
 -- | 0-indexed. Returns the first index where you could insert `a` and
--- preserve sortedness (shoving whatever was there before to the right).
--- If none such, returns length of vector.
+-- preserve sortedness (shoving whatever was there before to a later spot).
+-- If none such, returns length of vector, because that's where to insert.
 firstIndexGTE :: Comparison a -> V.Vector a -> a -> Int
 firstIndexGTE comp v a = runST $ do
   v' <- V.thaw v
   return =<< binarySearchLBy comp v' a
 
 -- | 0-indexed. Returns the last index where you could insert `a` and
--- preserve sortedness (shoving whatever was there before to the right).
+-- preserve sortedness (shoving whatever was there to a later spot).
 -- If none such, returns length of vector.
 lastIndexLTE :: Comparison a -> V.Vector a -> a -> Int
 lastIndexLTE comp v a = runST $ do

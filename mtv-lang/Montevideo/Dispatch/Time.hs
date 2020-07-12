@@ -56,10 +56,12 @@ arc time0 tempoPeriod from to m = let
 
   -- The earliest start time for which an event from `m`
   -- might still be happening.
-  earlierFrom = latestPhase0 - tr (longestDur m) * tempoPeriod :: Time
+  oldestRelevantPhase0 :: Time =
+    latestPhase0 - tr (longestDur m) * tempoPeriod :: Time
   -- A non-positive number.
   -- If it is -1, we must look 1 cycle into the past.
-  oldestRelevantCycle = div' (earlierFrom - latestPhase0) period :: Int
+  oldestRelevantCycle :: Int =
+    div' (oldestRelevantPhase0 - latestPhase0) period
 
   -- HACK: The inputs ought to be RTimes,
   -- but then I'd be switching types, from Ev to AbsEv.
@@ -67,8 +69,12 @@ arc time0 tempoPeriod from to m = let
   makeTimesAbsolute (a,b) = (f a, f b) where
     f rt = tr rt * tempoPeriod + latestPhase0
 
+  -- If an event to be rendered started before this frame,
+  -- the portion before is discarded.
   truncateStarts :: (Time,Time) -> (Time,Time)
   truncateStarts = over _1 $ max from
+  -- If an event to be rendered ends after this frame,
+  -- the portion after is discarded.
   truncateEnds :: (Time,Time) -> (Time,Time)
   truncateEnds = over _2 $ min to
 
@@ -81,38 +87,54 @@ arc time0 tempoPeriod from to m = let
   futzTimes ev = over evArc f $ eventRTimeToEventTime ev
     where f = truncateEnds . truncateStarts . makeTimesAbsolute
   in dropImpossibles $ map futzTimes $ _arcFold
-     oldestRelevantCycle period startVec time0 earlierFrom to m
+     oldestRelevantCycle period startVec time0 oldestRelevantPhase0 to m
 
+-- | Most of these arguments are constant across `_arcFold`'s
+-- recursive calls to itself. The exceptions are `cycle` and `from`.
 _arcFold :: forall l a.
-  Int               -- ^ The cycle being operated on.
+     Int -- ^ The cycle being operated on. Advances by 1 each recursive call.
   -> Duration       -- ^ Tempo period.
   -> V.Vector RTime -- ^ A vector (sorted, I think) of start times.
   -> Time           -- ^ time0, historical reference point.
-  -> Time           -- ^ Start here.
-  -> Time           -- ^ End here.
+  -> Time -- ^ Start here. The fold will work its way from here to the start
+          -- of the current frame, advancing by `period`s each time,
+          -- then one more. Then it stops, because `from >= to`.
+          -- Does not need to start on a tempo period boundary.
+          -- After the first call, it always advances by the tempo period;
+          -- that first time it usually advances by less.
+  -> Time -- ^ End here.
   -> Museq l a -> [Ev l a]
 
 _arcFold cycle period startVec time0 from to m =
   if null (m ^. vec) || from >= to
     -- TODO ? Be sure of `arc` boundary condition
   then [] else let
-    pp0 = prevPhase0 time0 period from :: Time
-    fromInCycles = fr $ (from - pp0) / period :: RTime
-    toInCycles   = fr $ (to   - pp0) / period :: RTime
-    startOrOOBIndex =
-      firstIndexGTE compare startVec $ fromInCycles * _sup m :: Int
+    -- When arc first calls _arcFold, the `from` argument need not be
+    -- on a period boundary. In every successive call to _arcFold, I think,
+    -- it will be.
+    pp0             ::  Time = prevPhase0 time0 period from
+    fromInCycles    :: RTime = fr $ (from - pp0) / period
+    toInCycles      :: RTime = fr $ (to   - pp0) / period
+
+    -- Hypothesis: This is to ensure that on the first call
+    -- to `_arcFold`, if `from` is after the start of all events,
+    -- that cycle is skipped. (On subsequent calls, `from` will always
+    -- be on a period boundary, so this will always be 0.)
+    startOrOOBIndex ::   Int = -- OOB = out of bounds, I think
+      firstIndexGTE compare startVec $ fromInCycles * _sup m
 
   in if startOrOOBIndex >= V.length startVec
---     then let nextFrom = if pp0 + period > from
--- -- todo ? delete
+-- -- TODO ? delete
 -- -- If `from = pp0 + period - epsilon`, maybe `pp0 + period <= from`.
 -- -- Thus floating point error used to make this if-then statement necessary
 -- -- Now that all times are Rational, it's probably unnecessary.
+--     then let nextFrom = if pp0 + period > from
 --                         then pp0 + period
 --                         else pp0 + 2*period
 --          in _arcFold (cycle+1) period startVec time0 nextFrom to m
      then _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
      else let
+
        startIndex = startOrOOBIndex :: Int
        endIndex = lastIndexLTE compare' startVec
                   $ toInCycles * _sup m :: Int
