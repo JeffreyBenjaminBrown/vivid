@@ -1,5 +1,6 @@
 -- | = Act on a Msg
 --
+-- `Dispatch.replaceAll` is what uses these.
 -- `New`s are sent immediately; schedule time is disregarded.
 -- `Send`s are scheduled for the requested time.
 -- `Free`s are scheduled so that:
@@ -38,6 +39,8 @@ act reg t a@(Free _ _)   = actFree reg t a
 act reg _ a@(New _ _)    = actNew  reg   a
 
 
+-- | `actNew` creates the needed synth immediately;
+-- it doesn't schedule anything.
 actNew :: SynthRegister -> Action -> IO (SynthRegister -> SynthRegister)
 actNew reg (New Boop name) =
   case M.lookup name $ _boops reg of
@@ -84,6 +87,9 @@ actNew _ (Send _ _ _) = error $ "actNew received a Send."
 actNew _ (Free _ _)   = error $ "actNew received a Free."
 
 
+-- | `actFree reg when (Free Boop name)`
+-- schedules a 0 `amp` message to the synth for `when`,
+-- and schedules freeing the synth for `when + frameDuration / 2`.
 actFree :: SynthRegister
         -> Rational
         -> Action
@@ -142,6 +148,7 @@ actFree _ _ (Send _ _ _) = error "actFree received a Send."
 actFree _ _ (New _ _)    = error "actFree received a New."
 
 
+-- | `actSend reg when (Send Boop name msg)` schedules `msg` for `when`.
 actSend :: SynthRegister -> Time -> Action -> IO ()
 actSend reg when (Send Boop name msg) =
   case M.lookup name $ _boops reg of

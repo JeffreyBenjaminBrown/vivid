@@ -47,7 +47,7 @@ replace disp newName newMuseq = do
 --
 -- Strategy: Upon changing Museqs, compute which synths need deletion,
 -- and which need creation. Create the latter immediately. Wait to delete
--- the former until it's safe (half a `frameDuration`,
+-- the former until it's safe (half a `frameDuration`),
 -- and before deleting them, send silence
 -- (set "amp" to 0).
 --
@@ -73,26 +73,32 @@ replaceAll disp mqsNew = do
         -- and that they cannot cooperate in the same synth.
 
     when = nextPhase0 time0 frameDuration now + frameDuration
-      -- `when` = the start of the first not-yet-rendered frame
+      -- `when` = the end of the first not-yet-rendered frame.
+      -- TODO (speed) ? Is this conservative? Do I not need to
+      -- `(+ frameDuration)`?
     toFree, toCreate :: [(SynthDefEnum, SynthName)]
     (toFree,toCreate) = museqSynthsDiff mqsOld mqsNew'
 
-  newTransform  <- mapM (actNew  reg)      $ map (uncurry New)  toCreate
-  freeTransform <- mapM (actFree reg when) $ map (uncurry Free) toFree
+  newTransform  :: [SynthRegister -> SynthRegister] <-
+    mapM (actNew  reg)      $ map (uncurry New)  toCreate
+  freeTransform :: [SynthRegister -> SynthRegister] <-
+    mapM (actFree reg when) $ map (uncurry Free) toFree
 
-  let synthRegisterNew = foldl (.) id newTransform reg
+  let synthRegisterNew :: SynthRegister =
+        reg &
+        (foldl (.) id newTransform :: SynthRegister -> SynthRegister)
 
-  -- make sure everything we need is calculated,
-  -- then empty all the MVars and replace them with this new stuff
+  -- Make sure everything we need is calculated,
+  -- then empty all the MVars and replace them with this new stuff.
   seq (mqsNew', synthRegisterNew) $ return ()
-  _ <- takeMVar $ mMuseqs      disp
-  _ <- takeMVar $ mReg         disp
-  putMVar (mMuseqs      disp) mqsNew'
-  putMVar (mReg         disp) synthRegisterNew
+  _ <- takeMVar $ mMuseqs disp
+  _ <- takeMVar $ mReg    disp
+  putMVar (mMuseqs        disp) mqsNew'
+  putMVar (mReg           disp) synthRegisterNew
 
   _ <- forkIO $ do
     wait $ when - now -- delete register's synths once it's safe
-    reg1 <-takeMVar $ mReg disp
+    reg1 <- takeMVar $ mReg disp
     putMVar (mReg disp) $ foldl (.) id freeTransform reg1
 
   return ()
