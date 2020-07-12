@@ -61,18 +61,21 @@ replaceAll disp mqsNew = do
   time0  <- readMVar $ mTime0  disp
   mqsOld <- readMVar $ mMuseqs disp
   reg    <- readMVar $ mReg    disp
-  now <- unTimestamp <$> getTime
+  now    <- unTimestamp <$> getTime
 
-  let mqsNew' = M.mapWithKey f mqsNew where
-        f :: MuseqName -> Museq String Note
-                       -> Museq String Note
-        f name = vec %~ (V.map $ evLabel %~ (name ++))
-          -- including the MuseqName guarantees different Museqs in the map
-          -- will not conflict (and cannot cooperate in the same synth)
-      when = nextPhase0 time0 frameDuration now + frameDuration
-        -- `when` = the start of the first not-yet-rendered frame
-      toFree, toCreate :: [(SynthDefEnum, SynthName)]
-      (toFree,toCreate) = museqSynthsDiff mqsOld mqsNew'
+  let
+    -- Append the name of each Museq to each of its events.
+    mqsNew' = M.mapWithKey f mqsNew where
+      f :: MuseqName -> Museq String Note
+                     -> Museq String Note
+      f name = vec %~ (V.map $ evLabel %~ (name ++))
+        -- This guarantees different Museqs in the map will not conflict --
+        -- and that they cannot cooperate in the same synth.
+
+    when = nextPhase0 time0 frameDuration now + frameDuration
+      -- `when` = the start of the first not-yet-rendered frame
+    toFree, toCreate :: [(SynthDefEnum, SynthName)]
+    (toFree,toCreate) = museqSynthsDiff mqsOld mqsNew'
 
   newTransform  <- mapM (actNew  reg)      $ map (uncurry New)  toCreate
   freeTransform <- mapM (actFree reg when) $ map (uncurry Free) toFree

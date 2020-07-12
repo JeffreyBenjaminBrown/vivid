@@ -15,7 +15,7 @@ module Montevideo.Dispatch.Time (
   ) where
 
 import Control.Lens hiding (to,from)
-import Data.Fixed (div')
+import Data.Fixed (div',mod')
 import qualified Data.Vector as V
 
 import Montevideo.Dispatch.Types
@@ -96,19 +96,30 @@ _arcFold cycle period startVec time0 from to m =
        in eventsThisCycle
           ++ _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
 
--- | `time0` is the first time that had phase 0
--- | TODO ? rewrite using div', mod' from Data.Fixed
-nextPhase0 :: RealFrac a => a -> a -> a -> a
+-- | `nextPhase0 time0 period now` finds the least time `t`
+-- greater than or equal to `now` such that for some integer `n`,
+-- `t = n * period + time0`.
+nextPhase0 :: RealFrac a
+           => a -- ^ the first time that had phase 0
+           -> a -- ^ the duration of a cycle
+           -> a -- ^ the time right now
+           -> a
 nextPhase0 time0 period now =
-  fromIntegral x * period + time0
-  where x :: Int = ceiling $ (now - time0) / period
+  -- This might be a little over-optimized.
+  -- It'd be simpler to write this in terms of `prevPhase0`,
+  -- but then it would calculate `relativeNow` twice.
+  let relativeNow = now - time0
+      wholeElapsedCycles = div' relativeNow period
+      onBoundary = mod' relativeNow period == 0
+  in time0 + period * ( fi wholeElapsedCycles +
+                        if onBoundary then 0 else 1 )
 
 -- | PITFALL ? if lastPhase0 or nextPhase0 was called precisely at phase0,
 -- both would yield the same result. Since time is measured in microseconds
 -- there is exactly a one in a million chance of that.
--- | TODO ? rewrite using div', mod' from Data.Fixed
 prevPhase0 :: RealFrac a => a -> a -> a -> a
 prevPhase0 time0 period now =
+  -- TODO ? rewrite using div', mod' from Data.Fixed
   fromIntegral x * period + time0
   where x :: Int = floor $ (now - time0) / period
 
