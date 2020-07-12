@@ -2,8 +2,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Montevideo.Dispatch.Dispatch (
- -- | = change the music
-    stopDispatch       -- ^ Dispatch -> MuseqName -> IO ()
+  -- | = change the music
+    stop       -- ^ Dispatch -> MuseqName -> IO ()
   , replace    -- ^ Dispatch -> MuseqName -> Museq String Note -> IO ()
   , replaceAll -- ^ Dispatch -> M.Map MuseqName (Museq String Note) -> IO ()
   , chTempoPeriod     -- ^ Dispatch -> Duration -> IO ()
@@ -31,12 +31,13 @@ import Montevideo.Synth.Samples
 
 -- | = Change the music
 
--- | Stop one of the `Museq`s running in a `Dispatch`.
-stopDispatch :: Dispatch -> MuseqName -> IO ()
-stopDispatch disp name = do
+-- | Stop one of the `Museq`s
+stop :: Dispatch -> MuseqName -> IO ()
+stop disp name = do
   masOld <- readMVar $ mMuseqs disp
   replaceAll disp $ M.delete name masOld
 
+-- | Replace one of the `Museq`s
 replace :: Dispatch -> MuseqName -> Museq String Note -> IO ()
 replace disp newName newMuseq = do
   masOld <- readMVar $ mMuseqs disp
