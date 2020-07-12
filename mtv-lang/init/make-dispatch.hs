@@ -9,8 +9,8 @@ tid <- startDispatchLoop disp
 off = killThread tid >> freeAll -- kill the program
 
 -- These, though, you'll use a lot.
-ch = replace disp                             -- change one thing
-chAll = replaceAll disp                       -- change everything
-stop = Montevideo.Dispatch.Dispatch.stop disp -- stop (and lose) one thing
-hush = replaceAll disp M.empty                -- stop (and lose) everything
+ch = replace_inDisp disp              -- change one Museq
+chAll = replaceAll_inDisp disp        -- change every Museq
+stop = stop_inDisp disp               -- stop (and lose) one thing
+hush = replaceAll_inDisp disp M.empty -- stop (and lose) everything
 period = chTempoPeriod disp

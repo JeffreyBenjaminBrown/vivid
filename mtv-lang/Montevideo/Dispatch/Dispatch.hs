@@ -3,9 +3,9 @@
 
 module Montevideo.Dispatch.Dispatch (
   -- | = change the music
-    stop       -- ^ Dispatch -> MuseqName -> IO ()
-  , replace    -- ^ Dispatch -> MuseqName -> Museq String Note -> IO ()
-  , replaceAll -- ^ Dispatch -> M.Map MuseqName (Museq String Note) -> IO ()
+    stop_inDisp       -- ^ Dispatch -> MuseqName -> IO ()
+  , replace_inDisp    -- ^ Dispatch -> MuseqName -> Museq String Note -> IO ()
+  , replaceAll_inDisp -- ^ Dispatch -> M.Map MuseqName (Museq String Note) -> IO ()
   , chTempoPeriod     -- ^ Dispatch -> Duration -> IO ()
 
   -- | = the dispatch loop
@@ -32,16 +32,16 @@ import Montevideo.Synth.Samples
 -- | = Change the music
 
 -- | Stop one of the `Museq`s
-stop :: Dispatch -> MuseqName -> IO ()
-stop disp name = do
+stop_inDisp :: Dispatch -> MuseqName -> IO ()
+stop_inDisp disp name = do
   masOld <- readMVar $ mMuseqs disp
-  replaceAll disp $ M.delete name masOld
+  replaceAll_inDisp disp $ M.delete name masOld
 
 -- | Replace one of the `Museq`s
-replace :: Dispatch -> MuseqName -> Museq String Note -> IO ()
-replace disp newName newMuseq = do
+replace_inDisp :: Dispatch -> MuseqName -> Museq String Note -> IO ()
+replace_inDisp disp newName newMuseq = do
   masOld <- readMVar $ mMuseqs disp
-  replaceAll disp $ M.insert newName newMuseq masOld
+  replaceAll_inDisp disp $ M.insert newName newMuseq masOld
 
 
 -- | ASSUMES every synth has an "amp" parameter which, when 0, causes silence.
@@ -55,10 +55,10 @@ replace disp newName newMuseq = do
 -- This computes the next thing to play in parallel, rather than
 -- halting SuperCollider communication until the next thing is computed.
 
-replaceAll :: Dispatch -- ^ What plays stuff.
+replaceAll_inDisp :: Dispatch -- ^ What plays stuff.
            -> M.Map MuseqName (Museq String Note) -- ^ What to play next.
            -> IO ()
-replaceAll disp mqsNew = do
+replaceAll_inDisp disp mqsNew = do
   time0  <- readMVar $ mTime0  disp
   mqsOld <- readMVar $ mMuseqs disp
   reg    <- readMVar $ mReg    disp
@@ -131,21 +131,28 @@ chTempoPeriod disp newTempoPeriod = do
 -- | = The Dispatch loop
 startDispatchLoop :: Dispatch -> IO ThreadId
 startDispatchLoop disp = do
-  _       <- tryTakeMVar $ mTime0       disp -- empty it, just in case
+  -- set `mTime0 disp`
+  _ <- tryTakeMVar $ mTime0 disp -- empty it, just in case
+  (-) (0.8 * frameDuration) . unTimestamp <$> getTime
+    -- subtract nearly an entire frameDuration so it starts soon
+    >>= putMVar (mTime0 disp)
 
-  mbTempo <- tryReadMVar $ mTempoPeriod disp
-  case mbTempo of Nothing -> putMVar (mTempoPeriod disp) 1
-                  Just _ -> return ()
+  -- set `mTempoPeriod disp` to 1 if it's unset
+  _ <- tryPutMVar (mTempoPeriod disp) 1
 
-  _       <- tryTakeMVar $ mReg         disp -- empty it, just in case
+  -- set `mReg disp`
   buffs :: M.Map Sample BufferId <-
     mapM newBufferFromFile $ samplePaths
-  putMVar (mReg disp) $
-    SynthRegister mempty mempty mempty buffs mempty mempty
+  _ <- tryTakeMVar $ mReg disp -- empty it, just in case
+  putMVar (mReg disp) $ SynthRegister
+    { _samples  = buffs
+    , _boops    = mempty
+    , _samplers = mempty
+    , _sqfms    = mempty
+    , _vaps     = mempty
+    , _zots     = mempty
+    }
 
-  ((-) (0.8 * frameDuration)) . unTimestamp <$> getTime
-  -- subtract nearly an entire frameDuration so it starts soon
-    >>= putMVar (mTime0 disp)
   forkIO $ dispatchLoop disp
 
 dispatchLoop :: Dispatch -> IO ()
