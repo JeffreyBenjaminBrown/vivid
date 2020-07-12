@@ -37,7 +37,7 @@ museqFrame time0 tempoPeriod start m = let
   in map (\ev -> ((ev^.evStart), (ev^.evData))) evs
 
 -- | `arc time0 period from to m`
--- find the events of `m` that fall in `[from,to)` (a half-open interval).
+-- finds the events of `m` in the half-open interval `[from,to)`.
 arc :: forall l a.
     Time       -- ^ a reference point in the past
   -> Duration  -- ^ tempo period ("bar length")
@@ -53,31 +53,45 @@ arc time0 tempoPeriod from to m = let
   period = tempoPeriod * tr (_sup m) :: Duration
   startVec = V.map (view evStart) $ _vec $ m :: V.Vector RTime
   latestPhase0 = prevPhase0 time0 period from :: Time
-    -- It would be natural to start here, but long events from
-    -- earlier cycles could carry into this one.
+
+  -- The earliest start time for which an event from `m`
+  -- might still be happening.
   earlierFrom = latestPhase0 - tr (longestDur m) * tempoPeriod :: Time
+  -- A non-positive number.
+  -- If it is -1, we must look 1 cycle into the past.
   oldestRelevantCycle = div' (earlierFrom - latestPhase0) period :: Int
-  correctAbsoluteTimes :: (Time,Time) -> (Time,Time)
-    -- HACK: The inputs ought to be RTimes,
-    -- but then I'd be switching types, from Ev to AbsEv.
-  correctAbsoluteTimes (a,b) = (f a, f b) where
+
+  -- HACK: The inputs ought to be RTimes,
+  -- but then I'd be switching types, from Ev to AbsEv.
+  makeTimesAbsolute :: (Time,Time) -> (Time,Time)
+  makeTimesAbsolute (a,b) = (f a, f b) where
     f rt = tr rt * tempoPeriod + latestPhase0
-  chopStarts :: (Time,Time) -> (Time,Time)
-  chopStarts = over _1 $ max from
-  chopEnds :: (Time,Time) -> (Time,Time)
-  chopEnds = over _2 $ min to
+
+  truncateStarts :: (Time,Time) -> (Time,Time)
+  truncateStarts = over _1 $ max from
+  truncateEnds :: (Time,Time) -> (Time,Time)
+  truncateEnds = over _2 $ min to
+
+  -- Because truncateStarts can leave an old event starting after it ended.
+  -- (Starting at the same time as ending is fine.)
   dropImpossibles :: [Event Time l a] -> [Event Time l a]
-    -- Because chopStarts can leave an old event starting after it ended.
   dropImpossibles = filter $ uncurry (<=) . view evArc
+
   futzTimes :: Event RTime l a -> Event Time l a
   futzTimes ev = over evArc f $ eventRTimeToEventTime ev
-    where f = chopEnds . chopStarts . correctAbsoluteTimes
+    where f = truncateEnds . truncateStarts . makeTimesAbsolute
   in dropImpossibles $ map futzTimes $ _arcFold
      oldestRelevantCycle period startVec time0 earlierFrom to m
 
-_arcFold :: forall l a. Int -> Duration -> V.Vector RTime
-  -> Time -> Time -> Time -- ^ the same three `Time` arguments as in `arc`
+_arcFold :: forall l a.
+  Int               -- ^ The cycle being operated on.
+  -> Duration       -- ^ Tempo period.
+  -> V.Vector RTime -- ^ A vector (sorted, I think) of start times.
+  -> Time           -- ^ time0, historical reference point.
+  -> Time           -- ^ Start here.
+  -> Time           -- ^ End here.
   -> Museq l a -> [Ev l a]
+
 _arcFold cycle period startVec time0 from to m =
   if null (m ^. vec) || from >= to
     -- TODO ? Be sure of `arc` boundary condition
@@ -87,6 +101,7 @@ _arcFold cycle period startVec time0 from to m =
     toInCycles   = fr $ (to   - pp0) / period :: RTime
     startOrOOBIndex =
       firstIndexGTE compare startVec $ fromInCycles * _sup m :: Int
+
   in if startOrOOBIndex >= V.length startVec
 --     then let nextFrom = if pp0 + period > from
 -- -- todo ? delete
@@ -97,16 +112,16 @@ _arcFold cycle period startVec time0 from to m =
 --                         else pp0 + 2*period
 --          in _arcFold (cycle+1) period startVec time0 nextFrom to m
      then _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
-     else
-       let startIndex = startOrOOBIndex :: Int
-           endIndex = lastIndexLTE compare' startVec
-                      $ toInCycles * _sup m :: Int
-             where compare' x y =
-                     if x < y then LT else GT -- to omit the endpoint
-           eventsThisCycle = V.toList
-             $ V.map (over evEnd   (+(_sup m * fromIntegral cycle)))
-             $ V.map (over evStart (+(_sup m * fromIntegral cycle)))
-             $ V.slice startIndex (endIndex-startIndex) $ _vec m
+     else let
+       startIndex = startOrOOBIndex :: Int
+       endIndex = lastIndexLTE compare' startVec
+                  $ toInCycles * _sup m :: Int
+         where compare' x y =
+                 if x < y then LT else GT -- to omit the endpoint
+       eventsThisCycle = V.toList
+         $ V.map (over evEnd   (+(_sup m * fromIntegral cycle)))
+         $ V.map (over evStart (+(_sup m * fromIntegral cycle)))
+         $ V.slice startIndex (endIndex-startIndex) $ _vec m
        in eventsThisCycle
           ++ _arcFold (cycle+1) period startVec time0 (pp0 + period) to m
 
