@@ -104,7 +104,16 @@ replaceAll disp mqsNew = do
 
   return ()
 
-chTempoPeriod :: Dispatch -> Duration -> IO ()
+-- | Changing tempo requires changing time0, too,
+-- to avoid changing which cycle one is currently in.
+-- For instance, if time0 = 0, tempoDuration = 1, and it's time 10,
+-- then we're in the 10th cycle. If we change tempoDuration to be 0.5,
+-- we need to change time0 from 0 to 5;
+-- otherwise we'll suddenly be in the 20th cycle.
+chTempoPeriod :: Dispatch
+              -> Duration -- ^ period (not frequency) of the new tempo
+              -> IO ()
+
 chTempoPeriod disp newTempoPeriod = do
   time0       <- takeMVar $ mTime0       disp
   tempoPeriod <- takeMVar $ mTempoPeriod disp

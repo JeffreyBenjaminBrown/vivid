@@ -2,20 +2,24 @@
 
 ## Set up these dependencies
 
-* Install [Stack](https://docs.haskellstack.org/en/stable/README/),
-the Haskell toolkit
+### Install [Stack](https://docs.haskellstack.org/en/stable/README/)
 
-* Install SuperCollider,
+Stack is a Haskell build tool.
+
+### Install SuperCollider
+
 as described in the documentation for [Vivid](https://www.vivid-synth.com/).
 
+### Install the Dirt-Samples library
+
 Clone the
-[Dirt-Samples](https://github.com/tidalcycles/Dirt-Samples) repository,
-and then amend `src/Synths/Config.hs` to point to that repo.
+[Dirt-Samples](https://github.com/tidalcycles/Dirt-Samples) repository.
+
+Edit `mtv-synth/Montevideo/Synth/Config.hs`, changing the definition of `dirtSamplesFolder` to point to the Dirt-Samples repo you cloned.
 
 
 ## Run it
 
-* Edit `mtv-synth/Montevideo/Synth/Config.hs`, changing the definition of `dirtSamplesFolder` to point to the Dirt-Samples repo you cloned.
 * Go to the root folder of Montevideo.
 * Run `./sc-start.sh` to start SuperCollider.
 * Go to the `mtv-lang/` subfolder.
