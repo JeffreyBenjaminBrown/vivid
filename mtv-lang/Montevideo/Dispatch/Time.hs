@@ -38,6 +38,10 @@ museqFrame time0 tempoPeriod start m = let
 
 -- | `arc time0 period from to m`
 -- finds the events of `m` in the half-open interval `[from,to)`.
+-- PITFALL: Although this goes to great painns to consider events from
+-- earlier cycles, I'm not sure it makes sense to have an event with a
+-- duration longer than the Museq's period, because then it will overlap
+-- with future renderings of itself.
 arc :: forall l a.
     Time       -- ^ a reference point in the past
   -> Duration  -- ^ tempo period ("bar length")

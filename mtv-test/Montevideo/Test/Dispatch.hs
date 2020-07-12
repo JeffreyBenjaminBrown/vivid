@@ -340,17 +340,17 @@ testMuseqsDiff = TestCase $ do
 testArc :: Test
 testArc = TestCase $ do
   let m = mkMuseqFromEvs 5 [ Event () (0,6) "a"
-                   , Event () (2,4) "b"]
+                           , Event () (2,4) "b"]
   -- arguments to arc : time0 tempoPeriod from to museq
-  assertBool "arc 0" $ arc 100 2  200 210  m
-    == [ ( Event () (200,202) "a" )
-       , ( Event () (200,210) "a" )
+  assertBool "arc 0" $ arc 100 2 200 210  m
+    == [ ( Event () (200,202) "a" ) -- this "a" started at 190
+       , ( Event () (200,210) "a" ) -- this "a" will end at 212
        , ( Event () (204,208) "b" )]
-  assertBool "arc 1" $ arc 101 2  200 210  m
-    == [ ( Event () (200,203) "a")
-       , ( Event () (201,210) "a")
+  assertBool "arc 1" $ arc 101 2 200 210  m
+    == [ ( Event () (200,203) "a") -- started at 191
+       , ( Event () (201,210) "a") -- ends at 213
        , ( Event () (205,209) "b")]
-  assertBool "arc 1" $ arc 101 2  200 220  m
+  assertBool "arc 1" $ arc 101 2 200 220  m
     == [ ( Event () (200,203) "a")
        , ( Event () (201,213) "a")
        , ( Event () (205,209) "b")
