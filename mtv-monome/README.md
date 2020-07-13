@@ -2,11 +2,16 @@ Back when this software was limited to 31-edo, I demonstrated it on Youtube:
 https://www.youtube.com/watch?v=qKsCnfOo0No
 
 
-# This is an `n`-equal-tempered isomorphic synthesizer for the monome. Choose your `n`.
+# This is an `m`-ed-`n` isomorphic synthesizer for the monome
+
+That is, "m equal divisions of n", where you choose both. Usually `n` is the octave, but by changing the octave stretch you can make it something else.
 
 "Isomorphic" just means "the notes are equall spaced everywhere". Like if you tuned a guitar such that the space between each pair of adjacent strings was the same. The result is that any shape sound the same no matter where you put it, except transposed.
 
-This was originally written to play only using 31 equally-spaced pitches per octave, with 6\31 (that is, six chromatic steps in the 31-tone-system) between each column of buttons. Now it lets you replace the values 31 and 6 with whatever you want. Just open the file `Math31.hs` and edit the definitions of `edo` and `spacing`.
+This was originally written to play only using 31 equally-spaced pitches per octave,
+with 6\31 (that is, six chromatic steps in the 31-tone-system) between each column of buttons.
+Now it lets you replace the values 31 and 6 with whatever you want.
+Just open the file `Montevideo.Monome.Config` and edit the definitions of `edo` and `spacing`.
 
 The monome will light up all the enharmonic equivalents of the notes as you play them, which can be helpful for getting oriented. It can also permanently light up all enharmonic equivalents of some reference tone, as a reference -- the futuristic equivalent of putting a yellow sticker on every C on your piano keyboard. If you want that, ask me how, and I'll figure it out again.
 
