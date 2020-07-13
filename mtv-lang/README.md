@@ -1,4 +1,4 @@
-# Quickstart to live-coding in `mtv-lang`
+# Quickstart to live-coding in `Montevideo-lang`
 
 ## Set up these dependencies
 
@@ -30,20 +30,24 @@ Edit `mtv-synth/Montevideo/Synth/Config.hs`, changing the definition of `dirtSam
 * Load another sketch with `:. sketches/something/else`.
 * Turn it off with `off`. (This will leave SC running, so you can start another dispatcher by running `:s init.hs` again without restarting SC.)
 
-The files in `docs/` are simple and commented.
-The files in `sketches/`, not so much.
+See the section on "learning", below, for where to go next.
 
-You could use other samples, too;
-just edit that path to point to the folder your samples are in,
-and then edit `src/Synths/Samples.hs` to point to each sample individually.
+## You can also add your own samples
+
+Just edit that path to point to the folder your samples are in,
+and then tediously edit `src/Synths/Samples.hs`
+to reify each new sample.
 
 
-# Montevideo-lang vs. TidalCycles
+# Montevideo-lang is inspired by [TidalCycles](https://tidalcycles.org/index.php/Welcome)
 
-This project is inspired by
-[TidalCycles](https://tidalcycles.org/index.php/Welcome).
-I love TidalCycles, but I wanted to express
-some things that TidalCycles does not permit:
+I love TidalCycles. It has a friendly DSL,
+a fancy, delicious sampler,
+a giant library of useful functions,
+extensive documentation, and a wonderful community.
+
+Montevideo does not --
+but it offers expressive capabilities absent from TidalCycles:
 
 * Explicit control of the durations of patterns. I wanted, for instance,
 to concatentate a 2-bar intro with a 16 bar verse and a 16 bar chorus,
@@ -64,21 +68,21 @@ and apply it to another pattern.
 (Montevideo uses [Vivid](https://github.com/vivid-synth/vivid)
 for this.)
 
-Montevideo permits all that.
-There are examples in the `docs/` folder.
-
-TidalCycles has a better synth, an enormous library of functions,
-extensive documentation, and a great community.
+Montevideo also has a freaky synth called Zot,
+based on Reaktor Spark.
 
 TidalCycles represents cycles as functions.
 Montevideo represents cycles as data.
-I still haven't remembered why I thought that was better.
+I still haven't rediscovered why I thought that would be better.
 
 
-# Learning it
+# Learning Montevideo-lang
 
-The following might be a good order in which to study the example code.
-(Each of these lines is something you can evaluate from GHCI,
+## Learning to use it
+
+The files in `docs/` are simple and commented, and a good way to learn.
+This might be a good order to learn them in.
+(Each of the following lines is an instruction you can evaluate from GHCI,
 assuming you ran `:s init.hs` as described above.)
 
 ```
@@ -91,5 +95,10 @@ assuming you ran `:s init.hs` as described above.)
 :. docs/pattern-of-transformations
 ```
 
-If its type signatures and comments aren't enough to understand a function,
-check whether it's in the test suite (by grepping for it in mtv-test/).
+The files in `sketches/` are neither simple nor well commented.
+
+## Hacking it
+
+If its type signature and comments aren't enough to understand a function,
+check whether it's in the test suite
+(by grepping for it in the mtv-test/ folder).

@@ -94,7 +94,10 @@ mkMuseqHo :: forall l. Ord l
           => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
 mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
 
--- | `mkMuseqRt` sends any two `Msg` values to different synths, unless
+-- | Make a Museq that sends a "retrigger" after each "trigger" (note).
+-- SuperCollider needs this; the "retrigger" message
+-- tells it to prepare the sampler to receive another "trigger".
+-- `mkMuseqRt` sends any two `Msg` values to different synths, unless
 -- they share the same label *and* the same `Sample`.
 -- This is guaranteed by computing new labels `show l ++ show Sample`.
 --

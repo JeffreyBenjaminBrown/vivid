@@ -9,6 +9,9 @@ packages:
 - ./mtv-test
 - ./mtv-util
 
+nix:
+  enable: true
+
 extra-deps:
   - git: https://github.com/JeffreyBenjaminBrown/hode
     commit: db800a86e202cbc250e543e480829c24aece18ef

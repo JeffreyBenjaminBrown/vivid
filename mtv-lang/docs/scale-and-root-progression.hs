@@ -30,5 +30,5 @@ chAll $ mfl
       freq (+2) $
       fast 2 $
       scaleStepPattern)
-  , ( "lizard",
+  , ( "mushy bongo sasquatch",
       render $ freq (+4) $ fast 4 $ scaleStepPattern) ]

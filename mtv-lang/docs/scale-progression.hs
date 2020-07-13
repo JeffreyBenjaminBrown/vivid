@@ -6,7 +6,9 @@ scaleStepPattern =
          -- in which the "on" parameter is not mentioned.
   $ pre2 "" -- Give each message the same label, the empty string.
             -- (This is therefore a monophonic pattern.)
-  [ (0,   m1 "freq" 0) -- play frequency 0 from time 0 to time 1/2
+  [ (0,   m1 "freq" 0) -- play frequency 0 from time 0 to time 1/2.
+    -- These "frequencies" are (downstream) used as scale steps,
+    -- not as Hz. values.
   , (1/2, m1 "freq" 1) -- play frequency 1 from time 1/2 to time 1
   , (1,   m1 "freq" 2) -- etc.
   , (2,   m1 "freq" 3) ]
@@ -36,4 +38,5 @@ chAll $   -- Change all voices at once -- i.e. play this, and only this.
       fast 2 $    -- Play it twice as fast.
       scaleStepPattern)
   , ( "lizard mango", -- Voice names can be whatever you want.
-      render $ freq (+4) $ fast 4 $ scaleStepPattern) ]
+      render $ freq (+4) $
+      fast 4 scaleStepPattern) ]
