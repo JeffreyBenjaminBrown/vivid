@@ -5,9 +5,9 @@
 Patterns in Montevideo are represented by the `Museq` type. 
 For each `Museq` there are two associated durations.
 
-* `dur` is the amount of time the pattern takes up when it is concatenated to other patterns.
+* `dur` is the length of time the pattern plays when it is concatenated to other patterns.
 
-* `sup` is the amount of time it takes a pattern to play all the way through.
+* `sup` is the length of time it takes the pattern to play all the way through.
 
 This is necessary because it might be that you want the `Museq` to do something different from one iteration to the next.
 
