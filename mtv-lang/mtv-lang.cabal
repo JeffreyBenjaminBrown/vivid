@@ -48,8 +48,8 @@ library
     , HUnit
     , lens
     , megaparsec
+    , pretty-simple
     , random
---    , hode
     , vector
     , vector-algorithms
 

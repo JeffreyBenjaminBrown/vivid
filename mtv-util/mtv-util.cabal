@@ -31,6 +31,7 @@ library
       base
     , containers
     , lens
+    , megaparsec
     , random
     , vector
     , vector-algorithms
