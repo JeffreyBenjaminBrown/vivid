@@ -154,11 +154,11 @@ unusedName names = head $ (L.\\) allStrings names where
 unique :: Ord a => [a] -> [a]
 unique = S.toList . S.fromList
 
--- | like `mod` but minimized, rather than centered, at 0
-myMod :: Int -> Int -> Int
+-- | like `mod` but centered, rather than minimized, at 0
+myMod :: Integral a => a -> a -> a
 myMod x b =
   let m = mod' x b
-  in if m > round (fromIntegral b/2)
+  in if m > div b 2
      then m-b else m
 
 -- | Slower, but does not require `Ord a`
@@ -188,10 +188,10 @@ deleteShowQuotes = deleteAll '\"' . deleteAll '\\'
 -- | `multiPartition abs` preserves the order of the `b`s
 -- within each `a` group.
 multiPartition :: forall a b. Ord a => [(a,b)] -> [ (a,[b]) ]
-multiPartition abs = let
+multiPartition = let
   f :: (a,b) -> M.Map a [b] -> M.Map a [b]
   f (a,b) = M.insertWith (++) a [b]
-  in M.toList $ foldr f M.empty abs
+  in M.toList . foldr f M.empty
 
 
 -- | = numbers & time

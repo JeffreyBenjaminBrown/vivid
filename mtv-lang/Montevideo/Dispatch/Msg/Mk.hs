@@ -16,10 +16,6 @@ import Montevideo.Synth
 import Montevideo.Dispatch.Types
 
 
-set' :: VividAction m => Synth params -> Msg' params -> m ()
-set' _synth (Msg' m) = set _synth m
-
-
 -- | == per-synth boilerplate
 
 -- | = send a Map full of messages

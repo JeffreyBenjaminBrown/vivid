@@ -4,7 +4,7 @@ import           Data.Ratio
 
 
 fromCents :: Double -> Double
-fromCents cents = exp $ log 2 * unStretch cents
+fromCents _cents = exp $ log 2 * unStretch _cents
 
 -- | These should really be called "pence" -- 10ths of a cent.
 cents :: Floating a => Rational -> a

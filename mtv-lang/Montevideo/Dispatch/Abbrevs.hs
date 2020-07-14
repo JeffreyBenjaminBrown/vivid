@@ -71,8 +71,8 @@ mfl :: Ord k => [(k, a)] -> M.Map k a
 mfl = M.fromList
 
 hsToHz :: Float -> Museq l Msg -> Museq l Msg
-hsToHz fundamental =
-  freq $ (*) 300 . (\p -> 2**(p/12))
+hsToHz anchorInHz =
+  freq $ (*) anchorInHz . (\p -> 2**(p/12))
 
 amp, freq :: (Float -> Float) -> Museq l Msg -> Museq l Msg
 amp g = fmap $ M.adjust g "amp"

@@ -16,6 +16,7 @@ module Montevideo.Dispatch.Time (
   , timeToFinish         -- ^ Museq l a -> RTime
   ) where
 
+import Prelude hiding (cycle)
 import Control.Lens hiding (to,from)
 import Data.Fixed (div',mod')
 import qualified Data.Vector as V
@@ -154,7 +155,7 @@ _arcFold cycle period startVec time0 from to m =
 -- | `nextPhase0 time0 period now` finds the least time `t`
 -- greater than or equal to `now` such that for some integer `n`,
 -- `t = n * period + time0`.
-nextPhase0 :: RealFrac a
+nextPhase0 :: forall a. RealFrac a
            => a -- ^ the first time that had phase 0
            -> a -- ^ the duration of a cycle
            -> a -- ^ the time right now
@@ -163,9 +164,9 @@ nextPhase0 time0 period now =
   -- This might be a little over-optimized.
   -- It'd be simpler to write this in terms of `prevPhase0`,
   -- but then it would calculate `relativeNow` twice.
-  let relativeNow = now - time0
-      wholeElapsedCycles = div' relativeNow period
-      onBoundary = mod' relativeNow period == 0
+  let relativeNow        :: a    = now - time0
+      wholeElapsedCycles :: Int  = div' relativeNow period
+      onBoundary         :: Bool = mod' relativeNow period == 0
   in time0 + period * ( fi wholeElapsedCycles +
                         if onBoundary then 0 else 1 )
 

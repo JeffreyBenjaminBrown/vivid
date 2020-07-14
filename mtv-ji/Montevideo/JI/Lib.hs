@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Montevideo.JI.Lib where
@@ -11,8 +12,11 @@ import Montevideo.JI.Util
 import Montevideo.JI.Harmonics
 
 
+minNotes, maxNotes :: Integer
 minNotes = 12
 maxNotes = 60
+
+tols :: [Integer]
 tols = -- This list can have any length.
   -- It describes the maximum error for the first harmonics.
   (*10) <$> [5,7,9]
@@ -27,15 +31,17 @@ tols = -- This list can have any length.
 --          n = numerator
 --          e = edo frac
 
+compareScales :: IO ()
 compareScales = myPrint looking
 
 myPrint :: forall a t. (Foldable t, Show a)
   => t a -> IO ()
 myPrint = mapM_ $ putStrLn . show
 
+looking :: [(Integer, [Integer])]
 looking = let
-  f (d,errs) =
-    ( and $ zipWith (>=) tols $ map abs errs )
+  f (_, _errs) =
+    ( and $ zipWith (>=) tols $ map abs _errs )
   in filter f matrix
 
 matrix :: [(Integer, [Integer])]
@@ -70,14 +76,6 @@ errorSum weights =
   . map (^. _2 . _3)
   . bests
 
-bests :: Integer -> [(Rational, (Integer, Integer, Double))]
-bests d = (\r -> (r, best d r))
-          <$> [3%2,5%4,7%4,11%8,13%8]
-
-best :: Integer -> Rational -> (Integer, Integer, Double)
-best d r = L.minimumBy (comparing $ abs . (^. _3))
-           $ errs d r
-
 errs :: Floating a
      => Integer -> Rational -> [(Integer, Integer, a)]
 errs n r =
@@ -102,8 +100,9 @@ type Report = (Integer, Rational, Integer, Integer, Integer)
 -- | `intervals d` shows how the notes of
 -- `d`-edo approximate `just_intervals`.
 intervals :: Integer -> IO ()
-intervals = px . x
+intervals = px . whatIsThis
 
+px :: [Report] -> IO ()
 px = mapM_ putStrLn . map f where
   f :: Report -> String
   f (i,r,j,k,l) =
@@ -111,8 +110,8 @@ px = mapM_ putStrLn . map f where
     in show i ++ t ++ show r ++ "\t\t" ++
        show j ++ t ++ show k ++ t ++ show l
 
-x :: Integer -> [Report]
-x d = map f just_intervals where
+whatIsThis :: Integer -> [Report]
+whatIsThis d = map f just_intervals where
   less x = round $ x / 10
   f (c,r) = let
     (note, cNote, errNote) = best d r
@@ -126,5 +125,15 @@ just_intervals = let
 
 -- | `sum_errs d` gives the sum of the absolute values of the errors
 -- of `d`-edo in approximating the harmonics of interest.
+sum_errs :: Integer -> Double
 sum_errs d = sum $ abs . err_of_best <$> bests d
-err_of_best (_,(_,_,e)) = e
+  where
+    err_of_best (_,(_,_,e)) = e
+
+bests :: Integer -> [(Rational, (Integer, Integer, Double))]
+bests d = (\r -> (r, best d r))
+          <$> [3%2,5%4,7%4,11%8,13%8]
+
+best :: Integer -> Rational -> (Integer, Integer, Double)
+best d r = L.minimumBy (comparing $ abs . (^. _3))
+           $ errs d r

@@ -29,7 +29,7 @@ boop = sd ( toI Config.freq :: I "freq"
   sn2 <- sinOsc (freq_ $ 2 ~* (V::V "freq"))
   sn3 <- sinOsc (freq_ $ 3 ~* (V::V "freq"))
   sn4 <- sinOsc (freq_ $ 4 ~* (V::V "freq"))
-  sn5 <- sinOsc (freq_ $ 5 ~* (V::V "freq"))
+  -- sn5 <- sinOsc (freq_ $ 5 ~* (V::V "freq"))
   s1 <- lag (in_ (V::V "amp"), lagSecs_ 0.03)
         -- The lag smooths out discontinuities in the change in "amp".
         ~* 0.05 -- to prevent distortion

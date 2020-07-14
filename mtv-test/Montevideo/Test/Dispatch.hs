@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
+
 module Montevideo.Test.Dispatch where
 
 import Test.HUnit
