@@ -54,3 +54,4 @@ library
               , vivid-osc
               , mtv-synth
   default-language: Haskell2010
+  default-extensions: ScopedTypeVariables

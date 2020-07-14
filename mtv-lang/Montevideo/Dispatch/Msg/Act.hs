@@ -7,6 +7,8 @@
 --   At the requested time, the synth is silenced.
 --   Half a frame later, the synth is deleted.
 
+{-# LANGUAGE DataKinds #-}
+
 module Montevideo.Dispatch.Msg.Act (
     set'    -- ^ VividAction m => Synth params -> Msg' params -> m ()
   , act     -- ^ SynthRegister -> Time -> Action -> IO (SynthRegister -> SynthRegister)
