@@ -10,8 +10,8 @@ import Montevideo.Test.Monome.Windows
 import Montevideo.Test.Monome.JI
 
 
-tests :: IO Counts
-tests = runTestTT $ TestList [
+allTests :: IO Counts
+allTests = runTestTT $ TestList [
     Montevideo.Test.Dispatch.tests
   , Montevideo.Test.Util.tests
   , Montevideo.Test.Monome.Misc.tests

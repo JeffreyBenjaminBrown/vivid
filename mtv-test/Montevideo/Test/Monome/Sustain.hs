@@ -35,7 +35,10 @@ test_voicesToSilence_uponSustainOff = TestCase $ do
 
 test_toggleSustain :: Test
 test_toggleSustain = TestCase $ do
-  assertBool "turn sustain on" $
+  assertBool
+    (unlines [
+        "THE TEST: turn sustain on"
+        , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
     toggleSustain st_0f =^=
     ( st_0f & ( stApp . etLit . at pc0 . _Just
                 %~ S.insert LedBecauseSustain )
@@ -75,7 +78,10 @@ test_sustainHandler = TestCase $ do
   assertBool "releasing (not turning off) the sustain button has no effect"
     $ Su.handler st0 (meh , False) =^= st0
 
-  assertBool "turning ON sustain changes the sustain state, the set of sustained voices, the set of reasons for keys to be lit, and the messages pending to the monome." $
+  assertBool
+    (unlines [
+        "THE TEST: turning ON sustain changes the sustain state, the set of sustained voices, the set of reasons for keys to be lit, and the messages pending to the monome."
+        , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
     Su.handler st_0f (meh, True)
     =^= (st_0f & stApp . etSustaineded .~ Just (S.singleton v0)
                & stApp . etLit .~ M.singleton pc0
@@ -104,4 +110,3 @@ test_sustainHandler = TestCase $ do
                                           , _soundMsgPitch = Nothing
                                           , _soundMsgVal = 0
                                           , _soundMsgParam = "amp" } ] )
-

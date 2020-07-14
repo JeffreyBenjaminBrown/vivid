@@ -10,7 +10,7 @@ module Montevideo.Monome.Config where
 edo, spacing, skip :: Num a => a
 edo = 46  -- ^ Pick your temperament.
 
-spacing = 9 -- ^ Pick the number of edo steps between one row
+spacing = 6 -- ^ Pick the number of edo steps between one row
             -- and the next. Negative doesn't work yet.
 skip = 1 -- ^ For the Kite Guitar tuning, set (edo,spacing,skip) = (41,13,2).
   -- For any other tuning (barring another Kite-ish breakthrough), set skip=1.

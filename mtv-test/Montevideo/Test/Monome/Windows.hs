@@ -52,7 +52,10 @@ test_shiftHandler = TestCase $ do
 
 test_keyboardHandler :: Test
 test_keyboardHandler = TestCase $ do
-  assertBool "releasing a key sends off-messages to monome, sends off-messages to Vivid, removes something from _etFingers, and removes some things from _etLit" $
+  assertBool
+    (unlines [
+        "THE TEST: releasing a key sends off-messages to monome, sends off-messages to Vivid, removes something from _etFingers, and removes some things from _etLit"
+        , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
     K.handler st_01f (xy1, False)
     =^= ( st_0f
           & ( stPending_Monome .~
