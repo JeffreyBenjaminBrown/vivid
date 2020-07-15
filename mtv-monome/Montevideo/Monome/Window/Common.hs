@@ -46,9 +46,10 @@ silenceMsg xy = SoundMsg {
 etKey_SoundMsg :: St EdoApp -> ((X,Y), Switch) -> [SoundMsg EdoApp]
 etKey_SoundMsg st (xy, sw) = do
   let pitch = xyToEt31_st st xy
-  if maybe False (S.member xy) $ st ^. stApp . etSustaineded
+  if maybe False (S.member xy) $
+     st ^. stApp . etSustaineded
     then [] -- it's already sounding due to sustain
-    else if sw
+    else if sw -- sw <=> the key was pressed, rather than released
          then let msg = SoundMsg
                     { _soundMsgVoiceId = xy
                     , _soundMsgPitch = Just pitch

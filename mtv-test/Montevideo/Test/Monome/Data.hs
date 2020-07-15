@@ -38,10 +38,10 @@ st0 = St {
   , _stPending_Monome = []
   , _stPending_Vivid = []
   , _stApp = EdoApp { _etXyShift = (3,5)
-                   , _etFingers = mempty
-                   , _etLit = mempty
-                   , _etSustaineded = Nothing
-                   }
+                    , _etFingers = mempty
+                    , _etLit = mempty
+                    , _etSustaineded = Nothing
+                    }
   }
 
 st_0a = -- 0 is the anchor pitch

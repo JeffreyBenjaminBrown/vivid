@@ -36,15 +36,11 @@ test_etKey_SoundMsg = TestCase $ do
     etKey_SoundMsg st (sustainedVoice, True) == []
   assertBool "releasing a key that's sustained has no effect" $
     etKey_SoundMsg st (sustainedVoice, False) == []
-  assertBool
-    (unlines
-        [ "THE TEST: press a key that's not sustained."
-        , "THE ERROR: it's inthe first _soundMsgVal,"
-        , "and it depends on the values in Montevideo.Monome.Config" ] ) $
-    etKey_SoundMsg st (newVoice, True) ==
+  assertBool "press a key that's not sustained.\n" $
+    etKey_SoundMsg st (newVoice, False) ==
     [ SoundMsg { _soundMsgVoiceId = newVoice
                , _soundMsgPitch = Just newPitch
-               , _soundMsgVal = 100 * et31ToFreq newPitch
+               , _soundMsgVal = Config.freq * et31ToFreq newPitch
                , _soundMsgParam = "freq" }
     , SoundMsg { _soundMsgVoiceId = newVoice
                , _soundMsgPitch = Just newPitch
