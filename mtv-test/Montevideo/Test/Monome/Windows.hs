@@ -59,6 +59,10 @@ test_keyboardHandler = TestCase $ do
     K.handler st_01f (xy1, False)
     =^= ( st_0f
           & ( stPending_Monome .~
+              -- This is the part that fails. Verify with this:
+              -- x = Kb.handler st_01f (xy1, False) ^. stPending_Monome
+              -- y = ( map (\xy -> (Kb.label, (xy, False)) )
+              --   (pcToXys (st_01f ^. stApp . etXyShift) pitch1 ) )
               map (\xy -> (K.label, (xy, False)) )
               (pcToXys (st_01f ^. stApp . etXyShift) pitch1 ) )
           & stPending_Vivid .~ [SoundMsg { _soundMsgVoiceId = v1

@@ -11,7 +11,8 @@ edo, spacing, skip :: Num a => a
 edo = 46  -- ^ Pick your temperament.
 
 spacing = 6 -- ^ Pick the number of edo steps between one row
-            -- and the next. Negative doesn't work yet.
+            -- and the next. Positive numbers only.
+            -- TODO : Permit negative spacing.
 skip = 1 -- ^ For the Kite Guitar tuning, set (edo,spacing,skip) = (41,13,2).
   -- For any other tuning (barring another Kite-ish breakthrough), set skip=1.
   -- TODO : Make the LEDs understand this.

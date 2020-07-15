@@ -1,4 +1,9 @@
 :set prompt "> "
+
+-- permits multi-line GHCI expressions without :{ :}
+:set +m
+:set prompt-cont "| "
+
 :set -XDataKinds
 :set -XTupleSections
 :set -XScopedTypeVariables
@@ -18,6 +23,10 @@ import           Data.Maybe
 import qualified Data.Set           as S
 import qualified Data.Vector        as V
 import qualified Text.Pretty.Simple as Pr
+
+import Montevideo.Monome.Window.Shift as Sh
+import Montevideo.Monome.Window.Keyboard as Kb
+import Montevideo.Monome.Window.Sustain as Su
 
 import Vivid
 -- import Vivid.Actions

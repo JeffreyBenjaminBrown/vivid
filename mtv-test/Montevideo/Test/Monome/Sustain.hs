@@ -41,8 +41,18 @@ test_toggleSustain = TestCase $ do
         , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
     toggleSustain st_0f =^=
     ( st_0f & ( stApp . etLit . at pc0 . _Just
+                -- This is the only part that fails. Verify with:
+                -- x = toggleSustain st_0f
+                -- y = ( st_0f & ( stApp . etLit . at pc0 . _Just
+                --               %~ S.insert LedBecauseSustain )
+                --       & stApp . etSustaineded .~ Just (S.singleton v0 ) )
+                -- x ^. stApp . etLit . at pc0 . _Just
+                -- y ^. stApp . etLit . at pc0 . _Just
+                -- x ^. stApp . etSustaineded
+                -- y ^. stApp . etSustaineded
                 %~ S.insert LedBecauseSustain )
             & stApp . etSustaineded .~ Just (S.singleton v0 ) )
+
   assertBool "turn sustain off" $
     toggleSustain st_0s
     =^= ( st_0s & stApp . etLit .~ mempty
@@ -84,11 +94,15 @@ test_sustainHandler = TestCase $ do
         , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
     Su.handler st_0f (meh, True)
     =^= (st_0f & stApp . etSustaineded .~ Just (S.singleton v0)
-               & stApp . etLit .~ M.singleton pc0
-                 ( S.fromList [ LedBecauseSustain
-                              , LedBecauseSwitch xy0 ] )
-               & stPending_Monome .~
-                 [ (Su.label, (Su.theButton, True)) ] )
+          & ( -- This is the (only) part that fails. Verify failure with:
+              -- x = Su.handler st_0f (meh, True) ^. stApp . etLit
+              -- y = M.singleton pc0 $ S.fromList [ LedBecauseSustain
+              --                                  , LedBecauseSwitch xy0 ]
+            stApp . etLit .~ M.singleton pc0
+              ( S.fromList [ LedBecauseSustain
+                           , LedBecauseSwitch xy0 ] ) )
+          & stPending_Monome .~
+          [ (Su.label, (Su.theButton, True)) ] )
 
   assertBool ( "turning sustain OFF does all this stuff:\n" ++
                "flip the sustain state\n" ++
