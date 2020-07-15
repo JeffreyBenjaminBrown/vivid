@@ -1,7 +1,7 @@
 mergeIO :: forall a. Show a =>
   (a -> a -> a) -> Museq a -> Museq a -> IO (Museq a)
 mergeIO op x y = do
-  let tbr = timeForBothToRepeat x y
+  let tbr = timeForBoth_toAppearToFinish x y
       xs, ys, xps, yps :: [((RTime,RTime),a)]
       xs = concatMap V.toList $ unsafeExplicitReps tbr x
       ys = concatMap V.toList $ unsafeExplicitReps tbr y

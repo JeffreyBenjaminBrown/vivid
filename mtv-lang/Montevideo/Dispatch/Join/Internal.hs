@@ -1,8 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables, ViewPatterns, TupleSections #-}
 
 module Montevideo.Dispatch.Join.Internal (
-    timeForBothToRepeat      -- ^ Museq l a -> Museq m b -> RTime
-  , timeForBothToPlayThrough -- ^ Museq l a -> Museq m b -> RTime
+    timeForBoth_toAppearToFinish      -- ^ Museq l a -> Museq m b -> RTime
+  , timeForBoth_toFinish -- ^ Museq l a -> Museq m b -> RTime
   , explicitReps -- ^ forall a. Museq l a -> [V.Vector (Ev l a)]
   , unsafeExplicitReps -- ^ forall l a.
      -- RTime -> Museq l a -> [V.Vector (Ev l a)]
@@ -27,12 +27,12 @@ import Montevideo.Dispatch.Types
 import Montevideo.Util
 
 
-timeForBothToRepeat :: Museq l a -> Museq m b -> RTime
-timeForBothToRepeat x y =
+timeForBoth_toAppearToFinish :: Museq l a -> Museq m b -> RTime
+timeForBoth_toAppearToFinish x y =
   RTime $ lcmRatios (tr $ timeToAppearToFinish x) (tr $ timeToAppearToFinish y)
 
-timeForBothToPlayThrough :: Museq l a -> Museq m b -> RTime
-timeForBothToPlayThrough x y =
+timeForBoth_toFinish :: Museq l a -> Museq m b -> RTime
+timeForBoth_toFinish x y =
   RTime $ lcmRatios (tr $ timeToFinish x) (tr $ timeToFinish y)
 
 -- | If L is the length of time such that `m` finishes at phase 0,

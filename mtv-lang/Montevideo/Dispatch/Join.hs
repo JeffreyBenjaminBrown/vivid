@@ -152,7 +152,7 @@ stack' :: Museq l a -> Museq l a -> Museq l a
 stack' (null . _vec -> True) x = x
 stack' x (null . _vec -> True) = x
 stack' x y =
-  let t = timeForBothToPlayThrough x y
+  let t = timeForBoth_toFinish x y
       xs = unsafeExplicitReps t x
       ys = unsafeExplicitReps t y
   in sortMuseq $ Museq { _dur = max (_dur x) (_dur y)
@@ -190,7 +190,7 @@ merge op a b = _merge (labelsToStrings a) (labelsToStrings b) where
                      , _sup = tbr
                      , _vec = V.fromList
                               $ alignAndJoin op xps yps } where
-    tbr = timeForBothToRepeat x y
+    tbr = timeForBoth_toAppearToFinish x y
     xs, xps :: [Event RTime String a]
     ys, yps :: [Event RTime String b]
     xs = concatMap V.toList $ unsafeExplicitReps tbr x
@@ -306,7 +306,7 @@ meta f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
   _meta f x = sortMuseq $ Museq { _dur = _dur x -- arbitrary
                                 , _sup = tbr
                                 , _vec = V.fromList evs } where
-    tbr = timeForBothToRepeat f x
+    tbr = timeForBoth_toAppearToFinish f x
     fs :: [Ev String (Museq String x -> Museq String y)]
     fs = concatMap V.toList $ unsafeExplicitReps tbr f
     prefixLabels :: String -> Museq String x -> Museq String x
@@ -329,7 +329,7 @@ meta' f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
         -> [Ev String y]
 
   _meta f x = evs where
-    tbr = timeForBothToRepeat f x
+    tbr = timeForBoth_toAppearToFinish f x
     fs :: [Ev String (Museq String x -> Museq String y)]
     fs = concatMap V.toList $ unsafeExplicitReps tbr f
     prefixLabels :: String -> Museq String x -> Museq String x
@@ -363,7 +363,7 @@ meta'' ff0 x0 = _meta (labelsToStrings ff0) (labelsToStrings x0) where
            , [Event Time String y] )
 
   _meta ff1 x1 = (tbr, fxs, ews) where
-    tbr = timeForBothToRepeat ff1 x1
+    tbr = timeForBoth_toAppearToFinish ff1 x1
 
     ffs :: [Ev String ( String
                       , Museq String x -> Museq String y )]
