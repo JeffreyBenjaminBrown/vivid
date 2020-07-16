@@ -32,10 +32,20 @@ import Montevideo.Synth.Boop_Monome
 type HostName = NS.HostName
 type Socket = NS.Socket
 
+-- | X and Y are coordinates on the monome.
+-- PITFALL: X rises from left to right, but Y rises from top to bottom.
+-- Thus (0,1) is just under the top-left corner.
+-- PITFALL: The monome will respond to out-of-bounds (x,y) values.
+-- I don't use that feature.
+type X = Int
+type Y = Int
+
+type Switch = Bool -- | Whether a monome button is pressed.
+type Led    = Bool -- | Whether a monome LED is lit.
+
 type Param = String
 type WindowId = String
-type VoiceId = (Int,Int) -- ^ I would call this (X,Y),
-                         -- but it would require a cyclic dependency.
+type VoiceId = (X,Y)
 
 -- | In the Equal Tempered app, Pitch is isomorphic to the integers, and
 -- PitchClass is isomorphic to the integers modulo 31.
@@ -93,17 +103,6 @@ instance (Eq (Pitch app), Ord (Pitch app))
     else if not $ _soundMsgVal a     == _soundMsgVal b
     then          _soundMsgVal a     <= _soundMsgVal b
     else          _soundMsgParam a   <= _soundMsgParam b
-
--- | X and Y are coordinates on the monome.
--- PITFALL: X rises from left to right, but Y rises from top to bottom.
--- Thus (0,1) is just under the top-left corner.
--- PITFALL: The monome will respond to out-of-bounds (x,y) values.
--- I don't use that feature.
-type X = Int
-type Y = Int
-
-type Switch = Bool -- | Whether a monome button is pressed.
-type Led    = Bool -- | Whether a monome LED is lit.
 
 -- | The reason a (pitch class of) LED(s) in the keyboard window is lit.
 data LedBecause =
