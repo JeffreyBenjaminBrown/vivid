@@ -68,7 +68,7 @@ sends on address 12002. (There mimght be a way to change that if you need to;
 you could ask those guys.)
 
 From the `monome/` folder, start a REPL as before, by running `stack ghci`.
-In that REPL, run the command `listenAndPrintOsc 8000`.
+In that REPL, run the command `listenAndLogOsc 8000`.
 This will listen for OSC messages, at port 8000.
 (You could use another value instead of 8000 if you want.)
 
@@ -78,7 +78,7 @@ toSerialosc <- sendsTo (unpack localhost) 12002
 send toSerialosc $ requestDeviceList 8000
 ```
 
-The `listenAndPrintOsc` in the first REPL should now show something like this:
+The `listenAndLogOsc` in the first REPL should now show something like this:
 `OSC "/serialosc/device" [OSC_S "m0000102",OSC_S "monome 256",OSC_I 13993]`
 
 That indicates there's a monome called `m0000102`, with 256 keys,
@@ -98,7 +98,7 @@ Next, after replacing that text,
 we have to find out what prefix your monome is listening to.
 (I don't know why; maybe two monomes can be listening on the same port?)
 To do that, go to the second REPL (the one that's not running
-`listenAndPrintOsc`), and run these two commands:
+`listenAndLogOsc`), and run these two commands:
 ```
 toMonome <- sendsTo (unpack localhost) 13993
 send toMonome $ requestDeviceInfo 11111
@@ -106,7 +106,7 @@ send toMonome $ requestDeviceInfo 11111
 
 (Rather than 13993,
 use whatever the port is that your monome is actually listening on,
-as found earlier.) The `listenAndPrintOsc`
+as found earlier.) The `listenAndLogOsc`
 in the first REPL should now show something like this:
 ```
 OSC "/sys/id" [OSC_S "m0000102"]

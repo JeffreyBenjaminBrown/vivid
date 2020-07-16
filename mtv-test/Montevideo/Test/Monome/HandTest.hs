@@ -20,7 +20,7 @@ testToPort port = do
 
 -- | Test the monome.
 
--- listenAndPrintOsc 8000
+-- listenAndLogOsc 8000
 -- toSerialosc <- sendsTo (unpack localhost) 12002
 -- send toSerialosc $ requestDeviceList 8000
 

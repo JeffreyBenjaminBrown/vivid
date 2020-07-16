@@ -26,7 +26,7 @@ library
     , Montevideo.Monome.JiScales
     , Montevideo.Monome.Main
     , Montevideo.Monome.Math31
-    , Montevideo.Monome.Network.ListenAndPrintOsc
+    , Montevideo.Monome.Network.ListenAndLogOsc
     , Montevideo.Monome.Network.Monome
     , Montevideo.Monome.Network.Util
     , Montevideo.Monome.Synth.Boop
