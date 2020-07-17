@@ -21,7 +21,7 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set as S
 
-import           Montevideo.Monome.Math31
+import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types.Button
 import           Montevideo.Monome.Types.Initial
 import           Montevideo.Monome.Window.Common

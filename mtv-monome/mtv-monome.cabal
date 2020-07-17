@@ -25,7 +25,7 @@ library
       Montevideo.Monome.Config
     , Montevideo.Monome.JiScales
     , Montevideo.Monome.Main
-    , Montevideo.Monome.Math31
+    , Montevideo.Monome.EdoMath
     , Montevideo.Monome.Network.ListenAndLogOsc
     , Montevideo.Monome.Network.Monome
     , Montevideo.Monome.Network.Util

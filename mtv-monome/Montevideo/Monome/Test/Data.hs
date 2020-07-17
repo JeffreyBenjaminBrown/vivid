@@ -10,7 +10,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 import Montevideo.Monome.Types.Initial
-import Montevideo.Monome.Math31
+import Montevideo.Monome.EdoMath
 
 
 meh :: a

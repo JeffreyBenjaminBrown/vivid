@@ -1,9 +1,11 @@
+-- | Math for equal divisions of the octave.
+
 {-# LANGUAGE DataKinds
 , ExtendedDefaultRules
 , OverloadedStrings
 , TupleSections #-}
 
-module Montevideo.Monome.Math31 (
+module Montevideo.Monome.EdoMath (
     et31ToFreq      -- ^ Pitch -> Float
   , xyToEt31        -- ^ (X,Y) -> Pitch
   , xyToEt31_st     -- ^ St EdoApp -> (X,Y) -> Pitch EdoApp

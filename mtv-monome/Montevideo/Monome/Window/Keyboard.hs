@@ -18,7 +18,7 @@ import qualified Data.Set as S
 import           Data.Set (Set)
 
 import qualified Montevideo.Monome.Config as Config
-import           Montevideo.Monome.Math31
+import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types.Button
 import           Montevideo.Monome.Types.Initial
 import           Montevideo.Monome.Window.Common
