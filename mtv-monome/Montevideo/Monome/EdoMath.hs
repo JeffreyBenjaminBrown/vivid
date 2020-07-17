@@ -25,7 +25,7 @@ et31ToFreq :: Pitch EdoApp -> Float
 et31ToFreq f =
   let two :: Float = realToFrac $ fromCents $
                      10 * (1200 + C.octaveStretchInCents)
-  in two**(fi f / C.edo)
+  in two**(fi f / fi C.edo)
 
 xyToEt31_st :: St EdoApp -> (X,Y) -> Pitch EdoApp
 xyToEt31_st st xy =

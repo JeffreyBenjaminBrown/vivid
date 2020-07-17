@@ -9,9 +9,25 @@ import           Control.Lens
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import Montevideo.Monome.Types.Initial
+import Montevideo.Monome.Config
 import Montevideo.Monome.EdoMath
+import Montevideo.Monome.Types.Initial
 
+
+config31, config22_stretch :: EdoConfig
+config31 = EdoConfig
+  { _edo = 46
+  , _spacing = 6
+  , _skip = 1
+  , _octaveStretchInCents = 0
+  }
+
+config22_stretch = EdoConfig
+  { _edo = 22
+  , _spacing = 5
+  , _skip = 1
+  , _octaveStretchInCents = -1.106
+  }
 
 meh :: a
 meh = error "not relevant to this test"
