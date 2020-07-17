@@ -15,17 +15,17 @@ module Montevideo.Monome.EdoMath (
   , vv, hv          -- ^ (X,Y)
   ) where
 
-import Montevideo.JI.Util (fromCents)
-import Montevideo.Monome.Config
-import Montevideo.Monome.Types.Initial
-import Montevideo.Util
+import qualified Montevideo.Monome.Config as C
+import           Montevideo.JI.Util (fromCents)
+import           Montevideo.Monome.Types.Initial
+import           Montevideo.Util
 
 
 et31ToFreq :: Pitch EdoApp -> Float
 et31ToFreq f =
   let two :: Float = realToFrac $ fromCents $
-                     10 * (1200 + octaveStretchInCents)
-  in two**(fi f / edo)
+                     10 * (1200 + C.octaveStretchInCents)
+  in two**(fi f / C.edo)
 
 xyToEt31_st :: St EdoApp -> (X,Y) -> Pitch EdoApp
 xyToEt31_st st xy =
@@ -36,7 +36,7 @@ xyToEt31_st st xy =
 -- 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,0]
 -- (notice the 0 at the end).
 xyToEt31 :: (X,Y) -> Pitch EdoApp
-xyToEt31 (x,y) = spacing * x + (skip*y)
+xyToEt31 (x,y) = C.spacing * x + (C.skip*y)
 
 pcToXys :: (X,Y) -> PitchClass EdoApp -> [(X,Y)]
 pcToXys shift pc =
@@ -64,13 +64,14 @@ enharmonicToXYs btn = let
 -- | The numerically lowest (closest to the top-left corner)
 -- member of a pitch class, if the monome is not shifted (modulo octaves).
 et31ToLowXY :: PitchClass EdoApp -> (X,Y)
-et31ToLowXY i = (div j spacing, mod j spacing)
-  where j = mod i edo
+et31ToLowXY i = ( div j C.spacing
+                , mod j C.spacing )
+  where j = mod i C.edo
 
 -- | `hv` and `vv` form The smallest, most orthogonal set of
 -- basis vectors possible for the octave grid.
--- They are most easily understood via example. Suppose `Config.edo = 31`,
--- and `Config.spacing = 6`. Then to reach the next octave horizontally,
+-- They are most easily understood via example. Suppose `C.edo = 31`,
+-- and `C.spacing = 6`. Then to reach the next octave horizontally,
 -- one must move right 5 spaces and down 1. To move to the same note
 -- in the previous column, one must move down 6 and left 1.
 -- Accordingly, the values for hv and vv are these:
@@ -82,11 +83,11 @@ et31ToLowXY i = (div j spacing, mod j spacing)
 -- with (0,0) in the top-left corner.)
 
 vv, hv :: (X,Y)
-vv = (-1,spacing)
+vv = (-1, C.spacing)
 hv = let
   x = -- the first multiple of spacing greater than or equal to edo
-    head $ filter (>= edo) $ (*spacing) <$> [1..]
-  v1 = (div x spacing, edo - x)
+    head $ filter (>= C.edo) $ (*C.spacing) <$> [1..]
+  v1 = (div x C.spacing, C.edo - x)
   v2 = pairAdd v1 vv
   in if abs (dot vv v1) <= abs (dot vv v2)
      then           v1  else           v2
