@@ -67,6 +67,18 @@ et31ToLowXY i = (div j spacing, mod j spacing)
 
 -- | `hv` and `vv` form The smallest, most orthogonal set of
 -- basis vectors possible for the octave grid.
+-- They are most easily understood via example. Suppose `Config.edo = 31`,
+-- and `Config.spacing = 6`. Then to reach the next octave horizontally,
+-- one must move right 5 spaces and down 1. To move to the same note
+-- in the previous column, one must move down 6 and left 1.
+-- Accordingly, the values for hv and vv are these:
+-- > hv
+-- (5,1)
+-- > vv
+-- (-1,6)
+-- (Remember, coordinates on the monome are expressed CGI-style,
+-- with (0,0) in the top-left corner.)
+
 vv, hv :: (X,Y)
 vv = (-1,spacing)
 hv = let
