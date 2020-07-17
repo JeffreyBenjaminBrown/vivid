@@ -17,11 +17,12 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 import           Data.Set (Set)
 
-import Montevideo.Monome.Math31
-import Montevideo.Monome.Types.Button
-import Montevideo.Monome.Types.Initial
-import Montevideo.Util
-import Montevideo.Monome.Window.Common
+import qualified Montevideo.Monome.Config as Config
+import           Montevideo.Monome.Math31
+import           Montevideo.Monome.Types.Button
+import           Montevideo.Monome.Types.Initial
+import           Montevideo.Monome.Window.Common
+import           Montevideo.Util
 
 
 label :: WindowId
@@ -47,7 +48,7 @@ handler    st          press@ (xy,sw)   = let
             True  -> M.insert xy xy
             False -> M.delete xy
   pcNow :: (PitchClass EdoApp) =
-    mod (xyToEt31_st st xy) edo
+    mod (xyToEt31_st st xy) Config.edo
     -- what the key represents currently
   pcThen :: Maybe (PitchClass EdoApp) =
     ledBecause_toPitchClass @ EdoApp

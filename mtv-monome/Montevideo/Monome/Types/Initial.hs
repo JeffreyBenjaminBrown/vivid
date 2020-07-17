@@ -48,16 +48,16 @@ type WindowId = String
 type VoiceId = (X,Y)
 
 -- | In the Equal Tempered app, Pitch is isomorphic to the integers, and
--- PitchClass is isomorphic to the integers modulo 31.
--- That is, PitchClass 0 is identical to PitchClass 31,
+-- PitchClass is isomorphic to the integers modulo the edo (e.g. 31).
+-- That is, in 31-edo, PitchClass 0 is identical to PitchClass 31,
 -- whereas Pitch 31 is an octave above Pitch 0.
 -- Pitch classes are (so far) only relevant in the visual context:
 -- if a key is lit up on the keyboard, so are all enharmonic notes,
 -- in all octaves.
 --
 -- In the Just Tempered app, Pitch is isomorphic to the rationals,
--- and pitch class is isomorphic to the rationals modulo powers of 2 --
--- i.e. the rationals in the half-open interval [1,2).
+-- and pitch class is isomorphic to the rationals modulo octaves
+-- (powers of 2) -- so, for instance, 1 == 2 == 4 and (3/2) == 3 == 6.
 type family Pitch app
 type family PitchClass app
 
@@ -77,7 +77,7 @@ type LedMsg     = (WindowId, ((X,Y), Led))
 data SoundMsg app = SoundMsg {
     _soundMsgVoiceId :: VoiceId
   , _soundMsgPitch   :: Maybe (Pitch app)
-    -- ^ messages like "off" don't need one
+    -- ^ Messages like "amp=0" don't need a pitch.
   , _soundMsgVal     :: Float
   , _soundMsgParam   :: Param }
 
@@ -131,6 +131,11 @@ instance Eq (Window app) where
 instance Show (Window app) where
   show = windowLabel
 
+-- | The app allows the monome to control "voices" in SuperCollider.
+-- The `Synth` of a `Voice` is fixed, but the other values can change.
+-- (It's possible to accomplish a lot without tracking the state of voices.
+-- This type was introduced fairly late,
+-- and might not be used everywhere it should.)
 data Voice app = Voice {
     _voiceSynth  :: Synth BoopParams
   , _voicePitch  :: Pitch app
@@ -156,9 +161,10 @@ data St app = St {
   , _stToMonome :: Socket -- ^ PITFALL: It's tempting to remove this from St.
     -- That's feasible now, ll want it here when using multiple monomes.
   , _stVoices :: Map VoiceId (Voice app)
-    -- ^ TODO ? This is expensive, precluding the use of big synths.
-    -- Maybe I could make them dynamically without much speed penalty.
-    -- Tom of Vivid thinks so.
+    -- ^ TODO ? This is expensive and wasteful, because most of the 256
+    -- voice IDs are not used most of the time. It precludes using big synths.
+    -- Better to make them dynamically.
+    -- Tom of Vivid thinks it would impose no speed penalty.
 
   -- | The purpose of `_stPending_Monome` and `_stPending_Vivid`
   -- is to isolate side-effects to a small portion of the code. Elsewhere,
@@ -197,10 +203,14 @@ data EdoApp = EdoApp
     -- identified by the key that originally launched it.
   } deriving (Show, Eq)
 
+-- | I don't really use this.
+-- If I remember right, the jiGenerator and the jiShifts are equivalent;
+-- they might be better named "horizontal intervals" and "vertical intervals".
 data JiApp = JiApp
   { _jiGenerator :: [Rational]
   , _jiShifts :: [Rational]
-  , _jiFingers :: Map (X,Y) VoiceId }
+  , _jiFingers :: Map (X,Y) VoiceId -- ^ just like in the EdoApp
+  }
   deriving (Show, Eq)
 
 makeLenses ''SoundMsg
