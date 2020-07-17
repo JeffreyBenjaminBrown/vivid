@@ -63,8 +63,9 @@ handler    st0         (_,  False)      = st0
 handler    st0         (xy, True )      = let
   st' :: St EdoApp = st0 & stApp . etXyShift %~ pairAdd (shift xy)
   lit :: [PitchClass EdoApp] = M.keys $ st0 ^. stApp . etLit
+  pcToXys' = pcToXys $ st0 ^. stApp . etConfig
   msgs :: [LedMsg] =
     map (Kbd.label,) $
-    (map (,False) $ concatMap (pcToXys $ st0 ^. stApp . etXyShift) lit) ++
-    (map (,True)  $ concatMap (pcToXys $ st' ^. stApp . etXyShift) lit)
+    (map (,False) $ concatMap (pcToXys' $ st0 ^. stApp . etXyShift) lit) ++
+    (map (,True)  $ concatMap (pcToXys' $ st' ^. stApp . etXyShift) lit)
   in st' & stPending_Monome %~ flip (++) msgs

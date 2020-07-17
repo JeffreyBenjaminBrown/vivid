@@ -52,7 +52,8 @@ handler    st    (_,  True)      = let
   kbdMsgs :: [LedMsg] =
     if null $ st1 ^. stApp . etSustaineded
     then map ( (Kbd.label,) . (,False) ) $
-         concatMap (pcToXys $ st ^. stApp . etXyShift) $
+         concatMap (pcToXys (st ^. stApp . etConfig)
+                            (st ^. stApp . etXyShift)) $
          pitchClassesToDarken_uponSustainOff st st1
     else []
   sdMsgs :: [SoundMsg EdoApp] =

@@ -38,19 +38,19 @@ xyToEt31_st st xy =
 xyToEt31 :: (X,Y) -> Pitch EdoApp
 xyToEt31 (x,y) = C.spacing * x + (C.skip*y)
 
-pcToXys :: (X,Y) -> PitchClass EdoApp -> [(X,Y)]
-pcToXys shift pc =
-  enharmonicToXYs $
-  pairAdd (et31ToLowXY pc) shift
+pcToXys :: EdoConfig -> (X,Y) -> PitchClass EdoApp -> [(X,Y)]
+pcToXys ec shift pc =
+  enharmonicToXYs ec $
+  pairAdd (et31ToLowXY ec pc) shift
 
 -- | A (maybe proper) superset of all keys that sound the same note
 -- (modulo octave) visible on the monome.
 --
 -- TODO ? (speed) This computes a lot of out-of-range values.
 -- (The higher the edo, the lesser this problem.)
-enharmonicToXYs :: (X,Y) -> [(X,Y)]
-enharmonicToXYs btn = let
-  low = et31ToLowXY $ xyToEt31 btn
+enharmonicToXYs :: EdoConfig -> (X,Y) -> [(X,Y)]
+enharmonicToXYs ec btn = let
+  low = et31ToLowXY ec $ xyToEt31 btn
   ((v1,v2),(h1,h2)) = (vv,hv)
   wideGrid = [
     ( i*h1 + j*v1
@@ -63,10 +63,10 @@ enharmonicToXYs btn = let
 
 -- | The numerically lowest (closest to the top-left corner)
 -- member of a pitch class, if the monome is not shifted (modulo octaves).
-et31ToLowXY :: PitchClass EdoApp -> (X,Y)
-et31ToLowXY i = ( div j C.spacing
-                , mod j C.spacing )
-  where j = mod i C.edo
+et31ToLowXY :: EdoConfig -> PitchClass EdoApp -> (X,Y)
+et31ToLowXY ec i = ( div j $ _spacing ec
+                   , mod j $ _spacing ec )
+  where j = mod i $ _edo ec
 
 -- | `hv` and `vv` form The smallest, most orthogonal set of
 -- basis vectors possible for the octave grid.

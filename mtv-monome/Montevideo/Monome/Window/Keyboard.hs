@@ -36,7 +36,8 @@ keyboardWindow =  Window {
   , windowInit = \st ->
       st & stPending_Monome %~
       flip (++) ( map ( (label,) . (,True) ) $
-                  concatMap (pcToXys $ st ^. stApp . etXyShift) $
+                  concatMap (pcToXys (st ^. stApp . etConfig)
+                                     (st ^. stApp . etXyShift) ) $
                   M.keys $ st ^. stApp . etLit )
   , windowRoutine = handler }
 
@@ -64,9 +65,11 @@ handler    st          press@ (xy,sw)   = let
   kbdMsgs :: [LedMsg] =
     map (label,) $
     ( map (,False) $
-      concatMap (pcToXys $ st ^. stApp . etXyShift) toDark) ++
+      concatMap (pcToXys (st ^. stApp . etConfig)
+                         (st ^. stApp . etXyShift) ) toDark) ++
     ( map (,True)  $
-      concatMap (pcToXys $ st ^. stApp . etXyShift) toLight)
+      concatMap (pcToXys (st ^. stApp . etConfig)
+                         (st ^. stApp . etXyShift) ) toLight)
   soundMsgs :: [SoundMsg EdoApp] = etKey_SoundMsg st press
   st1 :: St EdoApp = st
     & stApp . etFingers .~ fingers'

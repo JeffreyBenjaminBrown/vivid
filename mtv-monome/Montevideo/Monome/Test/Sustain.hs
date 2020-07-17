@@ -119,7 +119,8 @@ test_sustainHandler = TestCase $ do
           & stPending_Monome .~
           ( ( Su.label, (Su.theButton, False)) :
             map (\xy -> (K.label, (xy, False)))
-            (pcToXys (st_0fs_1s ^. stApp . etXyShift) pc1) )
+            (pcToXys (st_0fs_1s ^. stApp . etConfig)
+                     (st_0fs_1s ^. stApp . etXyShift) pc1) )
           & stPending_Vivid .~ [ SoundMsg { _soundMsgVoiceId = v1
                                           , _soundMsgPitch = Nothing
                                           , _soundMsgVal = 0

@@ -34,8 +34,8 @@ test_shiftHandler = TestCase $ do
     oldShift = st_0a ^. stApp . etXyShift
     newShift = pairAdd oldShift $ Sh.shift Sh.downArrow
     msgs :: [LedMsg] = map (K.label,)
-      $  map (,False) (pcToXys oldShift pc0)
-      ++ map (,True)  (pcToXys newShift pc0)
+      $  map (,False) (pcToXys (st_0a ^. stApp . etConfig) oldShift pc0)
+      ++ map (,True)  (pcToXys (st_0a ^. stApp . etConfig) newShift pc0)
     in Sh.handler st_0a (Sh.downArrow, True)
     =^= (st_0a & stPending_Monome .~ msgs
                & stApp . etXyShift .~ newShift)
@@ -44,8 +44,8 @@ test_shiftHandler = TestCase $ do
     oldShift = st_0a ^. stApp . etXyShift
     newShift = pairAdd oldShift $ Sh.shift Sh.upOctave
     msgs :: [LedMsg] = map (K.label,)
-      $  map (,False) (pcToXys oldShift pc0)
-      ++ map (,True)  (pcToXys newShift pc0)
+      $  map (,False) (pcToXys (st_0a ^. stApp . etConfig) oldShift pc0)
+      ++ map (,True)  (pcToXys (st_0a ^. stApp . etConfig) newShift pc0)
     in Sh.handler st_0a (Sh.upOctave, True) =^=
        (st_0a & stPending_Monome .~ msgs
               & stApp . etXyShift .~ newShift)
@@ -64,7 +64,8 @@ test_keyboardHandler = TestCase $ do
               -- y = ( map (\xy -> (Kb.label, (xy, False)) )
               --   (pcToXys (st_01f ^. stApp . etXyShift) pitch1 ) )
               map (\xy -> (K.label, (xy, False)) )
-              (pcToXys (st_01f ^. stApp . etXyShift) pitch1 ) )
+              (pcToXys (st_01f ^. stApp . etConfig)
+                       (st_01f ^. stApp . etXyShift) pitch1 ) )
           & stPending_Vivid .~ [SoundMsg { _soundMsgVoiceId = v1
                                          , _soundMsgPitch = Nothing
                                          , _soundMsgVal = 0
@@ -99,5 +100,6 @@ test_keyboardHandler = TestCase $ do
     =^= ( st_01f
           & ( stPending_Monome .~
               map (\xy -> (K.label, (xy, True)) )
-              (pcToXys (st_01f ^. stApp . etXyShift) pitch1 ) )
+              (pcToXys (st_01f ^. stApp . etConfig)
+                       (st_01f ^. stApp . etXyShift) pitch1 ) )
           & stPending_Vivid .~ etKey_SoundMsg st0 (xy1,True) )

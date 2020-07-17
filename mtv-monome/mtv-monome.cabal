@@ -33,6 +33,7 @@ library
     , Montevideo.Monome.Synth.Zot
     , Montevideo.Monome.Types.Button
     , Montevideo.Monome.Types.Device
+    , Montevideo.Monome.Types.EdoConfig
     , Montevideo.Monome.Types.Initial
     , Montevideo.Monome.Types.Window
     , Montevideo.Monome.Window.Common

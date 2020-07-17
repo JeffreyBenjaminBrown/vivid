@@ -4,7 +4,8 @@ UndecidableInstances,
 TemplateHaskell #-}
 
 module Montevideo.Monome.Types.Initial (
-    HostName, Socket
+    module Montevideo.Monome.Types.EdoConfig
+  , HostName, Socket
   , Param, WindowId, VoiceId
   , LitPitches
   , LedMsg
@@ -14,7 +15,7 @@ module Montevideo.Monome.Types.Initial (
   , LedBecause(..)
   , Window(..)
   , Voice(..), voiceSynth, voicePitch, voiceParams
-  , St(..), stApp, stWindowLayers, stToMonome, stVoices
+  , St(..), etConfig, stApp, stWindowLayers, stToMonome, stVoices
     , stPending_Monome, stPending_Vivid
   , EdoApp(..), etXyShift, etFingers, etLit, etSustaineded
   , JiApp(..), jiGenerator, jiShifts, jiFingers
@@ -26,6 +27,7 @@ import           Data.Set
 import qualified Network.Socket as NS
 import           Vivid hiding (Param)
 
+import Montevideo.Monome.Types.EdoConfig
 import Montevideo.Synth.Boop_Monome
 
 
@@ -192,7 +194,8 @@ instance (Eq app, Eq (Pitch app)) => Eq (St app) where
     , _stPending_Vivid a  == _stPending_Vivid b ]
 
 data EdoApp = EdoApp
-  { _etXyShift :: (X,Y) -- ^ this is relative -- a vector, not a point
+  { _etConfig :: EdoConfig
+  , _etXyShift :: (X,Y) -- ^ this is relative -- a vector, not a point
   , _etFingers :: Map (X,Y) VoiceId
     -- ^ Where fingers are, what each is sounding,
     -- and what each is lighting up.

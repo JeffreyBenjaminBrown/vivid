@@ -16,7 +16,7 @@ import Montevideo.Monome.Types.Initial
 
 config31, config22_stretch :: EdoConfig
 config31 = EdoConfig
-  { _edo = 46
+  { _edo = 31
   , _spacing = 6
   , _skip = 1
   , _octaveStretchInCents = 0
