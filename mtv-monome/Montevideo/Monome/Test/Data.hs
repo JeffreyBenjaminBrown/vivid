@@ -3,7 +3,7 @@
 {-# LANGUAGE FlexibleContexts
 , ScopedTypeVariables #-}
 
-module Montevideo.Test.Monome.Data where
+module Montevideo.Monome.Test.Data where
 
 import           Control.Lens
 import qualified Data.Map as M

@@ -2,7 +2,7 @@
 , TypeApplications
 , ScopedTypeVariables #-}
 
-module Montevideo.Test.Monome.Misc where
+module Montevideo.Monome.Test.Misc where
 
 import Control.Lens
 import Data.Map as M
@@ -11,7 +11,7 @@ import Test.HUnit
 
 import qualified Montevideo.Monome.Config as Config
 import           Montevideo.Monome.Math31
-import           Montevideo.Test.Monome.Data
+import           Montevideo.Monome.Test.Data
 import           Montevideo.Monome.Types.Button
 import           Montevideo.Monome.Types.Initial
 import           Montevideo.Monome.Types.Window

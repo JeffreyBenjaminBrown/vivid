@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections
 , ScopedTypeVariables #-}
 
-module Montevideo.Test.Monome.Windows where
+module Montevideo.Monome.Test.Windows where
 
 import Test.HUnit
 
@@ -10,7 +10,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 import Montevideo.Monome.Math31
-import Montevideo.Test.Monome.Data
+import Montevideo.Monome.Test.Data
 import Montevideo.Monome.Types.Button
 import Montevideo.Monome.Types.Initial
 import Montevideo.Util

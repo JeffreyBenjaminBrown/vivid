@@ -2,7 +2,7 @@
 {-# LANGUAGE TupleSections
 , ScopedTypeVariables #-}
 
-module Montevideo.Test.Monome.JI where
+module Montevideo.Monome.Test.JI where
 
 import Test.HUnit
 

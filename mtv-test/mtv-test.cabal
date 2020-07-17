@@ -27,12 +27,6 @@ library
       Montevideo.Test
     , Montevideo.Test.Dispatch
     , Montevideo.Test.Util
-    , Montevideo.Test.Monome.HandTest
-    , Montevideo.Test.Monome.Data
-    , Montevideo.Test.Monome.Windows
-    , Montevideo.Test.Monome.JI
-    , Montevideo.Test.Monome.Misc
-    , Montevideo.Test.Monome.Sustain
   other-modules:
       Paths_montevideo
   build-depends:

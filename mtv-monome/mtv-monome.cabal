@@ -40,6 +40,13 @@ library
     , Montevideo.Monome.Window.Keyboard
     , Montevideo.Monome.Window.Shift
     , Montevideo.Monome.Window.Sustain
+
+    , Montevideo.Monome.Test.HandTest
+    , Montevideo.Monome.Test.Data
+    , Montevideo.Monome.Test.Windows
+    , Montevideo.Monome.Test.JI
+    , Montevideo.Monome.Test.Misc
+    , Montevideo.Monome.Test.Sustain
   other-modules:
       Paths_monome
   build-depends:
