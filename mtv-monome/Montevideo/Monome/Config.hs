@@ -8,6 +8,8 @@ import Montevideo.Monome.Types.EdoConfig
 -- | * Configure the tuning
 
 -- | Change these values to tune the synth.
+-- See comments in Montevideo.Monome.Types.EdoConfig to see what they do.
+theConfig :: EdoConfig
 theConfig = EdoConfig
   { _edo = 46
   , _spacing = 9

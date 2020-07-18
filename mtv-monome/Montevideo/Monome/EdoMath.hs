@@ -72,7 +72,7 @@ _enharmonicToXYs ec btn = let
 -- (notice the 0 at the end).
 xyToEt31 :: EdoConfig -> (X,Y) -> Pitch EdoApp
 xyToEt31 ec (x,y) = _spacing ec * x
-                    + _skip ec * y
+                  + _skip ec    * y
 
 -- | The numerically lowest (closest to the top-left corner)
 -- member of a pitch class, if the monome is not shifted (modulo octaves).
@@ -103,11 +103,12 @@ et31ToLowXY ec i = ( div j $ _spacing ec
 vv, hv :: EdoConfig -> (X,Y)
 vv ec = (-1, _spacing ec)
 hv ec = let
-  edo = _edo ec
-  spacing = _spacing ec
-  x = -- the first multiple of spacing greater than or equal to edo
-    head $ filter (>= edo) $ (*spacing) <$> [1..]
-  v1 = (div x spacing, edo - x)
+  e = _edo ec
+  s = _spacing ec
+  x = -- horizontal span of an octave:
+      -- the first multiple of spacing greater than or equal to edo
+    head $ filter (>= e) $ (*s) <$> [1..]
+  v1 = (div x s, e - x)
   v2 = pairAdd v1 $ vv ec
   in if abs (dot (vv ec) v1) <= abs (dot (vv ec) v2)
      then                v1  else                v2

@@ -20,7 +20,9 @@ tests = TestList [
 test_pcToXys :: Test
 test_pcToXys = TestCase $ do
   let ec = EdoConfig { _spacing = 6
-                     , _edo = 31 }
+                     , _edo = 31
+                     , _skip = 1
+                     }
   assertBool "" $ pcToXys ec (0,0) 0
     == [(0,0),(5,1),(4,7),(3,13),(10,2),(9,8),(8,14),(15,3),(14,9),(13,15)]
   assertBool "" $ pcToXys ec (0,1) 0
