@@ -53,7 +53,8 @@ st0 = St {
                            , (v1, Voice { _voicePitch = pitch1 } ) ]
   , _stPending_Monome = []
   , _stPending_Vivid = []
-  , _stApp = EdoApp { _etXyShift = (3,5)
+  , _stApp = EdoApp { _etConfig = config31
+                    , _etXyShift = (3,5)
                     , _etFingers = mempty
                     , _etLit = mempty
                     , _etSustaineded = Nothing

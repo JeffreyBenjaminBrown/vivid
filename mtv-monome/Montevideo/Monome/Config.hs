@@ -10,7 +10,7 @@ import Montevideo.Monome.Types.EdoConfig
 -- | Change these values to tune the synth.
 theConfig = EdoConfig
   { _edo = 46
-  , _spacing = 6
+  , _spacing = 9
   , _skip = 1
   , _octaveStretchInCents = 0
   }

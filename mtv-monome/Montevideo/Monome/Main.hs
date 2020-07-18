@@ -58,7 +58,8 @@ et31 monomePort = do
     , _stPending_Monome = []
 
     , _stApp = EdoApp
-        { _etXyShift = (0,0)
+        { _etConfig = Config.theConfig
+        , _etXyShift = (0,0)
         , _etFingers = mempty
         , _etLit = mempty
           -- M.singleton (2 :: PitchClass) $ S.singleton LedBecauseAnchor
