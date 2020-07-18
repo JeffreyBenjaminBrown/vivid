@@ -17,7 +17,7 @@ import Montevideo.Util
 go :: [Rational] -> [Rational] -> IO (St JiApp)
 go g h = do
   showGrid g h 1
-  ji 14718 (fr <$> g) (fr <$> h)
+  jiMonome 14718 (fr <$> g) (fr <$> h)
 
 g1, g2 :: [Rational]
 g1 = sort $ fmap firstOctave diatonic
