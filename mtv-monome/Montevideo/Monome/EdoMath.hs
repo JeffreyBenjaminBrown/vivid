@@ -10,7 +10,6 @@ module Montevideo.Monome.EdoMath (
   , xyToEt31        -- ^ (X,Y) -> Pitch
   , xyToEt31_st     -- ^ St EdoApp -> (X,Y) -> Pitch EdoApp
   , pcToXys         -- ^ PitchClass -> (X,Y) -> [(X,Y)]
-  , enharmonicToXYs -- ^ (X,Y) -> [(X,Y)]
   , et31ToLowXY     -- ^ PitchClass -> (X,Y)
   , vv, hv          -- ^ (X,Y)
   ) where
@@ -38,27 +37,35 @@ xyToEt31_st st xy =
 xyToEt31 :: (X,Y) -> Pitch EdoApp
 xyToEt31 (x,y) = C.spacing * x + (C.skip*y)
 
+-- | `pcToXys ec shift pc` finds all buttons that are enharmonically
+-- equal to a given PitchClass, taking into account how the board
+-- has been shifted in pitch space.
 pcToXys :: EdoConfig -> (X,Y) -> PitchClass EdoApp -> [(X,Y)]
-pcToXys ec shift pc =
-  enharmonicToXYs ec $
-  pairAdd (et31ToLowXY ec pc) shift
+pcToXys ec shift pc = let
+  onMonome :: (X,Y) -> Bool -- monome button coordinates are in [0,15]
+  onMonome (x,y) = x >= 0  && y >= 0  &&
+                   x <= 15 && y <= 15
+  in filter onMonome $
+     _enharmonicToXYs ec $
+     pairAdd (et31ToLowXY ec pc) shift
 
--- | A (maybe proper) superset of all keys that sound the same note
+-- | A superset of all keys that sound the same note
 -- (modulo octave) visible on the monome.
 --
 -- TODO ? (speed) This computes a lot of out-of-range values.
 -- (The higher the edo, the lesser this problem.)
-enharmonicToXYs :: EdoConfig -> (X,Y) -> [(X,Y)]
-enharmonicToXYs ec btn = let
+_enharmonicToXYs :: EdoConfig -> (X,Y) -> [(X,Y)]
+_enharmonicToXYs ec btn = let
+
   low = et31ToLowXY ec $ xyToEt31 btn
-  ((v1,v2),(h1,h2)) = (vv,hv)
+  ((v1,v2),(h1,h2)) = (vv ec, hv ec)
   wideGrid = [
     ( i*h1 + j*v1
     , i*h2 + j*v2 )
     | i <- [ 0 ..      div 15 h1 + 1] ,
-      j <- [      -   (div 15 v2 + 1)
+      j <- [ -- `j` needs a wide range because `hv` might be diagonal.
+                  -   (div 15 v2 + 1)
                .. 2 * (div 15 v2 + 1) ] ]
-  -- `j` needs a wide range because `hv` might be diagonal.
   in map (pairAdd low) wideGrid
 
 -- | The numerically lowest (closest to the top-left corner)
@@ -82,12 +89,14 @@ et31ToLowXY ec i = ( div j $ _spacing ec
 -- (Remember, coordinates on the monome are expressed CGI-style,
 -- with (0,0) in the top-left corner.)
 
-vv, hv :: (X,Y)
-vv = (-1, C.spacing)
-hv = let
+vv, hv :: EdoConfig -> (X,Y)
+vv ec = (-1, _spacing ec)
+hv ec = let
+  edo = _edo ec
+  spacing = _spacing ec
   x = -- the first multiple of spacing greater than or equal to edo
-    head $ filter (>= C.edo) $ (*C.spacing) <$> [1..]
-  v1 = (div x C.spacing, C.edo - x)
-  v2 = pairAdd v1 vv
-  in if abs (dot vv v1) <= abs (dot vv v2)
-     then           v1  else           v2
+    head $ filter (>= edo) $ (*spacing) <$> [1..]
+  v1 = (div x spacing, edo - x)
+  v2 = pairAdd v1 $ vv ec
+  in if abs (dot (vv ec) v1) <= abs (dot (vv ec) v2)
+     then                v1  else                v2

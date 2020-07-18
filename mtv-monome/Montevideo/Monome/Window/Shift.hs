@@ -36,16 +36,16 @@ downOctave = (13,14)
 -- higher Y => lower (closer to you) on the monome.
 -- | PITFALL: There are multiple ways to represent an octave shift.
 -- Here I've chosen one arbitrarily.
-shift :: (X,Y) -> (X,Y)
-shift xy | xy == rightArrow = (-1, 0)
-         | xy == downArrow  = ( 0,-1)
-           -- origin at top-left => down means add to Y
-         | xy == leftArrow  = ( 1, 0)
-         | xy == upOctave   = pairMul (-1) hv
-           -- lowering the origin raises the coordinate values of a given key, hence raising its pitch
-         | xy == upArrow    = ( 0, 1)
-         | xy == downOctave = hv
-         | otherwise = error $ "shift: unexpected input: " ++ show xy
+shift :: EdoConfig -> (X,Y) -> (X,Y)
+shift ec xy | xy == rightArrow = (-1, 0)
+            | xy == downArrow  = ( 0,-1)
+              -- origin at top-left => down means add to Y
+            | xy == leftArrow  = ( 1, 0)
+            | xy == upOctave   = pairMul (-1) (hv ec)
+              -- lowering the origin raises the coordinate values of a given key, hence raising its pitch
+            | xy == upArrow    = ( 0, 1)
+            | xy == downOctave = hv ec
+            | otherwise = error $ "shift: unexpected input: " ++ show xy
 
 -- | = the window
 shiftWindow :: Window EdoApp
@@ -61,7 +61,8 @@ shiftWindow = Window {
 handler :: St EdoApp -> ((X,Y), Switch) -> St EdoApp
 handler    st0         (_,  False)      = st0
 handler    st0         (xy, True )      = let
-  st' :: St EdoApp = st0 & stApp . etXyShift %~ pairAdd (shift xy)
+  ec = st0 ^. stApp . etConfig
+  st' :: St EdoApp = st0 & stApp . etXyShift %~ pairAdd (shift ec xy)
   lit :: [PitchClass EdoApp] = M.keys $ st0 ^. stApp . etLit
   pcToXys' = pcToXys $ st0 ^. stApp . etConfig
   msgs :: [LedMsg] =

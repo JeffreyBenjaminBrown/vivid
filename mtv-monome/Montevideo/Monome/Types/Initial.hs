@@ -206,7 +206,10 @@ data EdoApp = EdoApp
     -- identified by the key that originally launched it.
   } deriving (Show, Eq)
 
--- | I don't really use this.
+-- | This is a just-intoned alternative to the EDO app.
+-- It doesn't send LED messages.
+-- I don't really use it.
+--
 -- If I remember right, the jiGenerator and the jiShifts are equivalent;
 -- they might be better named "horizontal intervals" and "vertical intervals".
 data JiApp = JiApp
