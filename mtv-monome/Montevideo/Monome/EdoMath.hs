@@ -6,27 +6,26 @@
 , TupleSections #-}
 
 module Montevideo.Monome.EdoMath (
-    et31ToFreq      -- ^ Pitch -> Float
-  , xyToEt31        -- ^ (X,Y) -> Pitch
+    et31ToFreq      -- ^ EdoConfig -> Pitch EdoApp -> Float
+  , xyToEt31        -- ^ EdoConfig -> (X,Y) -> Pitch
   , xyToEt31_st     -- ^ St EdoApp -> (X,Y) -> Pitch EdoApp
-  , pcToXys         -- ^ PitchClass -> (X,Y) -> [(X,Y)]
-  , et31ToLowXY     -- ^ PitchClass -> (X,Y)
-  , vv, hv          -- ^ (X,Y)
+  , pcToXys         -- ^ EdoConfig -> PitchClass -> (X,Y) -> [(X,Y)]
+  , et31ToLowXY     -- ^ EdoConfig -> PitchClass -> (X,Y)
+  , vv, hv          -- ^ EdoConfig -> (X,Y)
   ) where
 
 import Control.Lens
 
-import qualified Montevideo.Monome.Config as C
 import           Montevideo.JI.Util (fromCents)
 import           Montevideo.Monome.Types.Initial
 import           Montevideo.Util
 
 
-et31ToFreq :: Pitch EdoApp -> Float
-et31ToFreq f =
+et31ToFreq :: EdoConfig -> Pitch EdoApp -> Float
+et31ToFreq ec f =
   let two :: Float = realToFrac $ fromCents $
-                     10 * (1200 + C.octaveStretchInCents)
-  in two**(fi f / fi C.edo)
+                     10 * (1200 + ec ^. octaveStretchInCents)
+  in two**(fi f / fi (ec ^. edo) )
 
 xyToEt31_st :: St EdoApp -> (X,Y) -> Pitch EdoApp
 xyToEt31_st st xy =

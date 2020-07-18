@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-missing-fields #-}
 {-# LANGUAGE TupleSections
 , TypeApplications
 , ScopedTypeVariables #-}
@@ -40,7 +41,8 @@ test_etKey_SoundMsg = TestCase $ do
     etKey_SoundMsg st (newVoice, True) ==
     [ SoundMsg { _soundMsgVoiceId = newVoice
                , _soundMsgPitch = Just newPitch
-               , _soundMsgVal = Config.freq * et31ToFreq newPitch
+               , _soundMsgVal = Config.freq *
+                                et31ToFreq (st ^. stApp . etConfig) newPitch
                , _soundMsgParam = "freq" }
     , SoundMsg { _soundMsgVoiceId = newVoice
                , _soundMsgPitch = Just newPitch

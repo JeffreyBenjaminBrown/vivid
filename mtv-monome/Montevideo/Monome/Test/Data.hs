@@ -9,7 +9,6 @@ import           Control.Lens
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import Montevideo.Monome.Config
 import Montevideo.Monome.EdoMath
 import Montevideo.Monome.Types.Initial
 
