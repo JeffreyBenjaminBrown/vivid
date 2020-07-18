@@ -32,7 +32,7 @@ test_etKey_SoundMsg = TestCase $ do
       newVoice :: VoiceId = (0,1)
       st = st0 & ( stApp . etSustaineded .~
                    Just (S.singleton sustainedVoice) )
-      newPitch = xyToEt31_st st newVoice
+      newPitch = xyToEdo_st st newVoice
   assertBool "pressing a key that's sustained has no effect" $
     etKey_SoundMsg st (sustainedVoice, True) == []
   assertBool "releasing a key that's sustained has no effect" $
@@ -42,7 +42,7 @@ test_etKey_SoundMsg = TestCase $ do
     [ SoundMsg { _soundMsgVoiceId = newVoice
                , _soundMsgPitch = Just newPitch
                , _soundMsgVal = Config.freq *
-                                et31ToFreq (st ^. stApp . etConfig) newPitch
+                                edoToFreq (st ^. stApp . etConfig) newPitch
                , _soundMsgParam = "freq" }
     , SoundMsg { _soundMsgVoiceId = newVoice
                , _soundMsgPitch = Just newPitch

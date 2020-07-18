@@ -45,7 +45,7 @@ silenceMsg xy = SoundMsg {
 -- TODO ! duplicative of `jiKey_SoundMsg`
 etKey_SoundMsg :: St EdoApp -> ((X,Y), Switch) -> [SoundMsg EdoApp]
 etKey_SoundMsg st (xy, sw) = do
-  let pitch = xyToEt31_st st xy
+  let pitch = xyToEdo_st st xy
       ec = st ^. stApp . etConfig
   if maybe False (S.member xy) $
      st ^. stApp . etSustaineded
@@ -58,7 +58,7 @@ etKey_SoundMsg st (xy, sw) = do
                     , _soundMsgParam = error "replaced below"
                     }
               in [ msg & ( soundMsgVal .~
-                           Config.freq * et31ToFreq ec pitch )
+                           Config.freq * edoToFreq ec pitch )
                        & soundMsgParam .~ "freq"
                  , msg & soundMsgVal .~ Config.amp
                        & soundMsgParam .~ "amp" ]

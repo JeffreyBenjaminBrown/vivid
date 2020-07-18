@@ -13,7 +13,7 @@ import           Montevideo.Monome.Types.Initial
 
 tests :: Test
 tests = TestList [
-    TestLabel "test_et31ToLowXY" test_et31ToLowXY
+    TestLabel "test_edoToLowXY" test_edoToLowXY
   , TestLabel "test_pcToXys" test_pcToXys
   ]
 
@@ -32,19 +32,19 @@ test_pcToXys = TestCase $ do
   assertBool "" $ pcToXys ec (1,2) 31 ==
                   pcToXys ec (1,2) 62
 
-test_et31ToLowXY :: Test
-test_et31ToLowXY = TestCase $ do
+test_edoToLowXY :: Test
+test_edoToLowXY = TestCase $ do
   let ec = EdoConfig { _spacing = 6
                      , _edo = 31 }
 
-  assertBool "et31ToLowXY" $ et31ToLowXY ec       0  == (0,0)
-  assertBool "et31ToLowXY" $ et31ToLowXY ec (31 + 0) == (0,0)
+  assertBool "edoToLowXY" $ edoToLowXY ec       0  == (0,0)
+  assertBool "edoToLowXY" $ edoToLowXY ec (31 + 0) == (0,0)
 
-  assertBool "et31ToLowXY" $ et31ToLowXY ec       1  == (0,1)
-  assertBool "et31ToLowXY" $ et31ToLowXY ec (31 + 1) == (0,1)
+  assertBool "edoToLowXY" $ edoToLowXY ec       1  == (0,1)
+  assertBool "edoToLowXY" $ edoToLowXY ec (31 + 1) == (0,1)
 
-  assertBool "et31ToLowXY" $ et31ToLowXY ec       6  == (1,0)
-  assertBool "et31ToLowXY" $ et31ToLowXY ec (31 + 6) == (1,0)
+  assertBool "edoToLowXY" $ edoToLowXY ec       6  == (1,0)
+  assertBool "edoToLowXY" $ edoToLowXY ec (31 + 6) == (1,0)
 
-  assertBool "et31ToLowXY" $ et31ToLowXY ec       7  == (1,1)
-  assertBool "et31ToLowXY" $ et31ToLowXY ec (31 + 7) == (1,1)
+  assertBool "edoToLowXY" $ edoToLowXY ec       7  == (1,1)
+  assertBool "edoToLowXY" $ edoToLowXY ec (31 + 7) == (1,1)

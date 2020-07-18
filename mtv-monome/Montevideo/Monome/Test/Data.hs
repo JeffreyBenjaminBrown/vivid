@@ -41,8 +41,8 @@ v0     :: VoiceId    = (0,0)
 v1     :: VoiceId    = (0,1)
 xy0    :: (X,Y)      = v0
 xy1    :: (X,Y)      = v1
-pitch0 :: Int        = xyToEt31_st st0 xy0
-pitch1 :: Int        = xyToEt31_st st0 xy1
+pitch0 :: Int        = xyToEdo_st st0 xy0
+pitch1 :: Int        = xyToEdo_st st0 xy1
 pc0    :: PitchClass EdoApp = mod pitch0 31
 pc1    :: PitchClass EdoApp = mod pitch1 31
 
