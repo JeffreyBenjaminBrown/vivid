@@ -15,12 +15,6 @@ theConfig = EdoConfig
   , _octaveStretchInCents = 0
   }
 
--- | DEPRECATED: These should go away.
-edo                  =  _edo                  theConfig
-spacing              =  _spacing              theConfig
-skip                 =  _skip                 theConfig
-octaveStretchInCents =  _octaveStretchInCents theConfig
-
 
 -- | * Configure the synth
 
