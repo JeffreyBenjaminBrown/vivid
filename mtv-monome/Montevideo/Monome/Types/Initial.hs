@@ -15,9 +15,9 @@ module Montevideo.Monome.Types.Initial (
   , LedBecause(..)
   , Window(..)
   , Voice(..), voiceSynth, voicePitch, voiceParams
-  , St(..), etConfig, stApp, stWindowLayers, stToMonome, stVoices
+  , St(..), edoConfig, stApp, stWindowLayers, stToMonome, stVoices
     , stPending_Monome, stPending_Vivid
-  , EdoApp(..), etXyShift, etFingers, etLit, etSustaineded
+  , EdoApp(..), edoXyShift, edoFingers, edoLit, edoSustaineded
   , JiApp(..), jiGenerator, jiShifts, jiFingers
   ) where
 
@@ -194,13 +194,13 @@ instance (Eq app, Eq (Pitch app)) => Eq (St app) where
     , _stPending_Vivid a  == _stPending_Vivid b ]
 
 data EdoApp = EdoApp
-  { _etConfig :: EdoConfig
-  , _etXyShift :: (X,Y) -- ^ this is relative -- a vector, not a point
-  , _etFingers :: Map (X,Y) VoiceId
+  { _edoConfig :: EdoConfig
+  , _edoXyShift :: (X,Y) -- ^ this is relative -- a vector, not a point
+  , _edoFingers :: Map (X,Y) VoiceId
     -- ^ Where fingers are, what each is sounding,
     -- and what each is lighting up.
-  , _etLit :: LitPitches EdoApp
-  , _etSustaineded :: Maybe (Set VoiceId)
+  , _edoLit :: LitPitches EdoApp
+  , _edoSustaineded :: Maybe (Set VoiceId)
     -- ^ PITFALL: In spirit, the thing sustained is a Pitch,
     -- but it's represented as a voice,
     -- identified by the key that originally launched it.

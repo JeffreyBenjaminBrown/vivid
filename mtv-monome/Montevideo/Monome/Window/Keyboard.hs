@@ -35,27 +35,27 @@ keyboardWindow =  Window {
   , windowInit = \st ->
       st & stPending_Monome %~
       flip (++) ( map ( (label,) . (,True) ) $
-                  concatMap (pcToXys (st ^. stApp . etConfig)
-                                     (st ^. stApp . etXyShift) ) $
-                  M.keys $ st ^. stApp . etLit )
+                  concatMap (pcToXys (st ^. stApp . edoConfig)
+                                     (st ^. stApp . edoXyShift) ) $
+                  M.keys $ st ^. stApp . edoLit )
   , windowRoutine = handler }
 
 -- TODO ! duplicative of `JI.handler`
 handler :: St EdoApp -> ((X,Y), Switch) -> St EdoApp
 handler    st          press@ (xy,sw)   = let
-  fingers' = st ^. stApp . etFingers
+  fingers' = st ^. stApp . edoFingers
         & case sw of
             True  -> M.insert xy xy
             False -> M.delete xy
   pcNow :: (PitchClass EdoApp) =
-    mod (xyToEdo_st st xy) (st ^. stApp . etConfig . edo)
+    mod (xyToEdo_st st xy) (st ^. stApp . edoConfig . edo)
     -- what the key represents currently
   pcThen :: Maybe (PitchClass EdoApp) =
     ledBecause_toPitchClass @ EdoApp
-    (st ^. stApp . etLit) $ LedBecauseSwitch xy
+    (st ^. stApp . edoLit) $ LedBecauseSwitch xy
     -- what the key represented when it was pressed,
     -- if it is now being released
-  lit  :: LitPitches EdoApp = st ^. stApp . etLit
+  lit  :: LitPitches EdoApp = st ^. stApp . edoLit
   lit' :: LitPitches EdoApp = updateStLit (xy,sw) pcNow pcThen lit
   oldKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit
   newKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit'
@@ -64,15 +64,15 @@ handler    st          press@ (xy,sw)   = let
   kbdMsgs :: [LedMsg] =
     map (label,) $
     ( map (,False) $
-      concatMap (pcToXys (st ^. stApp . etConfig)
-                         (st ^. stApp . etXyShift) ) toDark) ++
+      concatMap (pcToXys (st ^. stApp . edoConfig)
+                         (st ^. stApp . edoXyShift) ) toDark) ++
     ( map (,True)  $
-      concatMap (pcToXys (st ^. stApp . etConfig)
-                         (st ^. stApp . etXyShift) ) toLight)
+      concatMap (pcToXys (st ^. stApp . edoConfig)
+                         (st ^. stApp . edoXyShift) ) toLight)
   soundMsgs :: [SoundMsg EdoApp] = etKey_SoundMsg st press
   st1 :: St EdoApp = st
-    & stApp . etFingers .~ fingers'
-    & stApp . etLit     .~ lit'
+    & stApp . edoFingers .~ fingers'
+    & stApp . edoLit     .~ lit'
     & stPending_Monome  %~ (++ kbdMsgs)
     & stPending_Vivid   %~ (++ soundMsgs)
   in foldr updateVoice st1 soundMsgs

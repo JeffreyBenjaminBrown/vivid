@@ -61,12 +61,12 @@ shiftWindow = Window {
 handler :: St EdoApp -> ((X,Y), Switch) -> St EdoApp
 handler    st0         (_,  False)      = st0
 handler    st0         (xy, True )      = let
-  ec = st0 ^. stApp . etConfig
-  st' :: St EdoApp = st0 & stApp . etXyShift %~ pairAdd (shift ec xy)
-  lit :: [PitchClass EdoApp] = M.keys $ st0 ^. stApp . etLit
-  pcToXys' = pcToXys $ st0 ^. stApp . etConfig
+  ec = st0 ^. stApp . edoConfig
+  st' :: St EdoApp = st0 & stApp . edoXyShift %~ pairAdd (shift ec xy)
+  lit :: [PitchClass EdoApp] = M.keys $ st0 ^. stApp . edoLit
+  pcToXys' = pcToXys $ st0 ^. stApp . edoConfig
   msgs :: [LedMsg] =
     map (Kbd.label,) $
-    (map (,False) $ concatMap (pcToXys' $ st0 ^. stApp . etXyShift) lit) ++
-    (map (,True)  $ concatMap (pcToXys' $ st' ^. stApp . etXyShift) lit)
+    (map (,False) $ concatMap (pcToXys' $ st0 ^. stApp . edoXyShift) lit) ++
+    (map (,True)  $ concatMap (pcToXys' $ st' ^. stApp . edoXyShift) lit)
   in st' & stPending_Monome %~ flip (++) msgs

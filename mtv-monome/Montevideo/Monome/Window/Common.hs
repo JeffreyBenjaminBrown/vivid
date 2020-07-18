@@ -46,9 +46,9 @@ silenceMsg xy = SoundMsg {
 etKey_SoundMsg :: St EdoApp -> ((X,Y), Switch) -> [SoundMsg EdoApp]
 etKey_SoundMsg st (xy, sw) = do
   let pitch = xyToEdo_st st xy
-      ec = st ^. stApp . etConfig
+      ec = st ^. stApp . edoConfig
   if maybe False (S.member xy) $
-     st ^. stApp . etSustaineded
+     st ^. stApp . edoSustaineded
     then [] -- it's already sounding due to sustain
     else if sw -- sw <=> the key was pressed, rather than released
          then let msg = SoundMsg
@@ -78,5 +78,5 @@ updateVoice sdMsg st = let
 vid_to_pitch :: St EdoApp -> VoiceId ->  PitchClass EdoApp
 vid_to_pitch st v = maybe
   (error "vid_to_pitch: voice not found")
-  (flip mod (st ^. stApp . etConfig . edo) . _voicePitch)
+  (flip mod (st ^. stApp . edoConfig . edo) . _voicePitch)
   $ M.lookup v (_stVoices st)

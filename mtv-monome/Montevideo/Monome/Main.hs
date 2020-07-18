@@ -58,12 +58,12 @@ edoMonome monomePort = do
     , _stPending_Monome = []
 
     , _stApp = EdoApp
-        { _etConfig = Config.theConfig
-        , _etXyShift = (0,0)
-        , _etFingers = mempty
-        , _etLit = mempty
+        { _edoConfig = Config.theConfig
+        , _edoXyShift = (0,0)
+        , _edoFingers = mempty
+        , _edoLit = mempty
           -- M.singleton (2 :: PitchClass) $ S.singleton LedBecauseAnchor
-        , _etSustaineded = mempty
+        , _edoSustaineded = mempty
         }
     }
 

@@ -29,8 +29,8 @@ edoToFreq ec f =
 
 xyToEdo_st :: St EdoApp -> (X,Y) -> Pitch EdoApp
 xyToEdo_st st xy =
-  xyToEdo (st ^. stApp . etConfig) $
-  pairAdd xy $ pairMul (-1) $ _etXyShift $ _stApp st
+  xyToEdo (st ^. stApp . edoConfig) $
+  pairAdd xy $ pairMul (-1) $ _edoXyShift $ _stApp st
 
 -- | `pcToXys ec shift pc` finds all buttons that are enharmonically
 -- equal to a given PitchClass, taking into account how the board

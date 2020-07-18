@@ -50,18 +50,18 @@ handler    st    (_ , False)      = st
 handler    st    (_,  True)      = let
   st1 = toggleSustain st
   kbdMsgs :: [LedMsg] =
-    if null $ st1 ^. stApp . etSustaineded
+    if null $ st1 ^. stApp . edoSustaineded
     then map ( (Kbd.label,) . (,False) ) $
-         concatMap (pcToXys (st ^. stApp . etConfig)
-                            (st ^. stApp . etXyShift)) $
+         concatMap (pcToXys (st ^. stApp . edoConfig)
+                            (st ^. stApp . edoXyShift)) $
          pitchClassesToDarken_uponSustainOff st st1
     else []
   sdMsgs :: [SoundMsg EdoApp] =
-    if null $ st1 ^. stApp . etSustaineded
+    if null $ st1 ^. stApp . edoSustaineded
     then map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
     else []
   sustainButtonMsg = ( label
-                     , (theButton, isJust $ st1 ^. stApp . etSustaineded) )
+                     , (theButton, isJust $ st1 ^. stApp . edoSustaineded) )
   st2 = st1 & stPending_Monome %~ flip (++) (sustainButtonMsg : kbdMsgs)
             & stPending_Vivid  %~ flip (++) sdMsgs
   in foldr updateVoice st2 sdMsgs
@@ -77,7 +77,7 @@ pitchClassesToDarken_uponSustainOff oldSt newSt =
   S.filter (not . mustStayLit) $ voicesToSilence_pcs
   where
     mustStayLit :: PitchClass EdoApp -> Bool
-    mustStayLit pc = case M.lookup pc $ newSt ^. stApp . etLit of
+    mustStayLit pc = case M.lookup pc $ newSt ^. stApp . edoLit of
       Nothing -> False
       Just s -> if null s
         then error "pitchClassesToDarken_uponSustainOff: null value in LitPitches."
@@ -88,9 +88,9 @@ pitchClassesToDarken_uponSustainOff oldSt newSt =
 voicesToSilence_uponSustainOff :: St EdoApp -> Set VoiceId
 voicesToSilence_uponSustainOff st = let
   sustained :: Set VoiceId =
-    maybe mempty id $ st ^. stApp . etSustaineded
+    maybe mempty id $ st ^. stApp . edoSustaineded
   fingered :: Set VoiceId =
-    S.fromList $ M.keys $ st ^. stApp . etFingers
+    S.fromList $ M.keys $ st ^. stApp . edoFingers
   in S.difference sustained fingered
 
 -- | When the sustain button is toggled --
@@ -100,21 +100,21 @@ voicesToSilence_uponSustainOff st = let
 toggleSustain :: St EdoApp -> St EdoApp
 toggleSustain st = let
   sustainOn' :: Bool = -- new sustain state
-    not $ isJust $ st ^. stApp . etSustaineded
+    not $ isJust $ st ^. stApp . edoSustaineded
   sustainedVs :: Maybe (Set VoiceId) =
     if not sustainOn' then Nothing
-    else Just $ S.fromList $ M.elems $ st ^. stApp . etFingers
+    else Just $ S.fromList $ M.elems $ st ^. stApp . edoFingers
 
   lit' | sustainOn' =
-         foldr insertOneSustainedNote (st ^. stApp . etLit)
+         foldr insertOneSustainedNote (st ^. stApp . edoLit)
          $ map (vid_to_pitch st)
-         $ M.elems $ st ^. stApp . etFingers
+         $ M.elems $ st ^. stApp . edoFingers
        | otherwise =
-         foldr deleteOneSustainedNote (st ^. stApp . etLit)
+         foldr deleteOneSustainedNote (st ^. stApp . edoLit)
          $ map (vid_to_pitch st) $ S.toList
-         $ maybe (error "impossible") id $ st ^. stApp . etSustaineded
-  in st & stApp . etSustaineded .~ sustainedVs
-        & stApp . etLit       .~ lit'
+         $ maybe (error "impossible") id $ st ^. stApp . edoSustaineded
+  in st & stApp . edoSustaineded .~ sustainedVs
+        & stApp . edoLit       .~ lit'
 
 -- | When sustain is toggled, the reasons for having LEDs on change.
 -- If it is turned on, some LEDs are now lit for two reasons:

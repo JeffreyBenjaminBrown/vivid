@@ -40,28 +40,28 @@ test_toggleSustain = TestCase $ do
         "THE TEST: turn sustain on"
         , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
     toggleSustain st_0f =^=
-    ( st_0f & ( stApp . etLit . at pc0 . _Just
+    ( st_0f & ( stApp . edoLit . at pc0 . _Just
                 -- This is the only part that fails. Verify with:
                 -- x = toggleSustain st_0f
-                -- y = ( st_0f & ( stApp . etLit . at pc0 . _Just
+                -- y = ( st_0f & ( stApp . edoLit . at pc0 . _Just
                 --               %~ S.insert LedBecauseSustain )
-                --       & stApp . etSustaineded .~ Just (S.singleton v0 ) )
-                -- x ^. stApp . etLit . at pc0 . _Just
-                -- y ^. stApp . etLit . at pc0 . _Just
-                -- x ^. stApp . etSustaineded
-                -- y ^. stApp . etSustaineded
+                --       & stApp . edoSustaineded .~ Just (S.singleton v0 ) )
+                -- x ^. stApp . edoLit . at pc0 . _Just
+                -- y ^. stApp . edoLit . at pc0 . _Just
+                -- x ^. stApp . edoSustaineded
+                -- y ^. stApp . edoSustaineded
                 %~ S.insert LedBecauseSustain )
-            & stApp . etSustaineded .~ Just (S.singleton v0 ) )
+            & stApp . edoSustaineded .~ Just (S.singleton v0 ) )
 
   assertBool "turn sustain off" $
     toggleSustain st_0s
-    =^= ( st_0s & stApp . etLit .~ mempty
-                & stApp . etSustaineded .~ Nothing )
+    =^= ( st_0s & stApp . edoLit .~ mempty
+                & stApp . edoSustaineded .~ Nothing )
   assertBool "turn sustain off, but finger persists" $
     toggleSustain st_0fs
-    =^= ( st_0fs & ( stApp . etLit . at pc0 . _Just
+    =^= ( st_0fs & ( stApp . edoLit . at pc0 . _Just
                      %~ S.delete LedBecauseSustain )
-                 & stApp . etSustaineded .~ Nothing )
+                 & stApp . edoSustaineded .~ Nothing )
 
 test_deleteOneSustainedNote_and_insertOneSustainedNote :: Test
 test_deleteOneSustainedNote_and_insertOneSustainedNote = TestCase $ do
@@ -93,12 +93,12 @@ test_sustainHandler = TestCase $ do
         "THE TEST: turning ON sustain changes the sustain state, the set of sustained voices, the set of reasons for keys to be lit, and the messages pending to the monome."
         , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
     Su.handler st_0f (meh, True)
-    =^= (st_0f & stApp . etSustaineded .~ Just (S.singleton v0)
+    =^= (st_0f & stApp . edoSustaineded .~ Just (S.singleton v0)
           & ( -- This is the (only) part that fails. Verify failure with:
-              -- x = Su.handler st_0f (meh, True) ^. stApp . etLit
+              -- x = Su.handler st_0f (meh, True) ^. stApp . edoLit
               -- y = M.singleton pc0 $ S.fromList [ LedBecauseSustain
               --                                  , LedBecauseSwitch xy0 ]
-            stApp . etLit .~ M.singleton pc0
+            stApp . edoLit .~ M.singleton pc0
               ( S.fromList [ LedBecauseSustain
                            , LedBecauseSwitch xy0 ] ) )
           & stPending_Monome .~
@@ -113,14 +113,14 @@ test_sustainHandler = TestCase $ do
                "Pitch 0 is fingered, and 0 and 1 sounding; 1 turns off.") $
     Su.handler st_0fs_1s (meh, True)
     =^= ( st_0fs_1s
-          & stApp . etSustaineded .~ mempty
-          & stApp . etLit .~ M.singleton pc0 ( S.singleton $
+          & stApp . edoSustaineded .~ mempty
+          & stApp . edoLit .~ M.singleton pc0 ( S.singleton $
                                                LedBecauseSwitch xy0 )
           & stPending_Monome .~
           ( ( Su.label, (Su.theButton, False)) :
             map (\xy -> (K.label, (xy, False)))
-            (pcToXys (st_0fs_1s ^. stApp . etConfig)
-                     (st_0fs_1s ^. stApp . etXyShift) pc1) )
+            (pcToXys (st_0fs_1s ^. stApp . edoConfig)
+                     (st_0fs_1s ^. stApp . edoXyShift) pc1) )
           & stPending_Vivid .~ [ SoundMsg { _soundMsgVoiceId = v1
                                           , _soundMsgPitch = Nothing
                                           , _soundMsgVal = 0
