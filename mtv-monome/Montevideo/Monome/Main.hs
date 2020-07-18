@@ -8,8 +8,8 @@
 , TupleSections #-}
 
 module Montevideo.Monome.Main (
-    et31
-  , ji
+    edoMonome
+  , jiMonome
   ) where
 
 import           Control.Concurrent (forkIO, killThread)
@@ -32,9 +32,9 @@ import Montevideo.Monome.Window.Shift
 import Montevideo.Monome.Window.Sustain
 
 
-et31 :: Int -- ^ The monome address, as serialoscd reports on startup.
-     -> IO (St EdoApp)
-et31 monomePort = do
+edoMonome :: Int -- ^ The monome address, as serialoscd reports on startup.
+          -> IO (St EdoApp)
+edoMonome monomePort = do
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
     -- I don't know why it's port 8000, or why it used to be 11111.
   toMonome :: Socket <- sendsTo (unpack localhost) monomePort
@@ -95,11 +95,11 @@ et31 monomePort = do
 -- (Another would be to use the generators [1] and
 -- [1,9/8,5/4,4/3,3/2,5/3,15/8], but that's harder to play,
 -- and its geometry gives no insight into the scale.)
-ji :: Int        -- ^ The monome address, as reported by serialoscd.
-   -> [Rational] -- ^ The horizontal generator.
-   -> [Rational] -- ^ The vertical generator.
-   -> IO (St JiApp)
-ji monomePort scale shifts = do
+jiMonome :: Int        -- ^ The monome address, as reported by serialoscd.
+         -> [Rational] -- ^ The horizontal generator.
+         -> [Rational] -- ^ The vertical generator.
+         -> IO (St JiApp)
+jiMonome monomePort scale shifts = do
 
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
   toMonome :: Socket <- sendsTo (unpack localhost) monomePort
