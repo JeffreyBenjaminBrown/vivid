@@ -66,8 +66,7 @@ test_keyboardHandler = TestCase $ do
               -- y = ( map (\xy -> (Kb.label, (xy, False)) )
               --   (pcToXys (st_01f ^. stApp . edoXyShift) pitch1 ) )
               map (\xy -> (K.label, (xy, False)) )
-              (pcToXys (st_01f ^. stApp . edoConfig)
-                       (st_01f ^. stApp . edoXyShift) pitch1 ) )
+              (pcToXys_st st_01f pitch1 ) )
           & stPending_Vivid .~ [SoundMsg { _soundMsgVoiceId = v1
                                          , _soundMsgPitch = Nothing
                                          , _soundMsgVal = 0
@@ -101,7 +100,6 @@ test_keyboardHandler = TestCase $ do
     K.handler st_0f (xy1, True)
     =^= ( st_01f
           & ( stPending_Monome .~
-              map (\xy -> (K.label, (xy, True)) )
-              (pcToXys (st_01f ^. stApp . edoConfig)
-                       (st_01f ^. stApp . edoXyShift) pitch1 ) )
+              ( map (\xy -> (K.label, (xy, True)) ) $
+                pcToXys_st st_01f pitch1 ) )
           & stPending_Vivid .~ etKey_SoundMsg st0 (xy1,True) )

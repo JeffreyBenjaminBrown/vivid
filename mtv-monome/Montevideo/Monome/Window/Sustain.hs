@@ -52,8 +52,7 @@ handler    st    (_,  True)      = let
   kbdMsgs :: [LedMsg] =
     if null $ st1 ^. stApp . edoSustaineded
     then map ( (Kbd.label,) . (,False) ) $
-         concatMap (pcToXys (st ^. stApp . edoConfig)
-                            (st ^. stApp . edoXyShift)) $
+         concatMap (pcToXys_st st) $
          pitchClassesToDarken_uponSustainOff st st1
     else []
   sdMsgs :: [SoundMsg EdoApp] =

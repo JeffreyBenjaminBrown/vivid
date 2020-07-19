@@ -6,12 +6,13 @@
 , TupleSections #-}
 
 module Montevideo.Monome.EdoMath (
-    edoToFreq      -- ^ EdoConfig -> Pitch EdoApp -> Float
-  , xyToEdo        -- ^ EdoConfig -> (X,Y) -> Pitch
-  , xyToEdo_st     -- ^ St EdoApp -> (X,Y) -> Pitch EdoApp
-  , pcToXys         -- ^ EdoConfig -> PitchClass -> (X,Y) -> [(X,Y)]
-  , edoToLowXY     -- ^ EdoConfig -> PitchClass -> (X,Y)
-  , vv, hv          -- ^ EdoConfig -> (X,Y)
+    edoToFreq  -- ^ EdoConfig -> Pitch EdoApp -> Float
+  , xyToEdo    -- ^ EdoConfig -> (X,Y) -> Pitch
+  , xyToEdo_st -- ^ St EdoApp -> (X,Y) -> Pitch EdoApp
+  , pcToXys_st -- ^ St EdoApp -> PitchClass EdoApp -> [(X,Y)]
+  , pcToXys    -- ^ EdoConfig -> PitchClass -> (X,Y) -> [(X,Y)]
+  , edoToLowXY -- ^ EdoConfig -> PitchClass -> (X,Y)
+  , vv, hv     -- ^ EdoConfig -> (X,Y)
   ) where
 
 import Control.Lens
@@ -31,6 +32,10 @@ xyToEdo_st :: St EdoApp -> (X,Y) -> Pitch EdoApp
 xyToEdo_st st xy =
   xyToEdo (st ^. stApp . edoConfig) $
   pairAdd xy $ pairMul (-1) $ _edoXyShift $ _stApp st
+
+pcToXys_st :: St EdoApp -> PitchClass EdoApp -> [(X,Y)]
+pcToXys_st st = pcToXys (st ^. stApp . edoConfig)
+                        (st ^. stApp . edoXyShift)
 
 -- | `pcToXys ec shift pc` finds all buttons that are enharmonically
 -- equal to a given PitchClass, taking into account how the board
