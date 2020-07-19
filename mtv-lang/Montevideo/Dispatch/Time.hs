@@ -129,7 +129,7 @@ _arcFold cycle period startVec time0 from to m =
       firstIndexGTE compare startVec $ fromInCycles * _sup m
 
   in if startOrOOBIndex >= V.length startVec
--- -- TODO ? delete
+-- -- todo ? delete
 -- -- If `from = pp0 + period - epsilon`, maybe `pp0 + period <= from`.
 -- -- Thus floating point error used to make this if-then statement necessary
 -- -- Now that all times are Rational, it's probably unnecessary.
@@ -175,9 +175,8 @@ nextPhase0 time0 period now =
 -- there is exactly a one in a million chance of that.
 prevPhase0 :: RealFrac a => a -> a -> a -> a
 prevPhase0 time0 period now =
-  -- TODO ? rewrite using div', mod' from Data.Fixed
   fromIntegral x * period + time0
-  where x :: Int = floor $ (now - time0) / period
+  where x :: Int = div' (now - time0) period
 
 
 -- | = Timing a Museq

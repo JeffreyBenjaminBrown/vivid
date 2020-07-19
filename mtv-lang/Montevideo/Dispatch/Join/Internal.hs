@@ -86,7 +86,6 @@ boundaries arcs0 = doubleTheDurationZeroBoundaries arcs0
 partitionAndGroupEventsAtBoundaries :: forall a l t. Real t
   => [t] -> [Event t l a] -> [Event t l a]
 partitionAndGroupEventsAtBoundaries bs evs =
-  -- TODO ? Use Traversal to simplify
   let partitionEv :: Event t l a -> [Event t l a]
       partitionEv ev = map rebuild $ partitionArcAtTimes bs $ _evArc ev
         where rebuild someArc = ev {_evArc = someArc}

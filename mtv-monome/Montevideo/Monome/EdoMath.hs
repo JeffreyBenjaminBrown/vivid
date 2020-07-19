@@ -52,7 +52,8 @@ pcToXys ec shift pc = let
 -- | A superset of all keys that sound the same note
 -- (modulo octave) visible on the monome.
 --
--- TODO ? (speed) This computes a lot of out-of-range values.
+-- This computes a lot of out-of-range values.
+-- I'm pretty sure the resulting lag is imperceptible.
 -- (The higher the edo, the lesser this problem.)
 _enharmonicToXYs :: EdoConfig -> (X,Y) -> [(X,Y)]
 _enharmonicToXYs ec btn = let

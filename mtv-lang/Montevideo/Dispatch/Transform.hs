@@ -101,7 +101,7 @@ rep n = slow n . dense n
 -- | = (something) -> Museq Msg -> Museq Msg
 overParams :: [(ParamName, Float -> Float)] -> Museq l Msg -> Museq l Msg
 overParams fs = fmap $ M.mapWithKey g
-  -- TODO ? speed: This appears to look up each of each Msg's parameters.
+  -- todo ? speed: This appears to look up each of each Msg's parameters.
   -- If the Msg is smaller than the argument to overParams, that'll work.
   -- But if it's bigger, that's inefficient.
   where g :: ParamName -> Float -> Float
@@ -113,7 +113,7 @@ overParams fs = fmap $ M.mapWithKey g
 -- as a parameter name in every input `Msg` to `b`.
 switchParams :: [(ParamName, ParamName)] -> Museq l Msg -> Museq l Msg
 switchParams fs = fmap $ M.mapKeys g where
-  -- TODO ? speed: This appears to look up each of each Msg's parameters.
+  -- todo ? speed: This appears to look up each of each Msg's parameters.
   -- If the Msg is smaller than the argument to overParams, that'll work.
   -- But if it's bigger, that's inefficient.
   g :: ParamName -> ParamName
