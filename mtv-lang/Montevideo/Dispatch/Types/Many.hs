@@ -1,8 +1,4 @@
-{-# LANGUAGE DataKinds
-, DeriveFunctor
-, ExtendedDefaultRules
-, ScopedTypeVariables
-, TupleSections
+{-# LANGUAGE DeriveFunctor
 , TemplateHaskell
 , GADTs
 #-}
