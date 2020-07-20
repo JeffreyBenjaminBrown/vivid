@@ -16,7 +16,7 @@ but if I see evidence that anybody else wants to use them, I might.
 
 I'm not sure how helpful they are,
 but my own notes on montevideo can be found at my public org-roam knowledge graph,
-at https://github.com/JeffreyBenjaminBrown/notes-in-org-format-on-tech
+at https://github.com/JeffreyBenjaminBrown/notes-in-org-format-on-tech/blob/master/montevideo.org
 You don't need to use org-roam to read them;
 they are ordinary .org-formatted notes.
 
