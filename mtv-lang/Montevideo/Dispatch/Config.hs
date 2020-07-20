@@ -10,6 +10,6 @@ frameDuration = 0.1
 -- | 3 ms after sending a trigger=1 message to a sampler,
 -- send a trigger=0 message.
 -- This is necessary because the samplers are trigger when they detect
--- a change from 0 to 1.
+-- a change from negative to positive.
 retriggerLag :: Time
 retriggerLag = 0.003

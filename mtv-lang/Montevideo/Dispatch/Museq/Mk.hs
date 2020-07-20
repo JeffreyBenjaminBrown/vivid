@@ -18,8 +18,6 @@ module Montevideo.Dispatch.Museq.Mk (
   , mkMuseqRt1 -- ^ RDuration -> [(RTime,Sample)]     -> Museq String Note
 
   -- | Utilities used by the Museq-making functions
-  , prepareToRetrigger -- ^ RDuration -> [ (RDuration,             Msg)]
-                                   -- -> [((RDuration, RDuration), Msg)]
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
   , insertOffs -- ^ Museq l Msg                       -> Museq l Msg
   , insertOns  -- ^ Museq l Msg                       -> Museq l Msg
@@ -94,75 +92,54 @@ mkMuseqHo :: forall l. Ord l
           => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
 mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
 
--- | Make a Museq that sends a "retrigger" after each "trigger" (note).
--- SuperCollider needs this; the "retrigger" message
--- tells it to prepare the sampler to receive another "trigger".
--- `mkMuseqRt` sends any two `Msg` values to different synths, unless
+-- | `mkMuseqRt` sends any two `Msg` values to different synths, unless
 -- they share the same label *and* the same `Sample`.
 -- This is guaranteed by computing new labels `show l ++ show Sample`.
---
--- Each (time,Msg) pair must become a pair of Msgs,
--- in order for retriggering to work.
--- `prepareToRetrigger` does that.
 
 mkMuseqRt :: forall l. (Ord l, Show l) =>
   RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
 mkMuseqRt sup0 evs0 = let
-  -- rather than group by l and then Sample,
+  -- Rather than group by l and then Sample,
   -- maybe group by l' = show l ++ show Sample?
-  evs1 :: [ ((l, Sample), (RTime,Msg)) ] =
+  evs1 :: [ ( (l, Sample)
+            , (RTime,Msg) ) ] =
     map (\(l,t,n,m) -> ((l,n),(t,m))) evs0
-  evs2 :: [( (l, Sample), [(RTime,Msg)] )] =
+  evs2 :: [( (l, Sample)
+           , [(RTime,Msg)] )] =
     multiPartition evs1
-  evs3 :: [( (l,Sample), [((RTime,RTime), Msg )] )] =
-    map (_2 %~ prepareToRetrigger sup0) evs2
-  evs4 :: [( (l,Sample), [((RTime,RTime), Note)] )] =
+  evs3 :: [( (l, Sample)
+           , [((RTime, RTime) ,Msg)] )] =
+    map (_2 . traversed . _1 %~ (\t -> (t,t)) ) evs2
+  evs4 :: [( (l,Sample),
+             [((RTime,RTime), Note)] )] =
     map f evs3
     where f :: ( (l,Sample), [((RTime,RTime), Msg )] )
             -> ( (l,Sample), [((RTime,RTime), Note)] )
-          f ((l,s),pairs) =
-            ((l,s), map (_2 %~ Note (Sampler s)) pairs)
+          f ((l,s),rtimeMsgPairs) =
+            ((l,s), map (_2 %~ Note (Sampler s)) rtimeMsgPairs)
+
   evs5 :: [( String, [((RTime,RTime), Note)] )] =
     map (_1 %~ \(l,s) -> show l ++ show s) evs4
   evs6 :: [Event RTime String Note] =
     concatMap (\(s,ps) -> map (\(ts,n) -> Event s ts n) ps) evs5
   almost :: Museq String Note =
     mkMuseqFromEvs sup0 evs6
-  g :: (RTime,RTime) -> (RTime,RTime)
-  g (s,e) = if s >= sup0 then (s-sup0,e-sup0) else (s,e)
-  in almost & vec %~ V.map (evArc %~ g)
+  in almost
+  -- g :: (RTime,RTime) -> (RTime,RTime)
+  -- g (s,e) = if s >= sup0 then (s-sup0,e-sup0) else (s,e)
+  -- in almost & vec %~ V.map (evArc %~ g)
+    -- I'm pretty sure this is obsolete.
+    -- It ensures that any event starting after sup0 wraps around to the
+    -- beginning of the loop. It was probably needed when I was adding
+    -- "trigger=0" messages to the Museq. Now the Dispatch handles that;
+    -- the user never needs to see those messages.
 
 mkMuseqRt1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
 mkMuseqRt1 sup0 = mkMuseqRt sup0 . map f where
-  f (t,s) = ("a",t,s,mempty)
+  f (t,s) = ("a",t,s, M.singleton "trigger" 1)
 
 
 -- | Utilities used by the Museq-making functions
-
-prepareToRetrigger ::
-  RDuration -> [ (RDuration,             Msg)]
-            -> [((RDuration, RDuration), Msg)]
-prepareToRetrigger sup0 dms = f dms where
-
-  -- Given an event `(t,m)` and the time `next` of the event one,
-  -- create two messages. One sends `m + (trigger=1)` at time `t`,
-  -- and the other sends `m + (trigger=(-1))` halfway from `t` to `next`.
-  triggerPair :: RTime ->      (RDuration, Msg)
-              -> ( ( (RDuration,RDuration), Msg)
-                 , ( (RDuration,RDuration), Msg) )
-  triggerPair next (t,m) =
-    let justAfter = (15*t + next) / 16
-    -- HACK! The off is sent soon after the on, so that even if the _sup
-    -- of the Museq is cut short, it probably won't lose the off signal.
-    in ( ( (t        , justAfter ), M.insert "trigger" 1 m)
-       , ( (justAfter, next      ), M.insert "trigger" 0 m) )
-
-  f :: [(RDuration, Msg)] -> [((RDuration,RDuration),Msg)]
-  f []                      = []
-  f [(t,m)]                 = let (a,b) = triggerPair sup0 (t,m)
-                              in [a,b]
-  f ((t0,a0):e@(t1,_):rest) = let (a,b) = triggerPair t1 (t0,a0)
-                              in [a,b] ++ f (e:rest)
 
 -- | `hold sup0 tas` sustains each event in `tas` until the next one starts.
 -- The `sup0` parameter indicates the total duration of the pattern,

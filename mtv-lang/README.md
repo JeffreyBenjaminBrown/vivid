@@ -100,17 +100,6 @@ The files in `sketches/` are neither simple nor well commented.
 
 ## Known problems
 
-### Each sample needs to play in a separate voice, I think
-
-My experiments suggest it's true,
-and the code is written as if it's true,
-but I don't remember why it would be.
-
-For instance, if a beat sends events to the `Sampler SampleKr` synth
-and to the `Sampler SampleSm_m` synth,
-the events sending to the first should have an `_evLabel`
-field different from the events sending to the other.
-
 ### When a loop starts, often it plays a bunch of simultaneous notes it shouldn't
 
 It's as if they were meant to play earlier, but were somehow blocked.
