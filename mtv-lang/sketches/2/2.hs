@@ -6,8 +6,8 @@ patPitch = mmho 3 $ pre2 "a" $
            map (_2 %~ m1 "freq") $ seq 0 1 2
 patJump = mmho 3 $ pre2 "b" $
            map (_2 %~ m1 "freq") $ seq 0 6 12
-patKs = mmrt1 3 $ seq SampleSm_peb SampleKm SampleKm
-patHat = mmrt1 3 $ seq SampleHl_dc SampleHl_tfc SampleHl_tfc
+patKs = mmt1 3 $ seq SampleSm_peb SampleKm SampleKm
+patHat = mmt1 3 $ seq SampleHl_dc SampleHl_tfc SampleHl_tfc
 
 modPat f g = mmh 3 $ pre2 "c"
   [ (0, f . g)

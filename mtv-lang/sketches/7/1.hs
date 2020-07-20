@@ -10,8 +10,8 @@ meta3 = mmh 2 $ pre2 "a" $
         seq id (early (1/2)) (fast 2)
 patPitch k = mmho 2 $ pre2 "a" $
              map (_2 %~ m1 "freq") $ seq 0 k $ 2*k
-patKs  = mmrt1 2 $ seq SampleKm SampleSm_peb SampleSl_blip
-patHat = mmrt1 2 $ seq SampleHl_et  SampleHl_tfc SampleHl_tfc
+patKs  = mmt1 2 $ seq SampleKm SampleSm_peb SampleSl_blip
+patHat = mmt1 2 $ seq SampleHl_et  SampleHl_tfc SampleHl_tfc
 
 go = nZot . toHz . rootScale rs where
   toHz = ops [("freq", (*) 200 . \p -> 2**(p/12))]

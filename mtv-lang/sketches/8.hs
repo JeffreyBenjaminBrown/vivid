@@ -3,12 +3,12 @@ seq evs = f $ zip (map RTime [0..]) evs where
   f [a] = [a]
   f ((t,ev):b:more) = (t+1/2, ev) : b : f more
 
-patKs = mmrt1 4 $ seq [ SampleKm, SampleSm_peb, SampleSl_blip ]
-patHat = mmrt1 4 $ seq [ SampleHl_et, SampleHl_tfc, SampleHl_tfc ]
+patKs = mmt1 4 $ seq [ SampleKm, SampleSm_peb, SampleSl_blip ]
+patHat = mmt1 4 $ seq [ SampleHl_et, SampleHl_tfc, SampleHl_tfc ]
 
 -- simpler patterns
-s1 = mmrt1 2 $ map (_1 %~ RTime) $  [ (0, SampleKm), (1, SampleKt) ]
-s2 = mmrt1 2 $ map (_1 %~ RTime) $  [ (0, SampleHl_et), (1, SampleSp_t) ]
+s1 = mmt1 2 $ map (_1 %~ RTime) $  [ (0, SampleKm), (1, SampleKt) ]
+s2 = mmt1 2 $ map (_1 %~ RTime) $  [ (0, SampleHl_et), (1, SampleSp_t) ]
 
 viewDurs = vec .~ mempty
 

@@ -1,9 +1,8 @@
 drums =   -- This is a drum pattern.
-  mmrt1 2 -- The 2 here gives it a duration of 2.
-  -- "mmrt" = "mm" (make a Museq) + "rt" (insert retrigger messages).
-  -- The "retrigger" messages are annoying, and will eventually go away,
-  -- but currently one needs to make sure the pattern includes messages
-  -- that tell SuperCollider to be ready to retrigger the sampler.
+  mmt1 2 -- The 2 here gives it a duration of 2.
+  -- "mmt" = "mm" (make a Museq) + "t" (for trigger messages).
+  -- It attaches a "trigger=1" message to each sample,
+  -- which would be annoying to have to write by hand.
   [ ( 0           -- At time 0,
     , SampleKd)   -- play one of the kick drum samples.
   , ( 1           -- At time 1,

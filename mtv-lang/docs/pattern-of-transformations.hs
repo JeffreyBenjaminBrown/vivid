@@ -1,19 +1,18 @@
 -- the "kick kick snare silence" pattern (ala "we will rock you")
 ks :: Museq String Note =
   -- `ks` has a duration of 1, because the `4` arguments to `fast`
-  -- and `mmrt1` cancel out.
+  -- and `mmt1` cancel out.
   fast 4 $
-  mmrt1 4 $ -- "mmrt" makes a Museq ("mm") and adds retrigger ("rt")
-    -- messages shortly after each note. (Without those, SuperCollider
-    -- would not prepare the sampler to be ready for the next message.)
-    -- TODO: send retrigger messages automatically, don't bother the user.
+  mmt1 4 $ -- "mmt" = "mm" (make a Museq) + "t" (for trigger messages).
+           -- It attaches a "trigger=1" message to each sample,
+           -- which would be annoying to have to write by hand.
   map (_1 %~ RTime) $ -- convert the first thing in each pair from a number
                       -- to an `RTime`
   [ (0, SampleKm)
   , (1, SampleKt)
   , (2, SampleSp_t) ]
 
-hats = fast 4 $ mmrt1 4 $ -- causes hats to have a duration of 1
+hats = fast 4 $ mmt1 4 $ -- causes hats to have a duration of 1
   map (_1 %~ RTime) $
   [ (0, SampleHl_et)
   , (2, SampleHl_et)

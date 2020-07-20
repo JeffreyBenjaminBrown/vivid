@@ -7,10 +7,10 @@ evs = [ (0, m1 "freq" 0)
       , (4, m1 "freq" 5)
       , (5, m1 "on" 0) ]
 pat = mmho dur0 $ pre2 "a" evs
-hatPat = mmrt1 6 $ map (_2 %~ f) evs where
+hatPat = mmt1 6 $ map (_2 %~ f) evs where
   f :: M.Map String Float -> Sample
   f = maybe SampleSl_b (const SampleHl_cg) . M.lookup "freq"
-kickSnarePat = mmrt1 2 [ (0, SampleKd)
+kickSnarePat = mmt1 2 [ (0, SampleKd)
                        , (1, SampleSp_t) ]
 
 scalePat = mmh (4*dur0) $ pre2 "a"

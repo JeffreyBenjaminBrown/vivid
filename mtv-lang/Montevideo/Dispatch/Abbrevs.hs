@@ -23,9 +23,9 @@ module Montevideo.Dispatch.Abbrevs (
   , mm1   -- ^ Msg -> Museq String Msg
   , mmho  -- ^ forall l. Ord l =>
       -- RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
-  , mmrt  -- ^ forall l. (Ord l, Show l) =>
+  , mmt  -- ^ forall l. (Ord l, Show l) =>
       -- RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
-  , mmrt1 -- ^ RDuration -> [(RTime,Sample)] -> Museq String Note
+  , mmt1 -- ^ RDuration -> [(RTime,Sample)] -> Museq String Note
   , offs  -- ^ Museq l Msg -> Museq l Msg
   , ons   -- ^ Museq l Msg -> Museq l Msg
   , ops   -- ^ [(ParamName, Float -> Float)]
@@ -106,12 +106,12 @@ mm1 = mkMuseqOneMsg
 mmho :: forall l. Ord l => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
 mmho = mkMuseqHo
 
-mmrt :: forall l. (Ord l, Show l) =>
+mmt :: forall l. (Ord l, Show l) =>
   RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
-mmrt = mkMuseqRt
+mmt = mkMuseqTrig
 
-mmrt1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
-mmrt1 = mkMuseqRt1
+mmt1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
+mmt1 = mkMuseqTrig1
 
 offs :: Museq l Msg -> Museq l Msg
 offs = insertOffs

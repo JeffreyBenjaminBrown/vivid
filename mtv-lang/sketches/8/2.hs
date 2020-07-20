@@ -3,10 +3,10 @@ seq evs = f $ zip (map RTime [0..]) evs where
   f [a] = [a]
   f (a:(t,ev):more) = a : (max 0 $ t-1/2, ev) : f more
 
-patKs = mmrt1 4 $ seq [ SampleKm
+patKs = mmt1 4 $ seq [ SampleKm
                       , SampleSm_peb
                       , SampleSl_blip ]
-patHat = nAmpTo 0.04 $ mmrt1 4 $ seq [ SampleHl_et
+patHat = nAmpTo 0.04 $ mmt1 4 $ seq [ SampleHl_et
                                      , SampleHl_tfc
                                      , SampleHl_tfc ]
 

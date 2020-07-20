@@ -5,8 +5,8 @@ seq d e f = [ (0, d)
             , (3, f) ]
 patPitch = mmho 4 $ pre2 "a" $
            map (_2 %~ m1 "freq") $ seq 0 1 2
-patKs = mmrt1 4 $ seq SampleSm_peb SampleKm SampleKm
-patHat = mmrt1 4 $ seq SampleHl_dc SampleHl_tfc SampleHl_tfc
+patKs = mmt1 4 $ seq SampleSm_peb SampleKm SampleKm
+patHat = mmt1 4 $ seq SampleHl_dc SampleHl_tfc SampleHl_tfc
 
 modPat f g = mmh 4 $ pre2 "a"
   [ (0, f . g)

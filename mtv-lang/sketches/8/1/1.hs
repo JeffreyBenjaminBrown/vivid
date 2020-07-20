@@ -1,7 +1,7 @@
 -- simpler patterns
-s1  = mmrt1 2 $ map (_1 %~ RTime) $  [ (0, SampleKm), (1, SampleKt) ]
-s13 = mmrt1 2 $ map (_1 %~ RTime) $  [ (0, SampleKm), (5/3, SampleKt) ]
-s2  = mmrt1 3 $ map (_1 %~ RTime) $  [ (0, SampleHl_et), (1, SampleSp_t) ]
+s1  = mmt1 2 $ map (_1 %~ RTime) $  [ (0, SampleKm), (1, SampleKt) ]
+s13 = mmt1 2 $ map (_1 %~ RTime) $  [ (0, SampleKm), (5/3, SampleKt) ]
+s2  = mmt1 3 $ map (_1 %~ RTime) $  [ (0, SampleHl_et), (1, SampleSp_t) ]
 
 viewDurs = vec .~ mempty
 

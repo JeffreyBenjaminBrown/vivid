@@ -13,9 +13,9 @@ module Montevideo.Dispatch.Museq.Mk (
               -- RDuration -> [(l, RTime, Maybe a)] -> Museq l a
   , mkMuseqHo -- ^ forall a l. Ord l
               -- => RDuration -> [(l,RDuration,Msg)]  -> Museq l Msg
-  , mkMuseqRt -- ^ forall l. (Ord l, Show l)
+  , mkMuseqTrig -- ^ forall l. (Ord l, Show l)
     -- => RDuration -> [(l,RTime,Sample,Msg)]         -> Museq String Note
-  , mkMuseqRt1 -- ^ RDuration -> [(RTime,Sample)]     -> Museq String Note
+  , mkMuseqTrig1 -- ^ RDuration -> [(RTime,Sample)]     -> Museq String Note
 
   -- | Utilities used by the Museq-making functions
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
@@ -93,13 +93,13 @@ mkMuseqHo :: forall l. Ord l
 mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
 
 -- | Make a Museq with sample trigger messages.
--- `mkMuseqRt` sends any two `Msg` values to different synths, unless
+-- `mkMuseqTrig` sends any two `Msg` values to different synths, unless
 -- they share the same label *and* the same `Sample`.
 -- This is guaranteed by computing new labels `show l ++ show Sample`.
 
-mkMuseqRt :: forall l. (Ord l, Show l) =>
+mkMuseqTrig :: forall l. (Ord l, Show l) =>
   RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
-mkMuseqRt sup0 evs0 = let
+mkMuseqTrig sup0 evs0 = let
   -- Rather than group by l and then Sample,
   -- maybe group by l' = show l ++ show Sample?
   evs1 :: [ ( (l, Sample)
@@ -135,9 +135,9 @@ mkMuseqRt sup0 evs0 = let
     -- "trigger=0" messages to the Museq. Now the Dispatch handles that;
     -- the user never needs to see those messages.
 
--- | Like `mkMuseqRt`, but assuming all messages are trigger=1 messages.
-mkMuseqRt1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
-mkMuseqRt1 sup0 = mkMuseqRt sup0 . map f where
+-- | Like `mkMuseqTrig`, but assuming all messages are trigger=1 messages.
+mkMuseqTrig1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
+mkMuseqTrig1 sup0 = mkMuseqTrig sup0 . map f where
   f (t,s) = ("a",t,s, M.singleton "trigger" 1)
 
 
