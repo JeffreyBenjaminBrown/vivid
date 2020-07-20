@@ -8,6 +8,8 @@ It can be used for:
 * `mtv-ji`: music theory
 
 Most of those have a separate README.
+I haven't documented the ear training and music theory modules well,
+but if I see evidence that anybody else wants to use them, I might.
 
 
 # Hacking it

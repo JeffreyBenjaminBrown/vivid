@@ -1,45 +1,4 @@
-# Quickstart to live-coding in `Montevideo-lang`
-
-## Set up these dependencies
-
-### Install [Stack](https://docs.haskellstack.org/en/stable/README/)
-
-Stack is a Haskell build tool.
-
-### Install SuperCollider
-
-as described in the documentation for [Vivid](https://www.vivid-synth.com/).
-
-### Install the Dirt-Samples library
-
-Clone the
-[Dirt-Samples](https://github.com/tidalcycles/Dirt-Samples) repository.
-
-Edit `mtv-synth/Montevideo/Synth/Config.hs`, changing the definition of `dirtSamplesFolder` to point to the Dirt-Samples repo you cloned.
-
-
-## Run it
-
-* Go to the root folder of Montevideo.
-* Run `./sc-start.sh` to start SuperCollider.
-* Go to the `mtv-lang/` subfolder.
-* Run`stack ghci`.
-* Evaluate `:s init.hs`.
-* Evaluate `:. sketches/2/3`.
-* Evaluate `hush` to stop the music.
-* Load another sketch with `:. sketches/something/else`.
-* Turn it off with `off`. (This will leave SC running, so you can start another dispatcher by running `:s init.hs` again without restarting SC.)
-
-See the section on "learning", below, for where to go next.
-
-## You can also add your own samples
-
-Just edit that path to point to the folder your samples are in,
-and then tediously edit `src/Synths/Samples.hs`
-to reify each new sample.
-
-
-# Montevideo-lang is inspired by [TidalCycles](https://tidalcycles.org/index.php/Welcome)
+# `Montevideo-lang` is a language for generating music, inspired by [TidalCycles](https://tidalcycles.org/index.php/Welcome)
 
 I love TidalCycles. It has a friendly DSL,
 a fancy, delicious sampler,
@@ -76,9 +35,48 @@ Montevideo represents cycles as data.
 I still haven't rediscovered why I thought that would be better.
 
 
-# Learning Montevideo-lang
+# Setting it up
 
-## Learning to use it
+## Install some dependencies
+
+### Install [Stack](https://docs.haskellstack.org/en/stable/README/)
+
+Stack is a Haskell build tool.
+
+### Install SuperCollider
+
+as described in the documentation for [Vivid](https://www.vivid-synth.com/).
+
+### Install the Dirt-Samples library
+
+Clone the
+[Dirt-Samples](https://github.com/tidalcycles/Dirt-Samples) repository.
+
+Edit `mtv-synth/Montevideo/Synth/Config.hs`, changing the definition of `dirtSamplesFolder` to point to the Dirt-Samples repo you cloned.
+
+
+## Run it
+
+* Go to the root folder of Montevideo.
+* Run `./sc-start.sh` to start SuperCollider.
+* Go to the `mtv-lang/` subfolder.
+* Run`stack ghci`.
+* Evaluate `:s init.hs`.
+* Evaluate `:. sketches/2/3`.
+* Evaluate `hush` to stop the music.
+* Load another sketch with `:. sketches/something/else`.
+* Turn it off with `off`. (This will leave SC running, so you can start another dispatcher by running `:s init.hs` again without restarting SC.)
+
+See the section on "learning", below, for where to go next.
+
+## You can add your own samples
+
+Just edit that path to point to the folder your samples are in,
+and then tediously edit `src/Synths/Samples.hs`
+to reify each new sample.
+
+
+# Learning to use `Montevideo-lang`
 
 The files in `docs/` are simple and commented, and a good way to learn.
 This might be a good order to learn them in.
@@ -98,15 +96,15 @@ assuming you ran `:s init.hs` as described above.)
 The files in `sketches/` are neither simple nor well commented.
 
 
-## Known problems
+# Known problems
 
-### When a loop starts, often it plays a bunch of simultaneous notes it shouldn't
+## When a loop starts, often it plays a bunch of simultaneous notes it shouldn't
 
 It's as if they were meant to play earlier, but were somehow blocked.
 I don't know why.
 
 
-## Hacking it
+# Hacking it
 
 If its type signature and comments aren't enough to understand a function,
 check whether it's in the test suite
