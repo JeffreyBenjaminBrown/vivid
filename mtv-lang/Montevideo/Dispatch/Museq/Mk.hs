@@ -92,7 +92,8 @@ mkMuseqHo :: forall l. Ord l
           => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
 mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
 
--- | `mkMuseqRt` sends any two `Msg` values to different synths, unless
+-- | Make a Museq with sample trigger messages.
+-- `mkMuseqRt` sends any two `Msg` values to different synths, unless
 -- they share the same label *and* the same `Sample`.
 -- This is guaranteed by computing new labels `show l ++ show Sample`.
 
@@ -134,6 +135,7 @@ mkMuseqRt sup0 evs0 = let
     -- "trigger=0" messages to the Museq. Now the Dispatch handles that;
     -- the user never needs to see those messages.
 
+-- | Like `mkMuseqRt`, but assuming all messages are trigger=1 messages.
 mkMuseqRt1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
 mkMuseqRt1 sup0 = mkMuseqRt sup0 . map f where
   f (t,s) = ("a",t,s, M.singleton "trigger" 1)

@@ -173,7 +173,7 @@ actSend reg when (Send (Sampler _) name msg) =
           else -- Otherwise schedule an off message for the very near future.
           -- (The lag can be shorter than the sample without truncating it.)
           V.doScheduledAt (V.Timestamp $ fromRational $ when + retriggerLag)
-          $ set' s $ Msg' (V.toI (-1) :: V.I "trigger")
+          $ set' s $ Msg' (V.toI (-1 :: Int) :: V.I "trigger")
 
 actSend reg when (Send Sqfm name msg) =
   case M.lookup name $ _sqfms reg of
