@@ -71,6 +71,8 @@ boopPulse = sd ( 0              :: I "freq"
 
 type SamplerParams = '["amp","buffer","speed","trigger"]
 
+-- | Quoting the SC manual (https://doc.sccode.org/Classes/PlayBuf.html):
+-- "A trigger causes a jump to the startPos. A trigger occurs when a signal changes from negative value to positive value."
 sampler :: SynthDef SamplerParams
 sampler = sd ( toI defaultAmp :: I "amp"
              , 0              :: I "buffer"

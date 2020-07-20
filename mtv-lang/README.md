@@ -100,7 +100,7 @@ The files in `sketches/` are neither simple nor well commented.
 
 ## Known problems
 
-### Synths drops notes at high frequencies
+### Synths drop notes at high frequencies
 
 The sampler (which is the way to create drum loops)
 starts dropping notes at around 20 Hz,
@@ -108,18 +108,17 @@ i.e. when there's only 50 ms or less between consecutive notes.
 
 The other synths, which are not sample-based,
 start dropping notes at around 52 Hz.
-It still sounds pretty good, but not perfectly regular.
 (Note that the parameters of your synths can change more frequently than that,
 but you've got to program that into them using Vivid,
 rather than simply sending messages to them from Montevideo-lang.)
 
+In both cases, when you push that envelope,
+it still sounds good, but it's not perfectly regular.
 
-### Each sample needs to play in a separate voice
 
-There are two kinds of synths in Montevideo.
-Almost all of them create waveforms de novo,
-but one of them plays samples.
-It's the way to create drumloops.
+### Each sample needs to play in a separate voice, I think
+
+My experiments suggest it's true, but I don't know why.
 
 For instance, if a beat sends events to the `Sampler SampleKr` synth
 and to the `Sampler SampleSm_m` synth,
