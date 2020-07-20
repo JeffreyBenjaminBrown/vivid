@@ -21,7 +21,7 @@ import           Control.Lens hiding (set,set')
 import qualified Data.Map as M
 import qualified Vivid as V
 
-import Montevideo.Dispatch.Config (frameDuration)
+import Montevideo.Dispatch.Config
 import Montevideo.Dispatch.Msg.Mk
 import Montevideo.Dispatch.Types
 import Montevideo.Synth
@@ -163,9 +163,17 @@ actSend reg when (Send Boop name msg) =
 actSend reg when (Send (Sampler _) name msg) =
   case M.lookup name $ _samplers reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
-    Just (s :: V.Synth SamplerParams) ->
+    Just (s :: V.Synth SamplerParams) -> do
       V.doScheduledAt (V.Timestamp $ fromRational when)
-      $ mapM_ (set' s) $ samplerMsg msg
+        $ mapM_ (set' s) $ samplerMsg msg
+      case M.lookup "trigger" msg of
+        Nothing -> return ()
+        Just x -> if x <= 0 -- If it's an off message,
+          then return ()    -- then do nothing.
+          else -- Otherwise schedule an off message for the very near future.
+          -- (The lag can be shorter than the sample without truncating it.)
+          V.doScheduledAt (V.Timestamp $ fromRational $ when + retriggerLag)
+          $ set' s $ Msg' (V.toI (-1) :: V.I "trigger")
 
 actSend reg when (Send Sqfm name msg) =
   case M.lookup name $ _sqfms reg of

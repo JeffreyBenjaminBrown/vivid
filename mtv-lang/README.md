@@ -100,30 +100,21 @@ The files in `sketches/` are neither simple nor well commented.
 
 ## Known problems
 
-### Synths drop notes at high frequencies
-
-The sampler (which is the way to create drum loops)
-starts dropping notes at around 20 Hz,
-i.e. when there's only 50 ms or less between consecutive notes.
-
-The other synths, which are not sample-based,
-start dropping notes at around 52 Hz.
-(Note that the parameters of your synths can change more frequently than that,
-but you've got to program that into them using Vivid,
-rather than simply sending messages to them from Montevideo-lang.)
-
-In both cases, when you push that envelope,
-it still sounds good, but it's not perfectly regular.
-
-
 ### Each sample needs to play in a separate voice, I think
 
-My experiments suggest it's true, but I don't know why.
+My experiments suggest it's true,
+and the code is written as if it's true,
+but I don't remember why it would be.
 
 For instance, if a beat sends events to the `Sampler SampleKr` synth
 and to the `Sampler SampleSm_m` synth,
 the events sending to the first should have an `_evLabel`
 field different from the events sending to the other.
+
+### When a loop starts, often it plays a bunch of simultaneous notes it shouldn't
+
+It's as if they were meant to play earlier, but were somehow blocked.
+I don't know why.
 
 
 ## Hacking it
