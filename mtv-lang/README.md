@@ -98,11 +98,21 @@ The files in `sketches/` are neither simple nor well commented.
 
 # Known problems
 
+## Complex loops can take a while to render
+
+This isn't a bug, but it can be bothersome.
+
+Representing a Museq as a function from time to events,
+rather than as  list of time-event pairs, might help.
+
+Note that the loop has to be pretty complex for it to happen --
+all the pieces in [the docs/ folder](docs/), for instance,
+and omst of the ontes in [sketches/](sketches/), play instantly.
+
 ## When a loop starts, often it plays a bunch of simultaneous notes it shouldn't
 
 It's as if they were meant to play earlier, but were somehow blocked.
 I don't know why.
-
 
 # Hacking it
 
