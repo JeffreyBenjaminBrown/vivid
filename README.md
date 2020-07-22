@@ -2,14 +2,14 @@
 
 It can be used for:
 
-* `mtv-lang`: live-coding
-* `mtv-monome`: playing via a [monome](https://monome.org/)
+* [`mtv-lang`](mtv-lang/README.md): live-coding
+* [`mtv-monome`](mtv-monome/README.md): playing via a [monome](https://monome.org/)
 * `mtv-earTrain`: ear training
 * `mtv-ji`: music theory
 
-Most of those have a separate README.
+The first two of those have dedicated README files (linked above).
 I haven't documented the ear training and music theory modules well,
-but if I see evidence that anybody else wants to use them, I might.
+but if I see evidence that anybody else wants to use them, I could.
 
 
 # Hacking it

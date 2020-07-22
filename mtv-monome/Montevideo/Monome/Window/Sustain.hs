@@ -103,8 +103,8 @@ toggleSustain st = let
   app = st ^. stApp
   in if null (app ^. edoFingers) && null (app ^. edoSustaineded)
   then st
-
   else let
+
   sustainOn' :: Bool = -- new sustain state
     not $ isJust $ app ^. edoSustaineded
   sustainedVs :: Maybe (Set VoiceId) =
