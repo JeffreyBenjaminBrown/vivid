@@ -100,20 +100,21 @@ voicesToSilence_uponSustainOff st = let
 -- and the set of lit keys gains new reasons to be lit.
 toggleSustain :: St EdoApp -> St EdoApp
 toggleSustain st = let
+  app = st ^. stApp
   sustainOn' :: Bool = -- new sustain state
-    not $ isJust $ st ^. stApp . edoSustaineded
+    not $ isJust $ app ^. edoSustaineded
   sustainedVs :: Maybe (Set VoiceId) =
     if not sustainOn' then Nothing
-    else Just $ S.fromList $ M.elems $ st ^. stApp . edoFingers
+    else Just $ S.fromList $ M.elems $ app ^. edoFingers
 
   lit' | sustainOn' =
-         foldr insertOneSustainedNote (st ^. stApp . edoLit)
+         foldr insertOneSustainedNote (app ^. edoLit)
          $ map (vid_to_pitch st)
-         $ M.elems $ st ^. stApp . edoFingers
+         $ M.elems $ app ^. edoFingers
        | otherwise =
-         foldr deleteOneSustainedNote (st ^. stApp . edoLit)
+         foldr deleteOneSustainedNote (app ^. edoLit)
          $ map (vid_to_pitch st) $ S.toList
-         $ maybe (error "impossible") id $ st ^. stApp . edoSustaineded
+         $ maybe (error "impossible") id $ app ^. edoSustaineded
   in st & stApp . edoSustaineded .~ sustainedVs
         & stApp . edoLit       .~ lit'
 

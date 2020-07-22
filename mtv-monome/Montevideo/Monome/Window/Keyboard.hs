@@ -42,19 +42,21 @@ keyboardWindow =  Window {
 -- TODO ! duplicative of `JI.handler`
 handler :: St EdoApp -> ((X,Y), Switch) -> St EdoApp
 handler    st          press@ (xy,sw)   = let
-  fingers' = st ^. stApp . edoFingers
+  app = st ^. stApp
+  fingers' = app ^. edoFingers
         & case sw of
             True  -> M.insert xy xy
             False -> M.delete xy
   pcNow :: (PitchClass EdoApp) =
-    mod (xyToEdo_st st xy) (st ^. stApp . edoConfig . edo)
+    mod (xyToEdo_st st xy) (app ^. edoConfig . edo)
     -- what the key represents currently
   pcThen :: Maybe (PitchClass EdoApp) =
     ledBecause_toPitchClass @ EdoApp
-    (st ^. stApp . edoLit) $ LedBecauseSwitch xy
+    (app ^. edoLit) $ LedBecauseSwitch xy
     -- what the key represented when it was pressed,
     -- if it is now being released
-  lit  :: LitPitches EdoApp = st ^. stApp . edoLit
+
+  lit  :: LitPitches EdoApp = app ^. edoLit
   lit' :: LitPitches EdoApp = updateStLit (xy,sw) pcNow pcThen lit
   oldKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit
   newKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit'
