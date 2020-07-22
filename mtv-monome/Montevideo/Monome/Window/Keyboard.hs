@@ -37,7 +37,7 @@ keyboardWindow =  Window {
       flip (++) ( map ( (label,) . (,True) ) $
                   concatMap (pcToXys_st st) $
                   M.keys $ st ^. stApp . edoLit )
-  , windowRoutine = handler }
+  , windowHandler = handler }
 
 -- TODO ! duplicative of `JI.handler`
 handler :: St EdoApp -> ((X,Y), Switch) -> St EdoApp

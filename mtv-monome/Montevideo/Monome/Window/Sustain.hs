@@ -39,7 +39,7 @@ sustainWindow = Window {
     windowLabel = label
   , windowContains = (==) theButton
   , windowInit = id
-  , windowRoutine = handler
+  , windowHandler = handler
 }
 
 handler :: St EdoApp
@@ -49,6 +49,7 @@ handler :: St EdoApp
 handler    st    (_ , False)      = st
 handler    st    (_,  True)      = let
   st1 = toggleSustain st
+
   kbdMsgs :: [LedMsg] =
     if null $ st1 ^. stApp . edoSustaineded
     then map ( (Kbd.label,) . (,False) ) $
@@ -59,6 +60,7 @@ handler    st    (_,  True)      = let
     if null $ st1 ^. stApp . edoSustaineded
     then map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
     else []
+
   sustainButtonMsg = ( label
                      , (theButton, isJust $ st1 ^. stApp . edoSustaineded) )
   st2 = st1 & stPending_Monome %~ flip (++) (sustainButtonMsg : kbdMsgs)
