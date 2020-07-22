@@ -81,17 +81,17 @@ to reify each new sample.
 The files in `docs/` are simple and commented, and a good way to learn.
 This might be a good order to learn them in.
 (Each of the following lines is an instruction you can evaluate from GHCI,
-assuming you ran `:s init.hs` as described above.)
+assuming you ran `:s init.hs` as described above.
+For instance, to run `docs/samples.hs`, evaluate `:. docs/samples`
+from the GHCI prompt.)
 
-```
-:. docs/samples
-:. docs/merge-two-patterns
-:. docs/syn
-:. docs/duration.md
-:. docs/scale-progression
-:. docs/scale-and-root-progression
-:. docs/pattern-of-transformations
-```
+* [docs/samples.hs](docs/samples.hs)
+* [docs/merge-two-patterns.hs](docs/merge-two-patterns.hs)
+* [docs/synths.hs](docs/synths.hs)
+* [docs/duration.md](docs/duration.md) (this is not code, just text to read)
+* [docs/scale-progression.hs](docs/scale-progression.hs)
+* [docs/scale-and-root-progression.hs](docs/scale-and-root-progression.hs)
+* [docs/pattern-of-transformations.hs](docs/pattern-of-transformations.hs)
 
 The files in `sketches/` are neither simple nor well commented.
 
