@@ -36,6 +36,7 @@ test_shiftHandler = TestCase $ do
   assertBool "shift the notes one space closer to player's body" $ let
     oldShift = st_0a ^. stApp . edoXyShift
     newShift = pairAdd oldShift $
+               fromRight (error "bork") $
                Sh.shift (st_0a ^. stApp . edoConfig) Sh.downArrow
     msgs :: [LedMsg] = map (K.label,)
       $  map (,False) (pcToXys (st_0a ^. stApp . edoConfig) oldShift pc0)
@@ -48,6 +49,7 @@ test_shiftHandler = TestCase $ do
   assertBool "shift the notes an octave higher" $ let
     oldShift = st_0a ^. stApp . edoXyShift
     newShift = pairAdd oldShift $
+               fromRight (error "bork") $
                Sh.shift (st_0a ^. stApp . edoConfig) Sh.upOctave
     msgs :: [LedMsg] = map (K.label,)
       $  map (,False) (pcToXys (st_0a ^. stApp . edoConfig) oldShift pc0)

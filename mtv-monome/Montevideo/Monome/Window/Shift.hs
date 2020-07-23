@@ -36,16 +36,17 @@ downOctave = (13,14)
 -- higher Y => lower (closer to you) on the monome.
 -- | PITFALL: There are multiple ways to represent an octave shift.
 -- Here I've chosen one arbitrarily.
-shift :: EdoConfig -> (X,Y) -> (X,Y)
-shift ec xy | xy == rightArrow = (-1, 0)
-            | xy == downArrow  = ( 0,-1)
-              -- origin at top-left => down means add to Y
-            | xy == leftArrow  = ( 1, 0)
-            | xy == upOctave   = pairMul (-1) (hv ec)
-              -- lowering the origin raises the coordinate values of a given key, hence raising its pitch
-            | xy == upArrow    = ( 0, 1)
-            | xy == downOctave = hv ec
-            | otherwise = error $ "shift: unexpected input: " ++ show xy
+shift :: EdoConfig -> (X,Y) -> Either String (X,Y)
+shift ec xy
+  | xy == rightArrow = Right $ (-1, 0)
+  | xy == downArrow  = Right $ ( 0,-1)
+    -- origin at top-left => down means add to Y
+  | xy == leftArrow  = Right $ ( 1, 0)
+  | xy == upOctave   = Right $ pairMul (-1) (hv ec)
+    -- lowering the origin raises the coordinate values of a given key, hence raising its pitch
+  | xy == upArrow    = Right $ ( 0, 1)
+  | xy == downOctave = Right $ hv ec
+  | otherwise = Left $ "shift: unexpected input: " ++ show xy
 
 -- | = the window
 shiftWindow :: Window EdoApp
@@ -60,12 +61,13 @@ shiftWindow = Window {
 
 handler :: St EdoApp -> ((X,Y), Switch) -> Either String (St EdoApp)
 handler    st0          (_,  False)      = Right st0
-handler    st0          (xy, True )      = let
-  ec = st0 ^. stApp . edoConfig
-  st' :: St EdoApp = st0 & stApp . edoXyShift %~ pairAdd (shift ec xy)
-  lit :: [PitchClass EdoApp] = M.keys $ st0 ^. stApp . edoLit
-  msgs :: [LedMsg] =
-    map (Kbd.label,) $
-    (map (,False) $ concatMap (pcToXys_st st0) lit) ++
-    (map (,True)  $ concatMap (pcToXys_st st') lit)
-  in Right $ st' & stPending_Monome %~ flip (++) msgs
+handler    st0          (xy, True )      = do
+  let ec = st0 ^. stApp . edoConfig
+  s <- shift ec xy
+  let st' :: St EdoApp = st0 & stApp . edoXyShift %~ pairAdd s
+      lit :: [PitchClass EdoApp] = M.keys $ st0 ^. stApp . edoLit
+      msgs :: [LedMsg] =
+        map (Kbd.label,) $
+        (map (,False) $ concatMap (pcToXys_st st0) lit) ++
+        (map (,True)  $ concatMap (pcToXys_st st') lit)
+  Right $ st' & stPending_Monome %~ flip (++) msgs
