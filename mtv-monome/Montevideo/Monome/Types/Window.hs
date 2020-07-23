@@ -60,8 +60,10 @@ handleSwitch    mst              sw@ (btn,_)      = do
             case windowHandler w st0 sw of
               Left s -> return $ Left s
               Right st1 -> do
-                mapM_ (doSoundMessage st1) $ _stPending_Vivid  st1
-                mapM_ (doLedMessage st1)   $ _stPending_Monome st1
+                let f (Left string) = putStrLn string
+                    f (Right sound) = sound
+                  in mapM_ f $ doSoundMessage st1 <$> _stPending_Vivid  st1
+                mapM_          (doLedMessage st1)  $  _stPending_Monome st1
                 putMVar mst st1
                   { _stPending_Monome = []
                   , _stPending_Vivid = [] }
@@ -69,7 +71,7 @@ handleSwitch    mst              sw@ (btn,_)      = do
           False -> go ws
   go $ _stWindowLayers st0
 
-doSoundMessage :: St app -> SoundMsg app -> IO ()
+doSoundMessage :: St app -> SoundMsg app -> Either String (IO ())
 doSoundMessage    st        sdMsg         = do
   let vid   :: VoiceId = _soundMsgVoiceId sdMsg
       param :: Param   = _soundMsgParam   sdMsg
@@ -77,9 +79,9 @@ doSoundMessage    st        sdMsg         = do
       v     :: Synth BoopParams =
         (_stVoices st M.! vid) ^. voiceSynth
   case param of
-    "amp"  -> set v (toI f :: I "amp")
-    "freq" -> set v (toI f :: I "freq")
-    _      -> error $
+    "amp"  -> Right $ set v (toI f :: I "amp")
+    "freq" -> Right $ set v (toI f :: I "freq")
+    _      -> Left $
       "doSoundMessage: unrecognized parameter " ++ param
 
 doLedMessage :: St app -> LedMsg -> IO ()
