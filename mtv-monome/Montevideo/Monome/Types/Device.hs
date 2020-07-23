@@ -34,14 +34,15 @@ data Device = Device {
   , deviceRotation :: Int    -- ^ 0, 90, 180 or 270
   } deriving (Show, Eq, Ord)
 
-readDeviceID :: OSC -> DeviceID
+readDeviceID :: OSC -> Either String DeviceID
 readDeviceID ( OSC "/serialosc/device" [ OSC_S name
                                        , OSC_S monomeType
                                        , OSC_I port ] )
-  = DeviceID { deviceIDName = name
-             , deviceIDType = monomeType
-             , deviceIDPort = fromIntegral port }
-readDeviceID x = error $ "readDeviceID: unexpected message: " ++ show x
+  = Right $ DeviceID { deviceIDName = name
+                     , deviceIDType = monomeType
+                     , deviceIDPort = fromIntegral port }
+readDeviceID x = Left $ error $
+                 "readDeviceID: unexpected message: " ++ show x
 
 -- | PITFALL: If serialosc changed the order of its outputs, this would fail.
 readDevice :: [OSC] -> Device
