@@ -26,9 +26,10 @@ import qualified Data.Map as M
 import           Vivid hiding (pitch, synth, Param)
 
 import Montevideo.Monome.Network.Util
-import Montevideo.Synth.Boop_Monome
 import Montevideo.Monome.Types.Button
 import Montevideo.Monome.Types.Initial
+import Montevideo.Synth.Boop_Monome
+import Montevideo.Util
 
 
 -- | Forward a message to the monome if appropriate.
@@ -42,7 +43,7 @@ initAllWindows mst = do
   let runWindowInit :: Window app -> IO ()
       runWindowInit w = let
         st' :: St app = windowInit w st
-        in mapM_ (doLedMessage st') $ _stPending_Monome st'
+        in mapM_ doOrPrint $ doLedMessage st' <$> _stPending_Monome st'
   mapM_ runWindowInit $ _stWindowLayers st
 
 -- | called every time a monome button is pressed or released
@@ -60,10 +61,9 @@ handleSwitch    mst              sw@ (btn,_)      = do
             case windowHandler w st0 sw of
               Left s -> return $ Left s
               Right st1 -> do
-                let f (Left string) = putStrLn string
-                    f (Right sound) = sound
-                  in mapM_ f $ doSoundMessage st1 <$> _stPending_Vivid  st1
-                mapM_          (doLedMessage st1)  $  _stPending_Monome st1
+                mapM_ doOrPrint $
+                  (doSoundMessage st1 <$> _stPending_Vivid  st1) ++
+                  (doLedMessage   st1 <$> _stPending_Monome st1)
                 putMVar mst st1
                   { _stPending_Monome = []
                   , _stPending_Vivid = [] }
@@ -84,17 +84,18 @@ doSoundMessage    st        sdMsg         = do
     _      -> Left $
       "doSoundMessage: unrecognized parameter " ++ param
 
-doLedMessage :: St app -> LedMsg -> IO ()
+doLedMessage :: St app -> LedMsg -> Either String (IO ())
 doLedMessage st (l, (xy,b)) =
-  let toWindow = relayToWindow st l
-  in toWindow (xy,b)
+  case relayToWindow st l of
+    Left s         -> Left s
+    Right toWindow -> Right $ toWindow (xy,b)
 
-relayToWindow :: St app -> WindowId -> LedRelay
-relayToWindow st wl = let
-  ws = _stWindowLayers st
-  w = maybe err id $ findWindow ws wl
-    where err = error $ "relayToWindow: " ++ wl ++ " not found."
-  in relayIfHere (_stToMonome st) ws w
+relayToWindow :: St app -> WindowId -> Either String LedRelay
+relayToWindow st wl = do
+  let ws = _stWindowLayers st
+  w <- maybe (Left $ "relayToWindow: " ++ wl ++ " not found.")
+       Right $ findWindow ws wl
+  Right $ relayIfHere (_stToMonome st) ws w
 
 -- | `relayIfHere dest ws w` returns a `LedRelay` which,
 -- if the coordinate falls in `w` and in no other `Window` before `w` in `ws`,
