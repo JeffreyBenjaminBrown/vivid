@@ -44,4 +44,4 @@ d = readDevice [
   , OSC "/sys/rotation" [OSC_I 0]
   ]
 
--- readSwitchOSC $ OSC "/monome/grid/key" [OSC_I 7, OSC_I 7, OSC_I 1]
+-- readOSC_asSwitch $ OSC "/monome/grid/key" [OSC_I 7, OSC_I 7, OSC_I 1]

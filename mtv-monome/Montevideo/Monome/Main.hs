@@ -73,7 +73,7 @@ edoMonome monomePort = do
     decodeOSC <$> recv inbox 4096 >>= \case
       Left text -> putStrLn . show $ text
       Right osc -> do
-        let switch = readSwitchOSC osc
+        let switch = readOSC_asSwitch osc
         h <- handleSwitch mst switch
         case h of Left s -> putStrLn s
                   Right () -> return ()
@@ -130,7 +130,7 @@ jiMonome monomePort scale shifts = do
     decodeOSC <$> recv inbox 4096 >>= \case
       Left text -> putStrLn . show $ text
       Right osc -> do
-        let switch = readSwitchOSC osc
+        let switch = readOSC_asSwitch osc
         h <- handleSwitch mst switch
         case h of Left s -> putStrLn s
                   Right () -> return ()

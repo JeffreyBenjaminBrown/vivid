@@ -2,7 +2,7 @@
 
 module Montevideo.Monome.Types.Button (
     X, Y, Switch, Led, LedBecause(..)
-  , readSwitchOSC, fromBool, boolFromInt
+  , readOSC_asSwitch, fromBool, boolFromInt
   , ledOsc, allLedOsc
   ) where
 
@@ -24,10 +24,10 @@ boolFromInt 1 = True
 boolFromInt x = error $ "boolFromInt: " ++ show x
                   ++ " is niether 0 nor 1."
 
-readSwitchOSC :: OSC -> ((X,Y), Switch)
-readSwitchOSC (OSC "/monome/grid/key" [OSC_I x, OSC_I y, OSC_I s]) =
+readOSC_asSwitch :: OSC -> ((X,Y), Switch)
+readOSC_asSwitch (OSC "/monome/grid/key" [OSC_I x, OSC_I y, OSC_I s]) =
   ((fi x, fi y), boolFromInt $ fi s)
-readSwitchOSC x = error $ "readSwitchOSC: bad message: " ++ show x
+readOSC_asSwitch x = error $ "readOSC_asSwitch: bad message: " ++ show x
 
 -- | Tells the monome to turn on an LED. See Test/HandTest.hs.
 ledOsc :: String -> ((X,Y), Led) -> ByteString
