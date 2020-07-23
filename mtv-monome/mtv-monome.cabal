@@ -54,6 +54,7 @@ library
                 base
               , bytestring
               , containers
+              , either
               , lens
               , network
               , NumInstances

@@ -58,9 +58,9 @@ shiftWindow = Window {
   , windowHandler = handler
 }
 
-handler :: St EdoApp -> ((X,Y), Switch) -> St EdoApp
-handler    st0         (_,  False)      = st0
-handler    st0         (xy, True )      = let
+handler :: St EdoApp -> ((X,Y), Switch) -> Either String (St EdoApp)
+handler    st0          (_,  False)      = Right st0
+handler    st0          (xy, True )      = let
   ec = st0 ^. stApp . edoConfig
   st' :: St EdoApp = st0 & stApp . edoXyShift %~ pairAdd (shift ec xy)
   lit :: [PitchClass EdoApp] = M.keys $ st0 ^. stApp . edoLit
@@ -68,4 +68,4 @@ handler    st0         (xy, True )      = let
     map (Kbd.label,) $
     (map (,False) $ concatMap (pcToXys_st st0) lit) ++
     (map (,True)  $ concatMap (pcToXys_st st') lit)
-  in st' & stPending_Monome %~ flip (++) msgs
+  in Right $ st' & stPending_Monome %~ flip (++) msgs

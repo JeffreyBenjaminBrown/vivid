@@ -39,7 +39,7 @@ jiWindow =  Window {
 -- TODO ! duplicative of `Keyboard.handler`
 handler :: St JiApp
         -> ((X,Y), Switch)
-        -> St JiApp
+        -> Either String (St JiApp)
 handler st press@ (xy,sw) = let
   fingers' = st ^. stApp . jiFingers
              & case sw of
@@ -49,7 +49,7 @@ handler st press@ (xy,sw) = let
   st1 :: St JiApp = st
     & stApp . jiFingers .~ fingers'
     & stPending_Vivid   %~ (++ soundMsgs)
-  in foldr updateVoice st1 soundMsgs
+  in Right $ foldr updateVoice st1 soundMsgs
 
 -- TODO ! duplicative of `etKey_SoundMsg`
 jiKey_SoundMsg :: JiApp -> ((X,Y), Switch) -> [SoundMsg JiApp]

@@ -45,9 +45,9 @@ sustainWindow = Window {
 handler :: St EdoApp
         -> ( (X,Y) -- ^ ignored, since the sustain window has only one button
            , Switch)
-        -> St EdoApp
-handler    st    (_ , False)      = st
-handler    st    (_,  True)      = let
+        -> Either String (St EdoApp)
+handler st (_ , False) = Right st
+handler st (_,  True)  = let
   st1 = toggleSustain st
 
   kbdMsgs :: [LedMsg] =
@@ -65,7 +65,7 @@ handler    st    (_,  True)      = let
                      , (theButton, isJust $ st1 ^. stApp . edoSustaineded) )
   st2 = st1 & stPending_Monome %~ flip (++) (sustainButtonMsg : kbdMsgs)
             & stPending_Vivid  %~ flip (++) sdMsgs
-  in foldr updateVoice st2 sdMsgs
+  in Right $ foldr updateVoice st2 sdMsgs
 
 pitchClassesToDarken_uponSustainOff ::
   St EdoApp -> St EdoApp -> Set (PitchClass EdoApp)

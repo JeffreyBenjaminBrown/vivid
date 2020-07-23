@@ -66,9 +66,9 @@ testDependentPitchClass = TestCase $ do
 
 testBelongsHere :: Test
 testBelongsHere = TestCase $ do
-  let w1 = Window "w1" (\(x,y) -> x > y) id const
-      w2 = Window "w2" (\(x,_) -> x > 4) id const
-      w3 = Window "w3" (\(_,_) -> True)  id const
+  let w1 = Window "w1" (\(x,y) -> x > y) id $ \st _ -> Right st
+      w2 = Window "w2" (\(x,_) -> x > 4) id $ \st _ -> Right st
+      w3 = Window "w3" (\(_,_) -> True)  id $ \st _ -> Right st
       ws = [w1,w2,w3]
   assertBool "caught by w1 before reaching w3" $
     not $ belongsHere ws w3 (1,0)

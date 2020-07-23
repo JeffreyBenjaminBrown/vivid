@@ -40,7 +40,7 @@ keyboardWindow =  Window {
   , windowHandler = handler }
 
 -- TODO ! duplicative of `JI.handler`
-handler :: St EdoApp -> ((X,Y), Switch) -> St EdoApp
+handler :: St EdoApp -> ((X,Y), Switch) -> Either String (St EdoApp)
 handler    st          press@ (xy,sw)   = let
   app = st ^. stApp
   fingers' = app ^. edoFingers
@@ -74,7 +74,7 @@ handler    st          press@ (xy,sw)   = let
     & stApp . edoLit     .~ lit'
     & stPending_Monome  %~ (++ kbdMsgs)
     & stPending_Vivid   %~ (++ soundMsgs)
-  in foldr updateVoice st1 soundMsgs
+  in Right $ foldr updateVoice st1 soundMsgs
 
 updateStLit :: ((X,Y), Switch)
   -> PitchClass EdoApp         -- ^ what xy represents now

@@ -6,6 +6,7 @@ module Montevideo.Monome.Test.Sustain where
 import Test.HUnit
 
 import           Control.Lens
+import           Data.Either.Combinators
 import qualified Data.Map as M
 import           Data.Map (Map)
 import qualified Data.Set as S
@@ -86,13 +87,16 @@ test_deleteOneSustainedNote_and_insertOneSustainedNote = TestCase $ do
 test_sustainHandler :: Test
 test_sustainHandler = TestCase $ do
   assertBool "releasing (not turning off) the sustain button has no effect"
-    $ Su.handler st0 (meh , False) =^= st0
+    $ fromRight (error "bork")
+    (Su.handler st0 (meh , False))
+    =^= st0
 
   assertBool
     (unlines [
         "THE TEST: turning ON sustain changes the sustain state, the set of sustained voices, the set of reasons for keys to be lit, and the messages pending to the monome."
         , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
-    Su.handler st_0f (meh, True)
+    fromRight (error "bork")
+    (Su.handler st_0f (meh, True))
     =^= (st_0f & stApp . edoSustaineded .~ Just (S.singleton v0)
           & ( -- This is the (only) part that fails. Verify failure with:
               -- x = Su.handler st_0f (meh, True) ^. stApp . edoLit
@@ -111,7 +115,8 @@ test_sustainHandler = TestCase $ do
                ++ "adds messages for the monome to turn off the sustain button and the keys that were sustained and are not fingered\n" ++
                " adds messages for Vivid to turn off any pitches from voices that were sustained and are not fingered\n" ++
                "Pitch 0 is fingered, and 0 and 1 sounding; 1 turns off.") $
-    Su.handler st_0fs_1s (meh, True)
+    fromRight (error "bork")
+    (Su.handler st_0fs_1s (meh, True))
     =^= ( st_0fs_1s
           & stApp . edoSustaineded .~ mempty
           & stApp . edoLit .~ M.singleton pc0 ( S.singleton $

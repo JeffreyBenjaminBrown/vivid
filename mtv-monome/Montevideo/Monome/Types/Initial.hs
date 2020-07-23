@@ -124,7 +124,7 @@ data Window app = Window {
   , windowHandler :: -- ^ Acts on messages from the monome.
       St app
       -> ((X,Y), Switch) -- ^ the incoming button press|release
-      -> St app
+      -> Either String (St app)
   }
 
 instance Eq (Window app) where

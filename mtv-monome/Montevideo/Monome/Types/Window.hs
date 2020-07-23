@@ -54,15 +54,18 @@ handleSwitch    mst              sw@ (btn,_)      = do
       go    []            = return $ Left $
         "handleSwitch: Switch " ++ show sw ++ " claimed by no Window."
       go    (w:ws)   =
+
         case windowContains w btn of
           True -> do
-            let st1 = windowHandler w st0 sw
-            mapM_ (doSoundMessage st1) $ _stPending_Vivid  st1
-            mapM_ (doLedMessage st1)   $ _stPending_Monome st1
-            putMVar mst st1
-              { _stPending_Monome = []
-              , _stPending_Vivid = [] }
-            return $ Right ()
+            case windowHandler w st0 sw of
+              Left s -> return $ Left s
+              Right st1 -> do
+                mapM_ (doSoundMessage st1) $ _stPending_Vivid  st1
+                mapM_ (doLedMessage st1)   $ _stPending_Monome st1
+                putMVar mst st1
+                  { _stPending_Monome = []
+                  , _stPending_Vivid = [] }
+                return $ Right ()
           False -> go ws
   go $ _stWindowLayers st0
 
