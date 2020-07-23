@@ -3,7 +3,8 @@
 
 module Montevideo.Monome.Types.Window (
     initAllWindows -- ^ MVar St -> [Window] -> IO ()
-  , handleSwitch   -- ^ [Window] -> MVar St -> ((X,Y), Switch) -> IO ()
+  , handleSwitch -- ^ MVar (St app) -> ((X,Y), Switch)
+                 -- -> IO (Either String ())
 
   -- | * only exported for the sake of testing
   , belongsHere    -- ^ [Window] -> Window -> LedFilter
@@ -46,11 +47,11 @@ initAllWindows mst = do
 
 -- | called every time a monome button is pressed or released
 handleSwitch :: forall app.
-                MVar (St app) -> ((X,Y), Switch) -> IO ()
+                MVar (St app) -> ((X,Y), Switch) -> IO (Either String ())
 handleSwitch    mst              sw@ (btn,_)      = do
   st0 <- takeMVar mst
-  let go :: [Window app] -> IO ()
-      go    []            = error $
+  let go :: [Window app] -> IO (Either String ())
+      go    []            = return $ Left $
         "handleSwitch: Switch " ++ show sw ++ " claimed by no Window."
       go    (w:ws)   =
         case windowContains w btn of
@@ -58,8 +59,10 @@ handleSwitch    mst              sw@ (btn,_)      = do
             let st1 = windowHandler w st0 sw
             mapM_ (doSoundMessage st1) $ _stPending_Vivid  st1
             mapM_ (doLedMessage st1)   $ _stPending_Monome st1
-            putMVar mst st1 { _stPending_Monome = []
-                            , _stPending_Vivid = [] }
+            putMVar mst st1
+              { _stPending_Monome = []
+              , _stPending_Vivid = [] }
+            return $ Right ()
           False -> go ws
   go $ _stWindowLayers st0
 

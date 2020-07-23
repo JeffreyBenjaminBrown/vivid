@@ -72,8 +72,11 @@ edoMonome monomePort = do
   responder <- forkIO $ forever $ do
     decodeOSC <$> recv inbox 4096 >>= \case
       Left text -> putStrLn . show $ text
-      Right osc -> let switch = readSwitchOSC osc
-                   in  handleSwitch mst switch
+      Right osc -> do
+        let switch = readSwitchOSC osc
+        h <- handleSwitch mst switch
+        case h of Left s -> putStrLn s
+                  Right () -> return ()
 
   let loop :: IO (St EdoApp) =
         getChar >>= \case
@@ -126,8 +129,11 @@ jiMonome monomePort scale shifts = do
   responder <- forkIO $ forever $ do
     decodeOSC <$> recv inbox 4096 >>= \case
       Left text -> putStrLn . show $ text
-      Right osc -> let switch = readSwitchOSC osc
-                   in  handleSwitch mst switch
+      Right osc -> do
+        let switch = readSwitchOSC osc
+        h <- handleSwitch mst switch
+        case h of Left s -> putStrLn s
+                  Right () -> return ()
 
   let loop :: IO (St JiApp) =
         getChar >>= \case
