@@ -41,8 +41,7 @@ readDeviceID ( OSC "/serialosc/device" [ OSC_S name
   = Right $ DeviceID { deviceIDName = name
                      , deviceIDType = monomeType
                      , deviceIDPort = fromIntegral port }
-readDeviceID x = Left $ error $
-                 "readDeviceID: unexpected message: " ++ show x
+readDeviceID x = Left $ "readDeviceID: unexpected message: " ++ show x
 
 -- | PITFALL: If serialosc changed the order of its outputs, this would fail.
 readDevice :: [OSC] -> Device
