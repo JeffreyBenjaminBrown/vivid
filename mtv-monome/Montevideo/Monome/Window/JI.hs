@@ -81,17 +81,8 @@ jiFreq ja (x,y) = do
         -- !! is safe here, because of the divMod that defines xGen
   Right $ f0
     * ((ja ^. jiShifts) !! yShift)
-    -- !! is safe here, because of the divMod that defines yShift
-    * (powerOfTwo $ yOctave + xOctave)
-
-powerOfTwo :: forall i f. (Integral i, Fractional f)
-           => i -> f
-powerOfTwo i = let
-  positivePowerOfTwo :: i -> i
-  positivePowerOfTwo n
-    | n == 0     = 1
-    | n < 0      = error "toPowerOfTwo: rejected: negative number."
-    | otherwise  = 2 * positivePowerOfTwo (n-1)
-  in if i < 0
-     then 1 / fi  (positivePowerOfTwo $ -i)
-     else     fi $ positivePowerOfTwo    i
+    -- (!!) is safe here, because of the divMod that defines yShift
+    * (2 ^^ (yOctave + xOctave))
+    -- Rational exponentiation (^^) because `yOctave + xOctave` could be < 0.
+    -- THey are always an integer, though, so this could be more efficient
+    -- by using integer exponentiation (^) and writing a little more code.
