@@ -23,7 +23,7 @@ import           Data.Set (Set)
 import qualified Data.Set as S
 
 import           Montevideo.Monome.EdoMath
-import           Montevideo.Monome.Types.Button
+import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Types.Initial
 import           Montevideo.Monome.Window.Common
 import qualified Montevideo.Monome.Window.Keyboard as Kbd

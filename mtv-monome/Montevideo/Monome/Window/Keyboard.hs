@@ -19,7 +19,7 @@ import qualified Data.Set as S
 import           Data.Set (Set)
 
 import           Montevideo.Monome.EdoMath
-import           Montevideo.Monome.Types.Button
+import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Types.Initial
 import           Montevideo.Monome.Window.Common
 import           Montevideo.Util

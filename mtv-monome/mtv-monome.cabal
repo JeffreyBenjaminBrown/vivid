@@ -31,7 +31,7 @@ library
     , Montevideo.Monome.Network.Util
     , Montevideo.Monome.Synth.Boop
     , Montevideo.Monome.Synth.Zot
-    , Montevideo.Monome.Types.Button
+    , Montevideo.Monome.Util.Button
     , Montevideo.Monome.Types.Device
     , Montevideo.Monome.Types.EdoConfig
     , Montevideo.Monome.Types.Initial

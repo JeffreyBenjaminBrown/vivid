@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Montevideo.Monome.Types.Button (
+module Montevideo.Monome.Util.Button (
     X, Y, Switch, Led, LedBecause(..)
   , readOSC_asSwitch, fromBool, boolFromInt
   , ledOsc, allLedOsc
