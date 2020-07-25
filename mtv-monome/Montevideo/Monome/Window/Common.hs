@@ -75,8 +75,8 @@ updateVoice sdMsg st = let
                       %~ (voicePitch                     .~ p)
                       .  (voiceParams . at param . _Just .~ f)
 
-vid_to_pitch :: St EdoApp -> VoiceId ->  PitchClass EdoApp
+vid_to_pitch :: St EdoApp -> VoiceId ->  Either String (PitchClass EdoApp)
 vid_to_pitch st v = maybe
-  (error "vid_to_pitch: voice not found")
-  (flip mod (st ^. stApp . edoConfig . edo) . _voicePitch)
+  (Left "vid_to_pitch: voice not found")
+  (Right . flip mod (st ^. stApp . edoConfig . edo) . _voicePitch)
   $ M.lookup v (_stVoices st)

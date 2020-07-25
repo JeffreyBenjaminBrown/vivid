@@ -47,44 +47,49 @@ handler :: St EdoApp
            , Switch)
         -> Either String (St EdoApp)
 handler st (_ , False) = Right st
-handler st (_,  True)  = let
-  st1 = toggleSustain st
+handler st (_,  True)  = do
+  st1 <- toggleSustain st
+  toDark <- pitchClassesToDarken_uponSustainOff st st1
 
-  kbdMsgs :: [LedMsg] =
-    if null $ st1 ^. stApp . edoSustaineded
-    then map ( (Kbd.label,) . (,False) ) $
-         concatMap (pcToXys_st st) $
-         pitchClassesToDarken_uponSustainOff st st1
-    else []
-  sdMsgs :: [SoundMsg EdoApp] =
-    if null $ st1 ^. stApp . edoSustaineded
-    then map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
-    else []
+  let
+    kbdMsgs :: [LedMsg] =
+      if null $ st1 ^. stApp . edoSustaineded
+      then map ( (Kbd.label,) . (,False) ) $
+           concatMap (pcToXys_st st) $ toDark
+      else []
+    sdMsgs :: [SoundMsg EdoApp] =
+      if null $ st1 ^. stApp . edoSustaineded
+      then map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
+      else []
 
-  sustainButtonMsg = ( label
-                     , (theButton, isJust $ st1 ^. stApp . edoSustaineded) )
-  st2 = st1 & stPending_Monome %~ flip (++) (sustainButtonMsg : kbdMsgs)
-            & stPending_Vivid  %~ flip (++) sdMsgs
-  in Right $ foldr updateVoice st2 sdMsgs
+    sustainButtonMsg = ( label
+                       , ( theButton
+                         , isJust $ st1 ^. stApp . edoSustaineded ) )
+    st2 = st1 & stPending_Monome %~ flip (++) (sustainButtonMsg : kbdMsgs)
+              & stPending_Vivid  %~ flip (++) sdMsgs
+  Right $ foldr updateVoice st2 sdMsgs
 
 pitchClassesToDarken_uponSustainOff ::
-  St EdoApp -> St EdoApp -> Set (PitchClass EdoApp)
+  St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]
   -- TODO ? speed: This calls `voicesToSilence_uponSustainOff`.
   -- Would it be faster to pass the result of `voicesToSilence_uponSustainOff`
   -- as a precomputed argument? (I'm guessing the compiler fogures it out.)
-pitchClassesToDarken_uponSustainOff oldSt newSt =
+
+pitchClassesToDarken_uponSustainOff oldSt newSt = let
   -- `pitchClassesToDarken_uponSustainOff` is nearly equal to `voicesToSilence_uponSustainOff`,
   -- but it excludes visual anchors as well as fingered notes.
-  S.filter (not . mustStayLit) $ voicesToSilence_pcs
-  where
     mustStayLit :: PitchClass EdoApp -> Bool
     mustStayLit pc = case M.lookup pc $ newSt ^. stApp . edoLit of
       Nothing -> False
       Just s -> if null s
         then error "pitchClassesToDarken_uponSustainOff: null value in LitPitches."
         else True
-    voicesToSilence_pcs :: Set (PitchClass EdoApp) =
-      S.map (vid_to_pitch oldSt) $ voicesToSilence_uponSustainOff oldSt
+
+  in do
+  voicesToSilence_pcs :: [PitchClass EdoApp] <-
+    mapM (vid_to_pitch oldSt) $ S.toList $
+    voicesToSilence_uponSustainOff oldSt
+  Right $ filter (not . mustStayLit) $ voicesToSilence_pcs
 
 voicesToSilence_uponSustainOff :: St EdoApp -> Set VoiceId
 voicesToSilence_uponSustainOff st = let
@@ -98,29 +103,30 @@ voicesToSilence_uponSustainOff st = let
 -- which happens only when it is pressed, not when it is released --
 -- the set of sustained pitches changes
 -- and the set of lit keys gains new reasons to be lit.
-toggleSustain :: St EdoApp -> St EdoApp
+toggleSustain :: St EdoApp -> Either String (St EdoApp)
 toggleSustain st = let
   app = st ^. stApp
   in if null (app ^. edoFingers) && null (app ^. edoSustaineded)
-  then st
-  else let
+  then Right st else do
 
-  sustainOn' :: Bool = -- new sustain state
-    not $ isJust $ app ^. edoSustaineded
-  sustainedVs :: Maybe (Set VoiceId) =
-    if not sustainOn' then Nothing
-    else Just $ S.fromList $ M.elems $ app ^. edoFingers
+  let
+    sustainOn' :: Bool = -- new sustain state
+      not $ isJust $ app ^. edoSustaineded -- TODO ? could be an optic
+    sustainedVs :: Maybe (Set VoiceId) =
+      if not sustainOn' then Nothing
+      else Just $ S.fromList $ M.elems $ app ^. edoFingers
 
-  lit' | sustainOn' =
-         foldr insertOneSustainedNote (app ^. edoLit)
-         $ map (vid_to_pitch st)
-         $ M.elems $ app ^. edoFingers
-       | otherwise =
-         foldr deleteOneSustainedNote (app ^. edoLit)
-         $ map (vid_to_pitch st) $ S.toList
-         $ maybe (error "impossible") id $ app ^. edoSustaineded
-  in st & stApp . edoSustaineded .~ sustainedVs
-        & stApp . edoLit       .~ lit'
+  pcs :: [PitchClass EdoApp] <-
+    mapM (vid_to_pitch st) $
+    if sustainOn'
+    then M.elems $ app ^. edoFingers
+    else S.toList $ maybe (error "impossible") id $
+         app ^. edoSustaineded
+  let lit' = if sustainOn'
+             then foldr insertOneSustainedNote (app ^. edoLit) pcs
+             else foldr deleteOneSustainedNote (app ^. edoLit) pcs
+  Right $ st & stApp . edoSustaineded .~ sustainedVs
+             & stApp . edoLit         .~ lit'
 
 -- | When sustain is toggled, the reasons for having LEDs on change.
 -- If it is turned on, some LEDs are now lit for two reasons:

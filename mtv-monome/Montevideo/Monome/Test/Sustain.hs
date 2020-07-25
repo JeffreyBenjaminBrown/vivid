@@ -40,7 +40,7 @@ test_toggleSustain = TestCase $ do
     (unlines [
         "THE TEST: turn sustain on"
         , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
-    toggleSustain st_0f =^=
+    fromRight (error "bork") (toggleSustain st_0f) =^=
     ( st_0f & ( stApp . edoLit . at pc0 . _Just
                 -- This is the only part that fails. Verify with:
                 -- x = toggleSustain st_0f
@@ -55,14 +55,15 @@ test_toggleSustain = TestCase $ do
             & stApp . edoSustaineded .~ Just (S.singleton v0 ) )
 
   assertBool "turn sustain off" $
-    toggleSustain st_0s
-    =^= ( st_0s & stApp . edoLit .~ mempty
-                & stApp . edoSustaineded .~ Nothing )
+    fromRight (error "bork") (toggleSustain st_0s)
+    =^= ( st_0s
+          & stApp . edoLit .~ mempty
+          & stApp . edoSustaineded .~ Nothing )
   assertBool "turn sustain off, but finger persists" $
-    toggleSustain st_0fs
+    fromRight (error "bork") (toggleSustain st_0fs)
     =^= ( st_0fs & ( stApp . edoLit . at pc0 . _Just
                      %~ S.delete LedBecauseSustain )
-                 & stApp . edoSustaineded .~ Nothing )
+          & stApp . edoSustaineded .~ Nothing )
 
 test_deleteOneSustainedNote_and_insertOneSustainedNote :: Test
 test_deleteOneSustainedNote_and_insertOneSustainedNote = TestCase $ do
