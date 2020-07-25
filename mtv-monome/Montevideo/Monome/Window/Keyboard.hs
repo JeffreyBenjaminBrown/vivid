@@ -13,6 +13,7 @@ module Montevideo.Monome.Window.Keyboard (
 
 import           Prelude hiding (pred)
 import           Control.Lens
+import           Data.Either.Combinators
 import qualified Data.Map as M
 import qualified Data.Set as S
 import           Data.Set (Set)
@@ -41,7 +42,9 @@ keyboardWindow =  Window {
 
 -- TODO ! duplicative of `JI.handler`
 handler :: St EdoApp -> ((X,Y), Switch) -> Either String (St EdoApp)
-handler    st          press@ (xy,sw)   = let
+handler    st          press@ (xy,sw)   =
+  mapLeft ("Keyboard handler: " ++) $
+  let
   app = st ^. stApp
   fingers' = app ^. edoFingers
         & case sw of

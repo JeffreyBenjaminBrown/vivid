@@ -54,7 +54,7 @@ handleSwitch    mst              sw@ (btn,_)      = do
   st0 <- takeMVar mst
   let go :: [Window app] -> IO (Either String ())
       go    []            = return $ Left $
-        "handleSwitch: Switch " ++ show sw ++ " claimed by no Window."
+        "Switch " ++ show sw ++ " claimed by no Window."
       go    (w:ws)   =
 
         case windowContains w btn of
@@ -70,7 +70,8 @@ handleSwitch    mst              sw@ (btn,_)      = do
                   , _stPending_Vivid = [] }
                 return $ Right ()
           False -> go ws
-  go $ _stWindowLayers st0
+  fmap (mapLeft ("Window.Util.handleSwitch: " ++)) $
+    go $ _stWindowLayers st0
 
 doSoundMessage :: St app -> SoundMsg app -> Either String (IO ())
 doSoundMessage    st        sdMsg =
@@ -89,12 +90,14 @@ doSoundMessage    st        sdMsg =
 
 doLedMessage :: St app -> LedMsg -> Either String (IO ())
 doLedMessage st (l, (xy,b)) =
+  mapLeft ("doLedMessage: " ++) $
   case relayToWindow st l of
     Left s         -> Left s
     Right toWindow -> Right $ toWindow (xy,b)
 
 relayToWindow :: St app -> WindowId -> Either String LedRelay
-relayToWindow st wl = do
+relayToWindow st wl =
+  mapLeft ("relayToWindow: " ++) $ do
   let ws = _stWindowLayers st
   w <- maybe (Left $ "relayToWindow: " ++ wl ++ " not found.")
        Right $ findWindow ws wl

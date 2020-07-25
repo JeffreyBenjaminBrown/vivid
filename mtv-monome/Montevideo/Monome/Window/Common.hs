@@ -13,6 +13,7 @@ module Montevideo.Monome.Window.Common (
 
 import           Prelude hiding (pred)
 import           Control.Lens
+import           Data.Either.Combinators
 import qualified Data.Map as M
 import           Data.Maybe
 import qualified Data.Set as S
@@ -76,7 +77,8 @@ updateVoice sdMsg st = let
                       .  (voiceParams . at param . _Just .~ f)
 
 vid_to_pitch :: St EdoApp -> VoiceId ->  Either String (PitchClass EdoApp)
-vid_to_pitch st v = maybe
+vid_to_pitch st v =
+  mapLeft ("vid_to_pitch: " ++) $ maybe
   (Left "vid_to_pitch: voice not found")
   (Right . flip mod (st ^. stApp . edoConfig . edo) . _voicePitch)
   $ M.lookup v (_stVoices st)

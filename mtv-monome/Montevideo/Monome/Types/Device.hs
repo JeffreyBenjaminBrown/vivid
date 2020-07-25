@@ -5,6 +5,7 @@ module Montevideo.Monome.Types.Device (
   Device(..), readDevice
   ) where
 
+import Data.Either.Combinators
 import Vivid.OSC
 
 import Montevideo.Monome.Network.Util
@@ -35,13 +36,15 @@ data Device = Device {
   } deriving (Show, Eq, Ord)
 
 readDeviceID :: OSC -> Either String DeviceID
-readDeviceID ( OSC "/serialosc/device" [ OSC_S name
-                                       , OSC_S monomeType
-                                       , OSC_I port ] )
-  = Right $ DeviceID { deviceIDName = name
-                     , deviceIDType = monomeType
-                     , deviceIDPort = fromIntegral port }
-readDeviceID x = Left $ "readDeviceID: unexpected message: " ++ show x
+readDeviceID =
+  mapLeft ("readDeviceID: " ++) . f where
+  f ( OSC "/serialosc/device" [ OSC_S name
+                              , OSC_S monomeType
+                              , OSC_I port ] )
+    = Right $ DeviceID { deviceIDName = name
+                       , deviceIDType = monomeType
+                       , deviceIDPort = fromIntegral port }
+  f x = Left $ "Unexpected message: " ++ show x
 
 -- | PITFALL: If serialosc changed the order of its outputs, this would fail.
 readDevice :: [OSC] -> Device

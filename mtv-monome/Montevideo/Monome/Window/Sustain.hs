@@ -48,7 +48,8 @@ handler :: St EdoApp
            , Switch)
         -> Either String (St EdoApp)
 handler st (_ , False) = Right st
-handler st (_,  True)  = do
+handler st (_,  True)  =
+  mapLeft ("Window.Sustain.handler: " ++) $ do
   st1 <- toggleSustain st
   toDark <- pitchClassesToDarken_uponSustainOff st st1
 
@@ -107,7 +108,8 @@ voicesToSilence_uponSustainOff st = let
 -- the set of sustained pitches changes
 -- and the set of lit keys gains new reasons to be lit.
 toggleSustain :: St EdoApp -> Either String (St EdoApp)
-toggleSustain st = let
+toggleSustain st =
+  mapLeft ("toggleSustain: " ++) $ let
   app = st ^. stApp
   in if null (app ^. edoFingers) && null (app ^. edoSustaineded)
   then Right st else do

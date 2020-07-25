@@ -11,6 +11,7 @@ module Montevideo.Monome.Window.Shift (
 
 import           Prelude hiding (pred)
 import           Control.Lens
+import           Data.Either.Combinators
 import qualified Data.Map as M
 
 import           Montevideo.Monome.EdoMath
@@ -37,16 +38,17 @@ downOctave = (13,14)
 -- | PITFALL: There are multiple ways to represent an octave shift.
 -- Here I've chosen one arbitrarily.
 shift :: EdoConfig -> (X,Y) -> Either String (X,Y)
-shift ec xy
-  | xy == rightArrow = Right $ (-1, 0)
-  | xy == downArrow  = Right $ ( 0,-1)
-    -- origin at top-left => down means add to Y
-  | xy == leftArrow  = Right $ ( 1, 0)
-  | xy == upOctave   = Right $ pairMul (-1) (hv ec)
-    -- lowering the origin raises the coordinate values of a given key, hence raising its pitch
-  | xy == upArrow    = Right $ ( 0, 1)
-  | xy == downOctave = Right $ hv ec
-  | otherwise = Left $ "shift: unexpected input: " ++ show xy
+shift ec = mapLeft ("shift: " ++) . f where
+  f xy
+    | xy == rightArrow = Right $ (-1, 0)
+    | xy == downArrow  = Right $ ( 0,-1)
+      -- origin at top-left => down means add to Y
+    | xy == leftArrow  = Right $ ( 1, 0)
+    | xy == upOctave   = Right $ pairMul (-1) (hv ec)
+      -- lowering the origin raises the coordinate values of a given key, hence raising its pitch
+    | xy == upArrow    = Right $ ( 0, 1)
+    | xy == downOctave = Right $ hv ec
+    | otherwise = Left $ "shift: unexpected input: " ++ show xy
 
 -- | = the window
 shiftWindow :: Window EdoApp
@@ -61,7 +63,8 @@ shiftWindow = Window {
 
 handler :: St EdoApp -> ((X,Y), Switch) -> Either String (St EdoApp)
 handler    st0          (_,  False)      = Right st0
-handler    st0          (xy, True )      = do
+handler    st0          (xy, True )      =
+  mapLeft ("Shift window handler: " ++) $ do
   let ec = st0 ^. stApp . edoConfig
   s <- shift ec xy
   let st' :: St EdoApp = st0 & stApp . edoXyShift %~ pairAdd s

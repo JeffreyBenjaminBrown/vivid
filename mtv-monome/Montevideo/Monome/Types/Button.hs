@@ -26,13 +26,14 @@ boolFromInt x = Left ( "boolFromInt: " ++ show x
                        ++ " is niether 0 nor 1." )
 
 readOSC_asSwitch :: OSC -> Either String ((X,Y), Switch)
-readOSC_asSwitch (OSC "/monome/grid/key" [OSC_I x, OSC_I y, OSC_I s]) =
+readOSC_asSwitch m =
   mapLeft ("readOSC_asSwitch" ++) $
-  do
-  b <- boolFromInt $ fi s
-  Right ((fi x, fi y), b)
-readOSC_asSwitch x =
-  Left $ "readOSC_asSwitch: Bad OSC message: " ++ show x
+  case m of
+    (OSC "/monome/grid/key" [OSC_I x, OSC_I y, OSC_I s]) -> do
+      b <- boolFromInt $ fi s
+      Right ((fi x, fi y), b)
+    x ->
+      Left $ "readOSC_asSwitch: Bad OSC message: " ++ show x
 
 -- | Tells the monome to turn on an LED. See Test/HandTest.hs.
 ledOsc :: String -> ((X,Y), Led) -> ByteString

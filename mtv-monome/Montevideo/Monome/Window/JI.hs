@@ -15,6 +15,7 @@ module Montevideo.Monome.Window.JI (
 
 import           Prelude hiding (pred)
 import           Control.Lens
+import           Data.Either.Combinators
 import qualified Data.Map as M
 
 import qualified Montevideo.Monome.Config as Config
@@ -40,7 +41,8 @@ jiWindow =  Window {
 handler :: St JiApp
         -> ((X,Y), Switch)
         -> Either String (St JiApp)
-handler st press@ (xy,sw) = let
+handler st press@ (xy,sw) =
+  mapLeft ("JI handler: " ++) $ let
   fingers' = st ^. stApp . jiFingers
              & case sw of
                  True  -> M.insert xy xy
@@ -71,7 +73,8 @@ jiKey_SoundMsg ja (xy,switch) = let
      -- [] if key out of range; key corresponds to no pitch
 
 jiFreq :: JiApp -> (X,Y) -> Either String Rational
-jiFreq ja (x,y) = do
+jiFreq ja (x,y) =
+  mapLeft ("jiFreq: " ++) $ do
   let (yOctave :: Int, yShift :: Int) =
         divMod y $ length $ ja ^. jiShifts
       (xOctave :: Int, xGen :: Int) =
