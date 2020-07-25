@@ -15,7 +15,7 @@ import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Test.Data
 import           Montevideo.Monome.Types.Button
 import           Montevideo.Monome.Types.Initial
-import           Montevideo.Monome.Types.Window
+import           Montevideo.Monome.Window.Util
 import           Montevideo.Monome.Window.Common
 
 

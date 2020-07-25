@@ -25,7 +25,7 @@ import Montevideo.Monome.Network.Util
 import Montevideo.Synth.Boop_Monome
 import Montevideo.Monome.Types.Button
 import Montevideo.Monome.Types.Initial
-import Montevideo.Monome.Types.Window
+import Montevideo.Monome.Window.Util
 import Montevideo.Monome.Window.JI
 import Montevideo.Monome.Window.Keyboard
 import Montevideo.Monome.Window.Shift

@@ -23,9 +23,9 @@ source-repository head
 library
   exposed-modules:
       Montevideo.Monome.Config
+    , Montevideo.Monome.EdoMath
     , Montevideo.Monome.JiScales
     , Montevideo.Monome.Main
-    , Montevideo.Monome.EdoMath
     , Montevideo.Monome.Network.ListenAndLogOsc
     , Montevideo.Monome.Network.Monome
     , Montevideo.Monome.Network.Util
@@ -35,12 +35,12 @@ library
     , Montevideo.Monome.Types.Device
     , Montevideo.Monome.Types.EdoConfig
     , Montevideo.Monome.Types.Initial
-    , Montevideo.Monome.Types.Window
     , Montevideo.Monome.Window.Common
     , Montevideo.Monome.Window.JI
     , Montevideo.Monome.Window.Keyboard
     , Montevideo.Monome.Window.Shift
     , Montevideo.Monome.Window.Sustain
+    , Montevideo.Monome.Window.Util
 
     , Montevideo.Monome.Test.HandTest
     , Montevideo.Monome.Test.Data

@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds
 , ScopedTypeVariables #-}
 
-module Montevideo.Monome.Types.Window (
+module Montevideo.Monome.Window.Util (
     initAllWindows -- ^ MVar St -> [Window] -> IO ()
   , handleSwitch -- ^ MVar (St app) -> ((X,Y), Switch)
                  -- -> IO (Either String ())
