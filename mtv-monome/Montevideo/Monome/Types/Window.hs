@@ -21,6 +21,7 @@ module Montevideo.Monome.Types.Window (
 import           Prelude hiding (pred)
 import           Control.Concurrent.MVar
 import           Control.Lens hiding (set)
+import           Data.Either.Combinators
 import qualified Data.List as L
 import qualified Data.Map as M
 import           Vivid hiding (pitch, synth, Param)
@@ -72,12 +73,14 @@ handleSwitch    mst              sw@ (btn,_)      = do
   go $ _stWindowLayers st0
 
 doSoundMessage :: St app -> SoundMsg app -> Either String (IO ())
-doSoundMessage    st        sdMsg         = do
+doSoundMessage    st        sdMsg =
+  mapLeft ("doSoundMessage" ++) $ do
   let vid   :: VoiceId = _soundMsgVoiceId sdMsg
       param :: Param   = _soundMsgParam   sdMsg
       f     :: Float   = _soundMsgVal     sdMsg
-      v     :: Synth BoopParams =
-        (_stVoices st M.! vid) ^. voiceSynth
+  v :: Synth BoopParams <-
+    maybe (Left $ "voice with id " ++ show vid ++ " has no assigned synth.")
+    Right $ (_stVoices st M.! vid) ^. voiceSynth
   case param of
     "amp"  -> Right $ set v (toI f :: I "amp")
     "freq" -> Right $ set v (toI f :: I "freq")

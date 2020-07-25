@@ -48,7 +48,7 @@ edoMonome monomePort = do
           -- amp 0 and freq 100, because those ares the `Boop` defaults.
           -- Config.freq might be wrong too, since freq is a Hz value.
           -- Since none are sounding, I don't think any of that matters.
-    in M.fromList . zip voiceIds . map defaultVoiceState
+    in M.fromList . zip voiceIds . map (defaultVoiceState . Just)
        <$> mapM (synth boop) (replicate 256 ())
   mst <- newMVar $ St {
       _stWindowLayers = [sustainWindow, shiftWindow, keyboardWindow]
@@ -84,9 +84,9 @@ edoMonome monomePort = do
         getChar >>= \case
         'q' -> do -- quit
           close inbox
-          mapM_ (free . (^. voiceSynth)) (M.elems voices)
-            -- TODO Once `voices` are dynamic,
-            -- this should read that value from `mst`.
+          let f = maybe (putStrLn "voice with no synth") free
+            in mapM_ (f . (^. voiceSynth)) (M.elems voices)
+            -- TODO Once `voices` is dynamic, this should read it from `mst`.
           killThread responder
           st <- readMVar mst
           _ <- send toMonome $ allLedOsc "/monome" False
@@ -113,7 +113,7 @@ jiMonome monomePort scale shifts = do
         defaultVoiceState s = Voice { _voiceSynth = s
                                     , _voicePitch = Config.freq
                                     , _voiceParams = mempty }
-    in M.fromList . zip voiceIds . map defaultVoiceState
+    in M.fromList . zip voiceIds . map (defaultVoiceState . Just)
        <$> mapM (synth boop) (replicate 256 ())
 
   mst <- newMVar $ St {
@@ -143,7 +143,8 @@ jiMonome monomePort scale shifts = do
         getChar >>= \case
         'q' -> do -- quit
           close inbox
-          mapM_ (free . (^. voiceSynth)) (M.elems voices)
+          let f = maybe (putStrLn "voice with no synth") free
+            in mapM_ (f . (^. voiceSynth)) (M.elems voices)
           killThread responder
           st <- readMVar mst
           _ <- send toMonome $ allLedOsc "/monome" False

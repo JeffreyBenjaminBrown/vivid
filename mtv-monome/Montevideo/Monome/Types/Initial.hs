@@ -139,7 +139,8 @@ instance Show (Window app) where
 -- This type was introduced fairly late,
 -- and might not be used everywhere it should.)
 data Voice app = Voice {
-    _voiceSynth  :: Synth BoopParams
+    _voiceSynth  :: Maybe (Synth BoopParams) -- ^ This field is Nothing
+      -- until SuperCollider has allocated a synth.
   , _voicePitch  :: Pitch app
   , _voiceParams :: Map String Float }
 
