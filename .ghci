@@ -13,6 +13,7 @@ import Control.Concurrent.MVar
 import Control.Lens hiding (set)
 
 import           Data.Either
+import           Data.Either.Combinators
 import           Data.Fixed
 import           Data.Map (Map)
 import           Data.Ratio

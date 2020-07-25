@@ -16,6 +16,7 @@ module Montevideo.Monome.Window.Sustain (
   ) where
 
 import           Control.Lens
+import           Data.Either.Combinators
 import qualified Data.Map as M
 import           Data.Maybe
 import           Data.Set (Set)
@@ -78,18 +79,20 @@ pitchClassesToDarken_uponSustainOff ::
 pitchClassesToDarken_uponSustainOff oldSt newSt = let
   -- `pitchClassesToDarken_uponSustainOff` is nearly equal to `voicesToSilence_uponSustainOff`,
   -- but it excludes visual anchors as well as fingered notes.
-    mustStayLit :: PitchClass EdoApp -> Bool
+    mustStayLit :: PitchClass EdoApp -> Either String Bool
     mustStayLit pc = case M.lookup pc $ newSt ^. stApp . edoLit of
-      Nothing -> False
+      Nothing -> Right False
       Just s -> if null s
-        then error "pitchClassesToDarken_uponSustainOff: null value in LitPitches."
-        else True
+        then Left "Null value in LitPitches."
+        else Right True
 
-  in do
+  in mapLeft ("pitchClassesToDarken_uponSustainOff: " ++) $ do
   voicesToSilence_pcs :: [PitchClass EdoApp] <-
     mapM (vid_to_pitch oldSt) $ S.toList $
     voicesToSilence_uponSustainOff oldSt
-  Right $ filter (not . mustStayLit) $ voicesToSilence_pcs
+  msls <- mapM mustStayLit voicesToSilence_pcs
+  Right $ map snd $ filter (not . fst) $
+    zip msls voicesToSilence_pcs
 
 voicesToSilence_uponSustainOff :: St EdoApp -> Set VoiceId
 voicesToSilence_uponSustainOff st = let
