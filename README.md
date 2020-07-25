@@ -7,7 +7,14 @@ It can be used for:
 * `mtv-earTrain`: ear training
 * `mtv-ji`: music theory
 
-The first two of those have dedicated README files (linked above).
+You don't need a monome to use Montevideo.
+The above are all independent projects --
+you don't need a monome to use the language,
+you don't need the language to use a monome,
+you don't even need SuperCollider installed to use the music theory piece.
+(The projects that generate sound all rely on SuperCollider, though.)
+
+The first two projects have dedicated README files (linked above).
 I haven't documented the ear training and music theory modules well,
 but if I see evidence that anybody else wants to use them, I could.
 
