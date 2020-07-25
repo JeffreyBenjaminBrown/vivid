@@ -127,12 +127,6 @@ data Window app = Window {
       -> Either String (St app)
   }
 
-instance Eq (Window app) where
-  (==) a b = windowLabel a == windowLabel b
-
-instance Show (Window app) where
-  show = windowLabel
-
 -- | The app allows the monome to control "voices" in SuperCollider.
 -- The `Synth` of a `Voice` is fixed, but the other values can change.
 -- (It's possible to accomplish a lot without tracking the state of voices.
@@ -143,18 +137,6 @@ data Voice app = Voice {
       -- until SuperCollider has allocated a synth.
   , _voicePitch  :: Pitch app
   , _voiceParams :: Map String Float }
-
-instance Show (Pitch app) => Show (Voice app) where
-  show v = "Voice "
-    ++ "{ _voiceSynth = "  ++ show (_voiceSynth v)
-    ++ "{ _voicePitch = "  ++ show (_voicePitch v)
-    ++ "{ _voiceParams = " ++ show (_voiceParams v)
-
-instance Eq (Pitch app) => Eq (Voice app) where
-  a == b = and
-    [ _voiceSynth a  == _voiceSynth b
-    , _voicePitch a  == _voicePitch b
-    , _voiceParams a == _voiceParams b ]
 
 data St app = St {
     _stApp :: app
@@ -175,24 +157,6 @@ data St app = St {
   , _stPending_Monome :: [LedMsg]
   , _stPending_Vivid :: [SoundMsg app]
   }
-
-instance (Show app, Show (Pitch app)) => Show (St app) where
-  show app = "St "
-    ++ "{ _stApp app = "            ++ show (_stApp app)
-    ++ ", _stWindowLayers app = "   ++ show (_stWindowLayers app)
-    ++ ", _stToMonome app = "       ++ show (_stToMonome app)
-    ++ ", _stVoices app = "         ++ show (_stVoices app)
-    ++ ", _stPending_Monome app = " ++ show (_stPending_Monome app)
-    ++ ", _stPending_Vivid app = "  ++ show (_stPending_Vivid app)
-
-instance (Eq app, Eq (Pitch app)) => Eq (St app) where
-  a == b = and
-    [ _stApp a           == _stApp b
-    , _stWindowLayers a  == _stWindowLayers b
-    , _stToMonome a      == _stToMonome b
-    , _stVoices a        == _stVoices b
-    , _stPending_Monome a == _stPending_Monome b
-    , _stPending_Vivid a  == _stPending_Vivid b ]
 
 data EdoApp = EdoApp
   { _edoConfig :: EdoConfig
