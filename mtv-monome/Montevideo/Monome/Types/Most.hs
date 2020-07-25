@@ -2,7 +2,7 @@
 UndecidableInstances,
 TemplateHaskell #-}
 
-module Montevideo.Monome.Types.Initial (
+module Montevideo.Monome.Types.Most (
     module Montevideo.Monome.Types.EdoConfig
   , HostName, Socket
   , Param, WindowId, VoiceId

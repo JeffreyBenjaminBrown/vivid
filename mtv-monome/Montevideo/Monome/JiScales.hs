@@ -10,7 +10,7 @@ import Data.List hiding (lines)
 import Data.Ratio
 
 import Montevideo.Monome.Main
-import Montevideo.Monome.Types.Initial
+import Montevideo.Monome.Types.Most
 import Montevideo.Util
 
 

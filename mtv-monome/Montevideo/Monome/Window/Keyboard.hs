@@ -20,7 +20,7 @@ import           Data.Set (Set)
 
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Util.Button
-import           Montevideo.Monome.Types.Initial
+import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Window.Common
 import           Montevideo.Util
 

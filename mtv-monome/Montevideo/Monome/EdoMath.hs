@@ -18,7 +18,7 @@ module Montevideo.Monome.EdoMath (
 import Control.Lens
 
 import           Montevideo.JI.Util (fromCents)
-import           Montevideo.Monome.Types.Initial
+import           Montevideo.Monome.Types.Most
 import           Montevideo.Util
 
 

@@ -10,7 +10,7 @@ import Data.Either.Combinators
 import Vivid.OSC
 
 import Montevideo.Monome.Network.Monome
-import Montevideo.Monome.Types.Initial
+import Montevideo.Monome.Types.Most
 import Montevideo.Util
 import Data.ByteString (ByteString)
 

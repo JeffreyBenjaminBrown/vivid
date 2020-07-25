@@ -20,7 +20,7 @@ import Data.ByteString.Char8 (unpack)
 import qualified Network.Socket as NS
 import qualified Network.Socket.ByteString as NSB
 
-import Montevideo.Monome.Types.Initial (HostName, Socket)
+import Montevideo.Monome.Types.Most (HostName, Socket)
 
 
 -- | = PITFALL: Ports 0-1024 are reserved.

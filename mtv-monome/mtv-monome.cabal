@@ -34,7 +34,7 @@ library
     , Montevideo.Monome.Util.Button
     , Montevideo.Monome.Types.Device
     , Montevideo.Monome.Types.EdoConfig
-    , Montevideo.Monome.Types.Initial
+    , Montevideo.Monome.Types.Most
     , Montevideo.Monome.Window.Common
     , Montevideo.Monome.Window.JI
     , Montevideo.Monome.Window.Keyboard

@@ -21,7 +21,7 @@ import qualified Data.Set as S
 import qualified Montevideo.Monome.Config as Config
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Util.Button
-import           Montevideo.Monome.Types.Initial
+import           Montevideo.Monome.Types.Most
 
 
 -- Todo (#speed) Instead, keep a map from xy to pitchclass

@@ -24,7 +24,7 @@ import qualified Montevideo.Monome.Config as Config
 import Montevideo.Monome.Network.Util
 import Montevideo.Synth.Boop_Monome
 import Montevideo.Monome.Util.Button
-import Montevideo.Monome.Types.Initial
+import Montevideo.Monome.Types.Most
 import Montevideo.Monome.Window.Util
 import Montevideo.Monome.Window.JI
 import Montevideo.Monome.Window.Keyboard

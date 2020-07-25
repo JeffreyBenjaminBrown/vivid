@@ -8,7 +8,7 @@ module Montevideo.Monome.Test.EdoMath where
 import Test.HUnit
 
 import           Montevideo.Monome.EdoMath
-import           Montevideo.Monome.Types.Initial
+import           Montevideo.Monome.Types.Most
 
 
 tests :: Test

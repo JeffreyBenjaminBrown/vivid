@@ -13,7 +13,7 @@ import qualified Data.Set as S
 import Montevideo.Monome.EdoMath
 import Montevideo.Monome.Test.Data
 import Montevideo.Monome.Util.Button
-import Montevideo.Monome.Types.Initial
+import Montevideo.Monome.Types.Most
 import Montevideo.Util
 import Montevideo.Monome.Window.Common
 import Montevideo.Monome.Window.Keyboard as K

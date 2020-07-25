@@ -16,7 +16,7 @@ import qualified Data.Map as M
 
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Util.Button
-import           Montevideo.Monome.Types.Initial
+import           Montevideo.Monome.Types.Most
 import           Montevideo.Util
 import qualified Montevideo.Monome.Window.Keyboard as Kbd
 

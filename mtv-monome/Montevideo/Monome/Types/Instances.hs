@@ -5,7 +5,7 @@ UndecidableInstances
 
 module Montevideo.Monome.Types.Instances where
 
-import Montevideo.Monome.Types.Initial
+import Montevideo.Monome.Types.Most
 
 
 instance Eq (Window app) where

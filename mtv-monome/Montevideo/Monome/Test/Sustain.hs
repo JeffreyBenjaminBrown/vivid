@@ -15,7 +15,7 @@ import           Data.Set (Set)
 import Montevideo.Monome.EdoMath
 import Montevideo.Monome.Test.Data
 import Montevideo.Monome.Util.Button
-import Montevideo.Monome.Types.Initial
+import Montevideo.Monome.Types.Most
 import Montevideo.Monome.Window.Keyboard as K
 import Montevideo.Monome.Window.Sustain  as Su
 

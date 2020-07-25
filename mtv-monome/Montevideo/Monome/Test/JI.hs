@@ -10,7 +10,7 @@ import           Control.Lens
 import           Data.Either
 
 import qualified Montevideo.Monome.Config as Config
-import           Montevideo.Monome.Types.Initial
+import           Montevideo.Monome.Types.Most
 import           Montevideo.Util
 import           Montevideo.Monome.Window.JI
 
