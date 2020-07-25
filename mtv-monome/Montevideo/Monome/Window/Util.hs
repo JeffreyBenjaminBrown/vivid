@@ -79,12 +79,12 @@ doSoundMessage    st        sdMsg =
   let vid   :: VoiceId = _soundMsgVoiceId sdMsg
       param :: Param   = _soundMsgParam   sdMsg
       f     :: Float   = _soundMsgVal     sdMsg
-  v :: Synth BoopParams <-
-    maybe (Left $ "voice with id " ++ show vid ++ " has no assigned synth.")
+  s :: Synth BoopParams <-
+    maybe (Left $ "VoiceId " ++ show vid ++ " has no assigned synth.")
     Right $ (_stVoices st M.! vid) ^. voiceSynth
   case param of
-    "amp"  -> Right $ set v (toI f :: I "amp")
-    "freq" -> Right $ set v (toI f :: I "freq")
+    "amp"  -> Right $ set s (toI f :: I "amp")
+    "freq" -> Right $ set s (toI f :: I "freq")
     _      -> Left $
       "doSoundMessage: unrecognized parameter " ++ param
 

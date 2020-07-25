@@ -112,8 +112,9 @@ data Voice app = Voice {
     -- one could determine the pitch looking up "freq" in `_voiceParams.
   , _voiceParams :: Map String Float }
 
+-- | So far, viable options for `app` in `St app` are `EdoApp` or `JiApp`.
 data St app = St {
-    _stApp :: app -- ^ either an `EdoApp` or a `JiApp`
+    _stApp :: app
   , _stWindowLayers :: [Window  app] -- ^ PITFALL: Order matters.
       -- Key presses are handled by the first window containing them.
       -- Windows listed earlier are thus "above" later ones.

@@ -92,7 +92,7 @@ edoMonome monomePort = do
           close inbox
           let f = maybe (putStrLn "voice with no synth") free
             in mapM_ (f . (^. voiceSynth)) (M.elems voices)
-            -- TODO Once `voices` is dynamic, this should read it from `mst`.
+            -- TODO Once `voices` is dynamic, it should be read from `mst`.
           killThread responder
           st <- readMVar mst
           _ <- send toMonome $ allLedOsc "/monome" False

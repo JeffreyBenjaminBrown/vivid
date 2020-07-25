@@ -18,8 +18,8 @@ module Montevideo.Dispatch.Types.Many (
 
 import Control.Concurrent.MVar
 import Control.Lens
-import qualified Data.Map as M
-import qualified Data.Vector as V
+import Data.Map (Map)
+import Data.Vector (Vector)
 import Vivid
 
 import Montevideo.Dispatch.Types.Time
@@ -39,7 +39,7 @@ type MuseqName = String
 -- | = (synth) Messages and (synth) Actions
 
 -- | A message type that knows nothing about Vivid's type-fussiness.
-type Msg = M.Map ParamName Float
+type Msg = Map ParamName Float
 
 type NamedWith name a = (name, a)
 
@@ -88,7 +88,7 @@ data Museq label a = Museq {
     -- through different sections of the `vec` each time it plays.
     -- If less than `dur`, the `Museq` will play the `vec` more than
     -- once (in general not a whole number of times) each time it plays.
-  , _vec :: V.Vector (Ev label a) }
+  , _vec :: Vector (Ev label a) }
   deriving (Show, Eq)
 makeLenses ''Museq
 
@@ -101,12 +101,12 @@ data SynthRegister =
   -- I believe this per-synth boilerplate is unavoidable,
   -- because Vivid types each synth by the arguments it accepts.
   SynthRegister
-  { _boops    :: M.Map SynthName (Synth BoopParams)
-  , _vaps     :: M.Map SynthName (Synth VapParams)
-  , _samplers :: M.Map SynthName (Synth SamplerParams)
-  , _samples  :: M.Map Sample BufferId -- ^ the samplers will use these
-  , _sqfms    :: M.Map SynthName (Synth SqfmParams)
-  , _zots     :: M.Map SynthName (Synth ZotParams)
+  { _boops    :: Map SynthName (Synth BoopParams)
+  , _vaps     :: Map SynthName (Synth VapParams)
+  , _samplers :: Map SynthName (Synth SamplerParams)
+  , _samples  :: Map Sample BufferId -- ^ the samplers will use these
+  , _sqfms    :: Map SynthName (Synth SqfmParams)
+  , _zots     :: Map SynthName (Synth ZotParams)
   } deriving (Show, Eq, Ord)
 makeLenses ''SynthRegister
 
@@ -116,7 +116,7 @@ data Note = Note
 makeLenses ''Note
 
 data Dispatch = Dispatch {
-    mMuseqs      :: MVar (M.Map MuseqName (Museq String Note))
+    mMuseqs      :: MVar (Map MuseqName (Museq String Note))
   , mReg         :: MVar SynthRegister
   , mTime0       :: MVar Time -- ^ a past moment of reference
   , mTempoPeriod :: MVar Duration
