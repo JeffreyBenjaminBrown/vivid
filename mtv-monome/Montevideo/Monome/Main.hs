@@ -39,7 +39,12 @@ edoMonome monomePort = do
     -- I don't know why it's port 8000, or why it used to be 11111.
   toMonome :: Socket <- sendsTo (unpack localhost) monomePort
     -- to find the port number above, use the first part of HandTest.hs
+
   voices :: M.Map VoiceId (Voice EdoApp) <-
+    -- TODO ? This is expensive and wasteful, because most of the 256
+    -- voice IDs are not used most of the time. It precludes using big synths.
+    -- Better to make them dynamically.
+    -- Tom of Vivid thinks it would impose no speed penalty.
     let voiceIds = [(a,b) | a <- [0..15], b <- [0..15]]
         defaultVoiceState s = Voice { _voiceSynth = s
                                     , _voicePitch = floor Config.freq
@@ -50,6 +55,7 @@ edoMonome monomePort = do
           -- Since none are sounding, I don't think any of that matters.
     in M.fromList . zip voiceIds . map (defaultVoiceState . Just)
        <$> mapM (synth boop) (replicate 256 ())
+
   mst <- newMVar $ St {
       _stWindowLayers = [sustainWindow, shiftWindow, keyboardWindow]
     , _stToMonome = toMonome
@@ -105,6 +111,7 @@ jiMonome :: Int        -- ^ The monome address, as reported by serialoscd.
          -> [Rational] -- ^ The vertical generator.
          -> IO (St JiApp)
 jiMonome monomePort scale shifts = do
+  -- PITFALL: Every comment written in edoMonome also applies here.
 
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
   toMonome :: Socket <- sendsTo (unpack localhost) monomePort

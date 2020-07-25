@@ -50,7 +50,7 @@ handler    st          press@ (xy,sw)   =
         & case sw of
             True  -> M.insert xy xy
             False -> M.delete xy
-  pcNow :: (PitchClass EdoApp) =
+  pcNow :: PitchClass EdoApp =
     mod (xyToEdo_st st xy) (app ^. edoConfig . edo)
     -- what the key represents currently
   pcThen :: Maybe (PitchClass EdoApp) =
@@ -65,6 +65,7 @@ handler    st          press@ (xy,sw)   =
   newKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit'
   toDark  :: [PitchClass EdoApp] = S.toList $ S.difference oldKeys newKeys
   toLight :: [PitchClass EdoApp] = S.toList $ S.difference newKeys oldKeys
+
   kbdMsgs :: [LedMsg] =
     map (label,) $
     ( map (,False) $

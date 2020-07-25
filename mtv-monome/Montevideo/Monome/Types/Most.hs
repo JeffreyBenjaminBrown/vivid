@@ -105,27 +105,21 @@ data Window app = Window {
 
 -- | The app allows the monome to control "voices" in SuperCollider.
 -- The `Synth` of a `Voice` is fixed, but the other values can change.
--- (It's possible to accomplish a lot without tracking the state of voices.
--- This type was introduced fairly late,
--- and might not be used everywhere it should.)
 data Voice app = Voice {
     _voiceSynth  :: Maybe (Synth BoopParams) -- ^ This field is Nothing
-      -- until SuperCollider has allocated a synth.
-  , _voicePitch  :: Pitch app
+    -- until SuperCollider has allocated a synth.
+  , _voicePitch  :: Pitch app -- ^ This is redudant:
+    -- one could determine the pitch looking up "freq" in `_voiceParams.
   , _voiceParams :: Map String Float }
 
 data St app = St {
-    _stApp :: app
+    _stApp :: app -- ^ either an `EdoApp` or a `JiApp`
   , _stWindowLayers :: [Window  app] -- ^ PITFALL: Order matters.
       -- Key presses are handled by the first window containing them.
       -- Windows listed earlier are thus "above" later ones.
   , _stToMonome :: Socket -- ^ PITFALL: It's tempting to remove this from St.
-    -- That's feasible now, ll want it here when using multiple monomes.
+    -- That's feasible now, but I'll want it here when using multiple monomes.
   , _stVoices :: Map VoiceId (Voice app)
-    -- ^ TODO ? This is expensive and wasteful, because most of the 256
-    -- voice IDs are not used most of the time. It precludes using big synths.
-    -- Better to make them dynamically.
-    -- Tom of Vivid thinks it would impose no speed penalty.
 
   -- | The purpose of `_stPending_Monome` and `_stPending_Vivid`
   -- is to isolate side-effects to a small portion of the code. Elsewhere,
@@ -149,7 +143,8 @@ data EdoApp = EdoApp
 
 -- | This is a just-intoned alternative to the EDO app.
 -- It doesn't send LED messages.
--- I don't really use it.
+-- I don't use it any more;
+-- I used it just long enough to convince myself that EDO is the way for me.
 --
 -- If I remember right, the jiGenerator and the jiShifts are equivalent;
 -- they might be better named "horizontal intervals" and "vertical intervals".

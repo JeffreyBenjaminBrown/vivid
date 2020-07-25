@@ -24,17 +24,26 @@ import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Types.Most
 
 
--- Todo (#speed) Instead, keep a map from xy to pitchclass
+-- | Given an `LedBecause` like `LedBecauseSwitch (x,y)`,
+-- this will find the `PitchClass` that was lit for that reason.
+--
+-- TODO ? This is janky. For one thing, it doesn't make sense
+-- if the `LedBecause` is `LedBecauseSustain`, because in that case
+-- it should return multiple pitch classes.
+--
+-- TODO (#speed) Instead, keep a map from xy to pitchclass
+
 ledBecause_toPitchClass :: forall app.
-                           LitPitches app
-                        -> LedBecause
-                        -> Maybe (PitchClass app)
-ledBecause_toPitchClass m ldr =
+  LitPitches app -- Map (PitchClass app) (Set LedBecause)
+  -> LedBecause
+  -> Maybe (PitchClass app)
+ledBecause_toPitchClass m lb =
   fst <$> mPair
   where
-    mPair = listToMaybe
-            $ filter (S.member ldr . snd)
-            $ M.toList m
+    mPair :: Maybe (PitchClass app, S.Set LedBecause) =
+      listToMaybe
+      $ filter (S.member lb . snd)
+      $ M.toList m
 
 silenceMsg :: (X,Y) -> SoundMsg app
 silenceMsg xy = SoundMsg {
