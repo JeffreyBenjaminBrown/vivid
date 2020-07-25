@@ -6,6 +6,7 @@ module Montevideo.Monome.Types.Button (
   , ledOsc, allLedOsc
   ) where
 
+import Data.Either.Combinators
 import Vivid.OSC
 
 import Montevideo.Monome.Network.Monome
@@ -18,16 +19,20 @@ fromBool :: Num a => Bool -> a
 fromBool True = 1
 fromBool False = 0
 
-boolFromInt :: Int -> Bool
-boolFromInt 0 = False
-boolFromInt 1 = True
-boolFromInt x = error $ "boolFromInt: " ++ show x
-                  ++ " is niether 0 nor 1."
+boolFromInt :: Int -> Either String Bool
+boolFromInt 0 = Right False
+boolFromInt 1 = Right True
+boolFromInt x = Left ( "boolFromInt: " ++ show x
+                       ++ " is niether 0 nor 1." )
 
-readOSC_asSwitch :: OSC -> ((X,Y), Switch)
+readOSC_asSwitch :: OSC -> Either String ((X,Y), Switch)
 readOSC_asSwitch (OSC "/monome/grid/key" [OSC_I x, OSC_I y, OSC_I s]) =
-  ((fi x, fi y), boolFromInt $ fi s)
-readOSC_asSwitch x = error $ "readOSC_asSwitch: bad message: " ++ show x
+  mapLeft ("readOSC_asSwitch" ++) $
+  do
+  b <- boolFromInt $ fi s
+  Right ((fi x, fi y), b)
+readOSC_asSwitch x =
+  Left $ "readOSC_asSwitch: Bad OSC message: " ++ show x
 
 -- | Tells the monome to turn on an LED. See Test/HandTest.hs.
 ledOsc :: String -> ((X,Y), Led) -> ByteString
