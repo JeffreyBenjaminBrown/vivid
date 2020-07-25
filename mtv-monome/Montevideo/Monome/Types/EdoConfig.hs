@@ -6,6 +6,9 @@ module Montevideo.Monome.Types.EdoConfig where
 import Control.Lens
 
 
+-- | PITFALL: This looks like it should be defined with the other types,
+-- but doing that causes a cycle of imports,
+-- because some synth code uses this, and the other types use the synths.
 data EdoConfig = EdoConfig
   { _edo :: Int -- ^ The EDO. For most music, this value is 12.
   , _spacing :: Int -- ^ The distance in steps of the EDO between columns

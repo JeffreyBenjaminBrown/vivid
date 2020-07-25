@@ -1,5 +1,4 @@
 {-# LANGUAGE TypeFamilies,
-FlexibleContexts,
 UndecidableInstances,
 TemplateHaskell #-}
 
