@@ -10,7 +10,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 import Montevideo.Monome.EdoMath
-import Montevideo.Monome.Types.Most
+import Montevideo.Monome.Types
 
 
 config31, config22_stretch :: EdoConfig
