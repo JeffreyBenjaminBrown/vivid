@@ -196,5 +196,5 @@ actSend reg when (Send Zot name msg) =
       V.doScheduledAt (V.Timestamp $ fromRational when)
       $ mapM_ (set' s) $ zotMsg msg
 
-actSend _ _ (Free _ _) = error "actFree received a Send."
-actSend _ _ (New _ _)  = error "actFree received a New."
+actSend _ _ (Free _ _) = error "actSend received a Free."
+actSend _ _ (New _ _)  = error "actSend received a New."
