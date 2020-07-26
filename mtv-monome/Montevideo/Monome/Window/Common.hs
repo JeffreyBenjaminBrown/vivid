@@ -53,13 +53,14 @@ silenceMsg xy = SoundMsg {
   , _soundMsgParam = "amp" }
 
 -- TODO ! duplicative of `jiKey_SoundMsg`
-etKey_SoundMsg :: St EdoApp -> ((X,Y), Switch) -> [SoundMsg EdoApp]
-etKey_SoundMsg st (xy, sw) = do
-  let pitch = xyToEdo_st st xy
-      ec = st ^. stApp . edoConfig
+etKey_SoundMsg :: EdoApp -> ((X,Y), Switch) -> [SoundMsg EdoApp]
+etKey_SoundMsg app (xy, sw) = do
+  let pitch = xyToEdo_app app xy
+      ec = app ^. edoConfig
   if maybe False (S.member xy) $
-     st ^. stApp . edoSustaineded
+     app ^. edoSustaineded
     then [] -- it's already sounding due to sustain
+
     else if sw -- sw <=> the key was pressed, rather than released
          then let msg = SoundMsg
                     { _soundMsgVoiceId = xy

@@ -51,7 +51,7 @@ handler    st          press@ (xy,sw)   =
             True  -> M.insert xy xy
             False -> M.delete xy
   pcNow :: PitchClass EdoApp =
-    mod (xyToEdo_st st xy) (app ^. edoConfig . edo)
+    mod (xyToEdo_app app xy) (app ^. edoConfig . edo)
     -- what the key represents currently
   pcThen :: Maybe (PitchClass EdoApp) =
     ledBecause_toPitchClass @ EdoApp
@@ -72,7 +72,7 @@ handler    st          press@ (xy,sw)   =
       concatMap (pcToXys_st st) toDark) ++
     ( map (,True)  $
       concatMap (pcToXys_st st) toLight)
-  soundMsgs :: [SoundMsg EdoApp] = etKey_SoundMsg st press
+  soundMsgs :: [SoundMsg EdoApp] = etKey_SoundMsg app press
   st1 :: St EdoApp = st
     & stApp . edoFingers .~ fingers'
     & stApp . edoLit     .~ lit'

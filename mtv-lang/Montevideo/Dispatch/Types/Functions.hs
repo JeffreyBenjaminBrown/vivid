@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE TupleSections #-}
 
 -- | These aren't type defnitions, but they're such simple functions
 -- (in many cases constructors or instances)

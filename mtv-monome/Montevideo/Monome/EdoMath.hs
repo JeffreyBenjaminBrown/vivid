@@ -6,13 +6,13 @@
 , TupleSections #-}
 
 module Montevideo.Monome.EdoMath (
-    edoToFreq  -- ^ EdoConfig -> Pitch EdoApp -> Float
-  , xyToEdo    -- ^ EdoConfig -> (X,Y) -> Pitch
-  , xyToEdo_st -- ^ St EdoApp -> (X,Y) -> Pitch EdoApp
-  , pcToXys_st -- ^ St EdoApp -> PitchClass EdoApp -> [(X,Y)]
-  , pcToXys    -- ^ EdoConfig -> PitchClass -> (X,Y) -> [(X,Y)]
-  , edoToLowXY -- ^ EdoConfig -> PitchClass -> (X,Y)
-  , vv, hv     -- ^ EdoConfig -> (X,Y)
+    edoToFreq   -- ^ EdoConfig -> Pitch EdoApp -> Float
+  , xyToEdo     -- ^ EdoConfig -> (X,Y) -> Pitch EdoApp
+  , xyToEdo_app -- ^ EdoApp    -> (X,Y) -> Pitch EdoApp
+  , pcToXys_st  -- ^ St EdoApp -> PitchClass EdoApp -> [(X,Y)]
+  , pcToXys     -- ^ EdoConfig -> PitchClass -> (X,Y) -> [(X,Y)]
+  , edoToLowXY  -- ^ EdoConfig -> PitchClass -> (X,Y)
+  , vv, hv      -- ^ EdoConfig -> (X,Y)
   ) where
 
 import Control.Lens
@@ -28,10 +28,10 @@ edoToFreq ec f =
                      10 * (1200 + ec ^. octaveStretchInCents)
   in two**(fi f / fi (ec ^. edo) )
 
-xyToEdo_st :: St EdoApp -> (X,Y) -> Pitch EdoApp
-xyToEdo_st st xy =
-  xyToEdo (st ^. stApp . edoConfig) $
-  pairAdd xy $ pairMul (-1) $ _edoXyShift $ _stApp st
+xyToEdo_app :: EdoApp -> (X,Y) -> Pitch EdoApp
+xyToEdo_app app xy =
+  xyToEdo (app ^. edoConfig) $
+  pairAdd xy $ pairMul (-1) $ _edoXyShift app
 
 pcToXys_st :: St EdoApp -> PitchClass EdoApp -> [(X,Y)]
 pcToXys_st st = pcToXys (st ^. stApp . edoConfig)
