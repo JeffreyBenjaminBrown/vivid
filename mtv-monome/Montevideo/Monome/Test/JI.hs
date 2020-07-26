@@ -31,8 +31,7 @@ test_jiKeySound = TestCase $ do
   let f :: (X,Y) -> IO ()
       f xy = let
         Right freq = jiFreq ja xy
-        msg = SoundMsg { _soundMsgVoiceId = xy
-                       , _soundMsgPitch = Just freq }
+        msg = SoundMsg { _soundMsgVoiceId = xy }
         in do
         assertBool "sound on" $ jiKey_SoundMsg ja (xy,True)
           == [ msg & soundMsgVal .~ Config.freq * fr freq
@@ -40,7 +39,7 @@ test_jiKeySound = TestCase $ do
              , msg & soundMsgVal .~ Config.amp
                    & soundMsgParam .~ "amp" ]
         assertBool "sound off" $ jiKey_SoundMsg ja (xy,False)
-          == [ msg & soundMsgPitch .~ Nothing
+          == [ msg
                & soundMsgVal .~ 0
                & soundMsgParam .~ "amp" ]
   mapM_ f [(0,0), (1,1), (1,3)]

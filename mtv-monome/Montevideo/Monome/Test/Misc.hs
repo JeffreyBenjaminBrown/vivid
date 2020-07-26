@@ -41,19 +41,16 @@ test_etKey_SoundMsg = TestCase $ do
   assertBool "press a key that's not sustained.\n" $
     etKey_SoundMsg (st ^. stApp) (newVoice, True) ==
     [ SoundMsg { _soundMsgVoiceId = newVoice
-               , _soundMsgPitch = Just newPitch
                , _soundMsgVal = Config.freq *
                                 edoToFreq (st ^. stApp . edoConfig) newPitch
                , _soundMsgParam = "freq" }
     , SoundMsg { _soundMsgVoiceId = newVoice
-               , _soundMsgPitch = Just newPitch
                , _soundMsgVal = Config.amp
                , _soundMsgParam = "amp" } ]
 
   assertBool "release a key that's not sustained" $
     etKey_SoundMsg (st ^. stApp) (newVoice, False) ==
     [ SoundMsg { _soundMsgVoiceId = newVoice
-               , _soundMsgPitch = Nothing
                , _soundMsgVal = 0
                , _soundMsgParam = "amp" } ]
 

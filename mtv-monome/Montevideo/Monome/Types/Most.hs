@@ -9,7 +9,7 @@ module Montevideo.Monome.Types.Most (
   , LitPitches
   , LedMsg
   , Pitch, PitchClass
-  , SoundMsg(..), soundMsgVoiceId, soundMsgPitch, soundMsgVal, soundMsgParam
+  , SoundMsg(..), soundMsgVoiceId, soundMsgVal, soundMsgParam
   , X, Y, Switch, Led
   , LedBecause(..)
   , Window(..)
@@ -77,8 +77,6 @@ type LitPitches app = Map (PitchClass app) (Set LedBecause)
 type LedMsg     = (WindowId, ((X,Y), Led))
 data SoundMsg app = SoundMsg {
     _soundMsgVoiceId :: VoiceId
-  , _soundMsgPitch   :: Maybe (Pitch app)
-    -- ^ Messages like "amp=0" don't need a pitch.
   , _soundMsgVal     :: Float
   , _soundMsgParam   :: Param }
 

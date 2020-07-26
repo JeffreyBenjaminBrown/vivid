@@ -68,7 +68,6 @@ jiKey_SoundMsg ja (xy,switch) = let
     if switch
       then let msg = SoundMsg
                      { _soundMsgVoiceId = xy
-                     , _soundMsgPitch = Just freq
                      , _soundMsgVal = error "this gets set below"
                      , _soundMsgParam = error "this gets set below" }
            in [ msg & soundMsgVal .~ Config.freq * fr freq

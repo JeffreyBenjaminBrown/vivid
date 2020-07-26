@@ -76,7 +76,6 @@ test_keyboardHandler = TestCase $ do
               map (\xy -> (K.label, (xy, False)) )
               (pcToXys_st st_01f pitch1 ) )
           & stPending_Vivid .~ [SoundMsg { _soundMsgVoiceId = v1
-                                         , _soundMsgPitch = Nothing
                                          , _soundMsgVal = 0
                                          , _soundMsgParam = "amp" } ] )
 
@@ -88,7 +87,6 @@ test_keyboardHandler = TestCase $ do
               .~ S.singleton LedBecauseAnchor )
           & stApp . edoFingers .~ mempty
           & stPending_Vivid .~ [SoundMsg { _soundMsgVoiceId = v0
-                                         , _soundMsgPitch = Nothing
                                          , _soundMsgVal = 0
                                          , _soundMsgParam = "amp" } ] )
 

@@ -48,7 +48,6 @@ ledBecause_toPitchClass m lb =
 silenceMsg :: (X,Y) -> SoundMsg app
 silenceMsg xy = SoundMsg {
     _soundMsgVoiceId = xy
-  , _soundMsgPitch = Nothing
   , _soundMsgVal = 0
   , _soundMsgParam = "amp" }
 
@@ -64,7 +63,6 @@ etKey_SoundMsg app (xy, sw) = do
     else if sw -- sw <=> the key was pressed, rather than released
          then let msg = SoundMsg
                     { _soundMsgVoiceId = xy
-                    , _soundMsgPitch = Just pitch
                     , _soundMsgVal = error "replaced below"
                     , _soundMsgParam = error "replaced below"
                     }
@@ -79,14 +77,10 @@ etKey_SoundMsg app (xy, sw) = do
 -- and updates the corresponding voice in the St to reflect the new
 -- pitch and parameters.
 updateVoiceParams :: SoundMsg app -> St app -> St app
-updateVoiceParams sdMsg st = let
-  vid   :: VoiceId = _soundMsgVoiceId sdMsg
-  param :: Param   = _soundMsgParam   sdMsg
-  f     :: Float   = _soundMsgVal     sdMsg
-  in st & case _soundMsgPitch sdMsg of
-            Nothing -> id
-            Just p -> stVoices . at vid . _Just .
-                      voiceParams . at param . _Just .~ f
+updateVoiceParams sdMsg st =
+  st &  stVoices    . at (_soundMsgVoiceId sdMsg) . _Just
+     .  voiceParams . at (_soundMsgParam   sdMsg) . _Just
+     .~                   _soundMsgVal     sdMsg
 
 vid_to_pitch :: St EdoApp -> VoiceId ->  Either String (PitchClass EdoApp)
 vid_to_pitch st v =

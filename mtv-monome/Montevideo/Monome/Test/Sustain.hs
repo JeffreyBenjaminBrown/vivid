@@ -127,6 +127,5 @@ test_sustainHandler = TestCase $ do
             map (\xy -> (K.label, (xy, False)))
             (pcToXys_st st_0fs_1s pc1) )
           & stPending_Vivid .~ [ SoundMsg { _soundMsgVoiceId = v1
-                                          , _soundMsgPitch = Nothing
                                           , _soundMsgVal = 0
                                           , _soundMsgParam = "amp" } ] )

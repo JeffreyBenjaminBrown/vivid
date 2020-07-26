@@ -10,14 +10,12 @@ import Montevideo.Monome.Types.Most
 
 instance Show (Pitch app) => Show (SoundMsg app) where
   show sm = "SoundMsg {_soundMsgVoiceId = " ++ show (_soundMsgVoiceId sm)
-                 ++ ", _soundMsgPitch = "   ++ show (_soundMsgPitch sm)
                  ++ ", _soundMsgVal = "     ++ show (_soundMsgVal sm)
                  ++ ", _soundMsgParam = "   ++ show (_soundMsgParam sm) ++ "}"
 
 instance Eq (Pitch app) => Eq (SoundMsg app) where
   a == b =
     _soundMsgVoiceId a == _soundMsgVoiceId b &&
-    _soundMsgPitch a   == _soundMsgPitch b   &&
     _soundMsgVal a     == _soundMsgVal b     &&
     _soundMsgParam a   == _soundMsgParam b
 
@@ -26,8 +24,6 @@ instance (Eq (Pitch app), Ord (Pitch app))
   a <= b =
     if      not $ _soundMsgVoiceId a == _soundMsgVoiceId b
     then          _soundMsgVoiceId a <= _soundMsgVoiceId b
-    else if not $ _soundMsgPitch a   == _soundMsgPitch b
-    then          _soundMsgPitch a   <= _soundMsgPitch b
     else if not $ _soundMsgVal a     == _soundMsgVal b
     then          _soundMsgVal a     <= _soundMsgVal b
     else          _soundMsgParam a   <= _soundMsgParam b
