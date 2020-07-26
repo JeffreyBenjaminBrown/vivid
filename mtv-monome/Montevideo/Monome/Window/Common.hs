@@ -75,6 +75,10 @@ etKey_SoundMsg app (xy, sw) = do
                        & soundMsgParam .~ "amp" ]
          else [silenceMsg xy]
 
+-- | `updateVoiceParams sdMsg st` finds the VoiceId in the sdMsg,
+-- and updates the corresponding voice in the St to reflect the new
+-- pitch and parameters.
+-- TODO: Soon it should only update parameters, not pitch.
 updateVoiceParams :: SoundMsg app -> St app -> St app
 updateVoiceParams sdMsg st = let
   vid   :: VoiceId = _soundMsgVoiceId sdMsg

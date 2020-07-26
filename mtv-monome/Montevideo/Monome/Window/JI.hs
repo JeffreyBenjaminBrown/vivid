@@ -43,15 +43,22 @@ handler :: St JiApp
         -> Either String (St JiApp)
 handler st press@ (xy,sw) =
   mapLeft ("JI handler: " ++) $ let
-  fingers' = st ^. stApp . jiFingers
+  app = st ^. stApp
+  fingers' = app ^. jiFingers
              & case sw of
                  True  -> M.insert xy xy
                  False -> M.delete xy
-  soundMsgs :: [SoundMsg JiApp] = jiKey_SoundMsg (st ^. stApp) press
-  st1 :: St JiApp = st
-    & stApp . jiFingers .~ fingers'
-    & stPending_Vivid   %~ (++ soundMsgs)
-  in Right $ foldr updateVoiceParams st1 soundMsgs
+  soundMsgs :: [SoundMsg JiApp] =
+    jiKey_SoundMsg app press
+
+  in do
+  pitch <- jiFreq app xy
+  let
+    st1 :: St JiApp = st
+      & stApp . jiFingers                     .~ fingers'
+      & stPending_Vivid                       %~ (++ soundMsgs)
+      & stVoices . at xy . _Just . voicePitch .~ pitch
+  Right $ foldr updateVoiceParams st1 soundMsgs
 
 -- TODO ! duplicative of `etKey_SoundMsg`
 jiKey_SoundMsg :: JiApp -> ((X,Y), Switch) -> [SoundMsg JiApp]
