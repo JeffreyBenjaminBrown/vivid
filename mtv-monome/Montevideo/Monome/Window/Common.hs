@@ -7,7 +7,7 @@ module Montevideo.Monome.Window.Common (
     ledBecause_toPitchClass -- ^ LitPitches -> LedBecause -> Maybe PitchClass
   , silenceMsg              -- ^ (X,Y) -> SoundMsg
   , etKey_SoundMsg          -- ^ St -> ((X,Y), Switch) -> [SoundMsg]
-  , updateVoice             -- ^ SoundMsg -> St -> St
+  , updateVoiceParams       -- ^ SoundMsg -> St -> St
   , vid_to_pitch            -- ^ St -> VoiceId -> PitchClass
   ) where
 
@@ -75,8 +75,8 @@ etKey_SoundMsg app (xy, sw) = do
                        & soundMsgParam .~ "amp" ]
          else [silenceMsg xy]
 
-updateVoice :: SoundMsg app -> St app -> St app
-updateVoice sdMsg st = let
+updateVoiceParams :: SoundMsg app -> St app -> St app
+updateVoiceParams sdMsg st = let
   vid   :: VoiceId = _soundMsgVoiceId sdMsg
   param :: Param   = _soundMsgParam   sdMsg
   f     :: Float   = _soundMsgVal     sdMsg

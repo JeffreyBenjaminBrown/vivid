@@ -69,7 +69,7 @@ handler st (_,  True)  =
                          , isJust $ st1 ^. stApp . edoSustaineded ) )
     st2 = st1 & stPending_Monome %~ flip (++) (sustainButtonMsg : kbdMsgs)
               & stPending_Vivid  %~ flip (++) sdMsgs
-  Right $ foldr updateVoice st2 sdMsgs
+  Right $ foldr updateVoiceParams st2 sdMsgs
 
 pitchClassesToDarken_uponSustainOff ::
   St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]

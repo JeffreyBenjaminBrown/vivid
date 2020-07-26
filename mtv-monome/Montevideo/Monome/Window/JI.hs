@@ -51,7 +51,7 @@ handler st press@ (xy,sw) =
   st1 :: St JiApp = st
     & stApp . jiFingers .~ fingers'
     & stPending_Vivid   %~ (++ soundMsgs)
-  in Right $ foldr updateVoice st1 soundMsgs
+  in Right $ foldr updateVoiceParams st1 soundMsgs
 
 -- TODO ! duplicative of `etKey_SoundMsg`
 jiKey_SoundMsg :: JiApp -> ((X,Y), Switch) -> [SoundMsg JiApp]

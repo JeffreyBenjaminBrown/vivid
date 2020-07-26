@@ -78,7 +78,7 @@ handler    st          press@ (xy,sw)   =
     & stApp . edoLit     .~ lit'
     & stPending_Monome  %~ (++ kbdMsgs)
     & stPending_Vivid   %~ (++ soundMsgs)
-  in Right $ foldr updateVoice st1 soundMsgs
+  in Right $ foldr updateVoiceParams st1 soundMsgs
 
 updateStLit :: ((X,Y), Switch)
   -> PitchClass EdoApp         -- ^ what xy represents now
