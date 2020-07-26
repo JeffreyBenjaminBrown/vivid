@@ -81,10 +81,9 @@ edoMonome monomePort = do
       Right osc -> do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
-          Right switch -> do
-            h <- handleSwitch mst switch
-            case h of Left s -> putStrLn s
-                      Right () -> return ()
+          Right switch ->
+            handleSwitch mst switch >>=
+            either putStrLn return
 
   let loop :: IO (St EdoApp) =
         getChar >>= \case
@@ -141,10 +140,9 @@ jiMonome monomePort scale shifts = do
       Right osc -> do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
-          Right switch -> do
-            h <- handleSwitch mst switch
-            case h of Left s -> putStrLn s
-                      Right () -> return ()
+          Right switch ->
+            handleSwitch mst switch >>=
+            either putStrLn return
 
   let loop :: IO (St JiApp) =
         getChar >>= \case
