@@ -107,8 +107,8 @@ edoMonome monomePort = do
 -- [1,9/8,5/4,4/3,3/2,5/3,15/8], but that's harder to play,
 -- and its geometry gives no insight into the scale.)
 jiMonome :: Int        -- ^ The monome address, as reported by serialoscd.
-         -> [Rational] -- ^ The horizontal generator.
-         -> [Rational] -- ^ The vertical generator.
+         -> [Rational] -- ^ The horizontal grid generator.
+         -> [Rational] -- ^ The vertical grid generator.
          -> IO (St JiApp)
 jiMonome monomePort scale shifts = do
   -- PITFALL: Every comment written in edoMonome also applies here.

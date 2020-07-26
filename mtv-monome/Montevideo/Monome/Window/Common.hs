@@ -78,7 +78,6 @@ etKey_SoundMsg app (xy, sw) = do
 -- | `updateVoiceParams sdMsg st` finds the VoiceId in the sdMsg,
 -- and updates the corresponding voice in the St to reflect the new
 -- pitch and parameters.
--- TODO: Soon it should only update parameters, not pitch.
 updateVoiceParams :: SoundMsg app -> St app -> St app
 updateVoiceParams sdMsg st = let
   vid   :: VoiceId = _soundMsgVoiceId sdMsg
@@ -86,9 +85,8 @@ updateVoiceParams sdMsg st = let
   f     :: Float   = _soundMsgVal     sdMsg
   in st & case _soundMsgPitch sdMsg of
             Nothing -> id
-            Just p -> stVoices . at vid . _Just
-                      %~ (voicePitch                     .~ p)
-                      .  (voiceParams . at param . _Just .~ f)
+            Just p -> stVoices . at vid . _Just .
+                      voiceParams . at param . _Just .~ f
 
 vid_to_pitch :: St EdoApp -> VoiceId ->  Either String (PitchClass EdoApp)
 vid_to_pitch st v =
