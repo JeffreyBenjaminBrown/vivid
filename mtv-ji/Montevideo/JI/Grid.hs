@@ -48,9 +48,9 @@ compareGrids edo0 = let
   width n = round
             (fromIntegral edo0 / fromIntegral n :: Double)
   als n = alignments n edo0
-  in [ ( n           -- distance (as a fraction of edo0) between columns
-       , width n     -- which column the probably-nearest octave lands in.
-       , myMod edo0 n -- which row     the probably-nearest octave lands in.
+  in [ ( n            -- distance (as a fraction of edo0) between columns
+       , width n      -- which column the probably-nearest octave lands in
+       , myMod edo0 n -- which row    the probably-nearest octave lands in
        , sum $ map abs $ als n -- sum of errors
        , als n) -- errors
      | n <- [6..20]]

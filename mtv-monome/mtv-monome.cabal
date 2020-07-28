@@ -24,7 +24,7 @@ library
   exposed-modules:
       Montevideo.Monome.Config
     , Montevideo.Monome.EdoMath
-    , Montevideo.Monome.JiScales
+--    , Montevideo.Monome.JiScales
     , Montevideo.Monome.Main
     , Montevideo.Monome.Network.ListenAndLogOsc
     , Montevideo.Monome.Network.Monome
