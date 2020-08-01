@@ -81,9 +81,9 @@ replaceAll_inDisp disp mqsNew = do
     (toFree,toCreate) = museqSynthsDiff mqsOld mqsNew'
 
   newTransform  :: [SynthRegister -> SynthRegister] <-
-    mapM (actNew  reg)      $ map (uncurry New)  toCreate
+    mapM (dispatchConsumeAction_New  reg)      $ map (uncurry New)  toCreate
   freeTransform :: [SynthRegister -> SynthRegister] <-
-    mapM (actFree reg when) $ map (uncurry Free) toFree
+    mapM (dispatchConsumeAction_Free reg when) $ map (uncurry Free) toFree
 
   let synthRegisterNew :: SynthRegister =
         reg &
@@ -166,7 +166,7 @@ dispatchLoop disp = do
       concatMap (museqFrame time0 tempoPeriod start)
       $ M.elems actions
 
-  mapM_ (uncurry $ actSend reg) evs0
+  mapM_ (uncurry $ dispatchConsumeAction_Send reg) evs0
 
   putMVar (mTime0       disp) time0
   putMVar (mTempoPeriod disp) tempoPeriod
