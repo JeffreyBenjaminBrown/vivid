@@ -16,7 +16,7 @@ instance NFData SynthRegister where
 instance NFData a => NFData (Museq a) where
   rnf m = _dur m `deepseq` _sup m `deepseq` _vec m `deepseq` ()
 
-instance NFData Action where
+instance NFData ScAction where
   rnf (New s n)    = s `deepseq` n `deepseq` ()
   rnf (Free s n)   = s `deepseq` n `deepseq` ()
   rnf (Send s n m) = s `deepseq` n `deepseq` m `deepseq` ()

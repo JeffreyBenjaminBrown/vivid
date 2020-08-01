@@ -1,6 +1,6 @@
 module Montevideo.Dispatch.Time (
-    museqFrame -- ^ Museq String Action
-               -- -> [(Time, Action)] -- ^ `Time`s are start times
+    museqFrame -- ^ Museq String ScAction
+               -- -> [(Time, ScAction)] -- ^ `Time`s are start times
   , arc -- ^ forall l a. Time -> Duration -> Time -> Time
         -- -> Museq l a -> [Event Time l a]
   , nextPhase0 -- ^ RealFrac a => a -> a -> a -> a
@@ -29,10 +29,10 @@ import Montevideo.Util
 museqFrame :: Time                -- ^ time0, historical reference point
            -> Duration            -- ^ tempo period
            -> Time                -- ^ when to start rendering
-           -> Museq String Action -- ^ what to pluck events from
-           -> [(Time, Action)]    -- ^ the `Time`s are start times
+           -> Museq String ScAction -- ^ what to pluck events from
+           -> [(Time, ScAction)]    -- ^ the `Time`s are start times
 museqFrame time0 tempoPeriod start m = let
-  evs :: [Event Time String Action] =
+  evs :: [Event Time String ScAction] =
     arc time0 tempoPeriod start
     (start + frameDuration) m
   in map (\ev -> ((ev^.evStart), (ev^.evData))) evs

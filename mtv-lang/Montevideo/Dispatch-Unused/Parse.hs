@@ -21,18 +21,18 @@ synthDefName = foldr1 (<|>) [ word "boop" >> return Boop
                             , word "sqfm" >> return Sqfm
                             ]
 
-msgs :: SynthRegister -> Parser [Action']
+msgs :: SynthRegister -> Parser [ScAction']
 msgs reg = concat <$>
   sepBy1 (homogeneousMsgs reg) (L.lexeme sc $ C.string ",")
 
 -- | msgs all of the same type, e.g. a bunch of News, or a bunch of Frees
-homogeneousMsgs :: SynthRegister -> Parser [Action']
+homogeneousMsgs :: SynthRegister -> Parser [ScAction']
 homogeneousMsgs reg = L.lexeme sc $ foldl1 (<|>)
   [ parseNews reg, parseFrees reg, parseSends reg ]
 
 -- everything below includes per-synth boilerplate
 
-parseNews :: SynthRegister -> Parser [Action']
+parseNews :: SynthRegister -> Parser [ScAction']
 parseNews reg = do
   word "new"
   synthDef <- synthDefName
@@ -42,7 +42,7 @@ parseNews reg = do
     Vap  -> return $ map (New' (vaps  reg) vap ) names
     Sqfm -> return $ map (New' (sqfms reg) sqfm) names
 
-parseFrees :: SynthRegister -> Parser [Action']
+parseFrees :: SynthRegister -> Parser [ScAction']
 parseFrees reg = do
   word "free"
   synthDef <- synthDefName
@@ -52,7 +52,7 @@ parseFrees reg = do
     Vap  -> map (Free' $ vaps  reg) names
     Sqfm -> map (Free' $ sqfms reg) names
 
-parseSends :: SynthRegister -> Parser [Action']
+parseSends :: SynthRegister -> Parser [ScAction']
 parseSends reg = do
   word "send"
   synthDef <- synthDefName

@@ -22,8 +22,8 @@ module Montevideo.Dispatch.Museq (
 
   -- | = misc
   , sortMuseq    -- ^ Museq l a -> Museq l a
-  , museq_NotesToActions -- ^ M.Map String (Museq String Note) ->
-                         --   M.Map String (Museq String Action)
+  , museq_NotesToScActions -- ^ M.Map String (Museq String Note) ->
+                         --   M.Map String (Museq String ScAction)
   ) where
 
 import Prelude hiding (cycle)
@@ -169,14 +169,14 @@ sortMuseq = vec %~
                    sortBy (compare `on` view evArc) v'
                    V.freeze v'
 
-museq_NotesToActions ::
+museq_NotesToScActions ::
   M.Map String (Museq String Note) ->
-  M.Map String (Museq String Action)
-museq_NotesToActions mqs = let
-  f :: Ev String Note -> Ev String Action
+  M.Map String (Museq String ScAction)
+museq_NotesToScActions mqs = let
+  f :: Ev String Note -> Ev String ScAction
   f ev = evData .~ act $ ev where
     d = ev ^. evData
     act = Send (d^.noteSd)
-          (ev^.evLabel) -- TODO ? awkward : Ev label is repeated in Action
+          (ev^.evLabel) -- TODO ? awkward : Ev label is repeated in ScAction
           (d^.noteMsg)
   in M.map (vec %~ V.map f) mqs

@@ -10,8 +10,8 @@ module Montevideo.Dispatch.Types.Functions (
     mNamed -- ^ n -> a -> NamedWith (Maybe n) a
   , anon -- ^ a -> NamedWith (Maybe n) a
 
-  -- | * Actions
-  , actionToSynth -- ^ Action -> (SynthDefEnum, SynthName)
+  -- | * ScActions
+  , actionToSynth -- ^ ScAction -> (SynthDefEnum, SynthName)
 
   -- | * Events
   , eventRTimeToEventTime -- ^ Event RTime l a -> Event Time l a
@@ -54,10 +54,10 @@ anon :: a -> NamedWith (Maybe n) a
 anon = (Nothing , )
 
 
--- | * Actions
+-- | * ScActions
 
 -- | From an action, extract the synth it is for.
-actionToSynth :: Action -> (SynthDefEnum, SynthName)
+actionToSynth :: ScAction -> (SynthDefEnum, SynthName)
 actionToSynth (New  s n  ) = (s,n)
 actionToSynth (Free s n  ) = (s,n)
 actionToSynth (Send s n _) = (s,n)

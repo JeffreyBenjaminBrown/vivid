@@ -7,7 +7,7 @@ module Montevideo.Dispatch.Types.Many (
     SynthName, ParamName, MuseqName
   , Msg, Msg'(..)
   , NamedWith
-  , Action(..)
+  , ScAction(..)
   , Event(..), evArc, evLabel, evData
   , Ev
   , Museq(..), dur, sup, vec
@@ -36,7 +36,7 @@ type MuseqName = String
 
 -- | == Instructions
 
--- | = (synth) Messages and (synth) Actions
+-- | = (synth) Messages and (synth) ScActions
 
 -- | A message type that knows nothing about Vivid's type-fussiness.
 type Msg = Map ParamName Float
@@ -56,7 +56,7 @@ data Msg' sdArgs where
 -- | The `SynthDefEnum` gives the kind of synth.
 -- (The options are at Montevideo/Synth/*.hs.)
 -- The `SynthName` gives the name of the particular instance of that kind.
-data Action
+data ScAction
   = New  -- ^ create it
     { _actionSynthDefEnum :: SynthDefEnum
     , _actionSynthName    :: SynthName }

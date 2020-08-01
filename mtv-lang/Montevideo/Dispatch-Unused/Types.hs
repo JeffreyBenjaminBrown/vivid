@@ -20,7 +20,7 @@ showSynthRegister' reg = do bs <- show <$> (readMVar $ boops reg)
                             return $ bs ++ "\n" ++ vs ++ "\n" ++ ss
 
 data Dispatch' = Dispatch' {
-  mTimeMuseqs' :: MVar (M.Map MuseqName (Time, Museq Action))
+  mTimeMuseqs' :: MVar (M.Map MuseqName (Time, Museq ScAction))
     -- ^ Each `Time` here is the next time that Museq is scheduled to run.
     -- Rarely, briefly, those `Time` values will be in the past.
   , reg' :: SynthRegister
@@ -38,13 +38,13 @@ newDispatch' = do
   return Dispatch { mTimeMuseqs = mTimeMuseqs,  reg          = reg
                   , mTime0  = mTime0         ,  mTempoPeriod = mTempoPeriod }
 
-data Action' where
+data ScAction' where
   New'  :: MVar (M.Map SynthName (Synth sdArgs))
         -> SynthDef sdArgs
-        -> SynthName -> Action'
+        -> SynthName -> ScAction'
   Free' :: MVar (M.Map SynthName (Synth sdArgs))
-        -> SynthName -> Action'
+        -> SynthName -> ScAction'
   Send' :: MVar (M.Map SynthName (Synth sdArgs))
         -> SynthName
-        -> Msg' sdArgs -> Action'
+        -> Msg' sdArgs -> ScAction'
 

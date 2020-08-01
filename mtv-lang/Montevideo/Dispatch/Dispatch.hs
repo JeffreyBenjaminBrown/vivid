@@ -81,9 +81,9 @@ replaceAll_inDisp disp mqsNew = do
     (toFree,toCreate) = museqSynthsDiff mqsOld mqsNew'
 
   newTransform  :: [SynthRegister -> SynthRegister] <-
-    mapM (dispatchConsumeAction_New  reg)      $ map (uncurry New)  toCreate
+    mapM (dispatchConsumeScAction_New  reg)      $ map (uncurry New)  toCreate
   freeTransform :: [SynthRegister -> SynthRegister] <-
-    mapM (dispatchConsumeAction_Free reg when) $ map (uncurry Free) toFree
+    mapM (dispatchConsumeScAction_Free reg when) $ map (uncurry Free) toFree
 
   let synthRegisterNew :: SynthRegister =
         reg &
@@ -160,13 +160,13 @@ dispatchLoop disp = do
 
   let
     start :: Time = nextPhase0 time0 frameDuration now
-    actions :: M.Map String (Museq String Action) =
-      museq_NotesToActions notes
-    evs0 :: [(Time, Action)] =
+    actions :: M.Map String (Museq String ScAction) =
+      museq_NotesToScActions notes
+    evs0 :: [(Time, ScAction)] =
       concatMap (museqFrame time0 tempoPeriod start)
       $ M.elems actions
 
-  mapM_ (uncurry $ dispatchConsumeAction_Send reg) evs0
+  mapM_ (uncurry $ dispatchConsumeScAction_Send reg) evs0
 
   putMVar (mTime0       disp) time0
   putMVar (mTempoPeriod disp) tempoPeriod
