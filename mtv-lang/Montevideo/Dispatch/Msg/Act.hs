@@ -7,8 +7,6 @@
 --   At the requested time, the synth is silenced.
 --   Half a frame later, the synth is deleted.
 
-{-# LANGUAGE DataKinds #-}
-
 module Montevideo.Dispatch.Msg.Act (
     set'    -- ^ VividAction m => Synth params -> Msg' params -> m ()
   , act     -- ^ SynthRegister -> Time -> Action -> IO (SynthRegister -> SynthRegister)
@@ -41,8 +39,13 @@ act reg t a@(Free _ _)   = actFree reg t a
 act reg _ a@(New _ _)    = actNew  reg   a
 
 
--- | `actNew` creates the needed synth immediately;
--- it doesn't schedule anything.
+-- | `actNew reg (New Boop name)`,
+-- if it finds `name`, logs an error and returns the identity.
+-- Otherwise, it creates the synth (immediately -- no scheduling),
+--   and returns how to insert it into synth reg.
+--   The reg has a separate field for each different kind of synth.
+-- In the special case of a sampler, it also looks up the buffer.
+--   If found, it uses the buffer as an argument to the sampler synth created.
 actNew :: SynthRegister -> Action -> IO (SynthRegister -> SynthRegister)
 actNew reg (New Boop name) =
   case M.lookup name $ _boops reg of
@@ -89,9 +92,12 @@ actNew _ (Send _ _ _) = error $ "actNew received a Send."
 actNew _ (Free _ _)   = error $ "actNew received a Free."
 
 
--- | `actFree reg when (Free Boop name)`
--- schedules a 0 `amp` message to the synth for `when`,
--- and schedules freeing the synth for `when + frameDuration / 2`.
+-- | `actFree reg when (Free Boop name)`,
+-- if it doesn't find `name`, logs an error and returns `id`.
+-- If it does, it
+--   schedules an amp=0 message for its "when" argument,
+--   schedules a free message for shortly thereafter,
+--   and returns a way to delete the synth.
 actFree :: SynthRegister
         -> Rational
         -> Action
@@ -150,7 +156,11 @@ actFree _ _ (Send _ _ _) = error "actFree received a Send."
 actFree _ _ (New _ _)    = error "actFree received a New."
 
 
--- | `actSend reg when (Send Boop name msg)` schedules `msg` for `when`.
+-- | `actSend reg when (Send _ name msg)`,
+-- if it doesn't find `name` in `reg`, logs an error.
+-- Otherwise, it schedules an action to send everythingg in `msg` at `when`.
+-- In the special case of a sampler receiving an "on" message,
+--   it schedules an "off" message for shortly thereafter.
 actSend :: SynthRegister -> Time -> Action -> IO ()
 actSend reg when (Send Boop name msg) =
   case M.lookup name $ _boops reg of

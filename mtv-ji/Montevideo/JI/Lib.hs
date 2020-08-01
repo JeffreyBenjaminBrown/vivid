@@ -77,7 +77,11 @@ errorSum weights =
   . bests
 
 errs :: Floating a
-     => Integer -> Rational -> [(Integer, Integer, a)]
+     => Integer -- ^ the edo
+     -> Rational -- ^ what to approximate
+     -> [ ( Integer -- ^ a step of the edo
+          , Integer -- ^ that step in cents
+          , a)]     -- ^ error of that step
 errs n r =
   [ ( i
     , round $ stretch $ fromIntegral i / fromIntegral n
