@@ -4,7 +4,7 @@ p1 = stack2 a b & dur .~ 4 where
   b = mmho 2 $ pre2 "b" [(0, m1 "on" 0)
                         ,(1, m1 "freq" 4)]
 
-p2 :: Int -> Museq String Msg = \n ->
+p2 :: Int -> Museq String ScMsg = \n ->
   mmho (fromIntegral n) $ pre2 "a" $
   zip (map RTime [0..]) $
   map (M.singleton "freq" . (+) 0) $

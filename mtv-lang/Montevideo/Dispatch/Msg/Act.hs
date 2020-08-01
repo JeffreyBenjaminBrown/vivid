@@ -1,4 +1,4 @@
--- | = Act on a Msg
+-- | = Act on a ScMsg
 --
 -- `Dispatch.replaceAll` is what uses these.
 -- `New`s are sent immediately; schedule time is disregarded.
@@ -8,7 +8,7 @@
 --   Half a frame later, the synth is deleted.
 
 module Montevideo.Dispatch.Msg.Act (
-    set'    -- ^ VividAction m => Synth params -> Msg' params -> m ()
+    set'    -- ^ VividAction m => Synth params -> ScMsg' params -> m ()
   , dispatchConsumeScAction
     -- ^ SynthRegister -> Time     -> ScAction -> IO (SynthRegister -> SynthRegister)
   , dispatchConsumeScAction_New
@@ -30,8 +30,8 @@ import Montevideo.Synth
 import Montevideo.Util
 
 
-set' :: V.VividAction m => V.Synth params -> Msg' params -> m ()
-set' _synth (Msg' m) = V.set _synth m
+set' :: V.VividAction m => V.Synth params -> ScMsg' params -> m ()
+set' _synth (ScMsg' m) = V.set _synth m
 
 
 -- | Unused, so far --
@@ -118,7 +118,7 @@ dispatchConsumeScAction_Free reg when (Free Boop name) =
     writeTimeAndError $ "There is no Boop named " ++ name ++ "to free."
     return id
   Just s -> do
-    V.doScheduledAt (V.Timestamp $ fr when) $ set' s $ Msg' (0 :: V.I "amp")
+    V.doScheduledAt (V.Timestamp $ fr when) $ set' s $ ScMsg' (0 :: V.I "amp")
     V.doScheduledAt (V.Timestamp $ fr $ when + frameDuration / 2) $ V.free s
     return $ boops %~ M.delete name
 
@@ -128,7 +128,7 @@ dispatchConsumeScAction_Free reg when (Free (Sampler _) name) =
     writeTimeAndError $ "There is no Sampler named " ++ name ++ "to free."
     return id
   Just s -> do
-    V.doScheduledAt (V.Timestamp $ fr when) $ set' s $ Msg' (0 :: V.I "amp")
+    V.doScheduledAt (V.Timestamp $ fr when) $ set' s $ ScMsg' (0 :: V.I "amp")
     V.doScheduledAt (V.Timestamp $ fr $ when + frameDuration / 2) $ V.free s
     return $ samplers %~ M.delete name
 
@@ -138,7 +138,7 @@ dispatchConsumeScAction_Free reg when (Free Sqfm name) =
     writeTimeAndError $ "There is no Sqfm named " ++ name ++ "to free."
     return id
   Just s -> do
-    V.doScheduledAt (V.Timestamp $ fr when) $ set' s $ Msg' (0 :: V.I "amp")
+    V.doScheduledAt (V.Timestamp $ fr when) $ set' s $ ScMsg' (0 :: V.I "amp")
     V.doScheduledAt (V.Timestamp $ fr $ when + frameDuration / 2) $ V.free s
     return $ sqfms %~ M.delete name
 
@@ -148,7 +148,7 @@ dispatchConsumeScAction_Free reg when (Free Vap name) =
     writeTimeAndError $ "There is no Vap named " ++ name ++ "to free."
     return id
   Just s -> do
-    V.doScheduledAt (V.Timestamp $ fr when) $ set' s $ Msg' (0 :: V.I "amp")
+    V.doScheduledAt (V.Timestamp $ fr when) $ set' s $ ScMsg' (0 :: V.I "amp")
     V.doScheduledAt (V.Timestamp $ fr $ when + frameDuration / 2) $ V.free s
     return $ vaps %~ M.delete name
 
@@ -158,7 +158,7 @@ dispatchConsumeScAction_Free reg when (Free Zot name) =
     writeTimeAndError $ "There is no Zot named " ++ name ++ "to free."
     return id
   Just s -> do
-    V.doScheduledAt (V.Timestamp $ fr when) $ set' s $ Msg' (0 :: V.I "amp")
+    V.doScheduledAt (V.Timestamp $ fr when) $ set' s $ ScMsg' (0 :: V.I "amp")
     V.doScheduledAt (V.Timestamp $ fr $ when + frameDuration / 2) $ V.free s
     return $ zots %~ M.delete name
 
@@ -178,14 +178,14 @@ dispatchConsumeScAction_Send reg when (Send Boop name msg) =
       writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just (s :: V.Synth BoopParams) ->
       V.doScheduledAt (V.Timestamp $ fromRational when)
-      $ mapM_ (set' s) $ boopMsg msg
+      $ mapM_ (set' s) $ boopScMsg msg
 
 dispatchConsumeScAction_Send reg when (Send (Sampler _) name msg) =
   case M.lookup name $ _samplers reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just (s :: V.Synth SamplerParams) -> do
       V.doScheduledAt (V.Timestamp $ fromRational when)
-        $ mapM_ (set' s) $ samplerMsg msg
+        $ mapM_ (set' s) $ samplerScMsg msg
       case M.lookup "trigger" msg of
         Nothing -> return ()
         Just x -> if x <= 0 -- If it's an off message,
@@ -193,28 +193,28 @@ dispatchConsumeScAction_Send reg when (Send (Sampler _) name msg) =
           else -- Otherwise schedule an off message for the very near future.
           -- (The lag can be shorter than the sample without truncating it.)
           V.doScheduledAt (V.Timestamp $ fromRational $ when + retriggerLag)
-          $ set' s $ Msg' (V.toI (-1 :: Int) :: V.I "trigger")
+          $ set' s $ ScMsg' (V.toI (-1 :: Int) :: V.I "trigger")
 
 dispatchConsumeScAction_Send reg when (Send Sqfm name msg) =
   case M.lookup name $ _sqfms reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just (s :: V.Synth SqfmParams) ->
       V.doScheduledAt (V.Timestamp $ fromRational when)
-      $ mapM_ (set' s) $ sqfmMsg msg
+      $ mapM_ (set' s) $ sqfmScMsg msg
 
 dispatchConsumeScAction_Send reg when (Send Vap name msg) =
   case M.lookup name $ _vaps reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just (s :: V.Synth VapParams) ->
       V.doScheduledAt (V.Timestamp $ fromRational when)
-      $ mapM_ (set' s) $ vapMsg msg
+      $ mapM_ (set' s) $ vapScMsg msg
 
 dispatchConsumeScAction_Send reg when (Send Zot name msg) =
   case M.lookup name $ _zots reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just (s :: V.Synth ZotParams) ->
       V.doScheduledAt (V.Timestamp $ fromRational when)
-      $ mapM_ (set' s) $ zotMsg msg
+      $ mapM_ (set' s) $ zotScMsg msg
 
 dispatchConsumeScAction_Send _ _ (Free _ _) =
   error "dispatchConsumeScAction_Send received a Free."

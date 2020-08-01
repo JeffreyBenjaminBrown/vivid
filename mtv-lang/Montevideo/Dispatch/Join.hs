@@ -21,20 +21,20 @@ module Montevideo.Dispatch.Join (
            -- =>        (a ->         b ->              c)
            -- -> Museq l a -> Museq m b -> Museq String c
   , nMerge -- ^ forall l m. (Show l, Show m)
-           -- =>        (Msg ->         Msg ->               Msg)
-           -- -> Museq l Msg -> Museq m Note -> Museq String Note
+           -- =>        (ScMsg ->        ScMsg ->             ScMsg)
+           -- -> Museq l ScMsg -> Museq m Note -> Museq String Note
   , mergec, merge0, merge1, merge0a, merge0f, merge0fa
       -- ^ forall l m. (Show l, Show m) =>
-      -- Museq l Msg -> Museq m Msg -> Museq String Msg
+      -- Museq l ScMsg -> Museq m ScMsg -> Museq String ScMsg
   , nMergec, nMerge0, nMerge1, nMerge0a, nMerge0f, nMerge0fa
       -- ^ forall l m. (Show l, Show m) =>
-      -- Museq l Msg -> Museq m Note -> Museq String Note
+      -- Museq l ScMsg -> Museq m Note -> Museq String Note
   , root -- ^ (Show l, Show m)
-         -- => Museq l Float -> Museq m Msg -> Museq String Msg
+         -- => Museq l Float -> Museq m ScMsg -> Museq String ScMsg
   , scale     -- ^ forall l m. (Show l, Show m)
-              -- => Museq l [Float] -> Museq m Msg -> Museq String Msg
+              -- => Museq l [Float] -> Museq m ScMsg -> Museq String ScMsg
   , rootScale -- ^ forall l m. (Show l, Show m)
-              -- => Museq l (Float,[Float]) -> Museq m Msg -> Museq String Msg
+              -- => Museq l (Float,[Float]) -> Museq m ScMsg -> Museq String ScMsg
   , meta      -- ^ forall a b c l m. (Show l, Show m)
               -- => Museq l      (Museq String a -> Museq String b)
               -- -> Museq m      a
@@ -200,24 +200,24 @@ merge op a b = _merge (labelsToStrings a) (labelsToStrings b) where
     yps = partitionAndGroupEventsAtBoundaries bs ys
 
 
--- | Some ways to merge `Museq Msg`s.
+-- | Some ways to merge `Museq ScMsg`s.
 -- So named because in math, the additive identity is 0,
 -- the mutliplicative identity = 1, and "amp" starts with an "a".
--- The 'n' prefix indicates that the second arg is a Note, not a Msg.
+-- The 'n' prefix indicates that the second arg is a Note, not a ScMsg.
 
 nMerge  :: forall l m. (Show l, Show m)
-  => (Msg -> Msg -> Msg)
-  -> Museq l Msg -> Museq m Note -> Museq String Note
+  => (ScMsg -> ScMsg -> ScMsg)
+  -> Museq l ScMsg -> Museq m Note -> Museq String Note
 nMerge op = merge f
-  where f :: Msg -> Note -> Note
+  where f :: ScMsg -> Note -> Note
         f m1 (Note synth m1') = Note synth $ op m1 m1'
 
 mergec, merge0, merge1, merge0a, merge0f, merge0fa
   :: forall l m. (Show l, Show m) =>
-  Museq l Msg -> Museq m Msg -> Museq String Msg
+  Museq l ScMsg -> Museq m ScMsg -> Museq String ScMsg
 nMergec, nMerge0, nMerge1, nMerge0a, nMerge0f, nMerge0fa
   :: forall l m. (Show l, Show m) =>
-  Museq l Msg -> Museq m Note -> Museq String Note
+  Museq l ScMsg -> Museq m Note -> Museq String Note
 
 mergec m n =
   merge (M.unionWith const)  (labelsToStrings m) (labelsToStrings n)
@@ -265,13 +265,13 @@ nMerge0fa m n =
 
 
 root :: (Show l, Show m)
-     => Museq l Float -> Museq m Msg -> Museq String Msg
+     => Museq l Float -> Museq m ScMsg -> Museq String ScMsg
 root mr = meta $ f <$> mr where
   f n = overParams [("freq", (+) n)]
 
 -- | Twelve tone scales (e.g. [0,2,4,5,7,9,11] = major).
 scale :: forall l m. (Show l, Show m)
-      => Museq l [Float] -> Museq m Msg -> Museq String Msg
+      => Museq l [Float] -> Museq m ScMsg -> Museq String ScMsg
 scale l0 m0 = merge h (labelsToStrings l0) (labelsToStrings m0) where
   f :: [Float] -> Int -> Float -- lookup a pitch in a scale
   f scale0 n0 = let octave n = n `div` length scale0
@@ -283,13 +283,13 @@ scale l0 m0 = merge h (labelsToStrings l0) (labelsToStrings m0) where
                    md :: Float = mod' k 1
               in md * f scale0 fl + (1-md) * f scale0 ce
 
-  h :: [Float] -> Msg -> Msg
+  h :: [Float] -> ScMsg -> ScMsg
   h scale0 m = maybe m k $ M.lookup "freq" m where
-    k :: Float -> Msg
+    k :: Float -> ScMsg
     k freq = M.insert "freq" (g scale0 freq) m
 
 rootScale :: forall l m. (Show l, Show m)
-      => Museq l (Float,[Float]) -> Museq m Msg -> Museq String Msg
+      => Museq l (Float,[Float]) -> Museq m ScMsg -> Museq String ScMsg
 rootScale mrs = let roots  = fst <$> mrs
                     scales = snd <$> mrs
   in root roots . scale scales

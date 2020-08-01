@@ -5,14 +5,14 @@
 
 module Montevideo.Dispatch.Types.Many (
     SynthName, ParamName, MuseqName
-  , Msg, Msg'(..)
+  , ScMsg, ScMsg'(..)
   , NamedWith
   , ScAction(..)
   , Event(..), evArc, evLabel, evData
   , Ev
   , Museq(..), dur, sup, vec
   , SynthRegister(..), boops, samplers, samples, sqfms, vaps, zots
-  , Note(..), noteSd, noteMsg
+  , Note(..), noteSd, noteScMsg
   , Dispatch(..)
   ) where
 
@@ -39,19 +39,19 @@ type MuseqName = String
 -- | = (synth) Messages and (synth) ScActions
 
 -- | A message type that knows nothing about Vivid's type-fussiness.
-type Msg = Map ParamName Float
+type ScMsg = Map ParamName Float
 
 type NamedWith name a = (name, a)
 
--- | A `Msg'`, unlike a `Msg`, is typed for a particular kind of synth,
+-- | A `ScMsg'`, unlike a `Msg`, is typed for a particular kind of synth,
 -- and to send it anywhere else is a type error.
 -- (This innovation is Vivid's, not my own --
 -- in fact I circumvent it with the `Msg` type.)
-data Msg' sdArgs where
-  Msg' :: forall params sdArgs.
+data ScMsg' sdArgs where
+  ScMsg' :: forall params sdArgs.
           ( Vivid.VarList params
           , Vivid.Subset (Vivid.InnerVars params) sdArgs)
-       => params -> Msg' sdArgs
+       => params -> ScMsg' sdArgs
 
 -- | The `SynthDefEnum` gives the kind of synth.
 -- (The options are at Montevideo/Synth/*.hs.)
@@ -66,16 +66,16 @@ data ScAction
   | Send
     { _actionSynthDefEnum :: SynthDefEnum
     , _actionSynthName    :: SynthName
-    , _actionMsg          :: Msg }
+    , _actionScMsg          :: ScMsg }
   deriving (Show, Eq, Ord)
 
 
 -- | = an `Event` happens in time, and might have a name
 
+-- | dn `Event time label a` indicates that `a` should happen to
+-- the voice called `label` at time `time`.
 data Event time label a =
-  Event { _evLabel :: label -- ^ Sometimes you need to name your events,
-        -- so that they can interact. For instance, in a slide guitar melody,
-        -- if one note transitions into the next, they would share a name.
+  Event { _evLabel :: label
         , _evArc :: (time,time) -- ^ start time, end time
         , _evData :: a } -- ^ the thing that happens
   deriving (Show, Eq, Ord, Functor)
@@ -119,7 +119,7 @@ makeLenses ''SynthRegister
 
 data Note = Note
   { _noteSd :: SynthDefEnum
-  , _noteMsg :: Msg } deriving (Show, Eq)
+  , _noteScMsg :: ScMsg } deriving (Show, Eq)
 makeLenses ''Note
 
 data Dispatch = Dispatch {

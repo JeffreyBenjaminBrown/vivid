@@ -9,28 +9,28 @@ module Montevideo.Dispatch.Abbrevs (
   , m1  -- ^ M.singleton
   , mfl -- ^ M.fromList
 
-  , hsToHz          -- ^ Float            -> Museq l Msg -> Museq l Msg
-  , amp, freq       -- ^ (Float -> Float) -> Museq String Msg -> Museq String Msg
-  , ampTo, freqTo   -- ^ Float            -> Museq String Msg -> Museq String Msg
+  , hsToHz          -- ^ Float            -> Museq l ScMsg -> Museq l ScMsg
+  , amp, freq       -- ^ (Float -> Float) -> Museq String ScMsg -> Museq String ScMsg
+  , ampTo, freqTo   -- ^ Float            -> Museq String ScMsg -> Museq String ScMsg
   , nAmp, nFreq     -- ^ (Float -> Float) -> Museq String Note -> Museq String Note
-  , nAmpTo, nFreqTo -- ^ Float            -> Museq String Msg -> Museq String Msg
+  , nAmpTo, nFreqTo -- ^ Float            -> Museq String ScMsg -> Museq String ScMsg
 
   , mm    -- ^ RDuration -> [(l,RTime,RTime,a)] -> Museq l a
   , mmh   -- ^ forall a l. Ord l =>
       -- RDuration -> [(l,RDuration,a)] -> Museq l a
   , mmhm  -- ^ forall a l. Ord l =>
       -- RDuration -> [(l, RTime, Maybe a)] -> Museq l a
-  , mm1   -- ^ Msg -> Museq String Msg
+  , mm1   -- ^ ScMsg -> Museq String ScMsg
   , mmho  -- ^ forall l. Ord l =>
-      -- RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
+      -- RDuration -> [(l,RDuration,ScMsg)] -> Museq l ScMsg
   , mmt  -- ^ forall l. (Ord l, Show l) =>
-      -- RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
+      -- RDuration -> [(l,RTime,Sample,ScMsg)] -> Museq String Note
   , mmt1 -- ^ RDuration -> [(RTime,Sample)] -> Museq String Note
-  , offs  -- ^ Museq l Msg -> Museq l Msg
-  , ons   -- ^ Museq l Msg -> Museq l Msg
+  , offs  -- ^ Museq l ScMsg -> Museq l ScMsg
+  , ons   -- ^ Museq l ScMsg -> Museq l ScMsg
   , ops   -- ^ [(ParamName, Float -> Float)]
-          -- -> Museq l Msg -> Museq l Msg
-  , nBoop, nVap, nZot, nSqfm -- ^ Museq l Msg -> Museq l Note
+          -- -> Museq l ScMsg -> Museq l ScMsg
+  , nBoop, nVap, nZot, nSqfm -- ^ Museq l ScMsg -> Museq l Note
 
   -- | = To write names only once
   , prefixPair, pre2   -- ^ a -> [(b,c)] -> [(a,b,c)]
@@ -70,25 +70,25 @@ m1 = M.singleton
 mfl :: Ord k => [(k, a)] -> M.Map k a
 mfl = M.fromList
 
-hsToHz :: Float -> Museq l Msg -> Museq l Msg
+hsToHz :: Float -> Museq l ScMsg -> Museq l ScMsg
 hsToHz anchorInHz =
   freq $ (*) anchorInHz . (\p -> 2**(p/12))
 
-amp, freq :: (Float -> Float) -> Museq l Msg -> Museq l Msg
+amp, freq :: (Float -> Float) -> Museq l ScMsg -> Museq l ScMsg
 amp g = fmap $ M.adjust g "amp"
 freq g = fmap $ M.adjust g "freq"
 
-ampTo, freqTo :: Float -> Museq String Msg -> Museq String Msg
+ampTo, freqTo :: Float -> Museq String ScMsg -> Museq String ScMsg
 ampTo g = fmap $ M.insert "amp" g
 freqTo g = fmap $ M.insert "freq" g
 
 nAmp, nFreq :: (Float -> Float) -> Museq String Note -> Museq String Note
-nAmp g  = fmap $ noteMsg %~ M.adjust g "amp"
-nFreq g = fmap $ noteMsg %~ M.adjust g "freq"
+nAmp g  = fmap $ noteScMsg %~ M.adjust g "amp"
+nFreq g = fmap $ noteScMsg %~ M.adjust g "freq"
 
 nAmpTo, nFreqTo :: Float -> Museq String Note -> Museq String Note
-nAmpTo g  = fmap $ noteMsg %~ M.insert "amp" g
-nFreqTo g = fmap $ noteMsg %~ M.insert "freq" g
+nAmpTo g  = fmap $ noteScMsg %~ M.insert "amp" g
+nFreqTo g = fmap $ noteScMsg %~ M.insert "freq" g
 
 mm :: RDuration -> [(l,RTime,RTime,a)] -> Museq l a
 mm = mkMuseq
@@ -100,29 +100,29 @@ mmhm :: forall a l. Ord l
      => RDuration -> [(l, RTime, Maybe a)] -> Museq l a
 mmhm = mkMuseqHm
 
-mm1 :: Msg -> Museq String Msg
-mm1 = mkMuseqOneMsg
+mm1 :: ScMsg -> Museq String ScMsg
+mm1 = mkMuseqOneScMsg
 
-mmho :: forall l. Ord l => RDuration -> [(l,RDuration,Msg)] -> Museq l Msg
+mmho :: forall l. Ord l => RDuration -> [(l,RDuration,ScMsg)] -> Museq l ScMsg
 mmho = mkMuseqHo
 
 mmt :: forall l. (Ord l, Show l) =>
-  RDuration -> [(l,RTime,Sample,Msg)] -> Museq String Note
+  RDuration -> [(l,RTime,Sample,ScMsg)] -> Museq String Note
 mmt = mkMuseqTrig
 
 mmt1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
 mmt1 = mkMuseqTrig1
 
-offs :: Museq l Msg -> Museq l Msg
+offs :: Museq l ScMsg -> Museq l ScMsg
 offs = insertOffs
 
-ons :: Museq l Msg -> Museq l Msg
+ons :: Museq l ScMsg -> Museq l ScMsg
 ons = insertOns
 
-ops :: [(ParamName, Float -> Float)] -> Museq l Msg -> Museq l Msg
+ops :: [(ParamName, Float -> Float)] -> Museq l ScMsg -> Museq l ScMsg
 ops = overParams
 
-nBoop, nVap, nZot, nSqfm :: Museq l Msg -> Museq l Note
+nBoop, nVap, nZot, nSqfm :: Museq l ScMsg -> Museq l Note
 nBoop = (<$>) (Note Boop)
 nVap  = (<$>) (Note Vap)
 nZot  = (<$>) (Note Zot)

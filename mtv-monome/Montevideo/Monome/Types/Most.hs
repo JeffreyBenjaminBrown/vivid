@@ -26,6 +26,7 @@ import           Data.Set
 import qualified Network.Socket as NS
 import           Vivid hiding (Param)
 
+import Montevideo.Dispatch.Types.Many
 import Montevideo.Monome.Types.EdoConfig
 import Montevideo.Synth.Boop_Monome
 

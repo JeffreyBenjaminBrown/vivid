@@ -1,11 +1,11 @@
 {-# LANGUAGE DataKinds #-}
 
 module Montevideo.Dispatch.Msg.Mk (
-    boopMsg    -- ^ Msg -> [Msg' BoopParams]
-  , samplerMsg -- ^ Msg -> [Msg' SamplerParams]
-  , sqfmMsg    -- ^ Msg -> [Msg' SqfmParams]
-  , vapMsg     -- ^ Msg -> [Msg' VapParams]
-  , zotMsg     -- ^ Msg -> [Msg' ZotParams]
+    boopScMsg    -- ^ ScMsg -> [ScMsg' BoopParams]
+  , samplerScMsg -- ^ ScMsg -> [ScMsg' SamplerParams]
+  , sqfmScMsg    -- ^ ScMsg -> [ScMsg' SqfmParams]
+  , vapScMsg     -- ^ ScMsg -> [ScMsg' VapParams]
+  , zotScMsg     -- ^ ScMsg -> [ScMsg' ZotParams]
   )
 where
 
@@ -19,93 +19,93 @@ import Montevideo.Dispatch.Types
 -- | == per-synth boilerplate
 
 -- | = send a Map full of messages
-boopMsg :: Msg -> [Msg' BoopParams]
-boopMsg = map boopOneMsg . M.toList
+boopScMsg :: ScMsg -> [ScMsg' BoopParams]
+boopScMsg = map boopOneScMsg . M.toList
 
-samplerMsg :: Msg -> [Msg' SamplerParams]
-samplerMsg = map samplerOneMsg . M.toList
+samplerScMsg :: ScMsg -> [ScMsg' SamplerParams]
+samplerScMsg = map samplerOneScMsg . M.toList
 
-sqfmMsg :: Msg -> [Msg' SqfmParams]
-sqfmMsg = map sqfmOneMsg . M.toList
+sqfmScMsg :: ScMsg -> [ScMsg' SqfmParams]
+sqfmScMsg = map sqfmOneScMsg . M.toList
 
-vapMsg :: Msg -> [Msg' VapParams]
-vapMsg = map vapOneMsg . M.toList
+vapScMsg :: ScMsg -> [ScMsg' VapParams]
+vapScMsg = map vapOneScMsg . M.toList
 
-zotMsg :: Msg -> [Msg' ZotParams]
-zotMsg = map zotOneMsg . M.toList
+zotScMsg :: ScMsg -> [ScMsg' ZotParams]
+zotScMsg = map zotOneScMsg . M.toList
 
 
 -- | = send a message regarding a single parameter
 
-boopOneMsg :: (ParamName, Float) -> Msg' BoopParams
-boopOneMsg ("on",n)    = Msg' (toI n :: I "on")
-boopOneMsg ("freq",n)  = Msg' (toI n :: I "freq")
-boopOneMsg ("amp",n)   = Msg' (toI n :: I "amp")
-boopOneMsg (param,val) = error $
-  "boopOneMsg: unexpected message: " ++ show param ++ "=" ++ show val
+boopOneScMsg :: (ParamName, Float) -> ScMsg' BoopParams
+boopOneScMsg ("on",n)    = ScMsg' (toI n :: I "on")
+boopOneScMsg ("freq",n)  = ScMsg' (toI n :: I "freq")
+boopOneScMsg ("amp",n)   = ScMsg' (toI n :: I "amp")
+boopOneScMsg (param,val) = error $
+  "boopOneScMsg: unexpected message: " ++ show param ++ "=" ++ show val
 
-samplerOneMsg :: (ParamName, Float) -> Msg' SamplerParams
-samplerOneMsg ("amp",n)     = Msg' (toI n :: I "amp")
-samplerOneMsg ("buffer",n)  = Msg' (toI n :: I "buffer")
-samplerOneMsg ("speed",n)   = Msg' (toI n :: I "speed")
-samplerOneMsg ("trigger",n) = Msg' (toI n :: I "trigger")
-samplerOneMsg (param,val)   = error $
-  "sqfmOneMsg: unexpected message: " ++ show param ++ "=" ++ show val
+samplerOneScMsg :: (ParamName, Float) -> ScMsg' SamplerParams
+samplerOneScMsg ("amp",n)     = ScMsg' (toI n :: I "amp")
+samplerOneScMsg ("buffer",n)  = ScMsg' (toI n :: I "buffer")
+samplerOneScMsg ("speed",n)   = ScMsg' (toI n :: I "speed")
+samplerOneScMsg ("trigger",n) = ScMsg' (toI n :: I "trigger")
+samplerOneScMsg (param,val)   = error $
+  "sqfmOneScMsg: unexpected message: " ++ show param ++ "=" ++ show val
 
-sqfmOneMsg :: (ParamName, Float) -> Msg' SqfmParams
-sqfmOneMsg ("freq",n)           = Msg' (toI n :: I "freq")
-sqfmOneMsg ("amp",n)            = Msg' (toI n :: I "amp")
-sqfmOneMsg ("width",n)          = Msg' (toI n :: I "width")
-sqfmOneMsg ("width-vib-amp",n)  = Msg' (toI n :: I "width-vib-amp")
-sqfmOneMsg ("width-vib-freq",n) = Msg' (toI n :: I "width-vib-freq")
-sqfmOneMsg (param,val)          = error $
-  "sqfmOneMsg: unexpected message: " ++ show param ++ "=" ++ show val
+sqfmOneScMsg :: (ParamName, Float) -> ScMsg' SqfmParams
+sqfmOneScMsg ("freq",n)           = ScMsg' (toI n :: I "freq")
+sqfmOneScMsg ("amp",n)            = ScMsg' (toI n :: I "amp")
+sqfmOneScMsg ("width",n)          = ScMsg' (toI n :: I "width")
+sqfmOneScMsg ("width-vib-amp",n)  = ScMsg' (toI n :: I "width-vib-amp")
+sqfmOneScMsg ("width-vib-freq",n) = ScMsg' (toI n :: I "width-vib-freq")
+sqfmOneScMsg (param,val)          = error $
+  "sqfmOneScMsg: unexpected message: " ++ show param ++ "=" ++ show val
 
-vapOneMsg :: (ParamName, Float) -> Msg' VapParams
-vapOneMsg ("freq",n)       = Msg' (toI n :: I "freq")
-vapOneMsg ("amp",n)        = Msg' (toI n :: I "amp")
-vapOneMsg ("saw",n)        = Msg' (toI n :: I "saw")
-vapOneMsg ("delay-freq",n) = Msg' (toI n :: I "delay-freq")
-vapOneMsg ("delay-amp",n)  = Msg' (toI n :: I "delay-amp")
-vapOneMsg ("fm-freq",n)    = Msg' (toI n :: I "fm-freq")
-vapOneMsg ("fm-amp",n)     = Msg' (toI n :: I "fm-amp")
-vapOneMsg ("fm2-freq",n)   = Msg' (toI n :: I "fm2-freq")
-vapOneMsg ("fm2-amp",n)    = Msg' (toI n :: I "fm2-amp")
-vapOneMsg ("nz-lpf",n)     = Msg' (toI n :: I "nz-lpf")
-vapOneMsg (param,val)      = error $
-  "vapOneMsg: unexpected message: " ++ show param ++ "=" ++ show val
+vapOneScMsg :: (ParamName, Float) -> ScMsg' VapParams
+vapOneScMsg ("freq",n)       = ScMsg' (toI n :: I "freq")
+vapOneScMsg ("amp",n)        = ScMsg' (toI n :: I "amp")
+vapOneScMsg ("saw",n)        = ScMsg' (toI n :: I "saw")
+vapOneScMsg ("delay-freq",n) = ScMsg' (toI n :: I "delay-freq")
+vapOneScMsg ("delay-amp",n)  = ScMsg' (toI n :: I "delay-amp")
+vapOneScMsg ("fm-freq",n)    = ScMsg' (toI n :: I "fm-freq")
+vapOneScMsg ("fm-amp",n)     = ScMsg' (toI n :: I "fm-amp")
+vapOneScMsg ("fm2-freq",n)   = ScMsg' (toI n :: I "fm2-freq")
+vapOneScMsg ("fm2-amp",n)    = ScMsg' (toI n :: I "fm2-amp")
+vapOneScMsg ("nz-lpf",n)     = ScMsg' (toI n :: I "nz-lpf")
+vapOneScMsg (param,val)      = error $
+  "vapOneScMsg: unexpected message: " ++ show param ++ "=" ++ show val
 
-zotOneMsg :: (ParamName, Float) -> Msg' ZotParams
-zotOneMsg ("on",n)    = Msg' (toI n :: I "on")
-zotOneMsg ("amp",n)   = Msg' (toI n :: I "amp")
-zotOneMsg ("pulse",n) = Msg' (toI n :: I "pulse")
-zotOneMsg ("freq",n)  = Msg' (toI n :: I "freq")
-zotOneMsg ("fm-b",n)  = Msg' (toI n :: I "fm-b")
-zotOneMsg ("fm-m",n)  = Msg' (toI n :: I "fm-m")
-zotOneMsg ("fm-f",n)  = Msg' (toI n :: I "fm-f")
-zotOneMsg ("pm-b",n)  = Msg' (toI n :: I "pm-b")
-zotOneMsg ("pm-m",n)  = Msg' (toI n :: I "pm-m")
-zotOneMsg ("pm-f",n)  = Msg' (toI n :: I "pm-f")
-zotOneMsg ("w",n)     = Msg' (toI n :: I "w")
-zotOneMsg ("wm-b",n)  = Msg' (toI n :: I "wm-b")
-zotOneMsg ("wm-m",n)  = Msg' (toI n :: I "wm-m")
-zotOneMsg ("wm-f",n)  = Msg' (toI n :: I "wm-f")
-zotOneMsg ("am",n)    = Msg' (toI n :: I "am")
-zotOneMsg ("am-b",n)  = Msg' (toI n :: I "am-b")
-zotOneMsg ("am-f",n)  = Msg' (toI n :: I "am-f")
-zotOneMsg ("rm",n)    = Msg' (toI n :: I "rm")
-zotOneMsg ("rm-b",n)  = Msg' (toI n :: I "rm-b")
-zotOneMsg ("rm-f",n)  = Msg' (toI n :: I "rm-f")
-zotOneMsg ("lpf",n)   = Msg' (toI n :: I "lpf")
-zotOneMsg ("lpf-m",n) = Msg' (toI n :: I "lpf-m")
-zotOneMsg ("bpf",n)   = Msg' (toI n :: I "bpf")
-zotOneMsg ("bpf-m",n) = Msg' (toI n :: I "bpf-m")
-zotOneMsg ("bpf-q",n) = Msg' (toI n :: I "bpf-q")
-zotOneMsg ("hpf",n)   = Msg' (toI n :: I "hpf")
-zotOneMsg ("hpf-m",n) = Msg' (toI n :: I "hpf-m")
-zotOneMsg ("lim",n)   = Msg' (toI n :: I "lim")
-zotOneMsg ("sh",n)    = Msg' (toI n :: I "sh")
-zotOneMsg ("sh-b",n)  = Msg' (toI n :: I "sh-b")
-zotOneMsg ("del",n)   = Msg' (toI n :: I "del")
-zotOneMsg (param,val) = error $
-  "zotOneMsg: unexpected message: " ++ show param ++ "=" ++ show val
+zotOneScMsg :: (ParamName, Float) -> ScMsg' ZotParams
+zotOneScMsg ("on",n)    = ScMsg' (toI n :: I "on")
+zotOneScMsg ("amp",n)   = ScMsg' (toI n :: I "amp")
+zotOneScMsg ("pulse",n) = ScMsg' (toI n :: I "pulse")
+zotOneScMsg ("freq",n)  = ScMsg' (toI n :: I "freq")
+zotOneScMsg ("fm-b",n)  = ScMsg' (toI n :: I "fm-b")
+zotOneScMsg ("fm-m",n)  = ScMsg' (toI n :: I "fm-m")
+zotOneScMsg ("fm-f",n)  = ScMsg' (toI n :: I "fm-f")
+zotOneScMsg ("pm-b",n)  = ScMsg' (toI n :: I "pm-b")
+zotOneScMsg ("pm-m",n)  = ScMsg' (toI n :: I "pm-m")
+zotOneScMsg ("pm-f",n)  = ScMsg' (toI n :: I "pm-f")
+zotOneScMsg ("w",n)     = ScMsg' (toI n :: I "w")
+zotOneScMsg ("wm-b",n)  = ScMsg' (toI n :: I "wm-b")
+zotOneScMsg ("wm-m",n)  = ScMsg' (toI n :: I "wm-m")
+zotOneScMsg ("wm-f",n)  = ScMsg' (toI n :: I "wm-f")
+zotOneScMsg ("am",n)    = ScMsg' (toI n :: I "am")
+zotOneScMsg ("am-b",n)  = ScMsg' (toI n :: I "am-b")
+zotOneScMsg ("am-f",n)  = ScMsg' (toI n :: I "am-f")
+zotOneScMsg ("rm",n)    = ScMsg' (toI n :: I "rm")
+zotOneScMsg ("rm-b",n)  = ScMsg' (toI n :: I "rm-b")
+zotOneScMsg ("rm-f",n)  = ScMsg' (toI n :: I "rm-f")
+zotOneScMsg ("lpf",n)   = ScMsg' (toI n :: I "lpf")
+zotOneScMsg ("lpf-m",n) = ScMsg' (toI n :: I "lpf-m")
+zotOneScMsg ("bpf",n)   = ScMsg' (toI n :: I "bpf")
+zotOneScMsg ("bpf-m",n) = ScMsg' (toI n :: I "bpf-m")
+zotOneScMsg ("bpf-q",n) = ScMsg' (toI n :: I "bpf-q")
+zotOneScMsg ("hpf",n)   = ScMsg' (toI n :: I "hpf")
+zotOneScMsg ("hpf-m",n) = ScMsg' (toI n :: I "hpf-m")
+zotOneScMsg ("lim",n)   = ScMsg' (toI n :: I "lim")
+zotOneScMsg ("sh",n)    = ScMsg' (toI n :: I "sh")
+zotOneScMsg ("sh-b",n)  = ScMsg' (toI n :: I "sh-b")
+zotOneScMsg ("del",n)   = ScMsg' (toI n :: I "del")
+zotOneScMsg (param,val) = error $
+  "zotOneScMsg: unexpected message: " ++ show param ++ "=" ++ show val
