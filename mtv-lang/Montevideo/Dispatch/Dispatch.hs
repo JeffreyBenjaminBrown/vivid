@@ -81,9 +81,11 @@ replaceAll_inDisp disp mqsNew = do
     (toFree,toCreate) = museqSynthsDiff mqsOld mqsNew'
 
   newTransform  :: [SynthRegister -> SynthRegister] <-
-    mapM (dispatchConsumeScAction_New  reg)      $ map (uncurry New)  toCreate
+    mapM (dispatchConsumeScAction_New  reg)      $
+    map (uncurry ScAction_New)  toCreate
   freeTransform :: [SynthRegister -> SynthRegister] <-
-    mapM (dispatchConsumeScAction_Free reg when) $ map (uncurry Free) toFree
+    mapM (dispatchConsumeScAction_Free reg when) $
+    map (uncurry ScAction_Free) toFree
 
   let synthRegisterNew :: SynthRegister =
         reg &

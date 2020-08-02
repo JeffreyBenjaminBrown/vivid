@@ -57,13 +57,13 @@ data ScMsg' sdArgs where
 -- (The options are at Montevideo/Synth/*.hs.)
 -- The `SynthName` gives the name of the particular instance of that kind.
 data ScAction
-  = New  -- ^ create it
+  = ScAction_New  -- ^ create it
     { _actionSynthDefEnum :: SynthDefEnum
     , _actionSynthName    :: SynthName }
-  | Free -- ^ destroy it
+  | ScAction_Free -- ^ destroy it
     { _actionSynthDefEnum :: SynthDefEnum
     , _actionSynthName    :: SynthName }
-  | Send
+  | ScAction_Send
     { _actionSynthDefEnum :: SynthDefEnum
     , _actionSynthName    :: SynthName
     , _actionScMsg        :: ScMsg }
