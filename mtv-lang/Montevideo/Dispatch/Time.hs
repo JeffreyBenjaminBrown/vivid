@@ -26,13 +26,14 @@ import Montevideo.Dispatch.Types
 import Montevideo.Util
 
 
-museqFrame :: Time                -- ^ time0, historical reference point
-           -> Duration            -- ^ tempo period
-           -> Time                -- ^ when to start rendering
-           -> Museq String ScAction -- ^ what to pluck events from
-           -> [(Time, ScAction)]    -- ^ the `Time`s are start times
+museqFrame :: forall a.
+     Time     -- ^ time0, historical reference point
+  -> Duration -- ^ tempo period
+  -> Time     -- ^ when to start rendering
+  -> Museq String (ScAction a) -- ^ what to pluck events from
+  -> [(Time, ScAction a)]      -- ^ the `Time`s are start times
 museqFrame time0 tempoPeriod start m = let
-  evs :: [Event Time String ScAction] =
+  evs :: [Event Time String (ScAction a)] =
     arc time0 tempoPeriod start
     (start + frameDuration) m
   in map (\ev -> ((ev^.evStart), (ev^.evData))) evs

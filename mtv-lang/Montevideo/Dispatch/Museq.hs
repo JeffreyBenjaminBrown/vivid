@@ -171,9 +171,9 @@ sortMuseq = vec %~
 
 museq_NotesToScActions ::
   M.Map String (Museq String Note) ->
-  M.Map String (Museq String ScAction)
+  M.Map String (Museq String (ScAction String))
 museq_NotesToScActions mqs = let
-  f :: Ev String Note -> Ev String ScAction
+  f :: Ev String Note -> Ev String (ScAction String)
   f ev = evData .~ act $ ev where
     d = ev ^. evData
     act = ScAction_Send (d^.noteSd)

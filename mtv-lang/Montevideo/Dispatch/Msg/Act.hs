@@ -36,8 +36,8 @@ set' _synth (ScMsg' m) = V.set _synth m
 
 -- | Unused, so far --
 -- Dispatch.Dispatch uses dispatchConsumeScAction_New, dispatchConsumeScAction_Free, dispatchConsumeScAction_Send, but not this.
-dispatchConsumeScAction :: SynthRegister -> Time -> ScAction
-                       -> IO (SynthRegister -> SynthRegister)
+dispatchConsumeScAction :: SynthRegister -> Time -> ScAction SynthName
+                        -> IO (SynthRegister -> SynthRegister)
 dispatchConsumeScAction reg t a@(ScAction_Send _ _ _) =
   dispatchConsumeScAction_Send reg t a >> return id
 dispatchConsumeScAction reg t a@(ScAction_Free _ _)   =
@@ -53,8 +53,9 @@ dispatchConsumeScAction reg _ a@(ScAction_New _ _)    =
 --   The reg has a separate field for each different kind of synth.
 -- In the special case of a sampler, it also looks up the buffer.
 --   If found, it uses the buffer as an argument to the sampler synth created.
-dispatchConsumeScAction_New
-  :: SynthRegister -> ScAction -> IO (SynthRegister -> SynthRegister)
+dispatchConsumeScAction_New ::
+  SynthRegister -> ScAction SynthName ->
+  IO (SynthRegister -> SynthRegister)
 dispatchConsumeScAction_New reg (ScAction_New Boop name) =
   case M.lookup name $ _boops reg of
     Nothing -> do s <- V.synth boop ()
@@ -108,10 +109,11 @@ dispatchConsumeScAction_New _ (ScAction_Free _ _)   =
 --   schedules an amp=0 message for its "when" argument,
 --   schedules a free message for shortly thereafter,
 --   and returns a way to delete the synth.
-dispatchConsumeScAction_Free :: SynthRegister
-        -> Rational
-        -> ScAction
-        -> IO (SynthRegister -> SynthRegister)
+dispatchConsumeScAction_Free
+  :: SynthRegister
+  -> Rational
+  -> ScAction SynthName
+  -> IO (SynthRegister -> SynthRegister)
 dispatchConsumeScAction_Free reg when (ScAction_Free Boop name) =
   case M.lookup name $ _boops reg of
   Nothing -> do
@@ -173,7 +175,8 @@ dispatchConsumeScAction_Free _ _ (ScAction_New _ _) =
 -- Otherwise, it schedules an action to send everythingg in `msg` at `when`.
 -- In the special case of a sampler receiving an "on" message,
 --   it schedules an "off" message for shortly thereafter.
-dispatchConsumeScAction_Send :: SynthRegister -> Time -> ScAction -> IO ()
+dispatchConsumeScAction_Send ::
+  SynthRegister -> Time -> ScAction SynthName -> IO ()
 dispatchConsumeScAction_Send reg when (ScAction_Send Boop name msg) =
   case M.lookup name $ _boops reg of
     Nothing ->

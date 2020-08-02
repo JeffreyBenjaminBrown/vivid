@@ -78,7 +78,7 @@ type LitPitches app = Map (PitchClass app) (Set LedBecause)
 type LedMsg     = (WindowId, ((X,Y), Led))
 data SoundMsg app = SoundMsg {
     _soundMsgVoiceId :: VoiceId
-  , _soundMsg_ScAction :: ScAction }
+  , _soundMsg_ScAction :: ScAction String } -- TODO: Change from String.
 
 -- | The reason a (pitch class of) LED(s) in the keyboard window is lit.
 data LedBecause =

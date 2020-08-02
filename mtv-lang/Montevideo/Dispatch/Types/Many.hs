@@ -56,16 +56,16 @@ data ScMsg' sdArgs where
 -- | The `SynthDefEnum` gives the kind of synth.
 -- (The options are at Montevideo/Synth/*.hs.)
 -- The `SynthName` gives the name of the particular instance of that kind.
-data ScAction
+data ScAction labelType
   = ScAction_New  -- ^ create it
     { _actionSynthDefEnum :: SynthDefEnum
-    , _actionSynthName    :: SynthName }
+    , _actionSynthName    :: labelType }
   | ScAction_Free -- ^ destroy it
     { _actionSynthDefEnum :: SynthDefEnum
-    , _actionSynthName    :: SynthName }
+    , _actionSynthName    :: labelType }
   | ScAction_Send
     { _actionSynthDefEnum :: SynthDefEnum
-    , _actionSynthName    :: SynthName
+    , _actionSynthName    :: labelType
     , _actionScMsg        :: ScMsg }
   deriving (Show, Eq, Ord)
 makePrisms ''ScAction
