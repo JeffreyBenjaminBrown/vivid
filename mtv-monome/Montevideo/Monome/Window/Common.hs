@@ -5,9 +5,9 @@
 
 module Montevideo.Monome.Window.Common (
     ledBecause_toPitchClass -- ^ LitPitches -> LedBecause -> Maybe PitchClass
-  , silenceMsg              -- ^ (X,Y) -> SoundMsg
-  , edoKey_ScAction          -- ^ St -> ((X,Y), Switch) -> [SoundMsg]
-  , updateVoiceParams       -- ^ SoundMsg -> St -> St
+  , silenceMsg              -- ^ (X,Y) -> ScAction VoiceId
+  , edoKey_ScAction         -- ^ St -> ((X,Y), Switch) -> [ScAction VoiceId]
+  , updateVoiceParams       -- ^ ScAction VoiceId -> St -> St
   , vid_to_pitch            -- ^ St -> VoiceId -> PitchClass
   ) where
 

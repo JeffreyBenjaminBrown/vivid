@@ -10,12 +10,12 @@ module Montevideo.Monome.Window.Util (
   , belongsHere    -- ^ [Window] -> Window -> LedFilter
 
 -- | * So far, no need to export these.
---  LedRelay, LedFilter
---  , doSoundMessage -- ^ St -> SoundMsg -> IO ()
---  , doLedMessage   -- ^ St -> [Window] -> LedMsg -> IO ()
---  , relayToWindow  -- ^ St -> WindowId -> [Window] -> LedRelay
---  , relayIfHere    -- ^ Socket > [Window] -> Window -> LedRelay
---  , findWindow     -- ^ [Window] -> WindowId -> Maybe Window
+--  , LedRelay, LedFilter
+--  , doScAction    -- ^ St -> ScAction VoiceId -> IO ()
+--  , doLedMessage  -- ^ St -> [Window] -> LedMsg -> IO ()
+--  , relayToWindow -- ^ St -> WindowId -> [Window] -> LedRelay
+--  , relayIfHere   -- ^ Socket > [Window] -> Window -> LedRelay
+--  , findWindow    -- ^ [Window] -> WindowId -> Maybe Window
   ) where
 
 import           Prelude hiding (pred)
@@ -64,8 +64,8 @@ handleSwitch    mst              sw@ (btn,_)      = do
               Left s -> return $ Left s
               Right st1 -> do
                 mapM_ doOrPrint $
-                  (doSoundMessage st1 <$> _stPending_Vivid  st1) ++
-                  (doLedMessage   st1 <$> _stPending_Monome st1)
+                  (doScAction   st1 <$> _stPending_Vivid  st1) ++
+                  (doLedMessage st1 <$> _stPending_Monome st1)
                 putMVar mst st1
                   { _stPending_Monome = []
                   , _stPending_Vivid = [] }
@@ -74,9 +74,9 @@ handleSwitch    mst              sw@ (btn,_)      = do
   fmap (mapLeft ("Window.Util.handleSwitch: " ++)) $
     go $ _stWindowLayers st0
 
-doSoundMessage :: St app -> ScAction VoiceId -> Either String (IO ())
-doSoundMessage    st        sca =
-  mapLeft ("doSoundMessage: " ++) $
+doScAction :: St app -> ScAction VoiceId -> Either String (IO ())
+doScAction    st        sca =
+  mapLeft ("doScAction: " ++) $
   case has _ScAction_Send sca of
     False -> Left $ show sca ++ " is not a Send."
     True -> do

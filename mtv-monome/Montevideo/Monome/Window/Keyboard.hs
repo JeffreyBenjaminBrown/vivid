@@ -73,15 +73,15 @@ handler    st          press@ (xy,sw)   =
       concatMap (pcToXys_st st) toDark) ++
     ( map (,True)  $
       concatMap (pcToXys_st st) toLight)
-  soundMsgs :: [ScAction VoiceId] = edoKey_ScAction app press
+  scas :: [ScAction VoiceId] = edoKey_ScAction app press
   st1 :: St EdoApp = st
     & stApp . edoFingers .~ fingers'
     & stApp . edoLit     .~ lit'
     & stPending_Monome  %~ (++ kbdMsgs)
-    & stPending_Vivid   %~ (++ soundMsgs)
+    & stPending_Vivid   %~ (++ scas)
     & ( stVoices . at xy . _Just . voicePitch
         .~ xyToEdo_app app xy )
-  in Right $ foldr updateVoiceParams st1 soundMsgs
+  in Right $ foldr updateVoiceParams st1 scas
 
 updateStLit :: ((X,Y), Switch)
   -> PitchClass EdoApp         -- ^ what xy represents now
