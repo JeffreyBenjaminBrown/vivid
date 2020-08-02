@@ -33,20 +33,19 @@ test_jiKeySound = TestCase $ do
   let f :: (X,Y) -> IO ()
       f xy = let
         Right freq = jiFreq ja xy
-        msg = SoundMsg { _soundMsgVoiceId = xy }
         in do
         assertBool "sound on" $ jiKey_SoundMsg ja (xy,True)
-          == [ msg { _soundMsg_ScAction = ScAction_Send
-                     { _actionSynthDefEnum = Boop
-                     , _actionSynthName = "todo -- use this and not voiceId"
-                     , _actionScMsg = M.fromList
-                       [ ("freq", Config.freq * fr freq)
-                       , ("amp", Config.amp) ] } } ]
+          == [ ScAction_Send
+               { _actionSynthDefEnum = Boop
+               , _actionSynthName = xy
+               , _actionScMsg = M.fromList
+                 [ ("freq", Config.freq * fr freq)
+                 , ("amp", Config.amp) ] } ]
         assertBool "sound off" $ jiKey_SoundMsg ja (xy,False)
-          == [ msg { _soundMsg_ScAction = ScAction_Send
-                     { _actionSynthDefEnum = Boop
-                     , _actionSynthName = "todo -- use this and not voiceId"
-                     , _actionScMsg = M.singleton "amp" 0 } } ]
+          == [ ScAction_Send
+               { _actionSynthDefEnum = Boop
+               , _actionSynthName = xy
+               , _actionScMsg = M.singleton "amp" 0 } ]
   mapM_ f [(0,0), (1,1), (1,3)]
 
 test_jiFreq :: Test

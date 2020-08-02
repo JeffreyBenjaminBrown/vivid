@@ -47,16 +47,15 @@ ledBecause_toPitchClass m lb =
       $ filter (S.member lb . snd)
       $ M.toList m
 
-silenceMsg :: (X,Y) -> SoundMsg app
-silenceMsg xy = SoundMsg
-  { _soundMsgVoiceId = xy
-  , _soundMsg_ScAction = ScAction_Send
-    { _actionSynthDefEnum = Boop
-    , _actionSynthName = "todo -- use this and not voiceId"
-    , _actionScMsg = M.singleton "amp" 0 } }
+silenceMsg :: (X,Y) -> ScAction VoiceId
+silenceMsg xy = ScAction_Send
+  { _actionSynthDefEnum = Boop
+  , _actionSynthName = xy
+  , _actionScMsg = M.singleton "amp" 0
+  }
 
 -- TODO ! duplicative of `jiKey_SoundMsg`
-etKey_SoundMsg :: EdoApp -> ((X,Y), Switch) -> [SoundMsg EdoApp]
+etKey_SoundMsg :: EdoApp -> ((X,Y), Switch) -> [ScAction VoiceId]
 etKey_SoundMsg app (xy, sw) = do
   let pitch = xyToEdo_app app xy
       ec = app ^. edoConfig
@@ -65,28 +64,26 @@ etKey_SoundMsg app (xy, sw) = do
     then [] -- it's already sounding due to sustain
 
     else if sw -- sw <=> the key was pressed, rather than released
-         then [ SoundMsg
-                { _soundMsgVoiceId = xy
-                , _soundMsg_ScAction = ScAction_Send
-                  { _actionSynthDefEnum = Boop
-                  , _actionSynthName = "todo -- use this and not voiceId"
-                  , _actionScMsg = M.fromList
-                    [ ("freq", Config.freq * edoToFreq ec pitch)
-                    , ("amp", Config.amp) ]
-                  } } ]
+         then [ ScAction_Send
+                { _actionSynthDefEnum = Boop
+                , _actionSynthName = xy
+                , _actionScMsg = M.fromList
+                  [ ("freq", Config.freq * edoToFreq ec pitch)
+                  , ("amp", Config.amp) ]
+                } ]
          else [silenceMsg xy]
 
 -- | `updateVoiceParams sdMsg st` finds the VoiceId in the sdMsg,
 -- and updates the corresponding voice in the St to reflect the new
 -- pitch and parameters.
-updateVoiceParams :: SoundMsg app -> St app -> St app
-updateVoiceParams sdMsg st =
+updateVoiceParams :: ScAction VoiceId -> St app -> St app
+updateVoiceParams sca st =
   let go :: (ParamName, Float) -> St app -> St app
       go (p, f) =
-        (stVoices    . at (_soundMsgVoiceId sdMsg) . _Just) .
-        (voiceParams . at p                        . _Just) .~ f
+        (stVoices    . at (_actionSynthName sca) . _Just) .
+        (voiceParams . at p                      . _Just) .~ f
   in st & ( foldr (.) id $ map go $
-            M.toList $ _actionScMsg $ _soundMsg_ScAction sdMsg )
+            M.toList $ _actionScMsg sca )
 
 vid_to_pitch :: St EdoApp -> VoiceId ->  Either String (PitchClass EdoApp)
 vid_to_pitch st v =

@@ -18,11 +18,12 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 import           Data.Set (Set)
 
-import           Montevideo.Monome.EdoMath
-import           Montevideo.Monome.Util.Button
-import           Montevideo.Monome.Types.Most
-import           Montevideo.Monome.Window.Common
-import           Montevideo.Util
+import Montevideo.Dispatch.Types.Many
+import Montevideo.Monome.EdoMath
+import Montevideo.Monome.Util.Button
+import Montevideo.Monome.Types.Most
+import Montevideo.Monome.Window.Common
+import Montevideo.Util
 
 
 label :: WindowId
@@ -72,7 +73,7 @@ handler    st          press@ (xy,sw)   =
       concatMap (pcToXys_st st) toDark) ++
     ( map (,True)  $
       concatMap (pcToXys_st st) toLight)
-  soundMsgs :: [SoundMsg EdoApp] = etKey_SoundMsg app press
+  soundMsgs :: [ScAction VoiceId] = etKey_SoundMsg app press
   st1 :: St EdoApp = st
     & stApp . edoFingers .~ fingers'
     & stApp . edoLit     .~ lit'

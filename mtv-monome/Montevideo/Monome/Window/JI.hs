@@ -50,7 +50,7 @@ handler st press@ (xy,sw) =
              & case sw of
                  True  -> M.insert xy xy
                  False -> M.delete xy
-  soundMsgs :: [SoundMsg JiApp] =
+  soundMsgs :: [ScAction VoiceId] =
     jiKey_SoundMsg app press
 
   in do
@@ -63,19 +63,17 @@ handler st press@ (xy,sw) =
   Right $ foldr updateVoiceParams st1 soundMsgs
 
 -- TODO ! duplicative of `etKey_SoundMsg`
-jiKey_SoundMsg :: JiApp -> ((X,Y), Switch) -> [SoundMsg JiApp]
+jiKey_SoundMsg :: JiApp -> ((X,Y), Switch) -> [ScAction VoiceId]
 jiKey_SoundMsg ja (xy,switch) = let
-  doIfKeyFound :: Rational -> [SoundMsg JiApp]
+  doIfKeyFound :: Rational -> [ScAction VoiceId]
   doIfKeyFound freq =
     if switch
-      then [ SoundMsg
-             { _soundMsgVoiceId = xy
-             , _soundMsg_ScAction = ScAction_Send
-               { _actionSynthDefEnum = Boop
-               , _actionSynthName = "todo -- use this and not voiceId"
-               , _actionScMsg = M.fromList
-                 [ ("freq", Config.freq * fr freq)
-                 , ("amp", Config.amp) ] } } ]
+      then [ ScAction_Send
+             { _actionSynthDefEnum = Boop
+             , _actionSynthName = xy
+             , _actionScMsg = M.fromList
+               [ ("freq", Config.freq * fr freq)
+               , ("amp", Config.amp) ] } ]
       else [silenceMsg xy]
   in either (const []) doIfKeyFound $ jiFreq ja xy
      -- [] if key out of range; key corresponds to no pitch

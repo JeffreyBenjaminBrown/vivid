@@ -9,7 +9,6 @@ module Montevideo.Monome.Types.Most (
   , LitPitches
   , LedMsg
   , Pitch, PitchClass
-  , SoundMsg(..), soundMsgVoiceId, soundMsg_ScAction
   , X, Y, Switch, Led
   , LedBecause(..)
   , Window(..)
@@ -76,9 +75,6 @@ type LitPitches app = Map (PitchClass app) (Set LedBecause)
   -- The Set is a Set because an LED could be on for multiple reasons.
 
 type LedMsg     = (WindowId, ((X,Y), Led))
-data SoundMsg app = SoundMsg {
-    _soundMsgVoiceId :: VoiceId
-  , _soundMsg_ScAction :: ScAction String } -- TODO: Change from String.
 
 -- | The reason a (pitch class of) LED(s) in the keyboard window is lit.
 data LedBecause =
@@ -124,7 +120,7 @@ data St app = St {
   -- is to isolate side-effects to a small portion of the code. Elsewhere,
   -- scattered functions can simply change an `St` instead of doing IO.
   , _stPending_Monome :: [LedMsg]
-  , _stPending_Vivid :: [SoundMsg app]
+  , _stPending_Vivid :: [ScAction VoiceId]
   }
 
 data EdoApp = EdoApp
@@ -154,7 +150,6 @@ data JiApp = JiApp
   }
   deriving (Show, Eq)
 
-makeLenses ''SoundMsg
 makeLenses ''Voice
 makeLenses ''St
 makeLenses ''EdoApp

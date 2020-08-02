@@ -8,23 +8,6 @@ module Montevideo.Monome.Types.Instances where
 import Montevideo.Monome.Types.Most
 
 
-instance Show (Pitch app) => Show (SoundMsg app) where
-  show sm = "SoundMsg {"
-    ++ "_soundMsgVoiceId = "  ++ show (_soundMsgVoiceId sm)
-    ++ ", _soundMsg_ScAction = " ++ show (_soundMsg_ScAction sm) ++ "}"
-
-instance Eq (Pitch app) => Eq (SoundMsg app) where
-  a == b =
-    _soundMsgVoiceId a == _soundMsgVoiceId b &&
-    _soundMsg_ScAction a  == _soundMsg_ScAction b
-
-instance (Eq (Pitch app), Ord (Pitch app))
-         => Ord (SoundMsg app) where
-  a <= b =
-    if   not $ _soundMsgVoiceId a == _soundMsgVoiceId b
-    then       _soundMsgVoiceId a <= _soundMsgVoiceId b
-    else       _soundMsg_ScAction a  <= _soundMsg_ScAction b
-
 instance Eq (Window app) where
   (==) a b = windowLabel a == windowLabel b
 

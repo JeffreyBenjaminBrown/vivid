@@ -22,6 +22,7 @@ import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set as S
 
+import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Types.Most
@@ -59,7 +60,7 @@ handler st (_,  True)  =
       then map ( (Kbd.label,) . (,False) ) $
            concatMap (pcToXys_st st) $ toDark
       else []
-    sdMsgs :: [SoundMsg EdoApp] =
+    sdMsgs :: [ScAction VoiceId] =
       if null $ st1 ^. stApp . edoSustaineded
       then map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
       else []

@@ -128,8 +128,7 @@ test_sustainHandler = TestCase $ do
             map (\xy -> (K.label, (xy, False)))
             (pcToXys_st st_0fs_1s pc1) )
           & stPending_Vivid .~
-          [ SoundMsg { _soundMsgVoiceId = v1
-                     , _soundMsg_ScAction = ScAction_Send
-                       { _actionSynthDefEnum = Boop
-                       , _actionSynthName = "todo -- use this and not voiceId"
-                       , _actionScMsg = M.singleton "amp" 0 } } ] )
+          [ ScAction_Send
+            { _actionSynthDefEnum = Boop
+            , _actionSynthName = v1
+            , _actionScMsg = M.singleton "amp" 0 } ] )
