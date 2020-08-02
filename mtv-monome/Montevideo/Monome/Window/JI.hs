@@ -18,11 +18,13 @@ import           Control.Lens
 import           Data.Either.Combinators
 import qualified Data.Map as M
 
+import           Montevideo.Dispatch.Types.Many
 import qualified Montevideo.Monome.Config as Config
-import Montevideo.Monome.Util.Button
-import Montevideo.Monome.Types.Most
-import Montevideo.Util
-import Montevideo.Monome.Window.Common
+import           Montevideo.Monome.Util.Button
+import           Montevideo.Monome.Types.Most
+import           Montevideo.Monome.Window.Common
+import           Montevideo.Util
+import           Montevideo.Synth
 
 
 label :: WindowId
@@ -68,9 +70,12 @@ jiKey_SoundMsg ja (xy,switch) = let
     if switch
       then [ SoundMsg
              { _soundMsgVoiceId = xy
-             , _soundMsg_ScMsg = M.fromList
-               [ ("freq", Config.freq * fr freq)
-               , ("amp", Config.amp) ] } ]
+             , _soundMsg_ScAction = ScAction_Send
+               { _actionSynthDefEnum = Boop
+               , _actionSynthName = "todo -- use this and not voiceId"
+               , _actionScMsg = M.fromList
+                 [ ("freq", Config.freq * fr freq)
+                 , ("amp", Config.amp) ] } } ]
       else [silenceMsg xy]
   in either (const []) doIfKeyFound $ jiFreq ja xy
      -- [] if key out of range; key corresponds to no pitch

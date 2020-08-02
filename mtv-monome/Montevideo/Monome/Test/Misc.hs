@@ -10,13 +10,14 @@ import Data.Map as M
 import Data.Set as S
 import Test.HUnit
 
+import           Montevideo.Dispatch.Types.Many
 import qualified Montevideo.Monome.Config as Config
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Test.Data
-import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Types.Most
-import           Montevideo.Monome.Window.Util
 import           Montevideo.Monome.Window.Common
+import           Montevideo.Monome.Window.Util
+import           Montevideo.Synth
 
 
 tests :: Test
@@ -41,15 +42,21 @@ test_etKey_SoundMsg = TestCase $ do
   assertBool "press a key that's not sustained.\n" $
     etKey_SoundMsg (st ^. stApp) (newVoice, True) ==
     [ SoundMsg { _soundMsgVoiceId = newVoice
-               , _soundMsg_ScMsg = M.fromList
-                 [ ("freq", Config.freq *
-                            edoToFreq (st ^. stApp . edoConfig) newPitch)
-                 , ( "amp", Config.amp ) ] } ]
+               , _soundMsg_ScAction = ScAction_Send
+                 { _actionSynthDefEnum = Boop
+                 , _actionSynthName = "todo -- use this and not voiceId"
+                 , _actionScMsg = M.fromList
+                   [ ("freq", Config.freq *
+                              edoToFreq (st ^. stApp . edoConfig) newPitch)
+                   , ( "amp", Config.amp ) ] } } ]
 
   assertBool "release a key that's not sustained" $
     etKey_SoundMsg (st ^. stApp) (newVoice, False) ==
     [ SoundMsg { _soundMsgVoiceId = newVoice
-               , _soundMsg_ScMsg = M.singleton "amp" 0 } ]
+               , _soundMsg_ScAction = ScAction_Send
+                     { _actionSynthDefEnum = Boop
+                     , _actionSynthName = "todo -- use this and not voiceId"
+                     , _actionScMsg = M.singleton "amp" 0 } } ]
 
 testDependentPitchClass :: Test
 testDependentPitchClass = TestCase $ do

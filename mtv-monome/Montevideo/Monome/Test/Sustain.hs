@@ -12,12 +12,13 @@ import           Data.Map (Map)
 import qualified Data.Set as S
 import           Data.Set (Set)
 
+import Montevideo.Dispatch.Types.Many
 import Montevideo.Monome.EdoMath
 import Montevideo.Monome.Test.Data
-import Montevideo.Monome.Util.Button
 import Montevideo.Monome.Types.Most
 import Montevideo.Monome.Window.Keyboard as K
 import Montevideo.Monome.Window.Sustain  as Su
+import Montevideo.Synth
 
 
 tests :: Test
@@ -128,4 +129,7 @@ test_sustainHandler = TestCase $ do
             (pcToXys_st st_0fs_1s pc1) )
           & stPending_Vivid .~
           [ SoundMsg { _soundMsgVoiceId = v1
-                     , _soundMsg_ScMsg = M.singleton "amp" 0 } ] )
+                     , _soundMsg_ScAction = ScAction_Send
+                       { _actionSynthDefEnum = Boop
+                       , _actionSynthName = "todo -- use this and not voiceId"
+                       , _actionScMsg = M.singleton "amp" 0 } } ] )

@@ -7,7 +7,7 @@ module Montevideo.Dispatch.Types.Many (
     SynthName, ParamName, MuseqName
   , ScMsg, ScMsg'(..)
   , NamedWith
-  , ScAction(..)
+  , ScAction(..), _ScAction_New, _ScAction_Send, _ScAction_Free
   , Event(..), evArc, evLabel, evData
   , Ev
   , Museq(..), dur, sup, vec
@@ -68,7 +68,7 @@ data ScAction
     , _actionSynthName    :: SynthName
     , _actionScMsg        :: ScMsg }
   deriving (Show, Eq, Ord)
-
+makePrisms ''ScAction
 
 -- | = an `Event` happens in time, and might have a name
 

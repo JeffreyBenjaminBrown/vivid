@@ -76,20 +76,24 @@ handleSwitch    mst              sw@ (btn,_)      = do
 
 doSoundMessage :: St app -> SoundMsg app -> Either String (IO ())
 doSoundMessage    st        sdm =
-  mapLeft ("doSoundMessage: " ++) $ do
-  let vid   :: VoiceId = _soundMsgVoiceId sdm
-  s :: Synth BoopParams <-
-    maybe (Left $ "VoiceId " ++ show vid ++ " has no assigned synth.")
-    Right $ (_stVoices st M.! vid) ^. voiceSynth
-  let go :: (ParamName, Float) -> Either String (IO ())
-      go (param, f) =
-        case param of
-          "amp"  -> Right $ set s (toI f :: I "amp")
-          "freq" -> Right $ set s (toI f :: I "freq")
-          _      -> Left $ "unrecognized parameter " ++ param
-  ios :: [IO ()] <-
-    mapM go $ M.toList $ _soundMsg_ScMsg sdm
-  Right $ mapM_ id ios
+  mapLeft ("doSoundMessage: " ++) $
+  let sca = _soundMsg_ScAction sdm
+      vid   :: VoiceId = _soundMsgVoiceId sdm
+  in case has _ScAction_Send sca of
+       False -> Left $ show sca ++ " is not a Send."
+       True -> do
+         s :: Synth BoopParams <-
+           maybe (Left $ "VoiceId " ++ show vid ++ " has no assigned synth.")
+           Right $ (_stVoices st M.! vid) ^. voiceSynth
+
+         let go :: (ParamName, Float) -> Either String (IO ())
+             go (param, f) =
+                case param of
+                  "amp"  -> Right $ set s (toI f :: I "amp")
+                  "freq" -> Right $ set s (toI f :: I "freq")
+                  _      -> Left $ "unrecognized parameter " ++ param
+         ios <- mapM go $ M.toList $ _actionScMsg sca
+         Right $ mapM_ id ios
 
 doLedMessage :: St app -> LedMsg -> Either String (IO ())
 doLedMessage st (l, (xy,b)) =

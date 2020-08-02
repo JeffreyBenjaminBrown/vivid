@@ -10,14 +10,15 @@ import           Data.Either.Combinators
 import qualified Data.Map as M
 import qualified Data.Set as S
 
+import Montevideo.Dispatch.Types.Many
 import Montevideo.Monome.EdoMath
 import Montevideo.Monome.Test.Data
-import Montevideo.Monome.Util.Button
 import Montevideo.Monome.Types.Most
-import Montevideo.Util
 import Montevideo.Monome.Window.Common
 import Montevideo.Monome.Window.Keyboard as K
 import Montevideo.Monome.Window.Shift    as Sh
+import Montevideo.Synth
+import Montevideo.Util
 
 
 tests :: Test
@@ -77,7 +78,10 @@ test_keyboardHandler = TestCase $ do
               (pcToXys_st st_01f pitch1 ) )
           & stPending_Vivid .~
           [ SoundMsg { _soundMsgVoiceId = v1
-                     , _soundMsg_ScMsg = M.singleton "amp" 0 } ] )
+                     , _soundMsg_ScAction = ScAction_Send
+                       { _actionSynthDefEnum = Boop
+                       , _actionSynthName = "todo -- use this and not voiceId"
+                       , _actionScMsg = M.singleton "amp" 0 } } ] )
 
   assertBool "releasing a key that's also the anchor pitch sends no monome messages" $
     fromRight (error "bork")
@@ -88,7 +92,10 @@ test_keyboardHandler = TestCase $ do
           & stApp . edoFingers .~ mempty
           & stPending_Vivid .~
           [ SoundMsg { _soundMsgVoiceId = v0
-                     , _soundMsg_ScMsg = M.singleton "amp" 0 } ] )
+                     , _soundMsg_ScAction = ScAction_Send
+                       { _actionSynthDefEnum = Boop
+                       , _actionSynthName = "todo -- use this and not voiceId"
+                       , _actionScMsg = M.singleton "amp" 0 } } ] )
 
   assertBool "releasing a key that's a sustained voice sends no vivid or monome messages, but updates lit and fingers" $
     fromRight (error "bork")

@@ -23,6 +23,7 @@ import qualified Montevideo.Monome.Config as Config
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Types.Most
+import           Montevideo.Synth
 
 
 -- | Given an `LedBecause` like `LedBecauseSwitch (x,y)`,
@@ -49,7 +50,10 @@ ledBecause_toPitchClass m lb =
 silenceMsg :: (X,Y) -> SoundMsg app
 silenceMsg xy = SoundMsg
   { _soundMsgVoiceId = xy
-  , _soundMsg_ScMsg = M.singleton "amp" 0 }
+  , _soundMsg_ScAction = ScAction_Send
+    { _actionSynthDefEnum = Boop
+    , _actionSynthName = "todo -- use this and not voiceId"
+    , _actionScMsg = M.singleton "amp" 0 } }
 
 -- TODO ! duplicative of `jiKey_SoundMsg`
 etKey_SoundMsg :: EdoApp -> ((X,Y), Switch) -> [SoundMsg EdoApp]
@@ -63,10 +67,13 @@ etKey_SoundMsg app (xy, sw) = do
     else if sw -- sw <=> the key was pressed, rather than released
          then [ SoundMsg
                 { _soundMsgVoiceId = xy
-                , _soundMsg_ScMsg = M.fromList
-                  [ ("freq", Config.freq * edoToFreq ec pitch)
-                  , ("amp", Config.amp) ]
-                } ]
+                , _soundMsg_ScAction = ScAction_Send
+                  { _actionSynthDefEnum = Boop
+                  , _actionSynthName = "todo -- use this and not voiceId"
+                  , _actionScMsg = M.fromList
+                    [ ("freq", Config.freq * edoToFreq ec pitch)
+                    , ("amp", Config.amp) ]
+                  } } ]
          else [silenceMsg xy]
 
 -- | `updateVoiceParams sdMsg st` finds the VoiceId in the sdMsg,
@@ -79,7 +86,7 @@ updateVoiceParams sdMsg st =
         (stVoices    . at (_soundMsgVoiceId sdMsg) . _Just) .
         (voiceParams . at p                        . _Just) .~ f
   in st & ( foldr (.) id $ map go $
-            M.toList $ _soundMsg_ScMsg sdMsg )
+            M.toList $ _actionScMsg $ _soundMsg_ScAction sdMsg )
 
 vid_to_pitch :: St EdoApp -> VoiceId ->  Either String (PitchClass EdoApp)
 vid_to_pitch st v =
