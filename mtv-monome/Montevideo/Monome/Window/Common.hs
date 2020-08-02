@@ -6,7 +6,7 @@
 module Montevideo.Monome.Window.Common (
     ledBecause_toPitchClass -- ^ LitPitches -> LedBecause -> Maybe PitchClass
   , silenceMsg              -- ^ (X,Y) -> SoundMsg
-  , etKey_SoundMsg          -- ^ St -> ((X,Y), Switch) -> [SoundMsg]
+  , edoKey_ScAction          -- ^ St -> ((X,Y), Switch) -> [SoundMsg]
   , updateVoiceParams       -- ^ SoundMsg -> St -> St
   , vid_to_pitch            -- ^ St -> VoiceId -> PitchClass
   ) where
@@ -54,9 +54,9 @@ silenceMsg xy = ScAction_Send
   , _actionScMsg = M.singleton "amp" 0
   }
 
--- TODO ! duplicative of `jiKey_SoundMsg`
-etKey_SoundMsg :: EdoApp -> ((X,Y), Switch) -> [ScAction VoiceId]
-etKey_SoundMsg app (xy, sw) = do
+-- TODO ! duplicative of `jiKey_ScAction`
+edoKey_ScAction :: EdoApp -> ((X,Y), Switch) -> [ScAction VoiceId]
+edoKey_ScAction app (xy, sw) = do
   let pitch = xyToEdo_app app xy
       ec = app ^. edoConfig
   if maybe False (S.member xy) $

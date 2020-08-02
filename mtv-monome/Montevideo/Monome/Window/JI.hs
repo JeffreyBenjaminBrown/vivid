@@ -9,7 +9,7 @@ module Montevideo.Monome.Window.JI (
   , jiWindow
   , label
 
-  , jiKey_SoundMsg -- ^ JiApp -> ((X,Y), Switch) -> [SoundMsg]
+  , jiKey_ScAction -- ^ JiApp -> ((X,Y), Switch) -> [SoundMsg]
   , jiFreq         -- ^ JiApp -> (X,Y) -> Either String Float
   ) where
 
@@ -51,7 +51,7 @@ handler st press@ (xy,sw) =
                  True  -> M.insert xy xy
                  False -> M.delete xy
   soundMsgs :: [ScAction VoiceId] =
-    jiKey_SoundMsg app press
+    jiKey_ScAction app press
 
   in do
   pitch <- jiFreq app xy
@@ -62,9 +62,9 @@ handler st press@ (xy,sw) =
       & stVoices . at xy . _Just . voicePitch .~ pitch
   Right $ foldr updateVoiceParams st1 soundMsgs
 
--- TODO ! duplicative of `etKey_SoundMsg`
-jiKey_SoundMsg :: JiApp -> ((X,Y), Switch) -> [ScAction VoiceId]
-jiKey_SoundMsg ja (xy,switch) = let
+-- TODO ! duplicative of `edoKey_ScAction`
+jiKey_ScAction :: JiApp -> ((X,Y), Switch) -> [ScAction VoiceId]
+jiKey_ScAction ja (xy,switch) = let
   doIfKeyFound :: Rational -> [ScAction VoiceId]
   doIfKeyFound freq =
     if switch

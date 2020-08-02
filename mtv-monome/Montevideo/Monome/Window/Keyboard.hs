@@ -73,7 +73,7 @@ handler    st          press@ (xy,sw)   =
       concatMap (pcToXys_st st) toDark) ++
     ( map (,True)  $
       concatMap (pcToXys_st st) toLight)
-  soundMsgs :: [ScAction VoiceId] = etKey_SoundMsg app press
+  soundMsgs :: [ScAction VoiceId] = edoKey_ScAction app press
   st1 :: St EdoApp = st
     & stApp . edoFingers .~ fingers'
     & stApp . edoLit     .~ lit'

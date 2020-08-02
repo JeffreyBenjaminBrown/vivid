@@ -24,23 +24,23 @@ tests :: Test
 tests = TestList [
     TestLabel "testBelongsHere" testBelongsHere
   , TestLabel "testDependentPitchClass" testDependentPitchClass
-  , TestLabel "test_etKey_SoundMsg" test_etKey_SoundMsg
+  , TestLabel "test_edoKey_ScAction" test_edoKey_ScAction
   ]
 
-test_etKey_SoundMsg :: Test
-test_etKey_SoundMsg = TestCase $ do
+test_edoKey_ScAction :: Test
+test_edoKey_ScAction = TestCase $ do
   let sustainedVoice :: VoiceId = (0,0)
       newVoice :: VoiceId = (0,1)
       st = st0 & ( stApp . edoSustaineded .~
                    Just (S.singleton sustainedVoice) )
       newPitch = xyToEdo_app (st ^. stApp) newVoice
   assertBool "pressing a key that's sustained has no effect" $
-    etKey_SoundMsg (st ^. stApp) (sustainedVoice, True) == []
+    edoKey_ScAction (st ^. stApp) (sustainedVoice, True) == []
   assertBool "releasing a key that's sustained has no effect" $
-    etKey_SoundMsg (st ^. stApp) (sustainedVoice, False) == []
+    edoKey_ScAction (st ^. stApp) (sustainedVoice, False) == []
 
   assertBool "press a key that's not sustained.\n" $
-    etKey_SoundMsg (st ^. stApp) (newVoice, True) ==
+    edoKey_ScAction (st ^. stApp) (newVoice, True) ==
     [ ScAction_Send
       { _actionSynthDefEnum = Boop
       , _actionSynthName = newVoice
@@ -50,7 +50,7 @@ test_etKey_SoundMsg = TestCase $ do
         , ( "amp", Config.amp ) ] } ]
 
   assertBool "release a key that's not sustained" $
-    etKey_SoundMsg (st ^. stApp) (newVoice, False) ==
+    edoKey_ScAction (st ^. stApp) (newVoice, False) ==
     [ ScAction_Send
       { _actionSynthDefEnum = Boop
       , _actionSynthName = newVoice

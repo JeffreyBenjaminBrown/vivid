@@ -117,4 +117,4 @@ test_keyboardHandler = TestCase $ do
           & ( stPending_Monome .~
               ( map (\xy -> (K.label, (xy, True)) ) $
                 pcToXys_st st_01f pitch1 ) )
-          & stPending_Vivid .~ etKey_SoundMsg (st0 ^. stApp) (xy1,True) )
+          & stPending_Vivid .~ edoKey_ScAction (st0 ^. stApp) (xy1,True) )
