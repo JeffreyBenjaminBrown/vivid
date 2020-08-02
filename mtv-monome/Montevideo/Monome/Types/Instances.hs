@@ -9,24 +9,21 @@ import Montevideo.Monome.Types.Most
 
 
 instance Show (Pitch app) => Show (SoundMsg app) where
-  show sm = "SoundMsg {_soundMsgVoiceId = " ++ show (_soundMsgVoiceId sm)
-                 ++ ", _soundMsgVal = "     ++ show (_soundMsgVal sm)
-                 ++ ", _soundMsgParam = "   ++ show (_soundMsgParam sm) ++ "}"
+  show sm = "SoundMsg {"
+    ++ "_soundMsgVoiceId = "  ++ show (_soundMsgVoiceId sm)
+    ++ ", _soundMsg_ScMsg = " ++ show (_soundMsg_ScMsg sm) ++ "}"
 
 instance Eq (Pitch app) => Eq (SoundMsg app) where
   a == b =
     _soundMsgVoiceId a == _soundMsgVoiceId b &&
-    _soundMsgVal a     == _soundMsgVal b     &&
-    _soundMsgParam a   == _soundMsgParam b
+    _soundMsg_ScMsg a  == _soundMsg_ScMsg b
 
 instance (Eq (Pitch app), Ord (Pitch app))
          => Ord (SoundMsg app) where
   a <= b =
-    if      not $ _soundMsgVoiceId a == _soundMsgVoiceId b
-    then          _soundMsgVoiceId a <= _soundMsgVoiceId b
-    else if not $ _soundMsgVal a     == _soundMsgVal b
-    then          _soundMsgVal a     <= _soundMsgVal b
-    else          _soundMsgParam a   <= _soundMsgParam b
+    if   not $ _soundMsgVoiceId a == _soundMsgVoiceId b
+    then       _soundMsgVoiceId a <= _soundMsgVoiceId b
+    else       _soundMsg_ScMsg a  <= _soundMsg_ScMsg b
 
 instance Eq (Window app) where
   (==) a b = windowLabel a == windowLabel b

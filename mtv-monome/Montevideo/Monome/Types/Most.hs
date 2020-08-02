@@ -9,7 +9,7 @@ module Montevideo.Monome.Types.Most (
   , LitPitches
   , LedMsg
   , Pitch, PitchClass
-  , SoundMsg(..), soundMsgVoiceId, soundMsgVal, soundMsgParam
+  , SoundMsg(..), soundMsgVoiceId, soundMsg_ScMsg
   , X, Y, Switch, Led
   , LedBecause(..)
   , Window(..)
@@ -78,8 +78,7 @@ type LitPitches app = Map (PitchClass app) (Set LedBecause)
 type LedMsg     = (WindowId, ((X,Y), Led))
 data SoundMsg app = SoundMsg {
     _soundMsgVoiceId :: VoiceId
-  , _soundMsgVal     :: Float
-  , _soundMsgParam   :: Param }
+  , _soundMsg_ScMsg :: ScMsg }
 
 -- | The reason a (pitch class of) LED(s) in the keyboard window is lit.
 data LedBecause =

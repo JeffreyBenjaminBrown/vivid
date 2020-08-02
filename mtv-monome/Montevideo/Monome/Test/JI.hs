@@ -6,8 +6,8 @@ module Montevideo.Monome.Test.JI where
 
 import Test.HUnit
 
-import           Control.Lens
 import           Data.Either
+import qualified Data.Map as M
 
 import qualified Montevideo.Monome.Config as Config
 import           Montevideo.Monome.Types
@@ -34,14 +34,11 @@ test_jiKeySound = TestCase $ do
         msg = SoundMsg { _soundMsgVoiceId = xy }
         in do
         assertBool "sound on" $ jiKey_SoundMsg ja (xy,True)
-          == [ msg & soundMsgVal .~ Config.freq * fr freq
-                   & soundMsgParam .~ "freq"
-             , msg & soundMsgVal .~ Config.amp
-                   & soundMsgParam .~ "amp" ]
+          == [ msg { _soundMsg_ScMsg = M.fromList
+                     [ ("freq", Config.freq * fr freq)
+                     , ("amp", Config.amp) ] } ]
         assertBool "sound off" $ jiKey_SoundMsg ja (xy,False)
-          == [ msg
-               & soundMsgVal .~ 0
-               & soundMsgParam .~ "amp" ]
+          == [ msg { _soundMsg_ScMsg = M.singleton "amp" 0 } ]
   mapM_ f [(0,0), (1,1), (1,3)]
 
 test_jiFreq :: Test

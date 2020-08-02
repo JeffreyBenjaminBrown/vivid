@@ -41,18 +41,15 @@ test_etKey_SoundMsg = TestCase $ do
   assertBool "press a key that's not sustained.\n" $
     etKey_SoundMsg (st ^. stApp) (newVoice, True) ==
     [ SoundMsg { _soundMsgVoiceId = newVoice
-               , _soundMsgVal = Config.freq *
-                                edoToFreq (st ^. stApp . edoConfig) newPitch
-               , _soundMsgParam = "freq" }
-    , SoundMsg { _soundMsgVoiceId = newVoice
-               , _soundMsgVal = Config.amp
-               , _soundMsgParam = "amp" } ]
+               , _soundMsg_ScMsg = M.fromList
+                 [ ("freq", Config.freq *
+                            edoToFreq (st ^. stApp . edoConfig) newPitch)
+                 , ( "amp", Config.amp ) ] } ]
 
   assertBool "release a key that's not sustained" $
     etKey_SoundMsg (st ^. stApp) (newVoice, False) ==
     [ SoundMsg { _soundMsgVoiceId = newVoice
-               , _soundMsgVal = 0
-               , _soundMsgParam = "amp" } ]
+               , _soundMsg_ScMsg = M.singleton "amp" 0 } ]
 
 testDependentPitchClass :: Test
 testDependentPitchClass = TestCase $ do

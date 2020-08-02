@@ -66,7 +66,7 @@ data ScAction
   | Send
     { _actionSynthDefEnum :: SynthDefEnum
     , _actionSynthName    :: SynthName
-    , _actionScMsg          :: ScMsg }
+    , _actionScMsg        :: ScMsg }
   deriving (Show, Eq, Ord)
 
 

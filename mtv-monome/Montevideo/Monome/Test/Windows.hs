@@ -75,9 +75,9 @@ test_keyboardHandler = TestCase $ do
               --   (pcToXys (st_01f ^. stApp . edoXyShift) pitch1 ) )
               map (\xy -> (K.label, (xy, False)) )
               (pcToXys_st st_01f pitch1 ) )
-          & stPending_Vivid .~ [SoundMsg { _soundMsgVoiceId = v1
-                                         , _soundMsgVal = 0
-                                         , _soundMsgParam = "amp" } ] )
+          & stPending_Vivid .~
+          [ SoundMsg { _soundMsgVoiceId = v1
+                     , _soundMsg_ScMsg = M.singleton "amp" 0 } ] )
 
   assertBool "releasing a key that's also the anchor pitch sends no monome messages" $
     fromRight (error "bork")
@@ -86,9 +86,9 @@ test_keyboardHandler = TestCase $ do
           & ( stApp . edoLit . at pc0 . _Just
               .~ S.singleton LedBecauseAnchor )
           & stApp . edoFingers .~ mempty
-          & stPending_Vivid .~ [SoundMsg { _soundMsgVoiceId = v0
-                                         , _soundMsgVal = 0
-                                         , _soundMsgParam = "amp" } ] )
+          & stPending_Vivid .~
+          [ SoundMsg { _soundMsgVoiceId = v0
+                     , _soundMsg_ScMsg = M.singleton "amp" 0 } ] )
 
   assertBool "releasing a key that's a sustained voice sends no vivid or monome messages, but updates lit and fingers" $
     fromRight (error "bork")

@@ -26,6 +26,7 @@ import qualified Data.List as L
 import qualified Data.Map as M
 import           Vivid hiding (pitch, synth, Param)
 
+import Montevideo.Dispatch.Types.Many
 import Montevideo.Monome.Network.Util
 import Montevideo.Monome.Util.Button
 import Montevideo.Monome.Types
@@ -74,19 +75,21 @@ handleSwitch    mst              sw@ (btn,_)      = do
     go $ _stWindowLayers st0
 
 doSoundMessage :: St app -> SoundMsg app -> Either String (IO ())
-doSoundMessage    st        sdMsg =
-  mapLeft ("doSoundMessage" ++) $ do
-  let vid   :: VoiceId = _soundMsgVoiceId sdMsg
-      param :: Param   = _soundMsgParam   sdMsg
-      f     :: Float   = _soundMsgVal     sdMsg
+doSoundMessage    st        sdm =
+  mapLeft ("doSoundMessage: " ++) $ do
+  let vid   :: VoiceId = _soundMsgVoiceId sdm
   s :: Synth BoopParams <-
     maybe (Left $ "VoiceId " ++ show vid ++ " has no assigned synth.")
     Right $ (_stVoices st M.! vid) ^. voiceSynth
-  case param of
-    "amp"  -> Right $ set s (toI f :: I "amp")
-    "freq" -> Right $ set s (toI f :: I "freq")
-    _      -> Left $
-      "doSoundMessage: unrecognized parameter " ++ param
+  let go :: (ParamName, Float) -> Either String (IO ())
+      go (param, f) =
+        case param of
+          "amp"  -> Right $ set s (toI f :: I "amp")
+          "freq" -> Right $ set s (toI f :: I "freq")
+          _      -> Left $ "unrecognized parameter " ++ param
+  ios :: [IO ()] <-
+    mapM go $ M.toList $ _soundMsg_ScMsg sdm
+  Right $ mapM_ id ios
 
 doLedMessage :: St app -> LedMsg -> Either String (IO ())
 doLedMessage st (l, (xy,b)) =

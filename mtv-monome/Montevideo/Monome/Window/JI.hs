@@ -66,14 +66,11 @@ jiKey_SoundMsg ja (xy,switch) = let
   doIfKeyFound :: Rational -> [SoundMsg JiApp]
   doIfKeyFound freq =
     if switch
-      then let msg = SoundMsg
-                     { _soundMsgVoiceId = xy
-                     , _soundMsgVal = error "this gets set below"
-                     , _soundMsgParam = error "this gets set below" }
-           in [ msg & soundMsgVal .~ Config.freq * fr freq
-                    & soundMsgParam .~ "freq"
-              , msg & soundMsgVal .~ Config.amp
-                    & soundMsgParam .~ "amp" ]
+      then [ SoundMsg
+             { _soundMsgVoiceId = xy
+             , _soundMsg_ScMsg = M.fromList
+               [ ("freq", Config.freq * fr freq)
+               , ("amp", Config.amp) ] } ]
       else [silenceMsg xy]
   in either (const []) doIfKeyFound $ jiFreq ja xy
      -- [] if key out of range; key corresponds to no pitch
