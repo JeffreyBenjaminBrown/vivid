@@ -48,7 +48,9 @@ initAllWindows mst = do
         in mapM_ doOrPrint $ doLedMessage st' <$> _stPending_Monome st'
   mapM_ runWindowInit $ _stWindowLayers st
 
--- | called every time a monome button is pressed or released
+-- | Called every time a monome button is pressed or released.
+-- Does two kinds of IO: talking to SuperCollider and changing the MVar.
+-- TODO : instead of MVar IO, return an St -> St
 handleSwitch :: forall app.
                 MVar (St app) -> ((X,Y), Switch) -> IO (Either String ())
 handleSwitch    mst              sw@ (btn,_)      = do

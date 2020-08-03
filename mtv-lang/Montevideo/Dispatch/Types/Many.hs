@@ -53,9 +53,12 @@ data ScMsg' sdArgs where
           , Vivid.Subset (Vivid.InnerVars params) sdArgs)
        => params -> ScMsg' sdArgs
 
--- | The `SynthDefEnum` gives the kind of synth.
+-- | A SuperCollider action: create a voice, destroy (free)  a voice,
+-- or change a voice's parameters.
+-- The `SynthDefEnum` gives the kind of synth.
 -- (The options are at Montevideo/Synth/*.hs.)
--- The `SynthName` gives the name of the particular instance of that kind.
+-- The `SynthDefEnum` says what kind of synth,
+-- while the `labelType` names the relevant instance of that kind of synth.
 data ScAction labelType
   = ScAction_New  -- ^ create it
     { _actionSynthDefEnum :: SynthDefEnum
