@@ -62,14 +62,18 @@ data ScMsg' sdArgs where
 data ScAction labelType
   = ScAction_New  -- ^ create it
     { _actionSynthDefEnum :: SynthDefEnum
-    , _actionSynthName    :: labelType }
+    , _actionSynthName    :: labelType
+    , _actionScMsg        :: ScMsg -- ^ This can be the empty map.
+      -- In fact, in mtv-lang (Montevideo.Dispatch), it always is,
+      -- because voices are created in advance of being used.
+    }
   | ScAction_Free -- ^ destroy it
     { _actionSynthDefEnum :: SynthDefEnum
     , _actionSynthName    :: labelType }
   | ScAction_Send
     { _actionSynthDefEnum :: SynthDefEnum
     , _actionSynthName    :: labelType
-    , _actionScMsg        :: ScMsg }
+    , _actionScMsg        :: ScMsg } -- ^ This should not be the empty map.
   deriving (Show, Eq, Ord)
 makePrisms ''ScAction
 

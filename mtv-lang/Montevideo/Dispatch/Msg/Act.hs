@@ -42,55 +42,62 @@ dispatchConsumeScAction reg t a@(ScAction_Send _ _ _) =
   dispatchConsumeScAction_Send reg t a >> return id
 dispatchConsumeScAction reg t a@(ScAction_Free _ _)   =
   dispatchConsumeScAction_Free reg t a
-dispatchConsumeScAction reg _ a@(ScAction_New _ _)    =
+dispatchConsumeScAction reg _ a@(ScAction_New _ _ _)  =
   dispatchConsumeScAction_New  reg   a
 
-
--- | `dispatchConsumeScAction_New reg (ScAction_New Boop name)`,
+-- | PITFALL: Sets no parameters.
+-- In this sense it does not consume everything that might be present.
+-- That's because sequences in mtv-lang create voices silently,
+-- before they are used, and therefore the `_actionScMsg` field of the input
+-- `ScAction` is always the empty map.
+--
+-- `dispatchConsumeScAction_New reg (ScAction_New Boop name)`,
 -- if it finds `name`, logs an error and returns the identity.
 -- Otherwise, it creates the synth (immediately -- no scheduling),
 --   and returns how to insert it into synth reg.
 --   The reg has a separate field for each different kind of synth.
 -- In the special case of a sampler, it also looks up the buffer.
 --   If found, it uses the buffer as an argument to the sampler synth created.
+
 dispatchConsumeScAction_New ::
   SynthRegister -> ScAction SynthName ->
   IO (SynthRegister -> SynthRegister)
-dispatchConsumeScAction_New reg (ScAction_New Boop name) =
+dispatchConsumeScAction_New reg (ScAction_New Boop name _) =
   case M.lookup name $ _boops reg of
     Nothing -> do s <- V.synth boop ()
                   return $ boops %~ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Boop named " ++ name
             return id
 
-dispatchConsumeScAction_New reg (ScAction_New (Sampler sample) name) =
+dispatchConsumeScAction_New reg (ScAction_New (Sampler sample) name _) =
   case M.lookup name $ _samplers reg of
     Nothing -> do
       case M.lookup sample $ reg ^. samples of
-        Nothing -> do writeTimeAndError $
-                        "dispatchConsumeScAction_New: Sample " ++ show sample ++ " not found."
-                      return id
+        Nothing -> do
+          writeTimeAndError $ "dispatchConsumeScAction_New: Sample "
+            ++ show sample ++ " not found."
+          return id
         Just buf -> do
           s <- V.synth sampler (V.b2i buf :: V.I "buffer")
           return $ samplers %~ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Sampler named " ++ name
             return id
 
-dispatchConsumeScAction_New reg (ScAction_New Sqfm name) =
+dispatchConsumeScAction_New reg (ScAction_New Sqfm name _) =
   case M.lookup name $ _sqfms reg of
     Nothing -> do s <- V.synth sqfm ()
                   return $ sqfms %~ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Sqfm named " ++ name
             return id
 
-dispatchConsumeScAction_New reg (ScAction_New Vap name) =
+dispatchConsumeScAction_New reg (ScAction_New Vap name _) =
   case M.lookup name $ _vaps reg of
     Nothing -> do s <- V.synth vap ()
                   return $ vaps %~ M.insert name s
     _ -> do writeTimeAndError $ "There is already a Vap named " ++ name
             return id
 
-dispatchConsumeScAction_New reg (ScAction_New Zot name) =
+dispatchConsumeScAction_New reg (ScAction_New Zot name _) =
   case M.lookup name $ _zots reg of
     Nothing -> do s <- V.synth zot ()
                   return $ zots %~ M.insert name s
@@ -166,7 +173,7 @@ dispatchConsumeScAction_Free reg when (ScAction_Free Zot name) =
 
 dispatchConsumeScAction_Free _ _ (ScAction_Send _ _ _) =
   error "dispatchConsumeScAction_Free received a ScAction_Send."
-dispatchConsumeScAction_Free _ _ (ScAction_New _ _) =
+dispatchConsumeScAction_Free _ _ (ScAction_New _ _ _) =
   error "dispatchConsumeScAction_Free received a ScAction_New."
 
 
@@ -223,5 +230,5 @@ dispatchConsumeScAction_Send reg when (ScAction_Send Zot name msg) =
 
 dispatchConsumeScAction_Send _ _ (ScAction_Free _ _) =
   error "dispatchConsumeScAction_Send received a ScAction_Free."
-dispatchConsumeScAction_Send _ _ (ScAction_New _ _)  =
+dispatchConsumeScAction_Send _ _ (ScAction_New _ _ _)  =
   error "dispatchConsumeScAction_Send received a ScAction_New."

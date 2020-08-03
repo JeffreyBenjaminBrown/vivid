@@ -58,7 +58,7 @@ anon = (Nothing , )
 
 -- | From an action, extract the synth it is for.
 actionToSynth :: ScAction a -> (SynthDefEnum, a)
-actionToSynth (ScAction_New  s n  ) = (s,n)
+actionToSynth (ScAction_New  s n _) = (s,n)
 actionToSynth (ScAction_Free s n  ) = (s,n)
 actionToSynth (ScAction_Send s n _) = (s,n)
 

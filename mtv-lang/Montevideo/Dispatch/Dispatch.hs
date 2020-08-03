@@ -82,7 +82,7 @@ replaceAll_inDisp disp mqsNew = do
 
   newTransform  :: [SynthRegister -> SynthRegister] <-
     mapM (dispatchConsumeScAction_New  reg)      $
-    map (uncurry ScAction_New)  toCreate
+    map (\(sde,sn) -> ScAction_New sde sn mempty)  toCreate
   freeTransform :: [SynthRegister -> SynthRegister] <-
     mapM (dispatchConsumeScAction_Free reg when) $
     map (uncurry ScAction_Free) toFree
