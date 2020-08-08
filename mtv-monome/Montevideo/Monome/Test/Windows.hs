@@ -91,25 +91,17 @@ test_shiftHandler = TestCase $ do
 
 test_keyboardHandler :: Test
 test_keyboardHandler = TestCase $ do
-  assertBool
-    (unlines [
-        "THE TEST: releasing a key sends off-messages to monome, sends off-messages to Vivid, removes something from _edoFingers, and removes some things from _edoLit"
-        , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
+  assertBool "Releasing a key sends off-messages to monome, sends off-messages to Vivid, removes something from _edoFingers, and removes some things from _edoLit." $
     fromRight (error "bork")
     (K.handler st_01f (xy1, False))
     =^= ( st_0f
           & ( stPending_Monome .~
-              -- This is the part that fails. Verify with this:
-              -- x = Kb.handler st_01f (xy1, False) ^. stPending_Monome
-              -- y = ( map (\xy -> (Kb.label, (xy, False)) )
-              --   (pcToXys (st_01f ^. stApp . edoXyShift) pitch1 ) )
               map (\xy -> (K.label, (xy, False)) )
               (pcToXys_st st_01f pitch1 ) )
-          & stPending_Vivid .~
-          [ ScAction_Send
-            { _actionSynthDefEnum = Moop
-            , _actionSynthName = v1
-            , _actionScMsg = M.singleton "amp" 0 } ] )
+          & ( stPending_Vivid .~
+              [ ScAction_Free
+                { _actionSynthDefEnum = Moop
+                , _actionSynthName = v1 } ] ) )
 
   assertBool "releasing a key that's also the anchor pitch sends no monome messages" $
     fromRight (error "bork")
@@ -119,10 +111,9 @@ test_keyboardHandler = TestCase $ do
               .~ S.singleton LedBecauseAnchor )
           & stApp . edoFingers .~ mempty
           & stPending_Vivid .~
-          [ ScAction_Send
+          [ ScAction_Free
             { _actionSynthDefEnum = Moop
-            , _actionSynthName = v0
-            , _actionScMsg = M.singleton "amp" 0 } ] )
+            , _actionSynthName = v0 } ] )
 
   assertBool "releasing a key that's a sustained voice sends no vivid or monome messages, but updates lit and fingers" $
     fromRight (error "bork")

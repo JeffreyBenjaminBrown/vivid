@@ -48,8 +48,13 @@ pc1    :: PitchClass EdoApp = mod pitch1 31
 
 st0 :: St EdoApp
 st0 = St {
-    _stVoices = M.fromList [ (v0, Voice { _voicePitch = pitch0 } )
-                           , (v1, Voice { _voicePitch = pitch1 } ) ]
+    _stVoices = let v = Voice
+                        { _voiceSynth = Nothing
+                        , _voicePitch = error "replaced below"
+                        , _voiceParams = mempty }
+      in M.fromList
+         [ (v0, v { _voicePitch = pitch0 } )
+         , (v1, v { _voicePitch = pitch1 } ) ]
   , _stPending_Monome = []
   , _stPending_Vivid = []
   , _stApp = EdoApp { _edoConfig = config31
@@ -76,7 +81,7 @@ st_0s = -- sustaining key 0 only
 
 st_01f = -- fingering keys 0 and 1
   st0 & stApp . edoFingers .~ M.fromList [ (xy0, v0)
-                                        , (xy1, v1) ]
+                                         , (xy1, v1) ]
   & stApp . edoLit .~ M.fromList
     [ ( pc0, S.singleton $ LedBecauseSwitch xy0)
     , ( pc1, S.singleton $ LedBecauseSwitch xy1) ]
