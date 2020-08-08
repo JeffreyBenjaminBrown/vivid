@@ -42,7 +42,7 @@ test_edoKey_ScAction = TestCase $ do
 
   assertBool "press a key that's not sustained.\n" $
     edoKey_ScAction (st ^. stApp) (newVoice, True) ==
-    [ ScAction_Send
+    [ ScAction_New
       { _actionSynthDefEnum = Moop
       , _actionSynthName = newVoice
       , _actionScMsg = M.fromList
@@ -52,10 +52,9 @@ test_edoKey_ScAction = TestCase $ do
 
   assertBool "release a key that's not sustained" $
     edoKey_ScAction (st ^. stApp) (newVoice, False) ==
-    [ ScAction_Send
+    [ ScAction_Free
       { _actionSynthDefEnum = Moop
-      , _actionSynthName = newVoice
-      , _actionScMsg = M.singleton "amp" 0 } ]
+      , _actionSynthName = newVoice } ]
 
 test_shiftHandler :: Test
 test_shiftHandler = TestCase $ do
