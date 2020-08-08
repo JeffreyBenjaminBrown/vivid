@@ -128,7 +128,6 @@ test_sustainHandler = TestCase $ do
             map (\xy -> (K.label, (xy, False)))
             (pcToXys_st st_0fs_1s pc1) )
           & stPending_Vivid .~
-          [ ScAction_Send
+          [ ScAction_Free
             { _actionSynthDefEnum = Moop
-            , _actionSynthName = v1
-            , _actionScMsg = M.singleton "amp" 0 } ] )
+            , _actionSynthName = v1 } ] )
