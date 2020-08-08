@@ -10,7 +10,6 @@ module Montevideo.Util (
 
   -- | = IO and error
   , writeTimeAndError -- ^ String -> IO ()
-  , doOrPrint         -- ^ Either String (IO a) -> IO a
 
   -- | = randomness
   , pickSome
@@ -87,10 +86,6 @@ writeTimeAndError :: String -> IO ()
 writeTimeAndError msg = do now <- getTime
                            appendFile "errors.txt"
                              $ show now ++ ": " ++ msg
-
-doOrPrint :: Either String (IO ()) -> IO ()
-doOrPrint (Left string) = putStrLn string
-doOrPrint (Right io)    = io
 
 
 -- | = Randomness

@@ -27,7 +27,7 @@ import           Vivid hiding (Param)
 
 import Montevideo.Dispatch.Types.Many
 import Montevideo.Monome.Types.EdoConfig
-import Montevideo.Synth.Boop_Monome
+import Montevideo.Synth
 
 
 type HostName = NS.HostName
@@ -100,7 +100,7 @@ data Window app = Window {
 -- | The app allows the monome to control "voices" in SuperCollider.
 -- The `Synth` of a `Voice` is fixed, but the other values can change.
 data Voice app = Voice {
-    _voiceSynth  :: Maybe (Synth BoopParams) -- ^ This field is Nothing
+    _voiceSynth  :: Maybe (Synth MoopParams) -- ^ This field is Nothing
     -- until SuperCollider has allocated a synth.
   , _voicePitch  :: Pitch app -- ^ This is redudant:
     -- one could determine the pitch looking up "freq" in `_voiceParams.

@@ -68,8 +68,8 @@ jiKey_ScAction ja (xy,switch) = let
   doIfKeyFound :: Rational -> [ScAction VoiceId]
   doIfKeyFound freq =
     if switch
-      then [ ScAction_Send
-             { _actionSynthDefEnum = Boop
+      then [ ScAction_New
+             { _actionSynthDefEnum = Moop
              , _actionSynthName = xy
              , _actionScMsg = M.fromList
                [ ("freq", Config.freq * fr freq)

@@ -45,23 +45,25 @@ ledBecause_toPitchClass m lb =
       $ M.toList m
 
 silenceMsg :: (X,Y) -> ScAction VoiceId
-silenceMsg xy = ScAction_Send
-  { _actionSynthDefEnum = Boop
+silenceMsg xy = ScAction_Free
+  { _actionSynthDefEnum = Moop
   , _actionSynthName = xy
-  , _actionScMsg = M.singleton "amp" 0
   }
 
 -- | `updateVoiceParams sdMsg st` finds the VoiceId in the sdMsg,
--- and updates the corresponding voice in the St to reflect the new
--- pitch and parameters.
+-- and updates the parameters of the corresponding voice in the St.
+-- PITFALL: If the action is a `ScAction_Free`, this does nothing.
+-- It could instead set the parameter map to mempty,
+-- but I don't see the advantage.
 updateVoiceParams :: ScAction VoiceId -> St app -> St app
-updateVoiceParams sca st =
+updateVoiceParams sca =
+  if has _ScAction_Free sca then id else
   let go :: (ParamName, Float) -> St app -> St app
       go (p, f) =
         (stVoices    . at (_actionSynthName sca) . _Just) .
         (voiceParams . at p                      . _Just) .~ f
-  in st & ( foldr (.) id $ map go $
-            M.toList $ _actionScMsg sca )
+  in foldr (.) id $ map go $
+     M.toList $ _actionScMsg sca
 
 vid_to_pitch :: St EdoApp -> VoiceId ->  Either String (PitchClass EdoApp)
 vid_to_pitch st v =

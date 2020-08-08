@@ -129,6 +129,6 @@ test_sustainHandler = TestCase $ do
             (pcToXys_st st_0fs_1s pc1) )
           & stPending_Vivid .~
           [ ScAction_Send
-            { _actionSynthDefEnum = Boop
+            { _actionSynthDefEnum = Moop
             , _actionSynthName = v1
             , _actionScMsg = M.singleton "amp" 0 } ] )

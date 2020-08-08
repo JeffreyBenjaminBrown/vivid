@@ -22,7 +22,7 @@ import Vivid.OSC
 
 import qualified Montevideo.Monome.Config as Config
 import Montevideo.Monome.Network.Util
-import Montevideo.Synth.Boop_Monome
+import Montevideo.Synth
 import Montevideo.Monome.Util.Button
 import Montevideo.Monome.Types.Most
 import Montevideo.Monome.Window.Util
@@ -40,26 +40,10 @@ edoMonome monomePort = do
   toMonome :: Socket <- sendsTo (unpack localhost) monomePort
     -- to find the port number above, use the first part of HandTest.hs
 
-  voices :: M.Map VoiceId (Voice EdoApp) <-
-    -- TODO ? This is expensive and wasteful, because most of the 256
-    -- voice IDs are not used most of the time. It precludes using big synths.
-    -- Better to make them dynamically.
-    -- Tom of Vivid thinks it would impose no speed penalty.
-    let voiceIds = [(a,b) | a <- [0..15], b <- [0..15]]
-        defaultVoiceState s = Voice { _voiceSynth = s
-                                    , _voicePitch = floor Config.freq
-                                    , _voiceParams = mempty }
-          -- `mempty` above is inaccurate -- initially each voice has
-          -- amp 0 and freq 100, because those ares the `Boop` defaults.
-          -- Config.freq might be wrong too, since freq is a Hz value.
-          -- Since none are sounding, I don't think any of that matters.
-    in M.fromList . zip voiceIds . map (defaultVoiceState . Just)
-       <$> mapM (synth boop) (replicate 256 ())
-
   mst <- newMVar $ St {
       _stWindowLayers = [sustainWindow, shiftWindow, keyboardWindow]
     , _stToMonome = toMonome
-    , _stVoices = voices
+    , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
 
@@ -89,13 +73,12 @@ edoMonome monomePort = do
         getChar >>= \case
         'q' -> do -- quit
           close inbox
-          let f = maybe (putStrLn "voice with no synth") free
-            in mapM_ (f . (^. voiceSynth)) (M.elems voices)
-            -- TODO Once `voices` is dynamic, it should be read from `mst`.
           killThread responder
           st <- readMVar mst
+          let f = maybe (putStrLn "voice with no synth") free
+            in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
           _ <- send toMonome $ allLedOsc "/monome" False
-          return $ st { _stVoices = mempty }
+          return st
         _   -> loop
     in putStrLn "press 'q' to quit"
        >> loop
@@ -120,7 +103,7 @@ jiMonome monomePort scale shifts = do
                                     , _voicePitch = Config.freq
                                     , _voiceParams = mempty }
     in M.fromList . zip voiceIds . map (defaultVoiceState . Just)
-       <$> mapM (synth boop) (replicate 256 ())
+       <$> mapM (synth moop) (replicate 256 ())
 
   mst <- newMVar $ St {
       _stWindowLayers = [jiWindow]

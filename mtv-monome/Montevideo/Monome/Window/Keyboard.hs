@@ -50,9 +50,7 @@ handler    st          press@ (xy,sw)   =
   let
   app = st ^. stApp
   fingers' = app ^. edoFingers
-        & case sw of
-            True  -> M.insert xy xy
-            False -> M.delete xy
+             & if sw then M.insert xy xy else M.delete xy
   pcNow :: PitchClass EdoApp =
     mod (xyToEdo_app app xy) (app ^. edoConfig . edo)
     -- what the key represents currently
@@ -76,13 +74,17 @@ handler    st          press@ (xy,sw)   =
     ( map (,True)  $
       concatMap (pcToXys_st st) toLight)
   scas :: [ScAction VoiceId] = edoKey_ScAction app press
+  v :: Voice EdoApp = Voice
+    { _voiceSynth  = Nothing
+    , _voicePitch  = xyToEdo_app app xy
+    , _voiceParams = mempty -- changed later, by `updateVoiceParams`
+    }
   st1 :: St EdoApp = st
     & stApp . edoFingers .~ fingers'
     & stApp . edoLit     .~ lit'
-    & stPending_Monome  %~ (++ kbdMsgs)
-    & stPending_Vivid   %~ (++ scas)
-    & ( stVoices . at xy . _Just . voicePitch
-        .~ xyToEdo_app app xy )
+    & stPending_Monome %~ (++ kbdMsgs)
+    & stPending_Vivid  %~ (++ scas)
+    & stVoices         %~ (if sw then M.insert xy v else id)
   in Right $ foldr updateVoiceParams st1 scas
 
 updateStLit :: ((X,Y), Switch)
@@ -123,8 +125,8 @@ edoKey_ScAction app (xy, sw) = do
     then [] -- it's already sounding due to sustain
 
     else if sw -- sw <=> the key was pressed, rather than released
-         then [ ScAction_Send
-                { _actionSynthDefEnum = Boop
+         then [ ScAction_New
+                { _actionSynthDefEnum = Moop
                 , _actionSynthName = xy
                 , _actionScMsg = M.fromList
                   [ ("freq", Config.freq * edoToFreq ec pitch)

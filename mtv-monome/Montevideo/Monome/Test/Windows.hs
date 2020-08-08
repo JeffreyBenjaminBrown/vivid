@@ -43,7 +43,7 @@ test_edoKey_ScAction = TestCase $ do
   assertBool "press a key that's not sustained.\n" $
     edoKey_ScAction (st ^. stApp) (newVoice, True) ==
     [ ScAction_Send
-      { _actionSynthDefEnum = Boop
+      { _actionSynthDefEnum = Moop
       , _actionSynthName = newVoice
       , _actionScMsg = M.fromList
         [ ("freq", Config.freq *
@@ -53,7 +53,7 @@ test_edoKey_ScAction = TestCase $ do
   assertBool "release a key that's not sustained" $
     edoKey_ScAction (st ^. stApp) (newVoice, False) ==
     [ ScAction_Send
-      { _actionSynthDefEnum = Boop
+      { _actionSynthDefEnum = Moop
       , _actionSynthName = newVoice
       , _actionScMsg = M.singleton "amp" 0 } ]
 
@@ -108,7 +108,7 @@ test_keyboardHandler = TestCase $ do
               (pcToXys_st st_01f pitch1 ) )
           & stPending_Vivid .~
           [ ScAction_Send
-            { _actionSynthDefEnum = Boop
+            { _actionSynthDefEnum = Moop
             , _actionSynthName = v1
             , _actionScMsg = M.singleton "amp" 0 } ] )
 
@@ -121,7 +121,7 @@ test_keyboardHandler = TestCase $ do
           & stApp . edoFingers .~ mempty
           & stPending_Vivid .~
           [ ScAction_Send
-            { _actionSynthDefEnum = Boop
+            { _actionSynthDefEnum = Moop
             , _actionSynthName = v0
             , _actionScMsg = M.singleton "amp" 0 } ] )
 
