@@ -54,12 +54,17 @@ handler st press@ (xy,sw) =
     jiKey_ScAction app press
 
   in do
-  pitch <- jiFreq app xy
+  pitch :: Rational <- jiFreq app xy
   let
+    v :: Voice JiApp = Voice
+      { _voiceSynth  = Nothing
+      , _voicePitch  = pitch
+      , _voiceParams = mempty -- changed later, by `updateVoiceParams`
+      }
     st1 :: St JiApp = st
-      & stApp . jiFingers                     .~ fingers'
-      & stPending_Vivid                       %~ (++ scas)
-      & stVoices . at xy . _Just . voicePitch .~ pitch
+      & stApp . jiFingers .~ fingers'
+      & stPending_Vivid   %~ (++ scas)
+      & stVoices          %~ (if sw then M.insert xy v else id)
   Right $ foldr updateVoiceParams st1 scas
 
 -- TODO ! duplicative of `edoKey_ScAction`
@@ -72,7 +77,7 @@ jiKey_ScAction ja (xy,switch) = let
              { _actionSynthDefEnum = Moop
              , _actionSynthName = xy
              , _actionScMsg = M.fromList
-               [ ("freq", Config.freq * fr freq)
+               [ ("freq", Config.freq * fr freq / 16)
                , ("amp", Config.amp) ] } ]
       else [silenceMsg xy]
   in either (const []) doIfKeyFound $ jiFreq ja xy

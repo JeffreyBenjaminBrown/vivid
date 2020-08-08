@@ -97,18 +97,11 @@ jiMonome monomePort scale shifts = do
 
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
   toMonome :: Socket <- sendsTo (unpack localhost) monomePort
-  voices :: M.Map VoiceId (Voice JiApp) <-
-    let voiceIds = [(a,b) | a <- [0..15], b <- [0..15]]
-        defaultVoiceState s = Voice { _voiceSynth = s
-                                    , _voicePitch = Config.freq
-                                    , _voiceParams = mempty }
-    in M.fromList . zip voiceIds . map (defaultVoiceState . Just)
-       <$> mapM (synth moop) (replicate 256 ())
 
   mst <- newMVar $ St {
       _stWindowLayers = [jiWindow]
     , _stToMonome = toMonome
-    , _stVoices = voices
+    , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
     , _stApp = JiApp { _jiGenerator = scale
@@ -131,12 +124,12 @@ jiMonome monomePort scale shifts = do
         getChar >>= \case
         'q' -> do -- quit
           close inbox
-          let f = maybe (putStrLn "voice with no synth") free
-            in mapM_ (f . (^. voiceSynth)) (M.elems voices)
           killThread responder
           st <- readMVar mst
+          let f = maybe (putStrLn "voice with no synth") free
+            in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
           _ <- send toMonome $ allLedOsc "/monome" False
-          return $ st { _stVoices = mempty }
+          return st
         _   -> loop
     in putStrLn "press 'q' to quit"
        >> loop
