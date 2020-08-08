@@ -27,3 +27,7 @@ amp = 0.35
 -- | The frequency of "note 0". (Notes can be negative.)
 freq :: Num a => a
 freq = 80
+
+-- | The JI app's notes are too high without scaling by a factor like this.
+jiTranspose :: Fractional a => a
+jiTranspose = (1/32)

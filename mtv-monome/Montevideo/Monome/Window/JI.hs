@@ -77,7 +77,7 @@ jiKey_ScAction ja (xy,switch) = let
              { _actionSynthDefEnum = Moop
              , _actionSynthName = xy
              , _actionScMsg = M.fromList
-               [ ("freq", Config.freq * fr freq / 16)
+               [ ("freq", Config.freq * Config.jiTranspose * fr freq)
                , ("amp", Config.amp) ] } ]
       else [silenceMsg xy]
   in either (const []) doIfKeyFound $ jiFreq ja xy
