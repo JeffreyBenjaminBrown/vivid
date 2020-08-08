@@ -10,22 +10,52 @@ import           Data.Either.Combinators
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import Montevideo.Dispatch.Types.Many
-import Montevideo.Monome.EdoMath
-import Montevideo.Monome.Test.Data
-import Montevideo.Monome.Types.Most
-import Montevideo.Monome.Window.Common
-import Montevideo.Monome.Window.Keyboard as K
-import Montevideo.Monome.Window.Shift    as Sh
-import Montevideo.Synth
-import Montevideo.Util
+import           Montevideo.Dispatch.Types.Many
+import qualified Montevideo.Monome.Config as Config
+import           Montevideo.Monome.EdoMath
+import           Montevideo.Monome.Test.Data
+import           Montevideo.Monome.Types.Most
+import           Montevideo.Monome.Window.Keyboard as K
+import           Montevideo.Monome.Window.Shift    as Sh
+import           Montevideo.Synth
+import           Montevideo.Util
 
 
 tests :: Test
 tests = TestList [
     TestLabel "test_shiftHandler" test_shiftHandler
   , TestLabel "test_keyboardHandler" test_keyboardHandler
+  , TestLabel "test_edoKey_ScAction" test_edoKey_ScAction
   ]
+
+test_edoKey_ScAction :: Test
+test_edoKey_ScAction = TestCase $ do
+  let sustainedVoice :: VoiceId = (0,0)
+      newVoice :: VoiceId = (0,1)
+      st = st0 & ( stApp . edoSustaineded .~
+                   Just (S.singleton sustainedVoice) )
+      newPitch = xyToEdo_app (st ^. stApp) newVoice
+  assertBool "pressing a key that's sustained has no effect" $
+    edoKey_ScAction (st ^. stApp) (sustainedVoice, True) == []
+  assertBool "releasing a key that's sustained has no effect" $
+    edoKey_ScAction (st ^. stApp) (sustainedVoice, False) == []
+
+  assertBool "press a key that's not sustained.\n" $
+    edoKey_ScAction (st ^. stApp) (newVoice, True) ==
+    [ ScAction_Send
+      { _actionSynthDefEnum = Boop
+      , _actionSynthName = newVoice
+      , _actionScMsg = M.fromList
+        [ ("freq", Config.freq *
+                   edoToFreq (st ^. stApp . edoConfig) newPitch)
+        , ( "amp", Config.amp ) ] } ]
+
+  assertBool "release a key that's not sustained" $
+    edoKey_ScAction (st ^. stApp) (newVoice, False) ==
+    [ ScAction_Send
+      { _actionSynthDefEnum = Boop
+      , _actionSynthName = newVoice
+      , _actionScMsg = M.singleton "amp" 0 } ]
 
 test_shiftHandler :: Test
 test_shiftHandler = TestCase $ do

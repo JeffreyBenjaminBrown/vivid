@@ -6,7 +6,6 @@
 module Montevideo.Monome.Window.Common (
     ledBecause_toPitchClass -- ^ LitPitches -> LedBecause -> Maybe PitchClass
   , silenceMsg              -- ^ (X,Y) -> ScAction VoiceId
-  , edoKey_ScAction         -- ^ St -> ((X,Y), Switch) -> [ScAction VoiceId]
   , updateVoiceParams       -- ^ ScAction VoiceId -> St -> St
   , vid_to_pitch            -- ^ St -> VoiceId -> PitchClass
   ) where
@@ -19,8 +18,6 @@ import           Data.Maybe
 import qualified Data.Set as S
 
 import           Montevideo.Dispatch.Types.Many
-import qualified Montevideo.Monome.Config as Config
-import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Synth
@@ -53,25 +50,6 @@ silenceMsg xy = ScAction_Send
   , _actionSynthName = xy
   , _actionScMsg = M.singleton "amp" 0
   }
-
--- TODO ! duplicative of `jiKey_ScAction`
-edoKey_ScAction :: EdoApp -> ((X,Y), Switch) -> [ScAction VoiceId]
-edoKey_ScAction app (xy, sw) = do
-  let pitch = xyToEdo_app app xy
-      ec = app ^. edoConfig
-  if maybe False (S.member xy) $
-     app ^. edoSustaineded
-    then [] -- it's already sounding due to sustain
-
-    else if sw -- sw <=> the key was pressed, rather than released
-         then [ ScAction_Send
-                { _actionSynthDefEnum = Boop
-                , _actionSynthName = xy
-                , _actionScMsg = M.fromList
-                  [ ("freq", Config.freq * edoToFreq ec pitch)
-                  , ("amp", Config.amp) ]
-                } ]
-         else [silenceMsg xy]
 
 -- | `updateVoiceParams sdMsg st` finds the VoiceId in the sdMsg,
 -- and updates the corresponding voice in the St to reflect the new

@@ -9,6 +9,7 @@ module Montevideo.Monome.Window.Keyboard (
     handler
   , keyboardWindow
   , label
+  , edoKey_ScAction -- ^ EdoApp -> ((X,Y), Switch) -> [ScAction VoiceId]
   ) where
 
 import           Prelude hiding (pred)
@@ -18,12 +19,13 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 import           Data.Set (Set)
 
-import Montevideo.Dispatch.Types.Many
-import Montevideo.Monome.EdoMath
-import Montevideo.Monome.Util.Button
-import Montevideo.Monome.Types.Most
-import Montevideo.Monome.Window.Common
-import Montevideo.Util
+import           Montevideo.Dispatch.Types.Many
+import qualified Montevideo.Monome.Config as Config
+import           Montevideo.Monome.EdoMath
+import           Montevideo.Monome.Types.Most
+import           Montevideo.Monome.Window.Common
+import           Montevideo.Synth
+import           Montevideo.Util
 
 
 label :: WindowId
@@ -110,3 +112,22 @@ updateStLit (xy,False) _ mpcThen m =
       in case S.size reasons < 2 of -- size < 1 should not happen
         True -> M.delete pc m
         False -> M.insert pc (S.delete (LedBecauseSwitch xy) reasons) m
+
+-- TODO ! duplicative of `jiKey_ScAction`
+edoKey_ScAction :: EdoApp -> ((X,Y), Switch) -> [ScAction VoiceId]
+edoKey_ScAction app (xy, sw) = do
+  let pitch = xyToEdo_app app xy
+      ec = app ^. edoConfig
+  if maybe False (S.member xy) $
+     app ^. edoSustaineded
+    then [] -- it's already sounding due to sustain
+
+    else if sw -- sw <=> the key was pressed, rather than released
+         then [ ScAction_Send
+                { _actionSynthDefEnum = Boop
+                , _actionSynthName = xy
+                , _actionScMsg = M.fromList
+                  [ ("freq", Config.freq * edoToFreq ec pitch)
+                  , ("amp", Config.amp) ]
+                } ]
+         else [silenceMsg xy]

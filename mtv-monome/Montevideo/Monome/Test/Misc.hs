@@ -5,56 +5,20 @@
 
 module Montevideo.Monome.Test.Misc where
 
-import Control.Lens
 import Data.Map as M
 import Data.Set as S
 import Test.HUnit
 
-import           Montevideo.Dispatch.Types.Many
-import qualified Montevideo.Monome.Config as Config
-import           Montevideo.Monome.EdoMath
-import           Montevideo.Monome.Test.Data
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Window.Common
 import           Montevideo.Monome.Window.Util
-import           Montevideo.Synth
 
 
 tests :: Test
 tests = TestList [
     TestLabel "testBelongsHere" testBelongsHere
   , TestLabel "testDependentPitchClass" testDependentPitchClass
-  , TestLabel "test_edoKey_ScAction" test_edoKey_ScAction
   ]
-
-test_edoKey_ScAction :: Test
-test_edoKey_ScAction = TestCase $ do
-  let sustainedVoice :: VoiceId = (0,0)
-      newVoice :: VoiceId = (0,1)
-      st = st0 & ( stApp . edoSustaineded .~
-                   Just (S.singleton sustainedVoice) )
-      newPitch = xyToEdo_app (st ^. stApp) newVoice
-  assertBool "pressing a key that's sustained has no effect" $
-    edoKey_ScAction (st ^. stApp) (sustainedVoice, True) == []
-  assertBool "releasing a key that's sustained has no effect" $
-    edoKey_ScAction (st ^. stApp) (sustainedVoice, False) == []
-
-  assertBool "press a key that's not sustained.\n" $
-    edoKey_ScAction (st ^. stApp) (newVoice, True) ==
-    [ ScAction_Send
-      { _actionSynthDefEnum = Boop
-      , _actionSynthName = newVoice
-      , _actionScMsg = M.fromList
-        [ ("freq", Config.freq *
-                   edoToFreq (st ^. stApp . edoConfig) newPitch)
-        , ( "amp", Config.amp ) ] } ]
-
-  assertBool "release a key that's not sustained" $
-    edoKey_ScAction (st ^. stApp) (newVoice, False) ==
-    [ ScAction_Send
-      { _actionSynthDefEnum = Boop
-      , _actionSynthName = newVoice
-      , _actionScMsg = M.singleton "amp" 0 } ]
 
 testDependentPitchClass :: Test
 testDependentPitchClass = TestCase $ do
