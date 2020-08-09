@@ -8,28 +8,43 @@
 , TupleSections #-}
 
 module Montevideo.Monome.Main (
+  -- ** The apps
     edoMonome
   , jiMonome
+
+  -- ** Utilities they use
+  , initAllWindows -- ^ MVar St -> [Window] -> IO ()
+  , handleSwitch -- ^ MVar (St app) -> ((X,Y), Switch)
+                 -- -> IO (Either String ())
+
+  -- * No need so far to export these. (No way to test them.)
+  --  , doScAction    -- ^ St -> ScAction VoiceId -> IO ()
+  --  , doLedMessage  -- ^ St -> [Window] -> LedMsg -> IO ()
   ) where
 
 import           Control.Concurrent (forkIO, killThread)
 import           Control.Concurrent.MVar
-import           Control.Lens
+import           Control.Lens hiding (set)
 import           Data.ByteString.Char8 (unpack)
+import           Data.Either.Combinators
 import qualified Data.Map as M
 import Vivid
 import Vivid.OSC
 
+import           Montevideo.Dispatch.Types.Many
 import qualified Montevideo.Monome.Config as Config
-import Montevideo.Monome.Network.Util
-import Montevideo.Monome.Util.Button
-import Montevideo.Monome.Types.Most
-import Montevideo.Monome.Window.Util
-import Montevideo.Monome.Window.JI
-import Montevideo.Monome.Window.Keyboard
-import Montevideo.Monome.Window.Shift
-import Montevideo.Monome.Window.Sustain
+import           Montevideo.Monome.Network.Util
+import           Montevideo.Monome.Types.Most
+import           Montevideo.Monome.Util.Button
+import           Montevideo.Monome.Window.JI
+import           Montevideo.Monome.Window.Keyboard
+import           Montevideo.Monome.Window.Shift
+import           Montevideo.Monome.Window.Sustain
+import           Montevideo.Monome.Window.Util
+import           Montevideo.Synth
 
+
+-- ** The apps
 
 edoMonome :: Int -- ^ The monome address, as serialoscd reports on startup.
           -> IO (St EdoApp)
@@ -132,3 +147,124 @@ jiMonome monomePort scale shifts = do
         _   -> loop
     in putStrLn "press 'q' to quit"
        >> loop
+
+
+-- ** Utilities they use
+
+initAllWindows :: forall app. MVar (St app) -> IO ()
+initAllWindows mst = do
+  st <- readMVar mst
+  let runWindowInit :: Window app -> IO ()
+      runWindowInit w = let
+        st' :: St app = windowInit w st
+        in mapM_ (either putStrLn id) $
+           doLedMessage st' <$> _stPending_Monome st'
+  mapM_ runWindowInit $ _stWindowLayers st
+
+-- | Called every time a monome button is pressed or released.
+-- Does two kinds of IO: talking to SuperCollider and changing the MVar.
+-- TODO : instead of MVar IO, return an St -> St.
+-- (That way I could test it.)
+handleSwitch :: forall app.
+                MVar (St app) -> ((X,Y), Switch) -> IO (Either String ())
+-- PITFALL: The order of execution in `handleSwitch` is complex.
+-- `windowHandler` runs before `doScAction` and `doLedMessage`.
+-- Thus some updates to the St (everything but voice parameters,
+-- the `voiceSynth` field, and voice deletion)
+-- happen before SC has been informed.
+
+handleSwitch mst sw@ (btn,_) = do
+  st0 <- takeMVar mst
+  let
+    go :: [Window app] -> IO (Either String ())
+    go [] = return $ Left $
+     "Switch " ++ show sw ++ " claimed by no Window."
+    go (w:ws) = case windowContains w btn of
+      False -> go ws
+      True -> case windowHandler w st0 sw of
+        Left s -> return $ Left s
+        Right st1 -> do
+
+          mapM_ (either putStrLn id) $
+            doLedMessage st1 <$> _stPending_Monome st1
+          let eioefs :: Either String [IO ( Either String
+                                            (St app -> St app ))] =
+                mapM (doScAction st1) (_stPending_Vivid  st1)
+          case eioefs of
+            Left s -> return $ Left s
+            Right (ioefs :: [IO (Either String (St app -> St app))]) -> do
+
+              efs :: [Either String (St app -> St app)] <-
+                mapM id ioefs
+              case mapM id efs :: Either String [St app -> St app] of
+                Left s -> return $ Left s
+                Right fs -> do
+                  putMVar mst (foldl (.) id fs st1)
+                    { _stPending_Monome = []
+                    , _stPending_Vivid = [] }
+                  return $ Right ()
+
+  fmap (mapLeft ("Window.Util.handleSwitch: " ++)) $
+    go $ _stWindowLayers st0
+
+-- | PITFALL: The order of execution here is kind of strange.
+-- See comments in `handleSwitch` for details.
+-- TODO ? Could the outer Either be stripped from this function?
+doScAction :: St app -> ScAction VoiceId
+           -> Either String (IO (Either String (St a -> St a)))
+doScAction    st        sca =
+  mapLeft ("doScAction: " ++) $
+  case sca of
+
+    ScAction_Send _ _ _ -> do -- currently unused
+      let vid :: VoiceId = _actionSynthName sca
+      s :: Synth MoopParams <-
+        maybe (Left $ "VoiceId " ++ show vid ++ " has no assigned synth.")
+        Right $ (_stVoices st M.! vid) ^. voiceSynth
+      let go :: (ParamName, Float) -> Either String (IO ())
+          go (param, f) =
+             case param of
+               "amp"  -> Right $ set s (toI f :: I "amp")
+               "freq" -> Right $ set s (toI f :: I "freq")
+               _      -> Left $ "unrecognized parameter " ++ param
+      ios :: [IO ()] <- mapM go $ M.toList $ _actionScMsg sca
+      Right $ mapM_ id ios >> return (Right id)
+
+    ScAction_New _ _ _ -> do
+      let vid :: VoiceId = _actionSynthName sca
+      _ <- maybe (Left $ "VoiceId " ++ show vid ++ " should be present "
+                  ++ " (but not yet with a synth) in _stVoices.")
+           Right $ M.lookup vid $ _stVoices st
+      Right $ do
+        s <- synth moop () -- TODO change moop to `_actionSynthDefEnum sca`
+        let go :: (ParamName, Float) -> Either String (IO ())
+            go (param, f) =
+               case param of
+                 "amp"  -> Right $ set s (toI f :: I "amp")
+                 "freq" -> Right $ set s (toI f :: I "freq")
+                 _      -> Left $ "unrecognized parameter " ++ param
+        case mapM go $ M.toList $ _actionScMsg sca of
+          Left err -> return $ Left err
+          Right (ios :: [IO ()]) -> do
+            mapM_ id ios
+            return $ Right $
+              stVoices . at vid . _Just . voiceSynth .~ Just s
+
+    ScAction_Free _ _ -> do
+      let vid :: VoiceId = _actionSynthName sca
+      v :: Voice a <- maybe
+        (Left $ "VoiceId " ++ show vid ++ " absent from _stVoices.")
+        Right $ M.lookup vid $ _stVoices st
+      s :: Synth MoopParams <- maybe
+        (Left $ "Voice " ++ show vid ++ " has no assigned synth.")
+        Right $ _voiceSynth v
+      Right $ do
+        free s
+        return $ Right $ stVoices . at vid .~ Nothing
+
+doLedMessage :: St app -> LedMsg -> Either String (IO ())
+doLedMessage st (l, (xy,b)) =
+  mapLeft ("doLedMessage: " ++) $
+  case relayToWindow st l of
+    Left s         -> Left s
+    Right toWindow -> Right $ toWindow (xy,b)
