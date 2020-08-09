@@ -20,11 +20,12 @@ import qualified Data.Map as M
 
 import           Montevideo.Dispatch.Types.Many
 import qualified Montevideo.Monome.Config as Config
-import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Types.Most
+import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Window.Common
-import           Montevideo.Util
+import           Montevideo.Monome.Window.Util
 import           Montevideo.Synth
+import           Montevideo.Util
 
 
 label :: WindowId
@@ -44,18 +45,20 @@ handler :: St JiApp
         -> ((X,Y), Switch)
         -> Either String (St JiApp)
 handler st press@ (xy,sw) =
-  mapLeft ("JI handler: " ++) $ let
-  app = st ^. stApp
-  fingers' = app ^. jiFingers
-             & case sw of
-                 True  -> M.insert xy xy
-                 False -> M.delete xy
-  scas :: [ScAction VoiceId] =
-    jiKey_ScAction app press
-
-  in do
+  mapLeft ("JI handler: " ++) $ do
+  let app = st ^. stApp
+  vid <- if sw then Right $ nextVoice $ _stVoices st
+         else maybe (Left $ show xy ++ " not present in _edoFingers.")
+              Right $ M.lookup xy $ _jiFingers app
   pitch :: Rational <- jiFreq app xy
+
   let
+    fingers' = app ^. jiFingers
+               & case sw of
+                   True  -> M.insert xy vid
+                   False -> M.delete xy
+    scas :: [ScAction VoiceId] =
+      jiKey_ScAction app vid press
     v :: Voice JiApp = Voice
       { _voiceSynth  = Nothing
       , _voicePitch  = pitch
@@ -64,24 +67,24 @@ handler st press@ (xy,sw) =
     st1 :: St JiApp = st
       & stApp . jiFingers .~ fingers'
       & stPending_Vivid   %~ (++ scas)
-      & stVoices          %~ (if sw then M.insert xy v else id)
+      & stVoices          %~ (if sw then M.insert vid v else id)
   Right $ foldr updateVoiceParams st1 scas
 
 -- TODO ! duplicative of `edoKey_ScAction`
-jiKey_ScAction :: JiApp -> ((X,Y), Switch) -> [ScAction VoiceId]
-jiKey_ScAction ja (xy,switch) = let
+jiKey_ScAction :: JiApp -> VoiceId -> ((X,Y), Switch) -> [ScAction VoiceId]
+jiKey_ScAction ja vid (xy,switch) = let
   doIfKeyFound :: Rational -> [ScAction VoiceId]
   doIfKeyFound freq =
     if switch
       then [ ScAction_New
              { _actionSynthDefEnum = Moop
-             , _actionSynthName = xy
+             , _actionSynthName = vid
              , _actionScMsg = M.fromList
                [ ("freq", Config.freq * Config.jiTranspose * fr freq)
                , ("amp", Config.amp) ] } ]
-      else [silenceMsg xy]
+      else [silenceMsg vid]
   in either (const []) doIfKeyFound $ jiFreq ja xy
-     -- [] if key out of range; key corresponds to no pitch
+     -- returns [] if key out of range; key corresponds to no pitch
 
 jiFreq :: JiApp -> (X,Y) -> Either String Rational
 jiFreq ja (x,y) =

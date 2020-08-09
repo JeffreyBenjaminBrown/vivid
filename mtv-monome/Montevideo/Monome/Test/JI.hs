@@ -34,14 +34,14 @@ test_jiKeySound = TestCase $ do
       f xy = let
         Right freq = jiFreq ja xy
         in do
-        assertBool "sound on" $ jiKey_ScAction ja (xy,True)
+        assertBool "sound on" $ jiKey_ScAction ja xy (xy,True)
           == [ ScAction_New
                { _actionSynthDefEnum = Moop
                , _actionSynthName = xy
                , _actionScMsg = M.fromList
                  [ ("freq", Config.freq * Config.jiTranspose * fr freq)
                  , ("amp", Config.amp) ] } ]
-        assertBool "sound off" $ jiKey_ScAction ja (xy,False)
+        assertBool "sound off" $ jiKey_ScAction ja xy (xy,False)
           == [ ScAction_Free
                { _actionSynthDefEnum = Moop
                , _actionSynthName = xy } ]

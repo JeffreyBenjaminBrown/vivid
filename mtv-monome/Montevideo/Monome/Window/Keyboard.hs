@@ -63,14 +63,14 @@ handler    st          press@ (xy,sw)   =
       (app ^. edoLit) $ LedBecauseSwitch xy
       -- what the key represented when it was pressed,
       -- if it is now being released
-  
+
     lit  :: LitPitches EdoApp = app ^. edoLit
     lit' :: LitPitches EdoApp = updateStLit (xy,sw) pcNow pcThen lit
     oldKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit
     newKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit'
     toDark  :: [PitchClass EdoApp] = S.toList $ S.difference oldKeys newKeys
     toLight :: [PitchClass EdoApp] = S.toList $ S.difference newKeys oldKeys
-  
+
     kbdMsgs :: [LedMsg] =
       map (label,) $
       ( map (,False) $
