@@ -5,7 +5,7 @@ TemplateHaskell #-}
 module Montevideo.Monome.Types.Most (
     module Montevideo.Monome.Types.EdoConfig
   , HostName, Socket
-  , Param, WindowId, VoiceId
+  , Param, WindowId, VoiceId(..)
   , LitPitches
   , LedMsg
   , Pitch, PitchClass
@@ -46,7 +46,8 @@ type Led    = Bool -- | Whether a monome LED is lit.
 
 type Param = String
 type WindowId = String
-type VoiceId = (X,Y)
+newtype VoiceId = VoiceId Int
+  deriving (Show, Eq, Ord)
 
 -- | In the Equal Tempered app, Pitch is isomorphic to the integers, and
 -- PitchClass is isomorphic to the integers modulo the edo (e.g. 31).

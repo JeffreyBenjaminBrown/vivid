@@ -101,7 +101,7 @@ voicesToSilence_uponSustainOff st = let
   sustained :: Set VoiceId =
     maybe mempty id $ st ^. stApp . edoSustaineded
   fingered :: Set VoiceId =
-    S.fromList $ M.keys $ st ^. stApp . edoFingers
+    S.fromList $ M.elems $ st ^. stApp . edoFingers
   in S.difference sustained fingered
 
 -- | When the sustain button is toggled --

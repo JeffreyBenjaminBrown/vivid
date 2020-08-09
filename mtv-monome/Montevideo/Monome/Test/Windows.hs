@@ -31,20 +31,22 @@ tests = TestList [
 
 test_edoKey_ScAction :: Test
 test_edoKey_ScAction = TestCase $ do
-  let sustainedVoice :: VoiceId = (0,0)
-      newVoice :: VoiceId = (0,1)
+  let sustainedVoice = VoiceId 0
+      sustainedXy = (0,0)
+      newVoice = VoiceId 1
+      newXy = (0,1)
       st = st0 & ( stApp . edoSustaineded .~
                    Just (S.singleton sustainedVoice) )
-      newPitch = xyToEdo_app (st ^. stApp) newVoice
+      newPitch = xyToEdo_app (st ^. stApp) newXy
   assertBool "pressing a key that's sustained has no effect" $
-    edoKey_ScAction (st ^. stApp) sustainedVoice (sustainedVoice, True)
+    edoKey_ScAction (st ^. stApp) sustainedVoice (sustainedXy, True)
     == []
   assertBool "releasing a key that's sustained has no effect" $
-    edoKey_ScAction (st ^. stApp) sustainedVoice (sustainedVoice, False)
+    edoKey_ScAction (st ^. stApp) sustainedVoice (sustainedXy, False)
     == []
 
   assertBool "press a key that's not sustained.\n" $
-    edoKey_ScAction (st ^. stApp) newVoice (newVoice, True) ==
+    edoKey_ScAction (st ^. stApp) newVoice (newXy, True) ==
     [ ScAction_New
       { _actionSynthDefEnum = Moop
       , _actionSynthName = newVoice
@@ -54,7 +56,7 @@ test_edoKey_ScAction = TestCase $ do
         , ( "amp", Config.amp ) ] } ]
 
   assertBool "release a key that's not sustained" $
-    edoKey_ScAction (st ^. stApp) newVoice (newVoice, False) ==
+    edoKey_ScAction (st ^. stApp) newVoice (newXy, False) ==
     [ ScAction_Free
       { _actionSynthDefEnum = Moop
       , _actionSynthName = newVoice } ]

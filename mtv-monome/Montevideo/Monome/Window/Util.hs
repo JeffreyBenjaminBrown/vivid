@@ -196,6 +196,6 @@ findWindow ws l = L.find pred ws where
 nextVoice :: M.Map VoiceId a -> VoiceId
 nextVoice m =
   case M.lookupMax m of
-    Nothing -> (0,0)
-    Just ((x,_),_) -> (x+1,0)
+    Nothing -> VoiceId 0
+    Just (VoiceId i, _) -> VoiceId $ i+1
     -- Note that (0,1) < (1,0).
