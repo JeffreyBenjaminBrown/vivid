@@ -60,7 +60,7 @@ handler st (_,  True)  =
       then map ( (Kbd.label,) . (,False) ) $
            concatMap (pcToXys_st st) $ toDark
       else []
-    sdMsgs :: [ScAction VoiceId] =
+    scas :: [ScAction VoiceId] =
       if null $ st1 ^. stApp . edoSustaineded
       then map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
       else []
@@ -69,8 +69,8 @@ handler st (_,  True)  =
                        , ( theButton
                          , isJust $ st1 ^. stApp . edoSustaineded ) )
     st2 = st1 & stPending_Monome %~ flip (++) (sustainButtonMsg : kbdMsgs)
-              & stPending_Vivid  %~ flip (++) sdMsgs
-  Right $ foldr updateVoiceParams st2 sdMsgs
+              & stPending_Vivid  %~ flip (++) scas
+  Right $ foldr updateVoiceParams st2 scas
 
 pitchClassesToDarken_uponSustainOff ::
   St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]

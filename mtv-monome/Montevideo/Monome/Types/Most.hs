@@ -103,7 +103,8 @@ data Window app = Window {
 data Voice app = Voice {
     _voiceSynth  :: Maybe (Synth MoopParams) -- ^ This field is Nothing
     -- until SuperCollider has allocated a synth.
-  , _voicePitch  :: Pitch app -- ^ Used (so far) only for sustain.
+  , _voicePitch  :: Pitch app -- ^ Used (so far) only for sustain,
+    -- by way of vid_to_pitchClass.
     -- One could instead find pitch by looking up "freq" in `_voiceParams,
     -- but that would be subject to floating point-induced mismatches.
   , _voiceParams :: Map String Float }
