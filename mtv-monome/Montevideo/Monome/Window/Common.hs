@@ -44,7 +44,7 @@ ledBecause_toPitchClass m lb =
       $ filter (S.member lb . snd)
       $ M.toList m
 
-silenceMsg :: (X,Y) -> ScAction VoiceId
+silenceMsg :: VoiceId -> ScAction VoiceId
 silenceMsg xy = ScAction_Free
   { _actionSynthDefEnum = Moop
   , _actionSynthName = xy

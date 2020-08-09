@@ -18,6 +18,7 @@ import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Window.Keyboard as K
 import           Montevideo.Monome.Window.Shift    as Sh
 import           Montevideo.Synth
+import           Montevideo.Monome.Window.Util
 import           Montevideo.Util
 
 
@@ -36,12 +37,14 @@ test_edoKey_ScAction = TestCase $ do
                    Just (S.singleton sustainedVoice) )
       newPitch = xyToEdo_app (st ^. stApp) newVoice
   assertBool "pressing a key that's sustained has no effect" $
-    edoKey_ScAction (st ^. stApp) (sustainedVoice, True) == []
+    edoKey_ScAction (st ^. stApp) sustainedVoice (sustainedVoice, True)
+    == []
   assertBool "releasing a key that's sustained has no effect" $
-    edoKey_ScAction (st ^. stApp) (sustainedVoice, False) == []
+    edoKey_ScAction (st ^. stApp) sustainedVoice (sustainedVoice, False)
+    == []
 
   assertBool "press a key that's not sustained.\n" $
-    edoKey_ScAction (st ^. stApp) (newVoice, True) ==
+    edoKey_ScAction (st ^. stApp) newVoice (newVoice, True) ==
     [ ScAction_New
       { _actionSynthDefEnum = Moop
       , _actionSynthName = newVoice
@@ -51,7 +54,7 @@ test_edoKey_ScAction = TestCase $ do
         , ( "amp", Config.amp ) ] } ]
 
   assertBool "release a key that's not sustained" $
-    edoKey_ScAction (st ^. stApp) (newVoice, False) ==
+    edoKey_ScAction (st ^. stApp) newVoice (newVoice, False) ==
     [ ScAction_Free
       { _actionSynthDefEnum = Moop
       , _actionSynthName = newVoice } ]
@@ -137,4 +140,6 @@ test_keyboardHandler = TestCase $ do
           & ( stPending_Monome .~
               ( map (\xy -> (K.label, (xy, True)) ) $
                 pcToXys_st st_01f pitch1 ) )
-          & stPending_Vivid .~ edoKey_ScAction (st0 ^. stApp) (xy1,True) )
+          & ( stPending_Vivid .~ edoKey_ScAction
+              (st0 ^. stApp)
+              (nextVoice $ _stVoices st_01f) (xy1, True) ) )

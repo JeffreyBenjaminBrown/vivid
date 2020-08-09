@@ -26,6 +26,7 @@ import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Window.Common
 import           Montevideo.Synth
 import           Montevideo.Util
+import           Montevideo.Monome.Window.Util
 
 
 label :: WindowId
@@ -46,46 +47,49 @@ keyboardWindow =  Window {
 -- TODO ! duplicative of `JI.handler`
 handler :: St EdoApp -> ((X,Y), Switch) -> Either String (St EdoApp)
 handler    st          press@ (xy,sw)   =
-  mapLeft ("Keyboard handler: " ++) $
+  mapLeft ("Keyboard handler: " ++) $ do
+  let app = st ^. stApp
+  vid <- if sw then Right $ nextVoice $ _stVoices st
+         else maybe (Left $ show xy ++ " not present in _edoFingers.")
+              Right $ M.lookup xy $ _edoFingers app
   let
-  app = st ^. stApp
-  fingers' = app ^. edoFingers
-             & if sw then M.insert xy xy else M.delete xy
-  pcNow :: PitchClass EdoApp =
-    mod (xyToEdo_app app xy) (app ^. edoConfig . edo)
-    -- what the key represents currently
-  pcThen :: Maybe (PitchClass EdoApp) =
-    ledBecause_toPitchClass @ EdoApp
-    (app ^. edoLit) $ LedBecauseSwitch xy
-    -- what the key represented when it was pressed,
-    -- if it is now being released
-
-  lit  :: LitPitches EdoApp = app ^. edoLit
-  lit' :: LitPitches EdoApp = updateStLit (xy,sw) pcNow pcThen lit
-  oldKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit
-  newKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit'
-  toDark  :: [PitchClass EdoApp] = S.toList $ S.difference oldKeys newKeys
-  toLight :: [PitchClass EdoApp] = S.toList $ S.difference newKeys oldKeys
-
-  kbdMsgs :: [LedMsg] =
-    map (label,) $
-    ( map (,False) $
-      concatMap (pcToXys_st st) toDark) ++
-    ( map (,True)  $
-      concatMap (pcToXys_st st) toLight)
-  scas :: [ScAction VoiceId] = edoKey_ScAction app press
-  v :: Voice EdoApp = Voice
-    { _voiceSynth  = Nothing
-    , _voicePitch  = xyToEdo_app app xy
-    , _voiceParams = mempty -- changed later, by `updateVoiceParams`
-    }
-  st1 :: St EdoApp = st
-    & stApp . edoFingers .~ fingers'
-    & stApp . edoLit     .~ lit'
-    & stPending_Monome %~ (++ kbdMsgs)
-    & stPending_Vivid  %~ (++ scas)
-    & stVoices         %~ (if sw then M.insert xy v else id)
-  in Right $ foldr updateVoiceParams st1 scas
+    fingers' = app ^. edoFingers
+               & if sw then M.insert xy vid else M.delete xy
+    pcNow :: PitchClass EdoApp =
+      mod (xyToEdo_app app xy) (app ^. edoConfig . edo)
+      -- what the key represents currently
+    pcThen :: Maybe (PitchClass EdoApp) =
+      ledBecause_toPitchClass @ EdoApp
+      (app ^. edoLit) $ LedBecauseSwitch xy
+      -- what the key represented when it was pressed,
+      -- if it is now being released
+  
+    lit  :: LitPitches EdoApp = app ^. edoLit
+    lit' :: LitPitches EdoApp = updateStLit (xy,sw) pcNow pcThen lit
+    oldKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit
+    newKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit'
+    toDark  :: [PitchClass EdoApp] = S.toList $ S.difference oldKeys newKeys
+    toLight :: [PitchClass EdoApp] = S.toList $ S.difference newKeys oldKeys
+  
+    kbdMsgs :: [LedMsg] =
+      map (label,) $
+      ( map (,False) $
+        concatMap (pcToXys_st st) toDark) ++
+      ( map (,True)  $
+        concatMap (pcToXys_st st) toLight)
+    scas :: [ScAction VoiceId] = edoKey_ScAction app vid press
+    v :: Voice EdoApp = Voice
+      { _voiceSynth  = Nothing
+      , _voicePitch  = xyToEdo_app app xy
+      , _voiceParams = mempty -- changed later, by `updateVoiceParams`
+      }
+    st1 :: St EdoApp = st
+      & stApp . edoFingers .~ fingers'
+      & stApp . edoLit     .~ lit'
+      & stPending_Monome %~ (++ kbdMsgs)
+      & stPending_Vivid  %~ (++ scas)
+      & stVoices         %~ (if sw then M.insert vid v else id)
+  Right $ foldr updateVoiceParams st1 scas
 
 updateStLit :: ((X,Y), Switch)
   -> PitchClass EdoApp         -- ^ what xy represents now
@@ -116,20 +120,21 @@ updateStLit (xy,False) _ mpcThen m =
         False -> M.insert pc (S.delete (LedBecauseSwitch xy) reasons) m
 
 -- TODO ! duplicative of `jiKey_ScAction`
-edoKey_ScAction :: EdoApp -> ((X,Y), Switch) -> [ScAction VoiceId]
-edoKey_ScAction app (xy, sw) = do
+edoKey_ScAction :: EdoApp -> VoiceId -> ((X,Y), Switch)
+                -> [ScAction VoiceId]
+edoKey_ScAction app vid (xy, sw) = do
   let pitch = xyToEdo_app app xy
       ec = app ^. edoConfig
-  if maybe False (S.member xy) $
+  if maybe False (S.member vid) $
      app ^. edoSustaineded
     then [] -- it's already sounding due to sustain
 
     else if sw -- sw <=> the key was pressed, rather than released
          then [ ScAction_New
                 { _actionSynthDefEnum = Moop
-                , _actionSynthName = xy
+                , _actionSynthName = vid
                 , _actionScMsg = M.fromList
                   [ ("freq", Config.freq * edoToFreq ec pitch)
                   , ("amp", Config.amp) ]
                 } ]
-         else [silenceMsg xy]
+         else [silenceMsg vid]
