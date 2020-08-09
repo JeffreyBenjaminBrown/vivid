@@ -128,20 +128,37 @@ test_keyboardHandler = TestCase $ do
               .~ S.singleton LedBecauseSustain )
           & stApp . edoFingers .~ mempty )
 
-  assertBool "pressing a key that's a sustained voice updates edoFingers and edoLit" $
+  assertBool "pressing a key that's a pitch from a sustained voice does everything it would do if that weren't the case." $
     fromRight (error "bork")
     (K.handler st_0s (xy0, True))
-    =^= ( st_0s & ( stApp . edoLit . at pc0 . _Just
-                    %~ S.insert (LedBecauseSwitch xy0) )
-          & stApp . edoFingers .~ M.fromList [ (xy0,v0) ] )
+    =^= ( let nv = (nextVoice $ _stVoices st_0s)
+          in st_0s
+             & ( stApp . edoLit . at pc0 . _Just
+                 %~ S.insert (LedBecauseSwitch xy0) )
+             & ( stVoices %~ M.insert
+                 (nextVoice $ _stVoices st_0s)
+                 ( Voice { _voiceSynth = Nothing
+                         , _voicePitch = xyToEdo_app (_stApp st_0s) xy0
+                         , _voiceParams = mempty } ) )
+             & ( stPending_Vivid .~ edoKey_ScAction
+                 (st0 ^. stApp) nv (xy0, True) )
+             & ( stApp . edoFingers .~ M.fromList
+                 [ (xy0,nv) ] ) )
 
-  assertBool "pressing a key sends on-messages to monome, sends on-messages to Vivid, adds something to _edoFingers, and asdds something from _edoLit" $
+  assertBool "pressing a key adds a voice to _stVoices, sends on-messages to monome, sends on-messages to Vivid, adds something to _edoFingers, and adds something from _edoLit" $
     fromRight (error "bork")
     (K.handler st_0f (xy1, True))
-    =^= ( st_01f
-          & ( stPending_Monome .~
-              ( map (\xy -> (K.label, (xy, True)) ) $
-                pcToXys_st st_01f pitch1 ) )
-          & ( stPending_Vivid .~ edoKey_ScAction
-              (st0 ^. stApp)
-              (nextVoice $ _stVoices st_01f) (xy1, True) ) )
+    -- PITFALL: st_01f != st_0f
+    =^= ( let nv = nextVoice $ _stVoices st_0f
+          in st_01f
+             & ( stVoices %~ M.insert nv
+                 (Voice { _voiceSynth = Nothing
+                        , _voicePitch = xyToEdo_app (_stApp st_0f) xy1
+                        , _voiceParams = mempty } ) )
+             & ( stPending_Monome .~
+                 ( map (\xy -> (K.label, (xy, True)) ) $
+                   pcToXys_st st_01f pitch1 ) )
+             & ( stPending_Vivid .~ edoKey_ScAction
+                 (st0 ^. stApp)
+                 (nextVoice $ _stVoices st_01f) (xy1, True) )
+             & stApp . edoFingers %~ M.insert xy1 nv )

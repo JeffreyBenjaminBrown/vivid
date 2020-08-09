@@ -21,7 +21,6 @@ import qualified Data.Map as M
 import           Montevideo.Dispatch.Types.Many
 import qualified Montevideo.Monome.Config as Config
 import           Montevideo.Monome.Types.Most
-import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Window.Common
 import           Montevideo.Monome.Window.Util
 import           Montevideo.Synth

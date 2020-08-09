@@ -22,7 +22,6 @@ import Vivid.OSC
 
 import qualified Montevideo.Monome.Config as Config
 import Montevideo.Monome.Network.Util
-import Montevideo.Synth
 import Montevideo.Monome.Util.Button
 import Montevideo.Monome.Types.Most
 import Montevideo.Monome.Window.Util
