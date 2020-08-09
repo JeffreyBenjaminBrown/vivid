@@ -90,7 +90,7 @@ pitchClassesToDarken_uponSustainOff oldSt newSt = let
 
   in mapLeft ("pitchClassesToDarken_uponSustainOff: " ++) $ do
   voicesToSilence_pcs :: [PitchClass EdoApp] <-
-    mapM (vid_to_pitch oldSt) $ S.toList $
+    mapM (vid_to_pitchClass oldSt) $ S.toList $
     voicesToSilence_uponSustainOff oldSt
   msls <- mapM mustStayLit voicesToSilence_pcs
   Right $ map snd $ filter (not . fst) $
@@ -123,7 +123,7 @@ toggleSustain st =
       else Just $ S.fromList $ M.elems $ app ^. edoFingers
 
   pcs :: [PitchClass EdoApp] <-
-    mapM (vid_to_pitch st) $
+    mapM (vid_to_pitchClass st) $
     if sustainOn'
     then M.elems $ app ^. edoFingers
     else S.toList $ maybe (error "impossible") id $

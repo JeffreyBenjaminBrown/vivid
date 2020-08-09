@@ -7,7 +7,7 @@ module Montevideo.Monome.Window.Common (
     ledBecause_toPitchClass -- ^ LitPitches -> LedBecause -> Maybe PitchClass
   , silenceMsg              -- ^ (X,Y) -> ScAction VoiceId
   , updateVoiceParams       -- ^ ScAction VoiceId -> St -> St
-  , vid_to_pitch            -- ^ St -> VoiceId -> PitchClass
+  , vid_to_pitchClass       -- ^ St -> VoiceId -> PitchClass
   ) where
 
 import           Prelude hiding (pred)
@@ -65,9 +65,9 @@ updateVoiceParams sca =
   in foldr (.) id $ map go $
      M.toList $ _actionScMsg sca
 
-vid_to_pitch :: St EdoApp -> VoiceId ->  Either String (PitchClass EdoApp)
-vid_to_pitch st v =
-  mapLeft ("vid_to_pitch: " ++) $ maybe
-  (Left "vid_to_pitch: voice not found")
+vid_to_pitchClass :: St EdoApp -> VoiceId ->  Either String (PitchClass EdoApp)
+vid_to_pitchClass st v =
+  mapLeft ("vid_to_pitchClass: " ++) $ maybe
+  (Left "vid_to_pitchClass: voice not found")
   (Right . flip mod (st ^. stApp . edoConfig . edo) . _voicePitch)
   $ M.lookup v (_stVoices st)
