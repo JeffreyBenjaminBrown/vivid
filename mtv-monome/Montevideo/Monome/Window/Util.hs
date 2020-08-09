@@ -16,6 +16,8 @@ module Montevideo.Monome.Window.Util (
 --  , relayToWindow -- ^ St -> WindowId -> [Window] -> LedRelay
 --  , relayIfHere   -- ^ Socket > [Window] -> Window -> LedRelay
 --  , findWindow    -- ^ [Window] -> WindowId -> Maybe Window
+
+  , nextVoice -- ^ M.Map VoiceId a -> VoiceId
   ) where
 
 import           Prelude hiding (pred)
@@ -190,3 +192,10 @@ findWindow :: [Window app] -> WindowId -> Maybe (Window app)
 findWindow ws l = L.find pred ws where
   -- Pitfall: Assumes the window will be found.
   pred = (==) l . windowLabel
+
+nextVoice :: M.Map VoiceId a -> VoiceId
+nextVoice m =
+  case M.lookupMax m of
+    Nothing -> (0,0)
+    Just ((x,_),_) -> (x+1,0)
+    -- Note that (0,1) < (1,0).

@@ -18,7 +18,17 @@ tests :: Test
 tests = TestList [
     TestLabel "testBelongsHere" testBelongsHere
   , TestLabel "testDependentPitchClass" testDependentPitchClass
+  , TestLabel "test_nextVoice" test_nextVoice
   ]
+
+test_nextVoice :: Test
+test_nextVoice = TestCase $ do
+  let m = M.fromList [ ((0,0), "a")
+                     , ((2,5), "b") ]
+  assertBool "next voice in mempty is (0,0)" $
+    nextVoice mempty == (0,0)
+  assertBool "next voice in m is (3,0)" $
+    nextVoice m == (3,0)
 
 testDependentPitchClass :: Test
 testDependentPitchClass = TestCase $ do

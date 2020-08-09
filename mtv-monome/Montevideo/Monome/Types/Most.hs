@@ -74,7 +74,7 @@ type LitPitches app = Map (PitchClass app) (Set LedBecause)
   -- and if it's an anchor, we should never darken it.
   -- The Set is a Set because an LED could be on for multiple reasons.
 
-type LedMsg     = (WindowId, ((X,Y), Led))
+type LedMsg = (WindowId, ((X,Y), Led))
 
 -- | The reason a (pitch class of) LED(s) in the keyboard window is lit.
 data LedBecause =
