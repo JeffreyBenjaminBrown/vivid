@@ -49,7 +49,7 @@ handler :: St EdoApp -> ((X,Y), Switch) -> Either String (St EdoApp)
 handler    st          press@ (xy,sw)   =
   mapLeft ("Keyboard handler: " ++) $ do
   let app = st ^. stApp
-  vid <- if sw then Right $ nextVoice $ _stVoices st
+  vid <- if sw then Right $ nextVoice st
          else maybe (Left $ show xy ++ " not present in _edoFingers.")
               Right $ M.lookup xy $ _edoFingers app
   let

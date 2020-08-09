@@ -131,12 +131,11 @@ test_keyboardHandler = TestCase $ do
   assertBool "pressing a key that's a pitch from a sustained voice does everything it would do if that weren't the case." $
     fromRight (error "bork")
     (K.handler st_0s (xy0, True))
-    =^= ( let nv = (nextVoice $ _stVoices st_0s)
+    =^= ( let nv = (nextVoice st_0s)
           in st_0s
              & ( stApp . edoLit . at pc0 . _Just
                  %~ S.insert (LedBecauseSwitch xy0) )
-             & ( stVoices %~ M.insert
-                 (nextVoice $ _stVoices st_0s)
+             & ( stVoices %~ M.insert nv
                  ( Voice { _voiceSynth = Nothing
                          , _voicePitch = xyToEdo_app (_stApp st_0s) xy0
                          , _voiceParams = mempty } ) )
@@ -149,7 +148,7 @@ test_keyboardHandler = TestCase $ do
     fromRight (error "bork")
     (K.handler st_0f (xy1, True))
     -- PITFALL: st_01f != st_0f
-    =^= ( let nv = nextVoice $ _stVoices st_0f
+    =^= ( let nv = nextVoice st_0f
           in st_01f
              & ( stVoices %~ M.insert nv
                  (Voice { _voiceSynth = Nothing
@@ -159,6 +158,5 @@ test_keyboardHandler = TestCase $ do
                  ( map (\xy -> (K.label, (xy, True)) ) $
                    pcToXys_st st_01f pitch1 ) )
              & ( stPending_Vivid .~ edoKey_ScAction
-                 (st0 ^. stApp)
-                 (nextVoice $ _stVoices st_01f) (xy1, True) )
+                 (st0 ^. stApp) nv (xy1, True) )
              & stApp . edoFingers %~ M.insert xy1 nv )

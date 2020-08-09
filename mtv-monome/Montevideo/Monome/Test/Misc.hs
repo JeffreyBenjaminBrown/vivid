@@ -9,9 +9,10 @@ import Data.Map as M
 import Data.Set as S
 import Test.HUnit
 
-import           Montevideo.Monome.Types.Most
-import           Montevideo.Monome.Window.Common
-import           Montevideo.Monome.Window.Util
+import Montevideo.Monome.Test.Data
+import Montevideo.Monome.Types.Most
+import Montevideo.Monome.Window.Common
+import Montevideo.Monome.Window.Util
 
 
 tests :: Test
@@ -23,12 +24,12 @@ tests = TestList [
 
 test_nextVoice :: Test
 test_nextVoice = TestCase $ do
-  let m = M.fromList [ (VoiceId 0, "a")
-                     , (VoiceId 2, "b") ]
+  let m = M.fromList [ (VoiceId 0, error "meh")
+                     , (VoiceId 2, error "meh") ]
   assertBool "next voice in mempty is 0" $
-    nextVoice mempty == VoiceId 0
+    nextVoice ( st0 {_stVoices = mempty} ) == VoiceId 0
   assertBool "next voice in m is 3" $
-    nextVoice m == VoiceId 3
+    nextVoice ( st0 {_stVoices = m} ) == VoiceId 3
 
 testDependentPitchClass :: Test
 testDependentPitchClass = TestCase $ do

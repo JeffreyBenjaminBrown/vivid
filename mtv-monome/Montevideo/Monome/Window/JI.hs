@@ -46,7 +46,7 @@ handler :: St JiApp
 handler st press@ (xy,sw) =
   mapLeft ("JI handler: " ++) $ do
   let app = st ^. stApp
-  vid <- if sw then Right $ nextVoice $ _stVoices st
+  vid <- if sw then Right $ nextVoice st
          else maybe (Left $ show xy ++ " not present in _edoFingers.")
               Right $ M.lookup xy $ _jiFingers app
   pitch :: Rational <- jiFreq app xy

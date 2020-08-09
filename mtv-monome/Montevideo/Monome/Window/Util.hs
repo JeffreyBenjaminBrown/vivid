@@ -193,9 +193,9 @@ findWindow ws l = L.find pred ws where
   -- Pitfall: Assumes the window will be found.
   pred = (==) l . windowLabel
 
-nextVoice :: M.Map VoiceId a -> VoiceId
-nextVoice m =
-  case M.lookupMax m of
+nextVoice :: St a -> VoiceId
+nextVoice st =
+  case M.lookupMax $ _stVoices st of
     Nothing -> VoiceId 0
     Just (VoiceId i, _) -> VoiceId $ i+1
     -- Note that (0,1) < (1,0).
