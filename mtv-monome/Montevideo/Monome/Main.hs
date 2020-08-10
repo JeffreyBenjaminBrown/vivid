@@ -1,11 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
-{-# LANGUAGE DataKinds
-, ExtendedDefaultRules
-, FlexibleContexts
-, LambdaCase
-, OverloadedStrings
-, ScopedTypeVariables
-, TupleSections #-}
+{-# LANGUAGE LambdaCase
+, ScopedTypeVariables #-}
 
 module Montevideo.Monome.Main (
   -- ** The apps

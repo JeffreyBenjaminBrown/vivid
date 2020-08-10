@@ -1,10 +1,5 @@
 -- | Math for equal divisions of the octave.
 
-{-# LANGUAGE DataKinds
-, ExtendedDefaultRules
-, OverloadedStrings
-, TupleSections #-}
-
 module Montevideo.Monome.EdoMath (
     edoToFreq   -- ^ EdoConfig -> Pitch EdoApp -> Float
   , xyToEdo     -- ^ EdoConfig -> (X,Y) -> Pitch EdoApp

@@ -1,7 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
-{-# LANGUAGE DataKinds
-, ScopedTypeVariables
-, TupleSections
+{-# LANGUAGE ScopedTypeVariables
 , TypeApplications
 #-}
 

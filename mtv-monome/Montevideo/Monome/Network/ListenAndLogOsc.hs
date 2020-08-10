@@ -1,8 +1,4 @@
-{-# LANGUAGE
-LambdaCase
-, OverloadedStrings
-, ScopedTypeVariables
-#-}
+{-# LANGUAGE LambdaCase #-}
 
 module Montevideo.Monome.Network.ListenAndLogOsc where
 

@@ -1,5 +1,4 @@
-{-# LANGUAGE DataKinds
-, ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Montevideo.Monome.Window.Util (
   -- | * only exported for the sake of testing

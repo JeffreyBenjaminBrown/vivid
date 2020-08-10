@@ -1,6 +1,4 @@
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
-{-# LANGUAGE TupleSections
-, ScopedTypeVariables #-}
 
 module Montevideo.Monome.Test.JI where
 

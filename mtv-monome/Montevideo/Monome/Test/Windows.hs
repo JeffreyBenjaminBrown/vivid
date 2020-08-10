@@ -1,6 +1,3 @@
-{-# LANGUAGE TupleSections
-, ScopedTypeVariables #-}
-
 module Montevideo.Monome.Test.Windows where
 
 import Test.HUnit

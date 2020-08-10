@@ -1,7 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
-{-# LANGUAGE TupleSections
-, TypeApplications
-, ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Montevideo.Monome.Test.Misc where
 

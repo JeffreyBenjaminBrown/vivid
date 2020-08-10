@@ -1,5 +1,4 @@
-{-# LANGUAGE OverloadedStrings
-, TupleSections #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Montevideo.Monome.Test.HandTest where
 

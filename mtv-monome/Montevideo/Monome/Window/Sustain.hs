@@ -1,6 +1,4 @@
-{-# LANGUAGE DataKinds
-, ScopedTypeVariables
-, TupleSections
+{-# LANGUAGE ScopedTypeVariables
 #-}
 
 module Montevideo.Monome.Window.Sustain (

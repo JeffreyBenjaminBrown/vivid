@@ -1,5 +1,4 @@
 {-# LANGUAGE TypeFamilies,
-UndecidableInstances,
 TemplateHaskell #-}
 
 module Montevideo.Monome.Types.Most (

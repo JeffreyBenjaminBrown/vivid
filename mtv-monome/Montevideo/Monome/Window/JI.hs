@@ -1,8 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
-{-# LANGUAGE DataKinds
-, TupleSections
-, ScopedTypeVariables
-#-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Montevideo.Monome.Window.JI (
     handler

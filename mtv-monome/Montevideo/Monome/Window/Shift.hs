@@ -1,4 +1,4 @@
-{-# LANGUAGE TupleSections, ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Montevideo.Monome.Window.Shift (
     handler

@@ -1,6 +1,3 @@
-{-# LANGUAGE TupleSections
-, ScopedTypeVariables #-}
-
 module Montevideo.Monome.Test.Sustain where
 
 import Test.HUnit

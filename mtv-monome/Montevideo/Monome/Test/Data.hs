@@ -1,7 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
-{-# LANGUAGE FlexibleContexts
-, ScopedTypeVariables #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Montevideo.Monome.Test.Data where
 

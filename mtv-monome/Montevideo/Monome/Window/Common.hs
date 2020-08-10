@@ -1,6 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
-{-# LANGUAGE TupleSections
-, AllowAmbiguousTypes
+{-# LANGUAGE AllowAmbiguousTypes
 , ScopedTypeVariables #-}
 
 module Montevideo.Monome.Window.Common (

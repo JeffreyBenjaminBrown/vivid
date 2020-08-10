@@ -1,7 +1,4 @@
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
-{-# LANGUAGE TupleSections
-, TypeApplications
-, ScopedTypeVariables #-}
 
 module Montevideo.Monome.Test.EdoMath where
 

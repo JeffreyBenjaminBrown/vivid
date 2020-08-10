@@ -1,6 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-
 module Montevideo.Monome.Types.EdoConfig where
 
 import Control.Lens
@@ -28,5 +27,4 @@ data EdoConfig = EdoConfig
       -- 22 edo, -1.106 cents (TET-optimal in the 11-limit)
       -- 31 edo, 0.502 cents (TET-optimal in the 13-limit)
   } deriving (Show, Eq, Ord)
-
 makeLenses ''EdoConfig
