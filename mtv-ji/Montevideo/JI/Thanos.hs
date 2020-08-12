@@ -14,6 +14,12 @@ import Montevideo.Util
 import Montevideo.JI.Lib
 
 
+type Edo = Int -- ^ e.g. 31
+type Note = Int -- ^ A value from an Edo system. For instance,
+                -- the perfect fifth in Edo 31 is Note 18.
+type Fret = Int
+type String = Int
+
 -- | `thanos''` explores a lot of ways one might
 -- tune a guitar to achieve a certain `edo`.
 --
@@ -41,7 +47,7 @@ thanos'' modulus edo maxStretch = let
 
 thanos' modulus spacing edo = let
   notes :: [(Int, Rational)] =
-    importantNotes edo & traversed . _1 %~ fromIntegral
+    primeNotes edo & traversed . _1 %~ fromIntegral
   maxFretDiff = maximum results' - minimum results'
     where results' = 0 : map snd results
   formatted = zip notes results
@@ -71,10 +77,10 @@ feasibleSpacing :: Int -> Int -> Bool
 feasibleSpacing modulus spacing =
   elem 1 $ fmap (flip mod modulus . (*) spacing) [1..modulus]
 
-importantNotes :: Int        -- ^ An EDO system.
-               -> [ ( Int    -- ^ A value from that EDO system.
-                    , Rational)] -- ^ The ratio the EDO value represents.
-importantNotes edo = let
+primeNotes :: Edo
+           -> [ ( Note
+                , Rational)] -- ^ The ratio the Note represents.
+primeNotes edo = let
   primes = [5/4, 11/8, 3%2, 13/8, 7/4, 2]
   edoValues = map (fromIntegral . (^. _1) . best (fromIntegral edo)) primes
   in zip edoValues primes
