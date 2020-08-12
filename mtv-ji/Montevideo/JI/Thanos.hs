@@ -64,13 +64,17 @@ thanos modulus spacing edoStep =
       (string,fret) = minimumBy (comparing (abs . snd)) b
   in (string, div fret modulus)
 
+-- | A modulus-spacing pair is feasible iff they are relatively prime.
+-- For instance, in the Kite tuning (which is of course feasible),
+-- the modulus is 2, and the spacing is 13.
 feasibleSpacing :: Int -> Int -> Bool
 feasibleSpacing modulus spacing =
   elem 1 $ fmap (flip mod modulus . (*) spacing) [1..modulus]
 
-importantNotes :: Integer        -- ^ An EDO system.
-               -> [ ( Integer    -- ^ A value from that EDO system.
+importantNotes :: Int        -- ^ An EDO system.
+               -> [ ( Int    -- ^ A value from that EDO system.
                     , Rational)] -- ^ The ratio the EDO value represents.
 importantNotes edo = let
   primes = [5/4, 11/8, 3%2, 13/8, 7/4, 2]
-  in zip (map ((^. _1) . best edo) primes) primes
+  edoValues = map (fromIntegral . (^. _1) . best (fromIntegral edo)) primes
+  in zip edoValues primes
