@@ -27,6 +27,7 @@ library
       Montevideo.JI.Lib
     , Montevideo.JI.Grid
     , Montevideo.JI.Harmonics
+    , Montevideo.JI.Thanos
     , Montevideo.JI.Util
   other-modules:
       Paths_ji
