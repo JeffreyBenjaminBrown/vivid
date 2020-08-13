@@ -32,44 +32,57 @@ type Fret = Int
 type FretDistance = Int -- ^ The distance between two frets.
 
 data ThanosReport = ThanosReport
-  { report_fretDistance :: FretDistance
+  { report_edo :: Edo
+  , report_modulus :: Modulus
+  , report_fretSpan :: FretDistance
   , report_intervalReports :: [IntervalReport] }
+  deriving (Eq, Ord, Show)
 
 data IntervalReport = IntervalReport
-  { ir_InEdo  :: Interval -- ^ This
+  { ir_Edo  :: Interval -- ^ This
   , ir_Ratio  :: Rational -- ^ and this represent the same note
   , ir_String :: String   -- ^ This
   , ir_Fret   :: Fret }   -- ^ and this represent where it lies closest.
+  deriving (Eq, Ord, Show)
 
+edoErrors :: Int -> [(Edo, Float)]
+edoErrors n =
+  sortBy (comparing snd) $
+  [ (e, edoError e)
+  | e <- [1..n] ]
 
--- | `thanosReports` explores a lot of ways one might
--- tune a guitar to achieve a certain `edo`.
---
--- For instance, to check how including only every third fret
--- works to play in 58 edo, run
--- `thanosReports 3 58 <whatever>`.
-thanosReports
-  :: Modulus -- ^ Make this `n` to keep every `n`th fret.
-  -> Edo -- ^ The EDO to examine.
-  -> FretDistance -- ^ The farthest you want to stretch in 12-edo frets.
-  -> IO ()
-thanosReports modulus edo maxStretchIn12Edo = let
-  spacings = filter (feasibleSpacing modulus) [5 .. 50]
-  r1 = [ (s, thanosReport modulus s $ fi edo)
-       | s <- spacings ]
-  r2 = filter f r1 where
-    f = (<= fi maxStretchIn12Edo)
-        . ((*) $ 12 * fi modulus / fi edo)
-        . fi . fst . snd
-  in mapM_ (\(spacing, (maxFretDiff, formatted)) -> do
-              putStrLn $ "\nmod " ++ show modulus
-                ++ ", spaced " ++ show spacing ++ "\\" ++ show edo
-                ++ ", max reach: " ++ show maxFretDiff
-                ++ ", or in 12-edo, "
-                ++ show ( fi (12 * maxFretDiff * modulus)
-                         / fi edo)
-              myPrint $ formatted )
-     r2
+edoError :: Edo -> Float
+edoError e = let
+  component :: (Int, Rational) -> Float
+  component (prime, r) = let
+    lr :: Float = log (fromRational r) / log 2
+    in (fi (round $ fi e * lr) / fi e - lr)**2 -- Approximation error.
+       / log (fi prime) -- So that lower primes weigh more.
+       * (fi e)**2 -- Measure error in terms of edo steps,
+                   -- which puts big and small edos on equal footings.
+  in sum $ map component primes
+
+edoReports :: Edo -> [ThanosReport]
+edoReports edo =
+  [ thanosReport' modulus spacing edo
+  | modulus <- [1..10]
+  , spacing <- [5..50]
+  , feasibleSpacing modulus spacing ]
+
+thanosReport' :: Modulus -> Spacing -> Edo
+             -> ThanosReport
+thanosReport' modulus spacing edo = let
+  (fd, pairPairs) = thanosReport modulus spacing edo
+  f ((a,b),(c,d)) = IntervalReport
+    { ir_Edo  = a
+    , ir_Ratio  = b
+    , ir_String = c
+    , ir_Fret   = d }
+  in ThanosReport
+     { report_edo = edo
+     , report_modulus = modulus
+     , report_fretSpan = fd
+     , report_intervalReports = map f pairPairs }
 
 thanosReport :: Modulus -> Spacing -> Edo
              -> (FretDistance, [((Interval, Rational), (String, Fret))])
@@ -83,19 +96,6 @@ thanosReport modulus spacing edo = let
     in maximum results' - minimum results'
   formatted = zip notes results
   in (maxFretDiff, formatted)
-
-thanosReport' :: Modulus -> Spacing -> Edo
-             -> ThanosReport
-thanosReport' modulus spacing edo = let
-  (fd, pairPairs) = thanosReport modulus spacing edo
-  f ((a,b),(c,d)) = IntervalReport
-    { ir_InEdo  = a
-    , ir_Ratio  = b
-    , ir_String = c
-    , ir_Fret   = d }
-  in ThanosReport
-     { report_fretDistance = fd
-     , report_intervalReports = map f pairPairs }
 
 -- | On a guitar there can be multiple ways to play a given interval.
 -- This gives the shortest one.
@@ -123,6 +123,18 @@ primeIntervals :: Edo
            -> [ ( Interval
                 , Rational)] -- ^ The ratio the Interval represents.
 primeIntervals edo = let
-  primes = [5/4, 11/8, 3%2, 13/8, 7/4, 2]
-  edoValues = map (fi . (^. _1) . best (fi edo)) primes
-  in zip edoValues primes
+  edoValues = map (fi . (^. _1) . best (fi edo)) primesOctave1
+  in zip edoValues primesOctave1
+
+primesOctave1 :: [Rational]
+primesOctave1 = map snd primes
+
+primes :: [(Int, Rational)]
+primes =
+  [ (5,5/4)
+  , (11,11/8)
+  , (3,3%2)
+  , (13,13/8)
+  , (7,7/4)
+  , (2,2/1)
+  ]
