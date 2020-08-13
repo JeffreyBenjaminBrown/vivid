@@ -2,6 +2,12 @@
 -- in which one skips some frets.
 -- Each tuning is defined by the number of frets skipped (the "modulus"),
 -- and the space in EDO steps between adjacent strings (the "spacing").
+--
+-- TODO:  put more detail in `effs`.
+-- Make a new type, EdoReport, that details:
+--   edo error
+--   max fret distance of best tuning, in 12-edo and (edo/modulus)-edo
+--   spacing, in 12-edo and (edo/modulus)-edo
 
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
