@@ -76,25 +76,6 @@ errorSum weights =
   . map (^. _2 . _3)
   . bests
 
-errs :: Floating a
-     => Integer -- ^ the edo
-     -> Rational -- ^ what to approximate
-     -> [ ( Integer -- ^ a step of the edo
-          , Integer -- ^ that step in cents
-          , a)]     -- ^ error of that step
-errs n r =
-  [ ( i
-    , round $ stretch $ fromIntegral i / fromIntegral n
-    , err r           $ fromIntegral i / fromIntegral n )
-  | i <- [0..n-1 :: Integer] ]
-
-err :: Floating a
-  => Rational -- ^ what to approximate
-  -> a        -- ^ the EDO approximating it
-  -> a        -- ^ a step of that EDO
-err true_frac approx_edo =
-  stretch approx_edo - cents true_frac
-
 truth :: Floating c => Int -> [(c,Rational)]
 truth p = f <$> harmonics p
   where f h = (cents h, h)
@@ -141,3 +122,22 @@ bests d = (\r -> (r, best d r))
 best :: Integer -> Rational -> (Integer, Integer, Double)
 best d r = L.minimumBy (comparing $ abs . (^. _3))
            $ errs d r
+
+errs :: Floating a
+     => Integer -- ^ the edo
+     -> Rational -- ^ what to approximate
+     -> [ ( Integer -- ^ a step of the edo
+          , Integer -- ^ that step in cents
+          , a)]     -- ^ error of that step
+errs n r =
+  [ ( i
+    , round $ stretch $ fromIntegral i / fromIntegral n
+    , err r           $ fromIntegral i / fromIntegral n )
+  | i <- [0..n-1 :: Integer] ]
+
+err :: Floating a
+  => Rational -- ^ what to approximate
+  -> a        -- ^ the EDO approximating it
+  -> a        -- ^ a step of that EDO
+err true_frac approx_edo =
+  stretch approx_edo - cents true_frac
