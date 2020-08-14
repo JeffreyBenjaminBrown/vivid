@@ -206,14 +206,29 @@ thanosReport' edo modulus spacing = let
   notes :: [(Interval, Rational)] =
     primeIntervals edo
   layout :: [[(String, Fret)]] =
+    -- The outer list has length 6.
     -- Each inner list represents the closest places a given prime lies.
     -- Most of them will probably be length 1.
     map (shortWaysToReach modulus spacing . fst) notes
-  choices :: [[(String,Fret)]] = do -- list monad
-    -- Each inner list has length 6, corresponding to the 6 primes,
-    -- and represents an available choice of which prime to play where.
-    -- TODO There must be a more elegant way to do this. foldM?
-    let [a,b,c,d,e,f] :: [[(String,Fret)]] = layout
+  cs :: [[(String,Fret)]] = choices layout
+  maxFretDiff :: [(String,Fret)] -> FretDistance
+  maxFretDiff choice = let
+    frets = 0 : map snd choice
+    in maximum frets - minimum frets
+  theChoice = minimumBy (comparing maxFretDiff) cs
+  formatted = zip notes theChoice
+  in (maxFretDiff theChoice, formatted)
+
+-- | Each inner list of `choices ll` is a different way of selecting one
+-- element from each of the inner lists of `ll`.
+-- The length of each inner list of `choices ll` is the length of `ll`.
+-- For instance,
+-- > choices [[1],[2,3],[4,5,6]]
+-- [[1,2,4],[1,2,5],[1,2,6],[1,3,4],[1,3,5],[1,3,6]]
+
+choices :: forall a. [[a]] -> [[a]]
+choices ll = do
+    let [a,b,c,d,e,f] :: [[a]] = ll
     a' <- a
     b' <- b
     c' <- c
@@ -221,13 +236,6 @@ thanosReport' edo modulus spacing = let
     e' <- e
     f' <- f
     return [a',b',c',d',e',f']
-  maxFretDiff :: [(String,Fret)] -> FretDistance
-  maxFretDiff choice = let
-    frets = 0 : map snd choice
-    in maximum frets - minimum frets
-  theChoice = minimumBy (comparing maxFretDiff) choices
-  formatted = zip notes theChoice
-  in (maxFretDiff theChoice, formatted)
 
 -- | On a guitar there can be multiple ways to play a given interval.
 -- This gives the shortest ones.

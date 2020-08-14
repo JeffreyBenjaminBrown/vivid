@@ -13,7 +13,22 @@ tests = TestList [
   , TestLabel "test_primeIntervals" test_primeIntervals
   , TestLabel "test_feasibleSpacing" test_feasibleSpacing
   , TestLabel "test_shortWaysToReach" test_shortWaysToReach
+  , TestLabel "test_choices" test_choices
   ]
+
+test_choices :: Test
+test_choices = TestCase $ do
+  assertBool "" $
+    choices [[1],[2,3],[4,5,6],[0],[0],[0]]
+    == [ [1,2,4,0,0,0]
+       , [1,2,5,0,0,0]
+       , [1,2,6,0,0,0]
+       , [1,3,4,0,0,0]
+       , [1,3,5,0,0,0]
+       , [1,3,6,0,0,0] ]
+  assertBool "If any list is empty, the result is too" $
+    choices [[],[2,3],[4,5,6],[0],[0],[0]]
+    == []
 
 test_shortWaysToReach :: Test
 test_shortWaysToReach = TestCase $ do
