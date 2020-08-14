@@ -82,6 +82,7 @@ minEdo, maxEdo, errorAsGoodAs :: Int
 minEdo :: Int = 30 -- ^ Don't consider any edos smaller than this.
 maxEdo :: Int = 200 -- ^ Don't consider any edos bigger than this.
 errorAsGoodAs :: Int = 12 -- ^ If 12, restrict search to edos with an MSE no greater than that of 12-edo
+maxModulus :: Int = 11
 
 minFretsPerOctave, maxFretsPerOctave, max12edoFretSpan, minSpacingIn12edo :: Float
 minFretsPerOctave = 15
@@ -118,6 +119,7 @@ bestTuning :: Edo -> Maybe (Edo, Float, ThanosReport)
 bestTuning edo = case bestTunings edo of
   []     -> Nothing
   (tr:_) -> Just (edo, edoError edo, tr)
+
 asReport :: (Edo, Float, ThanosReport) -> EdoReport
 asReport (edo,mse,tr) = EdoReport
   { eReport_edo = edo
@@ -182,7 +184,7 @@ thanosReport :: Edo -> Modulus -> Spacing
              -> ThanosReport
 thanosReport edo modulus spacing = let
   (fd, pairPairs) = thanosReport' edo modulus spacing
-  f ((a,b),(c,d)) = IntervalReport
+  mkIntervalReport ((a,b),(c,d)) = IntervalReport
     { ir_Edo  = a
     , ir_Ratio  = b
     , ir_String = c
@@ -194,7 +196,7 @@ thanosReport edo modulus spacing = let
      , tReport_spacing12 = fi spacing * 12 / fi edo
      , tReport_fretSpan = fd
      , tReport_fretSpan12 = reportSpan_in12Edo edo modulus fd
-     , tReport_intervalReports = map f pairPairs }
+     , tReport_intervalReports = map mkIntervalReport pairPairs }
 
 reportSpan_in12Edo :: Edo -> Modulus -> FretDistance -> Float
 reportSpan_in12Edo e m d =
@@ -253,12 +255,13 @@ shortWaysToReach
   -> [(String, Fret)]
 
 shortWaysToReach modulus spacing edoStep = let
-  spaceMultiples = take 8 $ zip [1..] $ fmap (*spacing) [1..]
-    -- The list starts at 1, not 0, because I don't want
+  spaceMultiples = let strings = [1.. maxModulus]
+    in zip strings $ fmap (*spacing) strings
+    -- `strings` starts at 1, not 0, because I don't want
     -- string 0 to be a candidate for where to play the note,
     -- since it's already busy playing the root frequency.
-    -- The list ends at 8 because one probably wants
-    -- to be able to play an octave within 8 strings.
+    -- The number of strings must be at least as great as the maximum modulus,
+    -- or else some notes might be unplayable.
   a = fmap (_2 %~ (edoStep -)) spaceMultiples
   b = filter ((== 0) . flip mod modulus . snd) a
   fewestFrets = minimum $ map (abs . snd) b
