@@ -41,14 +41,24 @@ type String = Int
 type Fret = Int
 type FretDistance = Int -- ^ The distance between two frets.
 
+data EdoReport = EdoReport
+  { eReport_edo :: Edo
+  , eRrport_fretsPerOctave :: Float -- ^ e.g. 20.5 for the Kite tuning
+  , eRrport_MSE :: Float
+  , eReport_spacing :: Spacing
+  , eReport_spacing12 :: Float
+  , eReport_fretSpan :: FretDistance
+  , eReport_fretSpan12 :: Float }
+  deriving (Eq, Ord, Show)
+
 data ThanosReport = ThanosReport
-  { report_edo :: Edo
-  , report_modulus :: Modulus
-  , report_spacing :: Spacing
-  , report_spacing12 :: Float
-  , report_fretSpan :: FretDistance
-  , report_fretSpan12 :: Float
-  , report_intervalReports :: [IntervalReport] }
+  { tReport_edo :: Edo
+  , tReport_modulus :: Modulus
+  , tReport_spacing :: Spacing
+  , tReport_spacing12 :: Float
+  , tReport_fretSpan :: FretDistance
+  , tReport_fretSpan12 :: Float
+  , tReport_intervalReports :: [IntervalReport] }
   deriving (Eq, Ord, Show)
 
 data IntervalReport = IntervalReport
@@ -83,8 +93,8 @@ minSpacingIn12edo = 3 -- ^ If this is 3, consider only spacings
 
 -- * Do it.
 
--- | myPrint $ L.sortBy (comparing (^. _3)) effs
-effs :: [ (Edo
+-- | myPrint $ take 10 $ L.sortBy (comparing (^. eRrport_MSE)) effs
+effs :: [ ( Edo
           , Float
           , FretDistance -- ^ PITFALL: Measured in 12-edo frets.
           )] = let
@@ -96,22 +106,39 @@ effs :: [ (Edo
   f :: (Edo, Float) -> Maybe (Edo, Float, FretDistance)
   f (e,err) = let mSpan = case bestTunings e of
                     [] -> Nothing
-                    (a:_) -> Just $ report_fretSpan a
+                    (a:_) -> Just $ tReport_fretSpan a
               in case mSpan of Nothing -> Nothing
                                Just span -> Just (e,err,span)
   in catMaybes $ map f efs
+
+betterThanEffs = let
+  in map asReport $ catMaybes $ map bestTuning [minEdo .. maxEdo]
+
+bestTuning :: Edo -> Maybe (Edo, Float, ThanosReport)
+bestTuning edo = case bestTunings edo of
+  []     -> Nothing
+  (tr:_) -> Just (edo, edoError edo, tr)
+asReport :: (Edo, Float, ThanosReport) -> EdoReport
+asReport (edo,mse,tr) = EdoReport
+  { eReport_edo = edo
+  , eRrport_fretsPerOctave = fi edo / fi (tReport_modulus tr)
+  , eRrport_MSE = mse
+  , eReport_spacing = tReport_spacing tr
+  , eReport_spacing12 = tReport_spacing12 tr
+  , eReport_fretSpan = tReport_fretSpan tr
+  , eReport_fretSpan12 = tReport_fretSpan12 tr }
 
 -- | How I'm using this:
 -- x = bestTunings 87 -- generate some results
 -- Pr.pPrint $ x !! 0 -- look at the first one (or the second, etc.)
 bestTunings :: Edo -> [ThanosReport]
 bestTunings edo =
-  sortBy   (comparing             report_fretSpan)
-  $ sortBy (comparing $ (*(-1)) . report_spacing)
-  $ filter ( (\fpo -> fpo >= minFretsPerOctave &&
-                      fpo <= maxFretsPerOctave) .
-             (\tr -> fi (report_edo tr) / fi (report_modulus tr) ) )
-  $ filter ( (< max12edoFretSpan) . report_fretSpan12)
+  -- sortBy   (comparing             tReport_fretSpan)
+  -- sortBy (comparing $ (*(-1)) . tReport_spacing)
+  filter ( (\fpo -> fpo >= minFretsPerOctave &&
+                       fpo <= maxFretsPerOctave) .
+              (\tr -> fi (tReport_edo tr) / fi (tReport_modulus tr) ) )
+  $ filter ( (< max12edoFretSpan) . tReport_fretSpan12)
   $ edoReports edo
 
 edoReports :: Edo -> [ThanosReport]
@@ -161,17 +188,14 @@ thanosReport edo modulus spacing = let
     , ir_String = c
     , ir_Fret   = d }
   in ThanosReport
-     { report_edo = edo
-     , report_modulus = modulus
-     , report_spacing = spacing
-     , report_spacing12 = fi spacing * 12 / fi edo
-     , report_fretSpan = fd
-     , report_fretSpan12 = reportSpan_in12Edo edo modulus fd
-     , report_intervalReports = map f pairPairs }
+     { tReport_edo = edo
+     , tReport_modulus = modulus
+     , tReport_spacing = spacing
+     , tReport_spacing12 = fi spacing * 12 / fi edo
+     , tReport_fretSpan = fd
+     , tReport_fretSpan12 = reportSpan_in12Edo edo modulus fd
+     , tReport_intervalReports = map f pairPairs }
 
--- | TODO: Once `shorts` returns a list,
--- modify the computation of `maxFretDiff` so that it first computes
--- the max fret diff for every possible combination.
 thanosReport' :: Edo -> Modulus -> Spacing
               -> (FretDistance, [((Interval, Rational), (String, Fret))])
 thanosReport' edo modulus spacing = let
@@ -184,6 +208,7 @@ thanosReport' edo modulus spacing = let
   choices :: [[(String,Fret)]] = do -- list monad
     -- Each inner list has length 6, corresponding to the 6 primes,
     -- and represents an available choice of which prime to play where.
+    -- TODO There must be a more elegant way to do this. foldM?
     let [a,b,c,d,e,f] :: [[(String,Fret)]] = layout
     a' <- a
     b' <- b
