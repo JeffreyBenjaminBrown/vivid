@@ -253,7 +253,7 @@ shorts modulus spacing edoStep = let
   a = fmap (_2 %~ (edoStep -)) spaceMultiples
   b = filter ((== 0) . flip mod modulus . snd) a
   fewestFrets = minimum $ map (abs . snd) b
-  fewFrets = filter (\(_,frets) -> frets <= 2 * fewestFrets) b
+  fewFrets = filter (\(_,frets) -> abs frets <= 2 * fewestFrets) b
   in map (_2 %~ flip div modulus) fewFrets
 
 -- | A modulus-spacing pair is feasible iff they are relatively prime.

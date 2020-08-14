@@ -12,7 +12,19 @@ tests = TestList [
   , TestLabel "test_primes" test_primes
   , TestLabel "test_primeIntervals" test_primeIntervals
   , TestLabel "test_feasibleSpacing" test_feasibleSpacing
+  , TestLabel "test_shorts" test_shorts
   ]
+
+test_shorts :: Test
+test_shorts = TestCase $ do
+  assertBool "Only one good choice." $
+    shorts 2 13 26 == [(2,0)]
+  assertBool "Two equally good choices." $
+    shorts 1 6 9 == [(1,3),(2,-3)]
+  assertBool "You could play this as easily on the 0th string but that's excluded from consideration." $
+    shorts 1 6 3 == [(1,-3)]
+  assertBool "Two nearly equally good choices." $
+    shorts 2 13 36 == [(2,5),(4,-8)]
 
 test_feasibleSpacing :: Test
 test_feasibleSpacing = TestCase $ do
