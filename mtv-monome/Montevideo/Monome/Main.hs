@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE LambdaCase
+, DataKinds
 , ScopedTypeVariables #-}
 
 module Montevideo.Monome.Main (

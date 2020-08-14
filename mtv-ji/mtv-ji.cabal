@@ -36,4 +36,8 @@ library
     , lens
     , Decimal
     , containers
+  default-extensions:
+      ScopedTypeVariables
+    , LambdaCase
+    , TupleSections
   default-language: Haskell2010
