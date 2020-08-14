@@ -15,20 +15,21 @@ import Control.Lens hiding (set)
 import           Data.Either
 import           Data.Either.Combinators
 import           Data.Fixed
-import           Data.Map (Map)
-import           Data.Ratio
-import           Data.Set (Set)
 import qualified Data.List          as L
 import qualified Data.Map           as M
+import           Data.Map (Map)
 import           Data.Maybe
+import           Data.Ord
+import           Data.Ratio
 import qualified Data.Set           as S
+import           Data.Set (Set)
 import qualified Data.Vector        as V
 import qualified Text.Pretty.Simple as Pr
 import           Text.Pretty.Simple (pPrint)
 
-import Montevideo.Monome.Window.Shift as Sh
+import Montevideo.Monome.Window.Shift    as Sh
 import Montevideo.Monome.Window.Keyboard as Kb
-import Montevideo.Monome.Window.Sustain as Su
+import Montevideo.Monome.Window.Sustain  as Su
 
 import Vivid
 -- import Vivid.Actions

@@ -177,45 +177,59 @@ thanosReport' :: Edo -> Modulus -> Spacing
 thanosReport' edo modulus spacing = let
   notes :: [(Interval, Rational)] =
     primeIntervals edo
-  results :: [(String, Fret)] =
+  layout :: [[(String, Fret)]] =
+    -- Each inner list represents the closest places a given prime lies.
+    -- Most of them will probably be length 1.
     map (shorts modulus spacing . fst) notes
-  maxFretDiff :: FretDistance = let
-    results' = 0 : map snd results
-    in maximum results' - minimum results'
-  formatted = zip notes results
-  in (maxFretDiff, formatted)
+  choices :: [[(String,Fret)]] = do -- list monad
+    -- Each inner list has length 6, corresponding to the 6 primes,
+    -- and represents an available choice of which prime to play where.
+    let [a,b,c,d,e,f] :: [[(String,Fret)]] = layout
+    a' <- a
+    b' <- b
+    c' <- c
+    d' <- d
+    e' <- e
+    f' <- f
+    return [a',b',c',d',e',f']
+  maxFretDiff :: [(String,Fret)] -> FretDistance
+  maxFretDiff choice = let
+    frets = 0 : map snd choice
+    in maximum frets - minimum frets
+  choice = minimumBy (comparing maxFretDiff) choices
+  formatted = zip notes choice
+  in (maxFretDiff choice, formatted)
 
 reportSpan_in12Edo :: Edo -> Modulus -> FretDistance -> Float
 reportSpan_in12Edo e m d =
   12 * fi d * fi m / fi e
 
 -- | On a guitar there can be multiple ways to play a given interval.
--- This gives the shorts one.
---
--- TODO This is problematic for intervals that split the difference.
--- For instance, if you can reach up 7 or down 7, which does it pick?
--- Or maybe you can reach up 7 or down 8, but reaching down 8 actually
--- works better given the other intervals.
---
--- Solution: Keep not just the best,
--- but also anything that is less than, say, twice as big.
--- Return a (String, [Fret]) rather than a (String, Fret).
+-- This gives the shortest ones.
+-- Specifically, it gives all that are no more than twice as big as the shortest.
+-- That's better than just keeping the shortest one,
+-- because in the case of ties or near-ties,
+-- the bigger one might work better with the other intervals.
+
 shorts :: Modulus
        -> Spacing
        -> Interval -- ^ A step of the Edo one would like to approximate.
        -- For instance, since Kite wanted to be able to reach 24\41 easily,
        -- his list surely included the number 24. (24\41 ~ 3/2).
-       -> ( String, Fret )
-shorts modulus spacing edoStep =
-  let spaceMultiples = take 15 $ zip [1..] $ fmap (*spacing) [1..]
-        -- The list starts at 1, not 0, because I don't want
-        -- string 0 to be a candidate for where to play the note,
-        -- since it's already busy playing the root frequency.
-        -- 15 strings seems like a reasonable maximum to assume on a guitar.
-      a = fmap (_2 %~ (edoStep -)) spaceMultiples
-      b = filter ((== 0) . flip mod modulus . snd) a
-      (string,fret) = minimumBy (comparing (abs . snd)) b
-  in (string, div fret modulus)
+       -> [(String, Fret)]
+
+shorts modulus spacing edoStep = let
+  spaceMultiples = take 8 $ zip [1..] $ fmap (*spacing) [1..]
+    -- The list starts at 1, not 0, because I don't want
+    -- string 0 to be a candidate for where to play the note,
+    -- since it's already busy playing the root frequency.
+    -- The list ends at 8 because one probably wants
+    -- to be able to play an octave within 8 strings.
+  a = fmap (_2 %~ (edoStep -)) spaceMultiples
+  b = filter ((== 0) . flip mod modulus . snd) a
+  fewestFrets = minimum $ map (abs . snd) b
+  fewFrets = filter (\(_,frets) -> frets <= 2 * fewestFrets) b
+  in map (_2 %~ flip div modulus) fewFrets
 
 -- | A modulus-spacing pair is feasible iff they are relatively prime.
 -- For instance, in the Kite tuning (which is of course feasible),
