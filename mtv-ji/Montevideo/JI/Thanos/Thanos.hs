@@ -94,25 +94,16 @@ minSpacingIn12edo = 3 -- ^ If this is 3, consider only spacings
 
 -- * Do it.
 
--- | myPrint $ take 10 $ L.sortBy (comparing (^. eRrport_MSE)) effs
-effs :: [ ( Edo
-          , Float
-          , FretDistance -- ^ PITFALL: Measured in 12-edo frets.
-          )] = let
-  efs :: [(Edo, Float)] =
-    sortBy (comparing snd) $
-    filter ((< edoError errorAsGoodAs) . snd) $
-    filter ((> minEdo) . fst) $
-    edoErrors maxEdo
-  f :: (Edo, Float) -> Maybe (Edo, Float, FretDistance)
-  f (e,err) = let mSpan = case bestTunings e of
-                    [] -> Nothing
-                    (a:_) -> Just $ tReport_fretSpan a
-              in case mSpan of Nothing -> Nothing
-                               Just span -> Just (e,err,span)
-  in catMaybes $ map f efs
+-- | Edit this function (and the parameters like "maxEdo" above)
+-- to suit your search priorities.
+go :: IO ()
+go = pPrint $ ( sortBy (comparing eReport_spacing) $
+                filter ((<= 12) . eReport_spacing) $
+                filter ((< 0.2) . eRrport_MSE) $
+                edoReports )
 
-betterThanEffs = let
+edoReports :: [EdoReport]
+edoReports = let
   in map asReport $ catMaybes $ map bestTuning [minEdo .. maxEdo]
 
 bestTuning :: Edo -> Maybe (Edo, Float, ThanosReport)
@@ -138,16 +129,15 @@ bestTunings edo =
   -- sortBy   (comparing             tReport_fretSpan)
   -- sortBy (comparing $ (*(-1)) . tReport_spacing)
   filter ( (\fpo -> fpo >= minFretsPerOctave &&
-                       fpo <= maxFretsPerOctave) .
+                    fpo <= maxFretsPerOctave) .
               (\tr -> fi (tReport_edo tr) / fi (tReport_modulus tr) ) )
   $ filter ( (< max12edoFretSpan) . tReport_fretSpan12)
-  $ edoReports edo
+  $ edoThanosReports edo
 
-edoReports :: Edo -> [ThanosReport]
-edoReports edo =
+edoThanosReports :: Edo -> [ThanosReport]
+edoThanosReports edo =
   [ thanosReport edo modulus spacing
-  | modulus <- [1..11] -- 20 seems like a safe upper limit.
-    -- (The Kite tuning has a modulus of 2. Most tunings use a modulus of 1.)
+  | modulus <- [1..maxModulus]
   , spacing <- [floor (minSpacingIn12edo * fi edo / 12) .. div edo 2]
     -- The top of this range restricts spacings to ones that are
     -- no greater than a tritone apart.
