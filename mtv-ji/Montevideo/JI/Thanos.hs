@@ -13,15 +13,15 @@
 
 module Montevideo.JI.Thanos where
 
-import Prelude hiding (String) -- PITFALL: Weird.
+import Prelude hiding (span, String) -- PITFALL: Hiding String.
 
 import Control.Lens
-import           Data.List
+import           Data.List hiding (span)
 import           Data.Maybe
 import           Data.Ord
 import           Data.Ratio
 
-import Montevideo.Util
+import Montevideo.Util hiding (tr)
 
 
 -- * Types
@@ -68,14 +68,17 @@ instance Show IntervalReport where
 
 -- * Configure the search
 
-minEdo = 30 -- ^ Don't consider any edos smaller than this.
-maxEdo = 200 -- ^ Don't consider any edos bigger than this.
-errorAsGoodAs = 12 -- ^ If 12, restrict search to edos with an MSE no greater than that of 12-edo
+minEdo, maxEdo, errorAsGoodAs :: Int
+minEdo :: Int = 30 -- ^ Don't consider any edos smaller than this.
+maxEdo :: Int = 200 -- ^ Don't consider any edos bigger than this.
+errorAsGoodAs :: Int = 12 -- ^ If 12, restrict search to edos with an MSE no greater than that of 12-edo
+
+minFretsPerOctave, maxFretsPerOctave, max12edoFretSpan, minSpacingIn12edo :: Float
+minFretsPerOctave = 15
+maxFretsPerOctave = 35
 max12edoFretSpan = 5 -- ^ Drop edos for which some 13-limit interval requires a stretch greater than this many frets of 12-edo.
 minSpacingIn12edo = 3 -- ^ If this is 3, consider only spacings
   -- between strings that are at least 3\12.
-minFretsPerOctave = 15
-maxFretsPerOctave = 35
 
 
 -- * Do it.
@@ -91,11 +94,11 @@ effs :: [ (Edo
     filter ((> minEdo) . fst) $
     edoErrors maxEdo
   f :: (Edo, Float) -> Maybe (Edo, Float, FretDistance)
-  f (e,err) = let span = case bestTunings e of
+  f (e,err) = let mSpan = case bestTunings e of
                     [] -> Nothing
                     (a:_) -> Just $ report_fretSpan a
-              in case span of Nothing -> Nothing
-                              Just span -> Just (e,err,span)
+              in case mSpan of Nothing -> Nothing
+                               Just span -> Just (e,err,span)
   in catMaybes $ map f efs
 
 -- | How I'm using this:
@@ -166,13 +169,16 @@ thanosReport edo modulus spacing = let
      , report_fretSpan12 = reportSpan_in12Edo edo modulus fd
      , report_intervalReports = map f pairPairs }
 
+-- | TODO: Once `shorts` returns a list,
+-- modify the computation of `maxFretDiff` so that it first computes
+-- the max fret diff for every possible combination.
 thanosReport' :: Edo -> Modulus -> Spacing
               -> (FretDistance, [((Interval, Rational), (String, Fret))])
 thanosReport' edo modulus spacing = let
   notes :: [(Interval, Rational)] =
     primeIntervals edo
   results :: [(String, Fret)] =
-    map (shortest modulus spacing . fst) notes
+    map (shorts modulus spacing . fst) notes
   maxFretDiff :: FretDistance = let
     results' = 0 : map snd results
     in maximum results' - minimum results'
@@ -184,22 +190,23 @@ reportSpan_in12Edo e m d =
   12 * fi d * fi m / fi e
 
 -- | On a guitar there can be multiple ways to play a given interval.
--- This gives the shortest one.
+-- This gives the shorts one.
 --
 -- TODO This is problematic for intervals that split the difference.
 -- For instance, if you can reach up 7 or down 7, which does it pick?
 -- Or maybe you can reach up 7 or down 8, but reaching down 8 actually
 -- works better given the other intervals.
--- One possible solution: In the case of ties or near-ties,
--- just omit that interval when computing the max reach,
--- and let the user figure it out.
-shortest :: Modulus
-         -> Spacing
-         -> Interval -- ^ A step of the Edo one would like to approximate.
-         -- For instance, since Kite wanted to be able to reach 24\41 easily,
-         -- his list surely included the number 24. (24\41 ~ 3/2).
-         -> ( String, Fret )
-shortest modulus spacing edoStep =
+--
+-- Solution: Keep not just the best,
+-- but also anything that is less than, say, twice as big.
+-- Return a (String, [Fret]) rather than a (String, Fret).
+shorts :: Modulus
+       -> Spacing
+       -> Interval -- ^ A step of the Edo one would like to approximate.
+       -- For instance, since Kite wanted to be able to reach 24\41 easily,
+       -- his list surely included the number 24. (24\41 ~ 3/2).
+       -> ( String, Fret )
+shorts modulus spacing edoStep =
   let spaceMultiples = take 15 $ zip [1..] $ fmap (*spacing) [1..]
         -- The list starts at 1, not 0, because I don't want
         -- string 0 to be a candidate for where to play the note,
