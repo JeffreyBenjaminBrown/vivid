@@ -24,6 +24,7 @@ import           Data.Maybe
 import qualified Data.Set           as S
 import qualified Data.Vector        as V
 import qualified Text.Pretty.Simple as Pr
+import           Text.Pretty.Simple (pPrint)
 
 import Montevideo.Monome.Window.Shift as Sh
 import Montevideo.Monome.Window.Keyboard as Kb
