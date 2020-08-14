@@ -2,13 +2,14 @@ module Montevideo.Test where
 
 import Test.HUnit
 
-import Montevideo.Test.Dispatch
-import Montevideo.Test.Util
+import Montevideo.JI.Thanos.Test
+import Montevideo.Monome.Test.EdoMath
+import Montevideo.Monome.Test.JI
 import Montevideo.Monome.Test.Misc
 import Montevideo.Monome.Test.Sustain
 import Montevideo.Monome.Test.Windows
-import Montevideo.Monome.Test.JI
-import Montevideo.Monome.Test.EdoMath
+import Montevideo.Test.Dispatch
+import Montevideo.Test.Util
 
 
 allTests :: IO Counts
@@ -20,4 +21,5 @@ allTests = runTestTT $ TestList [
   , Montevideo.Monome.Test.Misc.tests
   , Montevideo.Monome.Test.Sustain.tests
   , Montevideo.Monome.Test.Windows.tests
+  , Montevideo.JI.Thanos.Test.tests
   ]

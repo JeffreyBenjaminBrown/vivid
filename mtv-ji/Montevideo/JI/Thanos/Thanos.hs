@@ -11,7 +11,7 @@
 
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
-module Montevideo.JI.Thanos where
+module Montevideo.JI.Thanos.Thanos where
 
 import Prelude hiding (span, String) -- PITFALL: Hiding String.
 
