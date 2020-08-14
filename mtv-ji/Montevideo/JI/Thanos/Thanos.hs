@@ -196,6 +196,10 @@ thanosReport edo modulus spacing = let
      , tReport_fretSpan12 = reportSpan_in12Edo edo modulus fd
      , tReport_intervalReports = map f pairPairs }
 
+reportSpan_in12Edo :: Edo -> Modulus -> FretDistance -> Float
+reportSpan_in12Edo e m d =
+  12 * fi d * fi m / fi e
+
 thanosReport' :: Edo -> Modulus -> Spacing
               -> (FretDistance, [((Interval, Rational), (String, Fret))])
 thanosReport' edo modulus spacing = let
@@ -204,7 +208,7 @@ thanosReport' edo modulus spacing = let
   layout :: [[(String, Fret)]] =
     -- Each inner list represents the closest places a given prime lies.
     -- Most of them will probably be length 1.
-    map (shorts modulus spacing . fst) notes
+    map (shortWaysToReach modulus spacing . fst) notes
   choices :: [[(String,Fret)]] = do -- list monad
     -- Each inner list has length 6, corresponding to the 6 primes,
     -- and represents an available choice of which prime to play where.
@@ -221,13 +225,9 @@ thanosReport' edo modulus spacing = let
   maxFretDiff choice = let
     frets = 0 : map snd choice
     in maximum frets - minimum frets
-  choice = minimumBy (comparing maxFretDiff) choices
-  formatted = zip notes choice
-  in (maxFretDiff choice, formatted)
-
-reportSpan_in12Edo :: Edo -> Modulus -> FretDistance -> Float
-reportSpan_in12Edo e m d =
-  12 * fi d * fi m / fi e
+  theChoice = minimumBy (comparing maxFretDiff) choices
+  formatted = zip notes theChoice
+  in (maxFretDiff theChoice, formatted)
 
 -- | On a guitar there can be multiple ways to play a given interval.
 -- This gives the shortest ones.
@@ -236,14 +236,15 @@ reportSpan_in12Edo e m d =
 -- because in the case of ties or near-ties,
 -- the bigger one might work better with the other intervals.
 
-shorts :: Modulus
-       -> Spacing
-       -> Interval -- ^ A step of the Edo one would like to approximate.
-       -- For instance, since Kite wanted to be able to reach 24\41 easily,
-       -- his list surely included the number 24. (24\41 ~ 3/2).
-       -> [(String, Fret)]
+shortWaysToReach
+  :: Modulus
+  -> Spacing
+  -> Interval -- ^ A step of the Edo one would like to approximate.
+  -- For instance, since Kite wanted to be able to reach 24\41 easily,
+  -- his list surely included the number 24. (24\41 ~ 3/2).
+  -> [(String, Fret)]
 
-shorts modulus spacing edoStep = let
+shortWaysToReach modulus spacing edoStep = let
   spaceMultiples = take 8 $ zip [1..] $ fmap (*spacing) [1..]
     -- The list starts at 1, not 0, because I don't want
     -- string 0 to be a candidate for where to play the note,
