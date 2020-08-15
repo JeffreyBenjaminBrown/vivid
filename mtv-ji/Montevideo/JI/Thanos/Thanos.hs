@@ -2,6 +2,9 @@
 -- in which one skips some frets.
 -- Each tuning is defined by the number of frets skipped (the "modulus"),
 -- and the space in EDO steps between adjacent strings (the "spacing").
+--
+-- TODO : exclude tunings with bad 3/2 approximations.
+-- TODO : filter on 7-limit span *and* 13-limit span
 
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
@@ -43,17 +46,21 @@ data EdoReport = EdoReport
   , eRrport_MSE :: Float
   , eReport_spacing :: Spacing
   , eReport_spacing12 :: Float
-  , eReport_fretSpan :: FretDistance
-  , eReport_fretSpan12 :: Float }
-  deriving (Eq, Ord, Show)
+  , eReport_fretSpan_lim7 :: FretDistance
+  , eReport_fretSpan12_lim7 :: Float
+  , eReport_fretSpan_lim13 :: FretDistance
+  , eReport_fretSpan12_lim13 :: Float
+  } deriving (Eq, Ord, Show)
 
 data ThanosReport = ThanosReport
   { tReport_edo :: Edo
   , tReport_modulus :: Modulus
   , tReport_spacing :: Spacing
   , tReport_spacing12 :: Float
-  , tReport_fretSpan :: FretDistance
-  , tReport_fretSpan12 :: Float
+  , tReport_fretSpan_lim7 :: FretDistance
+  , tReport_fretSpan12_lim7 :: Float
+  , tReport_fretSpan_lim13 :: FretDistance
+  , tReport_fretSpan12_lim13 :: Float
   , tReport_intervalReports :: [IntervalReport] }
   deriving (Eq, Ord, Show)
 
@@ -77,7 +84,7 @@ instance Show IntervalReport where
 -- PITFALL: If the last thing this sorts by is fretSpan,
 -- then so should the last thing `bestTunings` sorts by.
 go :: [EdoReport]
-go = sortBy (comparing eReport_fretSpan) $
+go = sortBy (comparing eReport_fretSpan_lim7) $
      filter ((< 0.15) . eRrport_MSE) $
      edoReports
 
@@ -97,8 +104,12 @@ asEdoReport (edo,mse,tr) = EdoReport
   , eRrport_MSE = mse
   , eReport_spacing = tReport_spacing tr
   , eReport_spacing12 = tReport_spacing12 tr
-  , eReport_fretSpan = tReport_fretSpan tr
-  , eReport_fretSpan12 = tReport_fretSpan12 tr }
+  , eReport_fretSpan_lim7 = tReport_fretSpan_lim7 tr
+  , eReport_fretSpan12_lim7 = tReport_fretSpan12_lim7 tr
+  , eReport_fretSpan_lim13 = tReport_fretSpan_lim13 tr
+  , eReport_fretSpan12_lim13 = tReport_fretSpan12_lim13 tr
+  }
+
 
 -- | How I'm using this:
 -- x = bestTunings 87 -- generate some results
@@ -107,12 +118,14 @@ asEdoReport (edo,mse,tr) = EdoReport
 -- then so should the last thing `go` sorts by.
 bestTunings :: Edo -> [ThanosReport]
 bestTunings edo =
-  sortBy   (comparing             tReport_fretSpan)
+  sortBy     (comparing             tReport_fretSpan_lim7)
+  $ sortBy   (comparing             tReport_fretSpan_lim13)
   $ sortBy (comparing $ (*(-1)) . tReport_spacing)
   $ filter ( (\fpo -> fpo >= minFretsPerOctave &&
                     fpo <= maxFretsPerOctave) .
               (\tr -> fi (tReport_edo tr) / fi (tReport_modulus tr) ) )
-  $ filter ( (< max12edoFretSpan) . tReport_fretSpan12)
+  $ filter ( (< max12edoFretSpan_lim13) . tReport_fretSpan12_lim13)
+  $ filter ( (< max12edoFretSpan_lim7) . tReport_fretSpan12_lim7)
   $ edoThanosReports edo
 
 edoThanosReports :: Edo -> [ThanosReport]
@@ -154,7 +167,7 @@ edoError e = let
 thanosReport :: Edo -> Modulus -> Spacing
              -> ThanosReport
 thanosReport edo modulus spacing = let
-  (fd, pairPairs) = thanosReport' edo modulus spacing
+  (fd7, fd13, pairPairs) = thanosReport' edo modulus spacing
   mkIntervalReport ((a,b),(c,d)) = IntervalReport
     { ir_Edo  = a
     , ir_Ratio  = b
@@ -165,16 +178,21 @@ thanosReport edo modulus spacing = let
      , tReport_modulus = modulus
      , tReport_spacing = spacing
      , tReport_spacing12 = fi spacing * 12 / fi edo
-     , tReport_fretSpan = fd
-     , tReport_fretSpan12 = reportSpan_in12Edo edo modulus fd
+     , tReport_fretSpan_lim7 = fd7
+     , tReport_fretSpan12_lim7 = reportSpan_in12Edo edo modulus fd7
+     , tReport_fretSpan_lim13 = fd13
+     , tReport_fretSpan12_lim13 = reportSpan_in12Edo edo modulus fd13
      , tReport_intervalReports = map mkIntervalReport pairPairs }
 
 reportSpan_in12Edo :: Edo -> Modulus -> FretDistance -> Float
 reportSpan_in12Edo e m d =
   12 * fi d * fi m / fi e
 
-thanosReport' :: Edo -> Modulus -> Spacing
-              -> (FretDistance, [((Interval, Rational), (String, Fret))])
+thanosReport'
+  :: Edo -> Modulus -> Spacing
+  -> ( FretDistance -- ^ 7-limit maximum prime fret reach
+     , FretDistance -- ^ 13-limit maximum prime fret reach
+     , [((Interval, Rational), (String, Fret))])
 thanosReport' edo modulus spacing = let
   notes :: [(Interval, Rational)] =
     primeIntervals edo
@@ -184,13 +202,16 @@ thanosReport' edo modulus spacing = let
     -- Most of them will probably be length 1.
     map (shortWaysToReach modulus spacing . fst) notes
   cs :: [[(String,Fret)]] = choices layout
-  maxFretDiff :: [(String,Fret)] -> FretDistance
-  maxFretDiff choice = let
-    frets = 0 : map snd choice
+  maxFretDiff :: Int --how many primes to use: 4 (7-limit) or 6 (13-limit)
+              -> [(String,Fret)] -> FretDistance
+  maxFretDiff n choice = let
+    frets = 0 : map snd (take n choice)
     in maximum frets - minimum frets
-  theChoice = minimumBy (comparing maxFretDiff) cs
+  theChoice = minimumBy (comparing $ maxFretDiff 4) cs
   formatted = zip notes theChoice
-  in (maxFretDiff theChoice, formatted)
+  in (maxFretDiff 4 theChoice,
+      maxFretDiff 6 theChoice,
+      formatted)
 
 -- | Each inner list of `choices ll` is a different way of selecting one
 -- element from each of the inner lists of `ll`.
@@ -261,10 +282,15 @@ primes =
   [ (2,  2/1)
   , (3,  3%2)
   , (5,  5/4)
+  , (7,  7/4)
   , (11, 11/8)
   , (13, 13/8)
-  , (7,  7/4)
   ]
+
+-- | PITFALL: This is the signed error.
+-- Take its absolute value, or square it, or etc. before minimizing it.
+bestError :: Edo -> Rational -> Float
+bestError e r = fi (best e r) / fi e - log (fr r) / log 2
 
 -- | Best approximation to a ratio in an edo.
 -- For instance, best 12 (3/2) = 7

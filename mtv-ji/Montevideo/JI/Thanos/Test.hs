@@ -14,7 +14,19 @@ tests = TestList [
   , TestLabel "test_feasibleSpacing" test_feasibleSpacing
   , TestLabel "test_shortWaysToReach" test_shortWaysToReach
   , TestLabel "test_choices" test_choices
+  , TestLabel "test_bestError" test_bestError
   ]
+
+test_bestError :: Test
+test_bestError = TestCase $ do
+  assertBool "" $ let b = abs $ bestError 12 (3/2)
+    in b < 0.002 && b > 0.001
+  assertBool "" $ let b = abs $ bestError 12 (5/4)
+    in b < 0.02 && b > 0.01
+  assertBool "" $ let r = 5/4 in
+    abs (bestError 12 r) > abs (bestError 31 r)
+  assertBool "" $ let r = 3/2 in
+    abs (bestError 12 r) < abs (bestError 31 r)
 
 test_choices :: Test
 test_choices = TestCase $ do
@@ -51,12 +63,12 @@ test_feasibleSpacing = TestCase $ do
 test_primeIntervals :: Test
 test_primeIntervals = TestCase $ do
   assertBool "" $ primeIntervals 31 ==
-    [ (10,5 % 4)
-    , (14,11 % 8)
+    [ (31,2 % 1)
     , (18,3 % 2)
-    , (22,13 % 8)
+    , (10,5 % 4)
     , (25,7 % 4)
-    , (31,2 % 1) ]
+    , (14,11 % 8)
+    , (22,13 % 8) ]
 
 test_primes :: Test
 test_primes = TestCase $ do
