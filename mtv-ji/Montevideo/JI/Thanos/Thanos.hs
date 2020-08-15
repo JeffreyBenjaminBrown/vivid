@@ -2,9 +2,6 @@
 -- in which one skips some frets.
 -- Each tuning is defined by the number of frets skipped (the "modulus"),
 -- and the space in EDO steps between adjacent strings (the "spacing").
---
--- TODO : exclude tunings with bad 3/2 approximations.
--- TODO : filter on 7-limit span *and* 13-limit span
 
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
@@ -45,6 +42,8 @@ data EdoReport = EdoReport
   , eRrport_MSE :: Float
   , eReport_spacing :: Spacing
   , eReport_spacing12 :: Float
+  , eReport_fretSpan_lim5 :: FretDistance
+  , eReport_fretSpan12_lim5 :: Float
   , eReport_fretSpan_lim7 :: FretDistance
   , eReport_fretSpan12_lim7 :: Float
   , eReport_fretSpan_lim13 :: FretDistance
@@ -57,6 +56,8 @@ data ThanosReport = ThanosReport
   , tReport_modulus :: Modulus
   , tReport_spacing :: Spacing
   , tReport_spacing12 :: Float
+  , tReport_fretSpan_lim5 :: FretDistance
+  , tReport_fretSpan12_lim5 :: Float
   , tReport_fretSpan_lim7 :: FretDistance
   , tReport_fretSpan12_lim7 :: Float
   , tReport_fretSpan_lim13 :: FretDistance
@@ -109,6 +110,8 @@ asEdoReport (edo,mse,tr) = EdoReport
   , eRrport_MSE = mse
   , eReport_spacing = tReport_spacing tr
   , eReport_spacing12 = tReport_spacing12 tr
+  , eReport_fretSpan_lim5 = tReport_fretSpan_lim5 tr
+  , eReport_fretSpan12_lim5 = tReport_fretSpan12_lim5 tr
   , eReport_fretSpan_lim7 = tReport_fretSpan_lim7 tr
   , eReport_fretSpan12_lim7 = tReport_fretSpan12_lim7 tr
   , eReport_fretSpan_lim13 = tReport_fretSpan_lim13 tr
@@ -131,6 +134,7 @@ bestTunings edo =
               (\tr -> fi (tReport_edo tr) / fi (tReport_modulus tr) ) )
   $ filter ( (<= max12edoFretSpan_lim13) . tReport_fretSpan_lim13)
   $ filter ( (<= max12edoFretSpan_lim7)  . tReport_fretSpan_lim7)
+  $ filter ( (<= max12edoFretSpan_lim5) . tReport_fretSpan_lim5)
   $ edoThanosReports edo
 
 edoThanosReports :: Edo -> [ThanosReport]
@@ -172,7 +176,7 @@ edoError e = let
 thanosReport :: Edo -> Modulus -> Spacing
              -> ThanosReport
 thanosReport edo modulus spacing = let
-  (fd7, fd13, pairPairs) = thanosReport' edo modulus spacing
+  (fd5, fd7, fd13, pairPairs) = thanosReport' edo modulus spacing
   mkIntervalReport ((a,b),(c,d)) = IntervalReport
     { ir_Edo  = a
     , ir_Ratio  = b
@@ -184,6 +188,8 @@ thanosReport edo modulus spacing = let
      , tReport_modulus = modulus
      , tReport_spacing = spacing
      , tReport_spacing12 = fi spacing * 12 / fi edo
+     , tReport_fretSpan_lim5 = fd5
+     , tReport_fretSpan12_lim5 = reportSpan_in12Edo edo modulus fd5
      , tReport_fretSpan_lim7 = fd7
      , tReport_fretSpan12_lim7 = reportSpan_in12Edo edo modulus fd7
      , tReport_fretSpan_lim13 = fd13
@@ -196,7 +202,8 @@ reportSpan_in12Edo e m d =
 
 thanosReport'
   :: Edo -> Modulus -> Spacing
-  -> ( FretDistance -- ^ 7-limit maximum prime fret reach
+  -> ( FretDistance -- ^ 5-limit maximum prime fret reach
+     , FretDistance -- ^ 7-limit maximum prime fret reach
      , FretDistance -- ^ 13-limit maximum prime fret reach
      , [((Interval, Rational), (String, Fret))])
 thanosReport' edo modulus spacing = let
@@ -215,7 +222,8 @@ thanosReport' edo modulus spacing = let
     in maximum frets - minimum frets
   theChoice = minimumBy (comparing $ maxFretDiff 4) cs
   formatted = zip notes theChoice
-  in (maxFretDiff 4 theChoice,
+  in (maxFretDiff 3 theChoice,
+      maxFretDiff 4 theChoice,
       maxFretDiff 6 theChoice,
       formatted)
 
@@ -234,7 +242,7 @@ choices (xs:xss) = do y  <- xs
 
 -- | On a guitar there can be multiple ways to play a given interval.
 -- This gives the shortest ones.
--- Specifically, it gives all that are no more than twice as big as the shortest.
+-- Specifically, it gives all that are no more than three times as big as the shortest.
 -- That's better than just keeping the shortest one,
 -- because in the case of ties or near-ties,
 -- the bigger one might work better with the other intervals.
@@ -258,7 +266,7 @@ shortWaysToReach modulus spacing edoStep = let
   a = fmap (_2 %~ (edoStep -)) spaceMultiples
   b = filter ((== 0) . flip mod modulus . snd) a
   fewestFrets = minimum $ map (abs . snd) b
-  fewFrets = filter (\(_,frets) -> abs frets <= 2 * fewestFrets) b
+  fewFrets = filter (\(_,frets) -> abs frets <= 3 * fewestFrets) b
   in map (_2 %~ flip div modulus) fewFrets
 
 -- | A modulus-spacing pair is feasible iff they are relatively prime.
