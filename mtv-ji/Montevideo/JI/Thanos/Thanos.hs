@@ -301,6 +301,14 @@ primes =
   , (13, 13/8)
   ]
 
+badness :: Int -> Edo -> Float
+badness nPrimes e = let
+  primesHere :: [(Int, Rational)] = take nPrimes primes
+  in sum $ map (abs . bestError e) $
+     [ fi n / fi d
+     | d <- [1 .. maximum $ map fst primesHere]
+     , n <- [1 .. d] ]
+
 -- | PITFALL: This is the signed error.
 -- Take its absolute value, or square it, or etc. before minimizing it.
 bestError :: Edo -> Rational -> Float
