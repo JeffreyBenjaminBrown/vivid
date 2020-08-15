@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-type-defaults #-}
+
 module Montevideo.JI.Thanos.Test where
 
 import           Data.Ratio

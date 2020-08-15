@@ -17,7 +17,6 @@ import           Data.List hiding (span)
 import           Data.Maybe
 import           Data.Ord
 import           Data.Ratio
-import           Text.Pretty.Simple (pPrint)
 
 import Montevideo.Util hiding (tr)
 import Montevideo.JI.Thanos.SearchParams
@@ -54,6 +53,7 @@ data EdoReport = EdoReport
 
 data ThanosReport = ThanosReport
   { tReport_edo :: Edo
+  , tReport_fpo :: Float -- ^ frets per octave
   , tReport_modulus :: Modulus
   , tReport_spacing :: Spacing
   , tReport_spacing12 :: Float
@@ -84,8 +84,13 @@ instance Show IntervalReport where
 -- PITFALL: If the last thing this sorts by is fretSpan,
 -- then so should the last thing `bestTunings` sorts by.
 go :: [EdoReport]
-go = sortBy (comparing eReport_fretSpan_lim7) $
-     filter ((< 0.15) . eRrport_MSE) $
+go = let bestFifth edo = abs $ bestError edo $ 3/2
+  in sortBy (comparing eReport_fretSpan_lim7) $
+     sortBy (comparing eReport_fretSpan_lim13) $
+     sortBy (comparing $ negate . eReport_edo) $
+     filter ( (<= 2 * bestFifth 12) .
+              bestFifth . eReport_edo ) $
+     filter ((< 0.2) . eRrport_MSE) $
      edoReports
 
 edoReports :: [EdoReport]
@@ -120,12 +125,12 @@ bestTunings :: Edo -> [ThanosReport]
 bestTunings edo =
   sortBy     (comparing             tReport_fretSpan_lim7)
   $ sortBy   (comparing             tReport_fretSpan_lim13)
-  $ sortBy (comparing $ (*(-1)) . tReport_spacing)
+  $ sortBy   (comparing $ (*(-1)) . tReport_spacing)
   $ filter ( (\fpo -> fpo >= minFretsPerOctave &&
-                    fpo <= maxFretsPerOctave) .
+                      fpo <= maxFretsPerOctave) .
               (\tr -> fi (tReport_edo tr) / fi (tReport_modulus tr) ) )
-  $ filter ( (< max12edoFretSpan_lim13) . tReport_fretSpan12_lim13)
-  $ filter ( (< max12edoFretSpan_lim7) . tReport_fretSpan12_lim7)
+  $ filter ( (<= max12edoFretSpan_lim13) . tReport_fretSpan_lim13)
+  $ filter ( (<= max12edoFretSpan_lim7)  . tReport_fretSpan_lim7)
   $ edoThanosReports edo
 
 edoThanosReports :: Edo -> [ThanosReport]
@@ -175,6 +180,7 @@ thanosReport edo modulus spacing = let
     , ir_Fret   = d }
   in ThanosReport
      { tReport_edo = edo
+     , tReport_fpo = fi edo / fi modulus
      , tReport_modulus = modulus
      , tReport_spacing = spacing
      , tReport_spacing12 = fi spacing * 12 / fi edo
