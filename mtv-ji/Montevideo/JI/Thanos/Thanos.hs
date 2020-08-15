@@ -199,16 +199,11 @@ thanosReport' edo modulus spacing = let
 -- > choices [[1],[2,3],[4,5,6]]
 -- [[1,2,4],[1,2,5],[1,2,6],[1,3,4],[1,3,5],[1,3,6]]
 
-choices :: forall a. [[a]] -> [[a]]
-choices ll = do
-    let [a,b,c,d,e,f] :: [[a]] = ll
-    a' <- a
-    b' <- b
-    c' <- c
-    d' <- d
-    e' <- e
-    f' <- f
-    return [a',b',c',d',e',f']
+choices :: [[a]] -> [[a]]
+choices []       = [[]]
+choices (xs:xss) = do y  <- xs
+                      ys <- choices xss
+                      return (y:ys)
 
 -- | On a guitar there can be multiple ways to play a given interval.
 -- This gives the shortest ones.
@@ -263,12 +258,12 @@ primesOctave1 = map snd primes
 -- unless you never plan on inverting your chords.
 primes :: [(Int, Rational)]
 primes =
-  [ (5, 5/4)
-  , (11,11/8)
-  , (3, 3%2)
-  , (13,13/8)
-  , (7, 7/4)
-  , (2, 2/1)
+  [ (2,  2/1)
+  , (3,  3%2)
+  , (5,  5/4)
+  , (11, 11/8)
+  , (13, 13/8)
+  , (7,  7/4)
   ]
 
 -- | Best approximation to a ratio in an edo.
