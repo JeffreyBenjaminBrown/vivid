@@ -2,12 +2,6 @@
 -- in which one skips some frets.
 -- Each tuning is defined by the number of frets skipped (the "modulus"),
 -- and the space in EDO steps between adjacent strings (the "spacing").
---
--- TODO:  put more detail in `effs`.
--- Make a new type, EdoReport, that details:
---   edo error
---   max fret distance of best tuning, in 12-edo and (edo/modulus)-edo
---   spacing, in 12-edo and (edo/modulus)-edo
 
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
@@ -20,8 +14,10 @@ import           Data.List hiding (span)
 import           Data.Maybe
 import           Data.Ord
 import           Data.Ratio
+import           Text.Pretty.Simple (pPrint)
 
 import Montevideo.Util hiding (tr)
+import Montevideo.JI.Thanos.SearchParams
 
 
 -- * Types
@@ -76,43 +72,26 @@ instance Show IntervalReport where
 
 -- ** Search
 
--- * Configure the search
-
-minEdo, maxEdo, errorAsGoodAs :: Int
-minEdo :: Int = 30 -- ^ Don't consider any edos smaller than this.
-maxEdo :: Int = 200 -- ^ Don't consider any edos bigger than this.
-errorAsGoodAs :: Int = 12 -- ^ If 12, restrict search to edos with an MSE no greater than that of 12-edo
-maxModulus :: Int = 11
-
-minFretsPerOctave, maxFretsPerOctave, max12edoFretSpan, minSpacingIn12edo :: Float
-minFretsPerOctave = 15
-maxFretsPerOctave = 35
-max12edoFretSpan = 5 -- ^ Drop edos for which some 13-limit interval requires a stretch greater than this many frets of 12-edo.
-minSpacingIn12edo = 3 -- ^ If this is 3, consider only spacings
-  -- between strings that are at least 3\12.
-
-
--- * Do it.
-
 -- | Edit this function (and the parameters like "maxEdo" above)
 -- to suit your search priorities.
-go :: IO ()
-go = pPrint $ ( sortBy (comparing eReport_spacing) $
-                filter ((<= 12) . eReport_spacing) $
-                filter ((< 0.2) . eRrport_MSE) $
-                edoReports )
+-- PITFALL: If the last thing this sorts by is fretSpan,
+-- then so should the last thing `bestTunings` sorts by.
+go :: [EdoReport]
+go = sortBy (comparing eReport_fretSpan) $
+     filter ((< 0.15) . eRrport_MSE) $
+     edoReports
 
 edoReports :: [EdoReport]
-edoReports = let
-  in map asReport $ catMaybes $ map bestTuning [minEdo .. maxEdo]
+edoReports =
+  map asEdoReport $ catMaybes $ map bestTuning [minEdo .. maxEdo]
 
 bestTuning :: Edo -> Maybe (Edo, Float, ThanosReport)
 bestTuning edo = case bestTunings edo of
   []     -> Nothing
   (tr:_) -> Just (edo, edoError edo, tr)
 
-asReport :: (Edo, Float, ThanosReport) -> EdoReport
-asReport (edo,mse,tr) = EdoReport
+asEdoReport :: (Edo, Float, ThanosReport) -> EdoReport
+asEdoReport (edo,mse,tr) = EdoReport
   { eReport_edo = edo
   , eRrport_fretsPerOctave = fi edo / fi (tReport_modulus tr)
   , eRrport_MSE = mse
@@ -124,11 +103,13 @@ asReport (edo,mse,tr) = EdoReport
 -- | How I'm using this:
 -- x = bestTunings 87 -- generate some results
 -- Pr.pPrint $ x !! 0 -- look at the first one (or the second, etc.)
+-- PITFALL: If the last thing this sorts by is fretSpan,
+-- then so should the last thing `go` sorts by.
 bestTunings :: Edo -> [ThanosReport]
 bestTunings edo =
-  -- sortBy   (comparing             tReport_fretSpan)
-  -- sortBy (comparing $ (*(-1)) . tReport_spacing)
-  filter ( (\fpo -> fpo >= minFretsPerOctave &&
+  sortBy   (comparing             tReport_fretSpan)
+  $ sortBy (comparing $ (*(-1)) . tReport_spacing)
+  $ filter ( (\fpo -> fpo >= minFretsPerOctave &&
                     fpo <= maxFretsPerOctave) .
               (\tr -> fi (tReport_edo tr) / fi (tReport_modulus tr) ) )
   $ filter ( (< max12edoFretSpan) . tReport_fretSpan12)
