@@ -49,10 +49,12 @@ test_shortWaysToReach :: Test
 test_shortWaysToReach = TestCase $ do
   assertBool "Only one good choice." $
     shortWaysToReach 2 13 26 == [(2,0)]
-  assertBool "Two equally good choices." $
-    shortWaysToReach 1 6 9 == [(1,3),(2,-3)]
-  assertBool "You could play this as easily on the 0th string but that's excluded from consideration." $
-    shortWaysToReach 1 6 3 == [(1,-3)]
+  assertBool "SOme equally good choices." $
+    shortWaysToReach 1 6 9 == [(0,9),(1,3),(2,-3),(3,-9)]
+  assertBool "On a guitar, the 0-string solution is excluded." $
+    shortWaysToReach 1 6 3 ==
+    (if isForGuitar then filter ((/=) 0 . fst) else id)
+    [(-1,9),(0,3),(1,-3),(2,-9)]
   assertBool "Two nearly equally good choices." $
     shortWaysToReach 2 13 36 == [(2,5),(4,-8)]
 
