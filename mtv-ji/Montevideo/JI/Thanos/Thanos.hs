@@ -2,10 +2,6 @@
 -- in which one skips some frets.
 -- Each tuning is defined by the number of frets skipped (the "modulus"),
 -- and the space in EDO steps between adjacent strings (the "spacing").
---
--- TODO : The ideal search for guitar excludes notes on the root string,
--- but for keyboards does not. Also the ideal guitar search excludes
--- giant frets, but for keyboards does not.
 
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
@@ -260,17 +256,25 @@ shortWaysToReach
   -> [(String, Fret)]
 
 shortWaysToReach modulus spacing edoStep = let
-  spaceMultiples = let strings = [1.. maxModulus]
-    in zip strings $ fmap (*spacing) strings
-    -- `strings` starts at 1, not 0, because I don't want
-    -- string 0 to be a candidate for where to play the note,
-    -- since it's already busy playing the root frequency.
-    -- The number of strings must be at least as great as the maximum modulus,
-    -- or else some notes might be unplayable.
-  a = fmap (_2 %~ (edoStep -)) spaceMultiples
-  b = filter ((== 0) . flip mod modulus . snd) a
-  fewestFrets = minimum $ map (abs . snd) b
-  fewFrets = filter (\(_,frets) -> abs frets <= 3 * fewestFrets) b
+  spaceMultiples :: [(Int, Spacing)] = let
+    strings = let mm = max (modulus*2) maxModulus
+              in [-mm .. mm]
+    in (if isForGuitar then filter ((/= 0) . fst) else id) $
+       -- If searching for guitar tunings, then we don't want
+       -- string 0 to be a candidate for where to play the note,
+       -- since that string is already busy playing the root note.
+       -- Number of strings must be at least the modulus,
+       -- or else some notes might be unplayable.
+       zip strings $ fmap (*spacing) strings
+  targeting :: [(Int, Spacing)] = fmap (_2 %~ (edoStep -)) spaceMultiples
+    -- Whatever in this list has a `snd` closest to 0,
+    -- its `fst` is a good first guess for which string we want.
+  existant = filter ((== 0) . flip mod modulus . snd) targeting
+    -- Only these solutions from "targeting" actually exist.
+  fewestFrets = minimum $ map (abs . snd) existant
+  fewFrets = filter f existant where
+    f (_,frets) = abs frets <= max
+                  (3 * fewestFrets) alwaysConsiderAtLeastThisManyFrets
   in map (_2 %~ flip div modulus) fewFrets
 
 -- | A modulus-spacing pair is feasible iff they are relatively prime.

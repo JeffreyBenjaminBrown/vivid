@@ -5,6 +5,7 @@ module Montevideo.JI.Thanos.Test where
 import           Data.Ratio
 
 import Test.HUnit
+import Montevideo.JI.Thanos.SearchParams
 import Montevideo.JI.Thanos.Thanos
 
 
