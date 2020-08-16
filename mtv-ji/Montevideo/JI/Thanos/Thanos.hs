@@ -11,7 +11,6 @@ import Prelude hiding (span, String) -- PITFALL: Hiding String.
 
 import Control.Lens
 import           Data.List hiding (span)
-import           Data.Maybe
 import           Data.Ord
 import           Data.Ratio
 
@@ -35,20 +34,6 @@ type Spacing = Interval
 type String = Int
 type Fret = Int
 type FretDistance = Int -- ^ The distance between two frets.
-
-data EdoReport = EdoReport
-  { eReport_edo :: Edo
-  , eRrport_fretsPerOctave :: Float -- ^ e.g. 20.5 for the Kite tuning
-  , eRrport_MSE :: Float
-  , eReport_spacing :: Spacing
-  , eReport_spacing12 :: Float
-  , eReport_fretSpan_lim5 :: FretDistance
-  , eReport_fretSpan12_lim5 :: Float
-  , eReport_fretSpan_lim7 :: FretDistance
-  , eReport_fretSpan12_lim7 :: Float
-  , eReport_fretSpan_lim13 :: FretDistance
-  , eReport_fretSpan12_lim13 :: Float
-  } deriving (Eq, Ord, Show)
 
 data ThanosReport = ThanosReport
   { tReport_edo :: Edo
@@ -80,68 +65,33 @@ instance Show IntervalReport where
 
 -- ** Search
 
--- | Edit this function (and the parameters like "maxEdo" above)
+-- | Edit his function (and the parameters like "maxEdo" above)
 -- to suit your search priorities.
--- PITFALL: If the last thing this sorts by is fretSpan,
--- then so should the last thing `bestTunings` sorts by.
-go :: [EdoReport]
-go = let bestFifth edo = abs $ bestError edo $ 3/2
-  in sortBy (comparing eReport_fretSpan_lim7) $
-     sortBy (comparing eReport_fretSpan_lim13) $
-     sortBy (comparing $ negate . eReport_edo) $
-     filter ( (<= 2 * bestFifth 12) .
-              bestFifth . eReport_edo ) $
-     filter ((< 0.2) . eRrport_MSE) $
-     edoReports
-
-edoReports :: [EdoReport]
-edoReports =
-  map asEdoReport $ catMaybes $ map bestTuning [minEdo .. maxEdo]
-
-bestTuning :: Edo -> Maybe (Edo, Float, ThanosReport)
-bestTuning edo = case bestTunings edo of
-  []     -> Nothing
-  (tr:_) -> Just (edo, edoError edo, tr)
-
-asEdoReport :: (Edo, Float, ThanosReport) -> EdoReport
-asEdoReport (edo,mse,tr) = EdoReport
-  { eReport_edo = edo
-  , eRrport_fretsPerOctave = fi edo / fi (tReport_modulus tr)
-  , eRrport_MSE = mse
-  , eReport_spacing = tReport_spacing tr
-  , eReport_spacing12 = tReport_spacing12 tr
-  , eReport_fretSpan_lim5 = tReport_fretSpan_lim5 tr
-  , eReport_fretSpan12_lim5 = tReport_fretSpan12_lim5 tr
-  , eReport_fretSpan_lim7 = tReport_fretSpan_lim7 tr
-  , eReport_fretSpan12_lim7 = tReport_fretSpan12_lim7 tr
-  , eReport_fretSpan_lim13 = tReport_fretSpan_lim13 tr
-  , eReport_fretSpan12_lim13 = tReport_fretSpan12_lim13 tr
-  }
-
-
--- | How I'm using this:
--- x = bestTunings 87 -- generate some results
--- Pr.pPrint $ x !! 0 -- look at the first one (or the second, etc.)
--- PITFALL: If the last thing this sorts by is fretSpan,
--- then so should the last thing `go` sorts by.
-bestTunings :: Edo -> [ThanosReport]
-bestTunings edo =
-  sortBy     (comparing             tReport_fretSpan_lim7)
-  $ sortBy   (comparing             tReport_fretSpan_lim13)
-  $ sortBy   (comparing $ (*(-1)) . tReport_spacing)
-  $ filter ( (\fpo -> fpo >= minFretsPerOctave &&
-                      fpo <= maxFretsPerOctave) .
-              (\tr -> fi (tReport_edo tr) / fi (tReport_modulus tr) ) )
+go :: [ThanosReport]
+go = id
+  $ sortBy   (comparing                    tReport_fretSpan_lim13)
+  $ sortBy   (comparing $ (*(-1))        . tReport_spacing)
+  $ sortBy   (comparing                    tReport_fretSpan_lim7)
+  $ sortBy   (comparing                    tReport_fretSpan_lim5)
+  $ filter ( (>= minFretsPerOctave)      . tReport_fpo)
+  $ filter ( (<= maxFretsPerOctave)      . tReport_fpo)
   $ filter ( (<= max12edoFretSpan_lim13) . tReport_fretSpan_lim13)
   $ filter ( (<= max12edoFretSpan_lim7)  . tReport_fretSpan_lim7)
-  $ filter ( (<= max12edoFretSpan_lim5) . tReport_fretSpan_lim5)
-  $ edoThanosReports edo
+  $ filter ( (<= max12edoFretSpan_lim5)  . tReport_fretSpan_lim5)
+  $ filter ( (>= minSpacingIn12edo)      . tReport_spacing12 )
+  $ filter ( (<= 2 * bestFifth 12)       . bestFifth
+                                         . tReport_edo )
+  $ filter ((< 0.2) . edoError           . tReport_edo)
+  $ concatMap edoThanosReports [minEdo .. maxEdo]
 
+-- | PITFALL: This looks like it generates an impossibly big amount of data.
+-- Fortunately, laziness upstream means most reports are dropped
+-- after only being very slightly evaluated.
 edoThanosReports :: Edo -> [ThanosReport]
 edoThanosReports edo =
   [ thanosReport edo modulus spacing
-  | modulus <- [1..maxModulus]
-  , spacing <- [floor (minSpacingIn12edo * fi edo / 12) .. div edo 2]
+  | modulus <- [1 .. maxModulus]
+  , spacing <- [1 .. div edo 2]
     -- The top of this range restricts spacings to ones that are
     -- no greater than a tritone apart.
   , feasibleSpacing modulus spacing ]
@@ -220,7 +170,7 @@ thanosReport' edo modulus spacing = let
   maxFretDiff n choice = let
     frets = 0 : map snd (take n choice)
     in maximum frets - minimum frets
-  theChoice = minimumBy (comparing $ maxFretDiff 4) cs
+  theChoice = minimumBy (comparing $ maxFretDiff 6) cs
   formatted = zip notes theChoice
   in (maxFretDiff 3 theChoice,
       maxFretDiff 4 theChoice,
@@ -316,6 +266,9 @@ badness nPrimes e = let
      [ fi n / fi d
      | d <- [1 .. maximum $ map fst primesHere]
      , n <- [1 .. d] ]
+
+bestFifth :: Edo -> Float
+bestFifth edo = abs $ bestError edo $ 3/2
 
 -- | PITFALL: This is the signed error.
 -- Take its absolute value, or square it, or etc. before minimizing it.
