@@ -27,6 +27,7 @@ library
       Montevideo.JI.Lib
     , Montevideo.JI.Grid
     , Montevideo.JI.Harmonics
+    , Montevideo.JI.Thanos.SearchParams
     , Montevideo.JI.Thanos.Test
     , Montevideo.JI.Thanos.Thanos
     , Montevideo.JI.Util

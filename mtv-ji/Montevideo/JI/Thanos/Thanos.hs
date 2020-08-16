@@ -2,6 +2,10 @@
 -- in which one skips some frets.
 -- Each tuning is defined by the number of frets skipped (the "modulus"),
 -- and the space in EDO steps between adjacent strings (the "spacing").
+--
+-- TODO : The ideal search for guitar excludes notes on the root string,
+-- but for keyboards does not. Also the ideal guitar search excludes
+-- giant frets, but for keyboards does not.
 
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 
