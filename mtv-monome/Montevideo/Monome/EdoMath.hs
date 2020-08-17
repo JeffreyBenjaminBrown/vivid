@@ -11,6 +11,7 @@ module Montevideo.Monome.EdoMath (
   ) where
 
 import Control.Lens
+import Data.List (find)
 
 import           Montevideo.JI.Util (fromCents)
 import           Montevideo.Monome.Types.Most
@@ -74,20 +75,61 @@ _enharmonicToXYs ec btn = let
 -- (notice the 0 at the end).
 xyToEdo :: EdoConfig -> (X,Y) -> Pitch EdoApp
 xyToEdo ec (x,y) = _spacing ec * x
-                  + _skip ec    * y
+                 + _skip ec    * y
 
--- | The numerically lowest (closest to the top-left corner)
--- member of a pitch class, if the monome is not shifted (modulo octaves).
+
+-- | The leftmost appearance of the input pitchclass on the monome.
+--
+-- PITFALL: Does not take into account shifting via _edoXyShift.
 --
 -- In the PitchClass domain, xyToEdo and edoToLowXY are inverses:
 -- xyToEdo <$> edoToLowXY <$> [0..31] == [0,1,2,3,4,5,6,7,8,9,10,11,12,
 -- 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,0]
 -- (notice the 0 at the end).
+--
+-- Strategy: Find the first column that has it, even if too low.
+-- Then, if too low, move up by the vertical basis vector until in range.
+--
+-- This algorithm used to give the topmost,
+-- leftmost instance of the note. Now it gives the leftmost,
+-- lower-most instance. Hopefully it doesn't matter,
+-- since `_enharmonicToXYs` generates lots of out-of-bounds instances
+-- on all four sides.
+--
+-- Sidenote: I had to complicate the algorithm enormously
+-- to accommodate Thanos tunings. Before that it was as simple as:
+--   edoToLowXY ec pc = ( div j $ _spacing ec
+--                      , mod j $ _spacing ec )
+--     where j = mod pc $ _edo ec
 
 edoToLowXY :: EdoConfig -> PitchClass EdoApp -> (X,Y)
-edoToLowXY ec i = ( div j $ _spacing ec
-                  , mod j $ _spacing ec )
-  where j = mod i $ _edo ec
+edoToLowXY ec pc = let
+  e = _edo ec
+  sk = _skip ec
+  sp = _spacing ec
+  (vx, vy) = vv ec
+
+  firstColWithPc = maybe (error "no way") id $ -- First column that might,
+                   find ((==) $ mod pc sk) $   -- given `_skip ec`,
+                   map (flip mod sk) $         -- contain `pc`.
+                   [0,sp..]
+  rowForFirstCol = -- `firstColWithPc` would contain `pc` in this row,
+                   -- which might be out of bounds for the monome.
+    div (pc - firstColWithPc * sp) sk
+
+  in if rowForFirstCol <= 15
+     -- PITFALL: I'm ignoring the case where rowForFirstCol < 0.
+     -- I think I can do that, because it'll never be very far from 0,
+     -- and I add lots of out-of-bounds enharmonic copies.
+     then (firstColWithPc, rowForFirstCol)
+     else let -- Out of bounds; must subtract some number of `vv`s.
+              -- (Subtract, not add, because `vv` points down.)
+  overshoot = rowForFirstCol - 15
+  liftByThisManyVerticalVectors = div overshoot vy +
+                                  if 0 == mod overshoot vy then 0 else 1
+  in pairAdd (firstColWithPc, rowForFirstCol) $
+     pairMul (-liftByThisManyVerticalVectors) (vx, vy)
+
 
 -- | PITFALL: These functions can only find `hv` and `vv` automatically
 -- for non-Thanos tunings, i.e. tunings in which `_skip = 1`.
