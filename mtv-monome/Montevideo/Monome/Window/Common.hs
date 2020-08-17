@@ -64,7 +64,8 @@ updateVoiceParams sca =
   in foldr (.) id $ map go $
      M.toList $ _actionScMsg sca
 
-vid_to_pitchClass :: St EdoApp -> VoiceId ->  Either String (PitchClass EdoApp)
+vid_to_pitchClass :: St EdoApp -> VoiceId
+                  ->  Either String (PitchClass EdoApp)
 vid_to_pitchClass st v =
   mapLeft ("vid_to_pitchClass: " ++) $ maybe
   (Left "vid_to_pitchClass: voice not found")

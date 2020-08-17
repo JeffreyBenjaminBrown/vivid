@@ -48,8 +48,9 @@ pcToXys ec shift pc = let
 -- (modulo octave) visible on the monome.
 --
 -- This computes a lot of out-of-range values.
--- I'm pretty sure the resulting lag is imperceptible.
 -- (The higher the edo, the lesser this problem.)
+-- I'm pretty sure that has no effect on user experience.
+
 _enharmonicToXYs :: EdoConfig -> (X,Y) -> [(X,Y)]
 _enharmonicToXYs ec btn = let
 
