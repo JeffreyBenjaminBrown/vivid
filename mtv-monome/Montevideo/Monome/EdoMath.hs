@@ -11,7 +11,6 @@ module Montevideo.Monome.EdoMath (
   ) where
 
 import Control.Lens
-import Data.List (find)
 
 import           Montevideo.JI.Util (fromCents)
 import           Montevideo.Monome.Types.Most
@@ -87,49 +86,30 @@ xyToEdo ec (x,y) = _spacing ec * x
 -- 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,0]
 -- (notice the 0 at the end).
 --
--- Strategy: Find the first column that has it, even if too low.
--- Then, if too low, move up by the vertical basis vector until in range.
---
--- This algorithm used to give the topmost,
--- leftmost instance of the note. Now it gives the leftmost,
--- lower-most instance. Hopefully it doesn't matter,
+-- This algorithm used to give the leftmost of the topmost instances,
+-- but now it gives the lowermost of the leftmost instances of the note.
+-- Hopefully it doesn't matter,
 -- since `_enharmonicToXYs` generates lots of out-of-bounds instances
 -- on all four sides.
 --
--- Sidenote: I had to complicate the algorithm enormously
--- to accommodate Thanos tunings. Before that it was as simple as:
+-- Without Thanos tunings, the algorithm was much simpler:
 --   edoToLowXY ec pc = ( div j $ _spacing ec
 --                      , mod j $ _spacing ec )
 --     where j = mod pc $ _edo ec
 
 edoToLowXY :: EdoConfig -> PitchClass EdoApp -> (X,Y)
 edoToLowXY ec pc = let
-  e = _edo ec
   sk = _skip ec
   sp = _spacing ec
-  (vx, vy) = vv ec
-
-  firstColWithPc = maybe (error "no way") id $ -- First column that might,
-                   find ((==) $ mod pc sk) $   -- given `_skip ec`,
-                   map (flip mod sk) $         -- contain `pc`.
-                   [0,sp..]
-  rowForFirstCol = -- `firstColWithPc` would contain `pc` in this row,
-                   -- which might be out of bounds for the monome.
-    div (pc - firstColWithPc * sp) sk
-
-  in if rowForFirstCol <= 15
-     -- PITFALL: I'm ignoring the case where rowForFirstCol < 0.
-     -- I think I can do that, because it'll never be very far from 0,
-     -- and I add lots of out-of-bounds enharmonic copies.
-     then (firstColWithPc, rowForFirstCol)
-     else let -- Out of bounds; must subtract some number of `vv`s.
-              -- (Subtract, not add, because `vv` points down.)
-  overshoot = rowForFirstCol - 15
-  liftByThisManyVerticalVectors = div overshoot vy +
-                                  if 0 == mod overshoot vy then 0 else 1
-  in pairAdd (firstColWithPc, rowForFirstCol) $
-     pairMul (-liftByThisManyVerticalVectors) (vx, vy)
-
+  e = _edo ec
+  f :: X -> (X, Y)
+  f x = let
+    y = mod (pc - x*sp) e
+    y' = div y sk
+    in if mod y sk == 0 && y' >= 0 && y' <= 15
+       then (x, y')
+       else f $ x + 1
+  in f 0
 
 -- | PITFALL: These functions can only find `hv` and `vv` automatically
 -- for non-Thanos tunings, i.e. tunings in which `_skip = 1`.
