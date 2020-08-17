@@ -3,12 +3,11 @@ TemplateHaskell #-}
 
 module Montevideo.Monome.Types.Most (
     module Montevideo.Monome.Types.EdoConfig
-  , HostName, Socket
+  , module Montevideo.Monome.Types.Monome
   , Param, WindowId, VoiceId(..)
   , LitPitches
   , LedMsg
   , Pitch, PitchClass
-  , X, Y, Switch, Led
   , LedBecause(..)
   , Window(..)
   , Voice(..), voiceSynth, voicePitch, voiceParams
@@ -21,27 +20,13 @@ module Montevideo.Monome.Types.Most (
 import           Control.Lens
 import           Data.Map
 import           Data.Set
-import qualified Network.Socket as NS
 import           Vivid hiding (Param)
 
 import Montevideo.Dispatch.Types.Many
 import Montevideo.Monome.Types.EdoConfig
+import Montevideo.Monome.Types.Monome
 import Montevideo.Synth
 
-
-type HostName = NS.HostName
-type Socket = NS.Socket
-
--- | X and Y are coordinates on the monome.
--- PITFALL: X rises from left to right, but Y rises from top to bottom.
--- Thus (0,1) is just under the top-left corner.
--- PITFALL: The monome will respond to out-of-bounds (x,y) values.
--- I don't use that feature.
-type X = Int
-type Y = Int
-
-type Switch = Bool -- | Whether a monome button is pressed.
-type Led    = Bool -- | Whether a monome LED is lit.
 
 type Param = String
 type WindowId = String

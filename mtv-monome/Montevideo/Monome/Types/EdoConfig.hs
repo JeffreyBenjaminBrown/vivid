@@ -1,9 +1,32 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Montevideo.Monome.Types.EdoConfig where
+module Montevideo.Monome.Types.EdoConfig
+  ( GridVectorPair(..)
+  , gridVerticalVector, gridHorizontalVector
+  , EdoConfig(..)
+  , edo, spacing, skip, octaveStretchInCents, gridVectors
+  ) where
 
 import Control.Lens
 
+import Montevideo.Monome.Types.Monome
+
+
+-- ^ If _skip = 1, then the grid vectors can be left Nothing;
+-- the system will figure out what they should be.
+-- But For Thanos tunings, the grid vectors must be manually defined.
+-- The "vertical" vector indicates, given a pitch at (0,0),
+-- the nearest enharmonic pitch is in a nearby columns.
+-- The "horizontal" vector indicates, given a pitch at (0,0),
+-- the nearest octave to that pitch in a nearby row.
+--
+-- Note that both vectors are rarely truly orthogonal to the axes.
+
+data GridVectorPair = GridVectorPair
+  { _gridHorizontalVector :: (X,Y)
+  , _gridVerticalVector :: (X,Y)
+  } deriving (Show, Eq, Ord)
+makeLenses ''GridVectorPair
 
 -- | PITFALL: This looks like it should be defined with the other types,
 -- but doing that causes a cycle of imports,
@@ -26,5 +49,6 @@ data EdoConfig = EdoConfig
     -- Some particularly good (edo, stretch) values:
       -- 22 edo, -1.106 cents (TET-optimal in the 11-limit)
       -- 31 edo, 0.502 cents (TET-optimal in the 13-limit)
+  , _gridVectors :: Maybe GridVectorPair
   } deriving (Show, Eq, Ord)
 makeLenses ''EdoConfig

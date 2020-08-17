@@ -83,12 +83,16 @@ xyToEdo ec (x,y) = _spacing ec * x
 -- xyToEdo <$> edoToLowXY <$> [0..31] == [0,1,2,3,4,5,6,7,8,9,10,11,12,
 -- 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,0]
 -- (notice the 0 at the end).
+
 edoToLowXY :: EdoConfig -> PitchClass EdoApp -> (X,Y)
 edoToLowXY ec i = ( div j $ _spacing ec
-                   , mod j $ _spacing ec )
+                  , mod j $ _spacing ec )
   where j = mod i $ _edo ec
 
--- | `hv` and `vv` form The smallest, most orthogonal set of
+-- | PITFALL: These functions can only find `hv` and `vv` automatically
+-- for non-Thanos tunings, i.e. tunings in which `_skip = 1`.
+--
+-- `hv` and `vv` form The smallest, most orthogonal set of
 -- basis vectors possible for the octave grid.
 -- They are most easily understood via example. Suppose `C.edo = 31`,
 -- and `C.spacing = 6`. Then to reach the next octave horizontally,
@@ -103,14 +107,18 @@ edoToLowXY ec i = ( div j $ _spacing ec
 -- with (0,0) in the top-left corner.)
 
 vv, hv :: EdoConfig -> (X,Y)
-vv ec = (-1, _spacing ec)
-hv ec = let
-  e = _edo ec
-  s = _spacing ec
-  x = -- horizontal span of an octave:
-      -- the first multiple of spacing greater than or equal to edo
-    head $ filter (>= e) $ (*s) <$> [1..]
-  v1 = (div x s, e - x)
-  v2 = pairAdd v1 $ vv ec
-  in if abs (dot (vv ec) v1) <= abs (dot (vv ec) v2)
-     then                v1  else                v2
+vv ec = case _gridVectors ec of
+  Just gvs -> _gridVerticalVector gvs
+  Nothing -> (-1, _spacing ec)
+hv ec = case _gridVectors ec of
+  Just gvs -> _gridHorizontalVector gvs
+  Nothing -> let
+    e = _edo ec
+    s = _spacing ec
+    x = -- horizontal span of an octave:
+        -- the first multiple of spacing greater than or equal to edo
+      head $ filter (>= e) $ (*s) <$> [1..]
+    v1 = (div x s, e - x)
+    v2 = pairAdd v1 $ vv ec
+    in if abs (dot (vv ec) v1) <= abs (dot (vv ec) v2)
+       then                v1  else                v2

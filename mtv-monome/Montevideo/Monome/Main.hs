@@ -43,8 +43,9 @@ import           Montevideo.Synth
 -- ** The apps
 
 edoMonome :: Int -- ^ The monome address, as serialoscd reports on startup.
+          -> EdoConfig
           -> IO (St EdoApp)
-edoMonome monomePort = do
+edoMonome monomePort edoConfig = do
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
     -- I don't know why it's port 8000, or why it used to be 11111.
   toMonome :: Socket <- sendsTo (unpack localhost) monomePort
@@ -58,7 +59,7 @@ edoMonome monomePort = do
     , _stPending_Monome = []
 
     , _stApp = EdoApp
-        { _edoConfig = Config.theConfig
+        { _edoConfig = edoConfig
         , _edoXyShift = (0,0)
         , _edoFingers = mempty
         , _edoLit = mempty
