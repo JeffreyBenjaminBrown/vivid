@@ -1,11 +1,12 @@
-{-# LANGUAGE ScopedTypeVariables
+{-# LANGUAGE ScopedTypeVariables,
+ViewPatterns
 #-}
 
 module Montevideo.Monome.Window.Sustain (
     handler
   , label
   , sustainWindow
-  , theButton
+  , button_SustainOff
 
   , voicesToSilence_uponSustainOff -- ^ St EdoApp -> Set VoiceId
   , toggleSustain                  -- ^ St EdoApp -> St EdoApp
@@ -22,22 +23,31 @@ import qualified Data.Set as S
 
 import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.EdoMath
-import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Types.Most
+import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Window.Common
 import qualified Montevideo.Monome.Window.Keyboard as Kbd
+import           Montevideo.Util
 
 
 label :: WindowId
 label = "sustain window"
 
-theButton :: (X,Y)
-theButton = (0,15)
+-- | Press this to turn off sustain.
+-- This is also the button that lights to indicate sustain is on.
+button_SustainOff :: (X,Y)
+button_SustainOff = (0,15)
+
+-- | Press this to add more notes to what's being sustained
+-- (whether or not any are currently sustained).
+button_Sustainmore :: (X,Y)
+button_Sustainmore = (0,14)
 
 sustainWindow :: Window EdoApp
 sustainWindow = Window {
     windowLabel = label
-  , windowContains = (==) theButton
+  , windowContains = \(x,y) ->
+      numBetween 0 1 x && y == 15
   , windowInit = id
   , windowHandler = handler
 }
@@ -46,8 +56,15 @@ handler :: St EdoApp
         -> ( (X,Y) -- ^ ignored, since the sustain window has only one button
            , Switch)
         -> Either String (St EdoApp)
+
 handler st (_ , False) = Right st
-handler st (_,  True)  =
+  -- Something happens when you press a sustain key,
+  -- but nothing when you release one.
+
+handler st ((==) button_Sustainmore -> True,  True)  =
+  error "todo"
+
+handler st ((==) button_SustainOff -> True,  True)  =
   mapLeft ("Window.Sustain.handler: " ++) $ do
   st1 <- toggleSustain st
   toDark <- pitchClassesToDarken_uponSustainOff st st1
@@ -64,11 +81,14 @@ handler st (_,  True)  =
       else []
 
     sustainButtonMsg = ( label
-                       , ( theButton
+                       , ( button_SustainOff
                          , isJust $ st1 ^. stApp . edoSustaineded ) )
     st2 = st1 & stPending_Monome %~ flip (++) (sustainButtonMsg : kbdMsgs)
               & stPending_Vivid  %~ flip (++) scas
   Right $ foldr updateVoiceParams st2 scas
+
+handler st _ =
+  error "Sustain.handler: uncaught (and, I believe, impossible) input."
 
 pitchClassesToDarken_uponSustainOff ::
   St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]
