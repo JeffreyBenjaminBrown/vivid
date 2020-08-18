@@ -91,3 +91,9 @@ freq = 80
 -- | The JI app's notes are too high without scaling by a factor like this.
 jiTranspose :: Fractional a => a
 jiTranspose = (1/32)
+
+-- | How long to wait between zeroing a voice's volume and freeing it in SC.
+-- TODO : implement reverb tails, which will require some new signal
+-- aside from amp=0, because amp=0 takes effect immediately.
+freeDelay :: Float
+freeDelay = 0.1

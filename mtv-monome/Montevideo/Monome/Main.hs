@@ -28,6 +28,7 @@ import Vivid
 import Vivid.OSC
 
 import           Montevideo.Dispatch.Types.Many
+import           Montevideo.Dispatch.Types.Time (unTimestamp)
 import qualified Montevideo.Monome.Config as Config
 import           Montevideo.Monome.Network.Util
 import           Montevideo.Monome.Types.Most
@@ -45,7 +46,7 @@ import           Montevideo.Synth
 edoMonome :: Int -- ^ The monome address, as serialoscd reports on startup.
           -> EdoConfig
           -> IO (St EdoApp)
-edoMonome monomePort edoConfig = do
+edoMonome monomePort edoCfg = do
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
     -- I don't know why it's port 8000, or why it used to be 11111.
   toMonome :: Socket <- sendsTo (unpack localhost) monomePort
@@ -59,7 +60,7 @@ edoMonome monomePort edoConfig = do
     , _stPending_Monome = []
 
     , _stApp = EdoApp
-        { _edoConfig = edoConfig
+        { _edoConfig = edoCfg
         , _edoXyShift = (0,0)
         , _edoFingers = mempty
         , _edoLit = mempty
@@ -247,6 +248,14 @@ doScAction    st        sca =
             return $ Right $
               stVoices . at vid . _Just . voiceSynth .~ Just s
 
+    -- PITFALL: If a voice is deleted right away,
+    -- there's usually an audible pop.
+    -- (It depends on how far the waveform is displaced from 0.)
+    -- To avoid that, this first sends an `amp=0` message,
+    -- and then waits a bit (how much is determined in Monome.Config).
+    -- (That smooths the click because amp messages are responded to a tad
+    -- sluggishly, per the following line in the synth's definition:
+    -- s1 <- lag (in_ (V::V "amp"), lagSecs_ 0.03)
     ScAction_Free _ _ -> do
       let vid :: VoiceId = _actionSynthName sca
       v :: Voice a <- maybe
@@ -256,7 +265,11 @@ doScAction    st        sca =
         (Left $ "Voice " ++ show vid ++ " has no assigned synth.")
         Right $ _voiceSynth v
       Right $ do
-        free s
+        now <- unTimestamp <$> getTime
+        set s (0 :: I "amp")
+        doScheduledAt ( Timestamp $ fromRational now
+                        + realToFrac Config.freeDelay ) $
+          free s
         return $ Right $ stVoices . at vid .~ Nothing
 
 doLedMessage :: St app -> LedMsg -> Either String (IO ())
