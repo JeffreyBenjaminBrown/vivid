@@ -23,7 +23,8 @@ tests = TestList [
     TestLabel "test_sustainHandler" test_sustainHandler
   , TestLabel "test_deleteOneSustainedNote_and_insertOneSustainedNote"
     test_deleteOneSustainedNote_and_insertOneSustainedNote
-  , TestLabel "test_toggleSustain" test_toggleSustain
+  , TestLabel "test_sustainOn" test_sustainOn
+  , TestLabel "test_sustainOff" test_sustainOff
   , TestLabel "test_voicesToSilence_uponSustainOff" test_voicesToSilence_uponSustainOff
   ]
 
@@ -32,21 +33,26 @@ test_voicesToSilence_uponSustainOff = TestCase $ do
   assertBool "Turn off sustain. Voice 0 is fingered, 1 is turned off." $
     voicesToSilence_uponSustainOff st_0fs_1s == S.singleton v1
 
-test_toggleSustain :: Test
-test_toggleSustain = TestCase $ do
-  assertBool "THE TEST: turn sustain on" $
+test_sustainOn :: Test
+test_sustainOn = TestCase $ do
+  assertBool "turn sustain on" $
     fromRight (error "bork") (sustainMore st_0f) =^=
     ( st_0f & ( stApp . edoLit . at pc0 . _Just
                 %~ S.insert LedBecauseSustain )
             & stApp . edoSustaineded .~ Just (S.singleton v0 ) )
+  assertBool "sustain won't turn on if nothing is fingered" $
+    fromRight (error "bork") (sustainMore st0) =^= st0
 
+test_sustainOff :: Test
+test_sustainOff = TestCase $ do
   assertBool "turn sustain off" $
-    fromRight (error "bork") (toggleSustain st_0s)
+    fromRight (error "bork") (sustainOff st_0s)
     =^= ( st_0s
           & stApp . edoLit .~ mempty
           & stApp . edoSustaineded .~ Nothing )
+
   assertBool "turn sustain off, but finger persists" $
-    fromRight (error "bork") (toggleSustain st_0fs)
+    fromRight (error "bork") (sustainOff st_0fs)
     =^= ( st_0fs & ( stApp . edoLit . at pc0 . _Just
                      %~ S.delete LedBecauseSustain )
           & stApp . edoSustaineded .~ Nothing )

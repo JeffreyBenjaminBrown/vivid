@@ -12,7 +12,6 @@ module Montevideo.Monome.Window.Sustain (
   , voicesToSilence_uponSustainOff -- ^ St EdoApp -> Set VoiceId
   , sustainMore                    -- ^ St EdoApp -> St EdoApp
   , sustainOff                     -- ^ St EdoApp -> St EdoApp
-  , toggleSustain                  -- ^ St EdoApp -> St EdoApp
   , insertOneSustainedNote -- ^ PitchClass -> LitPitches -> LitPitches
   , deleteOneSustainedNote -- ^ PitchClass -> LitPitches -> LitPitches
   ) where
@@ -20,14 +19,12 @@ module Montevideo.Monome.Window.Sustain (
 import           Control.Lens
 import           Data.Either.Combinators
 import qualified Data.Map as M
-import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set as S
 
 import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types.Most
-import           Montevideo.Monome.Util.Button
 import           Montevideo.Monome.Window.Common
 import qualified Montevideo.Monome.Window.Keyboard as Kbd
 import           Montevideo.Util
@@ -39,12 +36,12 @@ label = "sustain window"
 -- | Press this to turn off sustain.
 -- This is also the button that lights to indicate sustain is on.
 button_sustainOff :: (X,Y)
-button_sustainOff = (0,15)
+button_sustainOff = (1,15)
 
 -- | Press this to add more notes to what's being sustained
 -- (whether or not any are currently sustained).
 button_sustainMore :: (X,Y)
-button_sustainMore = (1,15)
+button_sustainMore = (0,15)
 
 sustainWindow :: Window EdoApp
 sustainWindow = Window {
@@ -95,7 +92,7 @@ handler st ((==) button_sustainOff -> True,  True)  =
               & stPending_Vivid  %~ flip (++) scas
   Right $ foldr updateVoiceParams st2 scas
 
-handler st _ =
+handler _ _ =
   error "Sustain.handler: uncaught (and, I believe, impossible) input."
 
 pitchClassesToDarken_uponSustainOff ::
@@ -162,32 +159,6 @@ sustainMore st =
                                   app ^. edoSustaineded
          Right $ st & stApp . edoSustaineded .~ Just vs2
                     & stApp . edoLit         .~ lit'
-
-toggleSustain :: St EdoApp -> Either String (St EdoApp)
-toggleSustain st =
-  mapLeft ("toggleSustain: " ++) $ let
-  app = st ^. stApp
-  in if null (app ^. edoFingers) && null (app ^. edoSustaineded)
-  then Right st else do
-
-  let
-    sustainOn' :: Bool = -- new sustain state
-      not $ isJust $ app ^. edoSustaineded -- TODO ? could be an optic
-    sustainedVs :: Maybe (Set VoiceId) =
-      if not sustainOn' then Nothing
-      else Just $ S.fromList $ M.elems $ app ^. edoFingers
-
-  pcs :: [PitchClass EdoApp] <-
-    mapM (vid_to_pitchClass st) $
-    if sustainOn'
-    then M.elems $ app ^. edoFingers
-    else S.toList $ maybe (error "impossible") id $
-         app ^. edoSustaineded
-  let lit' = if sustainOn'
-             then foldr insertOneSustainedNote (app ^. edoLit) pcs
-             else foldr deleteOneSustainedNote (app ^. edoLit) pcs
-  Right $ st & stApp . edoSustaineded .~ sustainedVs
-             & stApp . edoLit         .~ lit'
 
 -- | When sustain is toggled, the reasons for having LEDs on change.
 -- If it is turned on, some LEDs are now lit for two reasons:
