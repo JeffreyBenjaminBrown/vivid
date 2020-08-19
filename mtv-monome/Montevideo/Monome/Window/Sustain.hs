@@ -6,7 +6,7 @@ module Montevideo.Monome.Window.Sustain (
     handler
   , label
   , sustainWindow
-  , button_SustainOff
+  , button_sustainOff
 
   , voicesToSilence_uponSustainOff -- ^ St EdoApp -> Set VoiceId
   , toggleSustain                  -- ^ St EdoApp -> St EdoApp
@@ -35,13 +35,13 @@ label = "sustain window"
 
 -- | Press this to turn off sustain.
 -- This is also the button that lights to indicate sustain is on.
-button_SustainOff :: (X,Y)
-button_SustainOff = (0,15)
+button_sustainOff :: (X,Y)
+button_sustainOff = (0,15)
 
 -- | Press this to add more notes to what's being sustained
 -- (whether or not any are currently sustained).
-button_Sustainmore :: (X,Y)
-button_Sustainmore = (0,14)
+button_sustainMore :: (X,Y)
+button_sustainMore = (1,15)
 
 sustainWindow :: Window EdoApp
 sustainWindow = Window {
@@ -52,38 +52,43 @@ sustainWindow = Window {
   , windowHandler = handler
 }
 
+-- | How sustain works:
+-- Releasing a button in the sustain window has no effect.
+-- Pressing `button_sustainOff` releases all sustained voices.
+-- Pressing `button_sustainMore` adds whatever is being fingered to
+-- the set of voices being sustained, be they empty or not to begin with.
+--
+-- Most of the work of this handler is passed off to `sustainOff`
+-- and `sustainMore`. The only exception is that those two inner functions
+-- do not deal with the generation or processing of `LedMsg`s or `ScMsg`s.
 handler :: St EdoApp
         -> ( (X,Y) -- ^ ignored, since the sustain window has only one button
            , Switch)
         -> Either String (St EdoApp)
 
 handler st (_ , False) = Right st
-  -- Something happens when you press a sustain key,
-  -- but nothing when you release one.
 
-handler st ((==) button_Sustainmore -> True,  True)  =
-  error "todo"
-
-handler st ((==) button_SustainOff -> True,  True)  =
+handler st ((==) button_sustainMore -> True,  True)  =
   mapLeft ("Window.Sustain.handler: " ++) $ do
-  st1 <- toggleSustain st
+  st1 <- sustainMore st
+  Right $ if null $ st1 ^. stApp . edoSustaineded
+          then st
+          else st1 & stPending_Monome %~ flip (++)
+                     [( label, (button_sustainOff, True) )]
+
+handler st ((==) button_sustainOff -> True,  True)  =
+  mapLeft ("Window.Sustain.handler: " ++) $ do
+  st1 <- sustainOff st
   toDark <- pitchClassesToDarken_uponSustainOff st st1
 
   let
     kbdMsgs :: [LedMsg] =
-      if null $ st1 ^. stApp . edoSustaineded
-      then map ( (Kbd.label,) . (,False) ) $
-           concatMap (pcToXys_st st) $ toDark
-      else []
+      map ( (Kbd.label,) . (,False) ) $
+      concatMap (pcToXys_st st) $ toDark
     scas :: [ScAction VoiceId] =
-      if null $ st1 ^. stApp . edoSustaineded
-      then map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
-      else []
-
-    sustainButtonMsg = ( label
-                       , ( button_SustainOff
-                         , isJust $ st1 ^. stApp . edoSustaineded ) )
-    st2 = st1 & stPending_Monome %~ flip (++) (sustainButtonMsg : kbdMsgs)
+      map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
+    st2 = st1 & ( stPending_Monome %~ flip (++)
+                  ((label, (button_sustainOff, False)) : kbdMsgs) )
               & stPending_Vivid  %~ flip (++) scas
   Right $ foldr updateVoiceParams st2 scas
 
@@ -122,10 +127,39 @@ voicesToSilence_uponSustainOff st = let
     S.fromList $ M.elems $ st ^. stApp . edoFingers
   in S.difference sustained fingered
 
--- | When the sustain button is toggled --
--- which happens only when it is pressed, not when it is released --
--- the set of sustained pitches changes
--- and the set of lit keys gains new reasons to be lit.
+sustainOff :: St EdoApp -> Either String (St EdoApp)
+sustainOff st =
+  mapLeft ("sustainOff: " ++) $ let
+  app = st ^. stApp
+  in if null $ app ^. edoSustaineded
+     then Right st -- nothing is sustained, so nothing to do
+     else do
+
+  pcs :: [PitchClass EdoApp] <-
+    mapM (vid_to_pitchClass st) $
+    S.toList $ maybe (error "impossible") id $
+    app ^. edoSustaineded
+  let lit' = foldr deleteOneSustainedNote (app ^. edoLit) pcs
+  Right $ st & stApp . edoSustaineded .~ Nothing
+             & stApp . edoLit         .~ lit'
+
+sustainMore :: St EdoApp -> Either String (St EdoApp)
+sustainMore st =
+  mapLeft ("sustainOn: " ++) $
+  let app = st ^. stApp
+  in case M.elems $ app ^. edoFingers :: [VoiceId] of
+       [] -> Right st
+       vs -> do
+         pcs :: [PitchClass EdoApp] <-
+           mapM (vid_to_pitchClass st) $
+           M.elems $ app ^. edoFingers
+         let lit' = foldr insertOneSustainedNote (app ^. edoLit) pcs
+             vs1 :: Set VoiceId = S.fromList vs
+             vs2 :: Set VoiceId = maybe vs1 (S.union vs1) $
+                                  app ^. edoSustaineded
+         Right $ st & stApp . edoSustaineded .~ Just vs2
+                    & stApp . edoLit         .~ lit'
+
 toggleSustain :: St EdoApp -> Either String (St EdoApp)
 toggleSustain st =
   mapLeft ("toggleSustain: " ++) $ let
