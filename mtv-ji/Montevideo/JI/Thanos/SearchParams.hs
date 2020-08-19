@@ -13,7 +13,7 @@ max12edoFretSpan_lim13 = 10 -- ^ Drop edos for which some 13-limit interval requ
 alwaysConsiderAtLeastThisManyFrets = 5 -- ^ Even if there's a solution on the 0-fret (so probably the best), any solution on frets -10 to 10 will be considered.
 
 isForGuitar :: Bool
-isForGuitar = True -- ^ If searching for guitar, the ability to play a note on the same "string" as the root is excluded, because it means you can't play them both simultaneously.
+isForGuitar = False -- ^ If searching for guitar, the ability to play a note on the same "string" as the root is excluded, because it means you can't play them both simultaneously.
 
 minFretsPerOctave, maxFretsPerOctave, minSpacingIn12edo :: Float
 minFretsPerOctave = 10 -- ^ when searching for guitars, this should probably be a big number. But for electronic instruments, big ones are fine -- maybe confusing, but certainly playable.

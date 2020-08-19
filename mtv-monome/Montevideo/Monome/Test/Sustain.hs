@@ -34,21 +34,9 @@ test_voicesToSilence_uponSustainOff = TestCase $ do
 
 test_toggleSustain :: Test
 test_toggleSustain = TestCase $ do
-  assertBool
-    (unlines [
-        "THE TEST: turn sustain on"
-        , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
-    fromRight (error "bork") (toggleSustain st_0f) =^=
+  assertBool "THE TEST: turn sustain on" $
+    fromRight (error "bork") (sustainMore st_0f) =^=
     ( st_0f & ( stApp . edoLit . at pc0 . _Just
-                -- This is the only part that fails. Verify with:
-                -- x = toggleSustain st_0f
-                -- y = ( st_0f & ( stApp . edoLit . at pc0 . _Just
-                --               %~ S.insert LedBecauseSustain )
-                --       & stApp . edoSustaineded .~ Just (S.singleton v0 ) )
-                -- x ^. stApp . edoLit . at pc0 . _Just
-                -- y ^. stApp . edoLit . at pc0 . _Just
-                -- x ^. stApp . edoSustaineded
-                -- y ^. stApp . edoSustaineded
                 %~ S.insert LedBecauseSustain )
             & stApp . edoSustaineded .~ Just (S.singleton v0 ) )
 
@@ -90,12 +78,9 @@ test_sustainHandler = TestCase $ do
     (Su.handler st0 (meh , False))
     =^= st0
 
-  assertBool
-    (unlines [
-        "THE TEST: turning ON sustain changes the sustain state, the set of sustained voices, the set of reasons for keys to be lit, and the messages pending to the monome."
-        , "THE ERROR: goes away if Monome.Config.edo = 31" ] ) $
+  assertBool "THE TEST: turning ON sustain changes the sustain state, the set of sustained voices, the set of reasons for keys to be lit, and the messages pending to the monome." $
     fromRight (error "bork")
-    (Su.handler st_0f (meh, True))
+    (Su.handler st_0f (Su.button_sustainMore, True))
     =^= (st_0f & stApp . edoSustaineded .~ Just (S.singleton v0)
           & ( -- This is the (only) part that fails. Verify failure with:
               -- x = Su.handler st_0f (meh, True) ^. stApp . edoLit
@@ -114,8 +99,9 @@ test_sustainHandler = TestCase $ do
                ++ "adds messages for the monome to turn off the sustain button and the keys that were sustained and are not fingered\n" ++
                " adds messages for Vivid to turn off any pitches from voices that were sustained and are not fingered\n" ++
                "Pitch 0 is fingered, and 0 and 1 sounding; 1 turns off.") $
+
     fromRight (error "bork")
-    (Su.handler st_0fs_1s (meh, True))
+    (Su.handler st_0fs_1s (Su.button_sustainOff, True))
     =^= ( st_0fs_1s
           & stApp . edoSustaineded .~ mempty
           & stApp . edoLit .~ M.singleton pc0 ( S.singleton $

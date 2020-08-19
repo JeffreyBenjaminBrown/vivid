@@ -6,9 +6,12 @@ module Montevideo.Monome.Window.Sustain (
     handler
   , label
   , sustainWindow
+  , button_sustainMore
   , button_sustainOff
 
   , voicesToSilence_uponSustainOff -- ^ St EdoApp -> Set VoiceId
+  , sustainMore                    -- ^ St EdoApp -> St EdoApp
+  , sustainOff                     -- ^ St EdoApp -> St EdoApp
   , toggleSustain                  -- ^ St EdoApp -> St EdoApp
   , insertOneSustainedNote -- ^ PitchClass -> LitPitches -> LitPitches
   , deleteOneSustainedNote -- ^ PitchClass -> LitPitches -> LitPitches

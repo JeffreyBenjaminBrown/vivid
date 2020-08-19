@@ -45,6 +45,10 @@ test_choices = TestCase $ do
     choices [[],[2,3],[4,5,6],[0],[0],[0]]
     == []
 
+-- PITFALL|TODO: This code breaks if I change the parameter
+-- `isForGuitar` from True to False. Better would be
+-- to take the whole set of parameters as a parameter to the function,
+-- rather than hard-coding them. (But this code is no longer in use.)
 test_shortWaysToReach :: Test
 test_shortWaysToReach = TestCase $ do
   assertBool "Only one good choice." $

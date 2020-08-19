@@ -19,6 +19,7 @@ test_pcToXys = TestCase $ do
   let ec = EdoConfig { _spacing = 6
                      , _edo = 31
                      , _skip = 1
+                     , _gridVectors = Nothing
                      }
   assertBool "" $ pcToXys ec (0,0) 0
     == [(0,0),(5,1),(4,7),(3,13),(10,2),(9,8),(8,14),(15,3),(14,9),(13,15)]
@@ -32,7 +33,9 @@ test_pcToXys = TestCase $ do
 test_edoToLowXY :: Test
 test_edoToLowXY = TestCase $ do
   let ec = EdoConfig { _spacing = 6
-                     , _edo = 31 }
+                     , _skip = 1
+                     , _edo = 31
+                     , _gridVectors = Nothing }
 
   assertBool "edoToLowXY" $ edoToLowXY ec       0  == (0,0)
   assertBool "edoToLowXY" $ edoToLowXY ec (31 + 0) == (0,0)
@@ -40,8 +43,8 @@ test_edoToLowXY = TestCase $ do
   assertBool "edoToLowXY" $ edoToLowXY ec       1  == (0,1)
   assertBool "edoToLowXY" $ edoToLowXY ec (31 + 1) == (0,1)
 
-  assertBool "edoToLowXY" $ edoToLowXY ec       6  == (1,0)
-  assertBool "edoToLowXY" $ edoToLowXY ec (31 + 6) == (1,0)
+  assertBool "edoToLowXY" $ edoToLowXY ec       6  == (0,6)
+  assertBool "edoToLowXY" $ edoToLowXY ec (31 + 6) == (0,6)
 
-  assertBool "edoToLowXY" $ edoToLowXY ec       7  == (1,1)
-  assertBool "edoToLowXY" $ edoToLowXY ec (31 + 7) == (1,1)
+  assertBool "edoToLowXY" $ edoToLowXY ec       7  == (0,7)
+  assertBool "edoToLowXY" $ edoToLowXY ec (31 + 7) == (0,7)

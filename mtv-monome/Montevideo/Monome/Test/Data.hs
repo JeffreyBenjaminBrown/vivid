@@ -18,6 +18,7 @@ config31 = EdoConfig
   , _spacing = 6
   , _skip = 1
   , _octaveStretchInCents = 0
+  , _gridVectors = Nothing
   }
 
 config22_stretch = EdoConfig
@@ -25,6 +26,7 @@ config22_stretch = EdoConfig
   , _spacing = 5
   , _skip = 1
   , _octaveStretchInCents = -1.106
+  , _gridVectors = Nothing
   }
 
 meh :: a
