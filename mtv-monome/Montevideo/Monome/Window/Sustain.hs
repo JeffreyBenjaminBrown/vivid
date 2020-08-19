@@ -27,7 +27,6 @@ import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Window.Common
 import qualified Montevideo.Monome.Window.Keyboard as Kbd
-import           Montevideo.Util
 
 
 label :: WindowId
@@ -36,7 +35,7 @@ label = "sustain window"
 -- | Press this to turn off sustain.
 -- This is also the button that lights to indicate sustain is on.
 button_sustainOff :: (X,Y)
-button_sustainOff = (1,15)
+button_sustainOff = (0,14)
 
 -- | Press this to add more notes to what's being sustained
 -- (whether or not any are currently sustained).
@@ -46,8 +45,8 @@ button_sustainMore = (0,15)
 sustainWindow :: Window EdoApp
 sustainWindow = Window {
     windowLabel = label
-  , windowContains = \(x,y) ->
-      numBetween 0 1 x && y == 15
+  , windowContains = \(x,y) -> x == 0 &&
+                               (y == 14 || y == 15)
   , windowInit = id
   , windowHandler = handler
 }
@@ -73,8 +72,7 @@ handler st ((==) button_sustainMore -> True,  True)  =
   st1 <- sustainMore st
   Right $ if null $ st1 ^. stApp . edoSustaineded
           then st
-          else st1 & stPending_Monome %~ flip (++)
-                     [( label, (button_sustainOff, True) )]
+          else st1 & stPending_Monome %~ flip (++) (buttonMsgs True)
 
 handler st ((==) button_sustainOff -> True,  True)  =
   mapLeft ("Window.Sustain.handler: " ++) $ do
@@ -88,7 +86,7 @@ handler st ((==) button_sustainOff -> True,  True)  =
     scas :: [ScAction VoiceId] =
       map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
     st2 = st1 & ( stPending_Monome %~ flip (++)
-                  ((label, (button_sustainOff, False)) : kbdMsgs) )
+                  (buttonMsgs False ++ kbdMsgs) )
               & stPending_Vivid  %~ flip (++) scas
   Right $ foldr updateVoiceParams st2 scas
 
@@ -178,3 +176,7 @@ deleteOneSustainedNote pc m =
       in if null reasons'
          then M.delete pc m
          else M.insert pc reasons' m
+
+buttonMsgs :: Bool -> [(WindowId, ((X,Y), Bool))]
+buttonMsgs light = [ ( label, (button, light) )
+                   | button <- [button_sustainMore, button_sustainOff] ]
