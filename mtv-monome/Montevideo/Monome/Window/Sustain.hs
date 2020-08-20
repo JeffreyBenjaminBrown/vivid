@@ -81,35 +81,16 @@ handler st ((==) button_sustainMore -> True,  True)  =
           then st
           else st1 & stPending_Monome %~ flip (++) (buttonMsgs True)
 
--- Silence all sustained voices equal mod edo to some fingered voice.
 handler st ((==) button_sustainLess -> True,  True)  =
   mapLeft ("Window.Sustain.handler (sustainLess): " ++) $
   case S.toList <$> st ^. stApp . edoSustaineded of
     Nothing -> Right st
     Just (susVs :: [VoiceId]) -> do
-
-      -- TODO: factor the computation of vsToSilence into its own function.
       ( st1 :: St EdoApp, pcs :: [PitchClass EdoApp] ) <-
         sustainLess st
-      let app :: EdoApp = st ^. stApp
-          sPcs :: Set (PitchClass EdoApp) = S.fromList pcs
-          mv :: Map VoiceId (Voice EdoApp) = _stVoices st
-          vToPc :: VoiceId -> Either String (PitchClass EdoApp)
-          vToPc vid = do
-            v :: Voice EdoApp <- let
-              err = Left $ "Voice " ++ show vid ++ " not found."
-              in maybe err Right $ M.lookup vid mv
-            return $ flip mod (app ^. edoConfig . edo) $ _voicePitch v
-          toSilence :: VoiceId -> Either String (VoiceId, Bool)
-          toSilence vid = do pc <- vToPc vid
-                             Right ( vid
-                                   , elem pc sPcs )
-
-      vsToSilence :: [VoiceId] <-
-        map fst . filter snd <$> mapM toSilence susVs
-      let scas :: [ScAction VoiceId] =
-            map silenceMsg vsToSilence
-          st2 = st1 & stPending_Vivid  %~ flip (++) scas
+      scas :: [ScAction VoiceId] <-
+        map silenceMsg <$> silenceSustained_inPitchClasses st pcs
+      let st2 = st1 & stPending_Vivid  %~ flip (++) scas
       Right $ foldr updateVoiceParams st2 scas
 
 handler st ((==) button_sustainOff -> True,  True)  =
@@ -130,6 +111,29 @@ handler st ((==) button_sustainOff -> True,  True)  =
 
 handler _ b =
   error $ "Sustain.handler: Impossible button input: " ++ show b
+
+-- | `silenceSustained_inPitchClasses st pcs`
+-- returns every  sustained voice in `st`
+-- that is equal modulo the edo to something in `pcs`.
+silenceSustained_inPitchClasses
+  :: St EdoApp -> [PitchClass EdoApp] -> Either String [VoiceId]
+silenceSustained_inPitchClasses st pcs =
+  case S.toList <$> st ^. stApp . edoSustaineded of
+    Nothing -> Right []
+    Just (susVs :: [VoiceId]) -> do
+      let sPcs :: Set (PitchClass EdoApp) = S.fromList pcs
+          vToPc :: VoiceId -> Either String (PitchClass EdoApp)
+          vToPc vid = do
+            v :: Voice EdoApp <- let
+              err = Left $ "Voice " ++ show vid ++ " not found."
+              in maybe err Right $ M.lookup vid $ _stVoices st
+            return $ flip mod (st ^. stApp . edoConfig . edo) $
+              _voicePitch v
+          toSilence :: VoiceId -> Either String (VoiceId, Bool)
+          toSilence vid = do pc <- vToPc vid
+                             Right ( vid
+                                   , elem pc sPcs )
+      map fst . filter snd <$> mapM toSilence susVs
 
 pitchClassesToDarken_uponSustainOff ::
   St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]
