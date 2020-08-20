@@ -18,6 +18,7 @@ module Montevideo.Monome.Window.Sustain (
 
 import           Control.Lens
 import           Data.Either.Combinators
+import           Data.Map (Map)
 import qualified Data.Map as M
 import           Data.Set (Set)
 import qualified Data.Set as S
@@ -42,11 +43,17 @@ button_sustainOff = (0,14)
 button_sustainMore :: (X,Y)
 button_sustainMore = (0,15)
 
+-- | Toggle this to enable erasure: Press a tone (in any octave)
+-- to erase it from the sustained chord.
+button_sustainLess :: (X,Y)
+button_sustainLess = (1,15)
+
 sustainWindow :: Window EdoApp
 sustainWindow = Window {
     windowLabel = label
-  , windowContains = \(x,y) -> x == 0 &&
-                               (y == 14 || y == 15)
+  , windowContains = flip elem [ button_sustainMore
+                               , button_sustainLess
+                               , button_sustainOff ]
   , windowInit = id
   , windowHandler = handler
 }
@@ -68,30 +75,61 @@ handler :: St EdoApp
 handler st (_ , False) = Right st
 
 handler st ((==) button_sustainMore -> True,  True)  =
-  mapLeft ("Window.Sustain.handler: " ++) $ do
+  mapLeft ("Window.Sustain.handler (sustainMore): " ++) $ do
   st1 <- sustainMore st
   Right $ if null $ st1 ^. stApp . edoSustaineded
           then st
           else st1 & stPending_Monome %~ flip (++) (buttonMsgs True)
 
+-- Silence all sustained voices equal mod edo to some fingered voice.
+handler st ((==) button_sustainLess -> True,  True)  =
+  mapLeft ("Window.Sustain.handler (sustainLess): " ++) $
+  case S.toList <$> st ^. stApp . edoSustaineded of
+    Nothing -> Right st
+    Just (susVs :: [VoiceId]) -> do
+
+      -- TODO: factor the computation of vsToSilence into its own function.
+      ( st1 :: St EdoApp, pcs :: [PitchClass EdoApp] ) <-
+        sustainLess st
+      let app :: EdoApp = st ^. stApp
+          sPcs :: Set (PitchClass EdoApp) = S.fromList pcs
+          mv :: Map VoiceId (Voice EdoApp) = _stVoices st
+          vToPc :: VoiceId -> Either String (PitchClass EdoApp)
+          vToPc vid = do
+            v :: Voice EdoApp <- let
+              err = Left $ "Voice " ++ show vid ++ " not found."
+              in maybe err Right $ M.lookup vid mv
+            return $ flip mod (app ^. edoConfig . edo) $ _voicePitch v
+          toSilence :: VoiceId -> Either String (VoiceId, Bool)
+          toSilence vid = do pc <- vToPc vid
+                             Right ( vid
+                                   , elem pc sPcs )
+
+      vsToSilence :: [VoiceId] <-
+        map fst . filter snd <$> mapM toSilence susVs
+      let scas :: [ScAction VoiceId] =
+            map silenceMsg vsToSilence
+          st2 = st1 & stPending_Vivid  %~ flip (++) scas
+      Right $ foldr updateVoiceParams st2 scas
+
 handler st ((==) button_sustainOff -> True,  True)  =
-  mapLeft ("Window.Sustain.handler: " ++) $ do
-  st1 <- sustainOff st
-  toDark <- pitchClassesToDarken_uponSustainOff st st1
+   mapLeft ("Window.Sustain.handler (sustainOff): " ++) $ do
+   st1 <- sustainOff st
+   toDark <- pitchClassesToDarken_uponSustainOff st st1
+ 
+   let
+     kbdMsgs :: [LedMsg] =
+       map ( (Kbd.label,) . (,False) ) $
+       concatMap (pcToXys_st st) $ toDark
+     scas :: [ScAction VoiceId] =
+       map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
+     st2 = st1 & ( stPending_Monome %~ flip (++)
+                   (buttonMsgs False ++ kbdMsgs) )
+               & stPending_Vivid  %~ flip (++) scas
+   Right $ foldr updateVoiceParams st2 scas
 
-  let
-    kbdMsgs :: [LedMsg] =
-      map ( (Kbd.label,) . (,False) ) $
-      concatMap (pcToXys_st st) $ toDark
-    scas :: [ScAction VoiceId] =
-      map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
-    st2 = st1 & ( stPending_Monome %~ flip (++)
-                  (buttonMsgs False ++ kbdMsgs) )
-              & stPending_Vivid  %~ flip (++) scas
-  Right $ foldr updateVoiceParams st2 scas
-
-handler _ _ =
-  error "Sustain.handler: uncaught (and, I believe, impossible) input."
+handler _ b =
+  error $ "Sustain.handler: Impossible button input: " ++ show b
 
 pitchClassesToDarken_uponSustainOff ::
   St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]
@@ -143,7 +181,7 @@ sustainOff st =
 
 sustainMore :: St EdoApp -> Either String (St EdoApp)
 sustainMore st =
-  mapLeft ("sustainOn: " ++) $
+  mapLeft ("sustainMore: " ++) $
   let app = st ^. stApp
   in case M.elems $ app ^. edoFingers :: [VoiceId] of
        [] -> Right st
@@ -157,6 +195,29 @@ sustainMore st =
                                   app ^. edoSustaineded
          Right $ st & stApp . edoSustaineded .~ Just vs2
                     & stApp . edoLit         .~ lit'
+
+-- | TODO: You can argue it both ways, but it might be more convenient
+-- if "sustainLess" was, rather than a momentary action,
+-- a new state for the keyboard. You'd push a button to enter "delete mode",
+-- then press keys to delete, then push the button again to exit that state.
+sustainLess :: St EdoApp -> Either String ( St EdoApp
+                                          , [PitchClass EdoApp] )
+sustainLess st =
+  mapLeft ("sustainLess: " ++) $
+  let app = st ^. stApp
+  in case M.elems $ app ^. edoFingers :: [VoiceId] of
+       [] -> Right (st, [])
+       vs -> do
+         pcs :: [PitchClass EdoApp] <-
+           mapM (vid_to_pitchClass st) $
+           M.elems $ app ^. edoFingers
+         let lit' = foldr deleteOneSustainedNote (app ^. edoLit) pcs
+             vs1 :: Set VoiceId = S.fromList vs
+             vs2 :: Set VoiceId = maybe vs1 (flip S.difference vs1) $
+                                  app ^. edoSustaineded
+         Right $ ( st & stApp . edoSustaineded .~ Just vs2
+                      & stApp . edoLit         .~ lit'
+                 , pcs )
 
 -- | When sustain is toggled, the reasons for having LEDs on change.
 -- If it is turned on, some LEDs are now lit for two reasons:
