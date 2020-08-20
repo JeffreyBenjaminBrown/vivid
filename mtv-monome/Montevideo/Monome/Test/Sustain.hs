@@ -26,7 +26,12 @@ tests = TestList [
   , TestLabel "test_sustainOn" test_sustainOn
   , TestLabel "test_sustainOff" test_sustainOff
   , TestLabel "test_voicesToSilence_uponSustainOff" test_voicesToSilence_uponSustainOff
+  , TestLabel "test_sustainedVoices_inPitchClasses" test_sustainedVoices_inPitchClasses
   ]
+
+test_sustainedVoices_inPitchClasses :: Test
+test_sustainedVoices_inPitchClasses = TestCase $ do
+  assertBool "todo" $ False
 
 test_voicesToSilence_uponSustainOff :: Test
 test_voicesToSilence_uponSustainOff = TestCase $ do

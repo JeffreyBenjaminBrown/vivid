@@ -89,7 +89,7 @@ handler st ((==) button_sustainLess -> True,  True)  =
       ( st1 :: St EdoApp, pcs :: [PitchClass EdoApp] ) <-
         sustainLess st
       scas :: [ScAction VoiceId] <-
-        map silenceMsg <$> silenceSustained_inPitchClasses st pcs
+        map silenceMsg <$> sustainedVoices_inPitchClasses st pcs
       let st2 = st1 & stPending_Vivid  %~ flip (++) scas
       Right $ foldr updateVoiceParams st2 scas
 
@@ -112,12 +112,11 @@ handler st ((==) button_sustainOff -> True,  True)  =
 handler _ b =
   error $ "Sustain.handler: Impossible button input: " ++ show b
 
--- | `silenceSustained_inPitchClasses st pcs`
--- returns every  sustained voice in `st`
--- that is equal modulo the edo to something in `pcs`.
-silenceSustained_inPitchClasses
+-- | `sustainedVoices_inPitchClasses st pcs` returns every sustained voice
+-- in `st` that is equal modulo the edo to something in `pcs`.
+sustainedVoices_inPitchClasses
   :: St EdoApp -> [PitchClass EdoApp] -> Either String [VoiceId]
-silenceSustained_inPitchClasses st pcs =
+sustainedVoices_inPitchClasses st pcs =
   case S.toList <$> st ^. stApp . edoSustaineded of
     Nothing -> Right []
     Just (susVs :: [VoiceId]) -> do
