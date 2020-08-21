@@ -132,19 +132,24 @@ sustainedVoices_inPitchClasses st pcs =
   case S.toList <$> st ^. stApp . edoSustaineded of
     Nothing -> Right []
     Just (susVs :: [VoiceId]) -> do
-      let sPcs :: Set (PitchClass EdoApp) = S.fromList pcs
-          vToPc :: VoiceId -> Either String (PitchClass EdoApp)
-          vToPc vid = do
+
+      let m :: Pitch EdoApp -> PitchClass EdoApp
+          m = flip mod $ st ^. stApp . edoConfig . edo
+          vp :: VoiceId -> Either String (Pitch EdoApp)
+          vp vid = do
             v :: Voice EdoApp <- let
               err = Left $ "Voice " ++ show vid ++ " not found."
               in maybe err Right $ M.lookup vid $ _stVoices st
-            return $ flip mod (st ^. stApp . edoConfig . edo) $
-              _voicePitch v
-          toSilence :: VoiceId -> Either String (VoiceId, Bool)
-          toSilence vid = do pc <- vToPc vid
-                             Right ( vid
-                                   , elem pc sPcs )
-      map fst . filter snd <$> mapM toSilence susVs
+            return $ m $ _voicePitch v
+          isMatch :: VoiceId -> Either String (VoiceId, Bool)
+          isMatch vid = do
+            pc <- vp vid
+            Right ( vid
+                  , -- `map m` below is unnecessary *if* the caller only
+                    -- sends `PitchClass`es, but it could send `Pitch`es.
+                    -- TODO ? Enforce, by using newtypes instead of aliases.
+                    elem pc $ S.map m $ S.fromList $ pcs )
+      map fst . filter snd <$> mapM isMatch susVs
 
 pitchClassesToDarken_uponSustainOff ::
   St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]

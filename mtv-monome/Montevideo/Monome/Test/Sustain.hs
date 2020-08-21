@@ -31,7 +31,21 @@ tests = TestList [
 
 test_sustainedVoices_inPitchClasses :: Test
 test_sustainedVoices_inPitchClasses = TestCase $ do
-  assertBool "todo" $ False
+  -- Pitch 1 is sustained and (in a different voice) fingered.
+  -- Calling with pitch 1 or 1+e, return the sustained voice only.
+  --
+  assertBool "" $
+    sustainedVoices_inPitchClasses st_0fs [pc0]
+    == Right [v0]
+  assertBool "" $
+    sustainedVoices_inPitchClasses st_0fs [pc0 + 31, pc0 + 62]
+    == Right [v0]
+  assertBool "" $
+    sustainedVoices_inPitchClasses st_0fs [pc0 + 31, pc1 + 31]
+    == Right [v0]
+  assertBool "" $
+    sustainedVoices_inPitchClasses st_0fs [pc1 + 31]
+    == Right []
 
 test_voicesToSilence_uponSustainOff :: Test
 test_voicesToSilence_uponSustainOff = TestCase $ do
