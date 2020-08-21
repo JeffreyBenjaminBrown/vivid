@@ -92,16 +92,13 @@ test_sustainHandler = TestCase $ do
   assertBool "THE TEST: turning ON sustain changes the sustain state, the set of sustained voices, the set of reasons for keys to be lit, and the messages pending to the monome." $
     fromRight (error "bork")
     (Su.handler st_0f (Su.button_sustainMore, True))
-    =^= (st_0f & stApp . edoSustaineded .~ Just (S.singleton v0)
-          & ( -- This is the (only) part that fails. Verify failure with:
-              -- x = Su.handler st_0f (meh, True) ^. stApp . edoLit
-              -- y = M.singleton pc0 $ S.fromList [ LedBecauseSustain
-              --                                  , LedBecauseSwitch xy0 ]
-            stApp . edoLit .~ M.singleton pc0
+    =^= ( st_0f & stApp . edoSustaineded .~ Just (S.singleton v0)
+          & ( stApp . edoLit .~ M.singleton pc0
               ( S.fromList [ LedBecauseSustain
                            , LedBecauseSwitch xy0 ] ) )
           & stPending_Monome .~
-          [ (Su.label, (Su.button_sustainOff, True)) ] )
+          [ ( Su.label, (button, True) )
+          | button <- Su.buttons ] )
 
   assertBool ( "turning sustain OFF does all this stuff:\n" ++
                "flip the sustain state\n" ++
@@ -118,7 +115,8 @@ test_sustainHandler = TestCase $ do
           & stApp . edoLit .~ M.singleton pc0 ( S.singleton $
                                                LedBecauseSwitch xy0 )
           & stPending_Monome .~
-          ( ( Su.label, (Su.button_sustainOff, False)) :
+          ( [ ( Su.label, (button, False) )
+            | button <- Su.buttons ] ++
             map (\xy -> (K.label, (xy, False)))
             (pcToXys_st st_0fs_1s pc1) )
           & stPending_Vivid .~

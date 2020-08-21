@@ -6,6 +6,8 @@ module Montevideo.Monome.Window.Sustain (
     handler
   , label
   , sustainWindow
+  , buttons
+  , button_sustainLess
   , button_sustainMore
   , button_sustainOff
 
@@ -33,10 +35,8 @@ import qualified Montevideo.Monome.Window.Keyboard as Kbd
 label :: WindowId
 label = "sustain window"
 
--- | Press this to turn off sustain.
--- This is also the button that lights to indicate sustain is on.
-button_sustainOff :: (X,Y)
-button_sustainOff = (0,14)
+buttons :: [(X,Y)]
+buttons = [button_sustainLess, button_sustainMore, button_sustainOff]
 
 -- | Press this to add more notes to what's being sustained
 -- (whether or not any are currently sustained).
@@ -48,12 +48,15 @@ button_sustainMore = (0,15)
 button_sustainLess :: (X,Y)
 button_sustainLess = (1,15)
 
+-- | Press this to turn off sustain.
+-- This is also the button that lights to indicate sustain is on.
+button_sustainOff :: (X,Y)
+button_sustainOff = (0,14)
+
 sustainWindow :: Window EdoApp
 sustainWindow = Window {
     windowLabel = label
-  , windowContains = flip elem [ button_sustainMore
-                               , button_sustainLess
-                               , button_sustainOff ]
+  , windowContains = flip elem buttons
   , windowInit = id
   , windowHandler = handler
 }
@@ -242,5 +245,6 @@ deleteOneSustainedNote pc m =
          else M.insert pc reasons' m
 
 buttonMsgs :: Bool -> [(WindowId, ((X,Y), Bool))]
-buttonMsgs light = [ ( label, (button, light) )
-                   | button <- [button_sustainMore, button_sustainOff] ]
+buttonMsgs light =
+  [ ( label, (button, light) )
+  | button <- buttons ]
