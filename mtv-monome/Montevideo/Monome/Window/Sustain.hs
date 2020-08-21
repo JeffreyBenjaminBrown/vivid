@@ -3,19 +3,23 @@ ViewPatterns
 #-}
 
 module Montevideo.Monome.Window.Sustain (
-    handler
-  , label
-  , sustainWindow
+    label
   , buttons
   , button_sustainLess
   , button_sustainMore
   , button_sustainOff
+  , sustainWindow
 
+  , handler
+  , sustainedVoices_inPitchClasses -- ^ St EdoApp -> [PitchClass EdoApp]
+                                   -- -> Either String [VoiceId]
   , voicesToSilence_uponSustainOff -- ^ St EdoApp -> Set VoiceId
-  , sustainMore                    -- ^ St EdoApp -> St EdoApp
   , sustainOff                     -- ^ St EdoApp -> St EdoApp
+  , sustainMore                    -- ^ St EdoApp -> St EdoApp
+  , sustainLess                    -- ^ St EdoApp -> St EdoApp
   , insertOneSustainedNote -- ^ PitchClass -> LitPitches -> LitPitches
   , deleteOneSustainedNote -- ^ PitchClass -> LitPitches -> LitPitches
+  , buttonMsgs -- ^ Bool -> [(WindowId, ((X,Y), Bool))]
   ) where
 
 import           Control.Lens
@@ -31,6 +35,8 @@ import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Window.Common
 import qualified Montevideo.Monome.Window.Keyboard as Kbd
 
+
+-- * Data
 
 label :: WindowId
 label = "sustain window"
@@ -60,6 +66,9 @@ sustainWindow = Window {
   , windowInit = id
   , windowHandler = handler
 }
+
+
+-- * Functions
 
 -- | How sustain works:
 -- Releasing a button in the sustain window has no effect.

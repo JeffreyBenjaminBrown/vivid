@@ -96,9 +96,7 @@ test_sustainHandler = TestCase $ do
           & ( stApp . edoLit .~ M.singleton pc0
               ( S.fromList [ LedBecauseSustain
                            , LedBecauseSwitch xy0 ] ) )
-          & stPending_Monome .~
-          [ ( Su.label, (button, True) )
-          | button <- Su.buttons ] )
+          & stPending_Monome .~ buttonMsgs True )
 
   assertBool ( "turning sustain OFF does all this stuff:\n" ++
                "flip the sustain state\n" ++
@@ -115,8 +113,7 @@ test_sustainHandler = TestCase $ do
           & stApp . edoLit .~ M.singleton pc0 ( S.singleton $
                                                LedBecauseSwitch xy0 )
           & stPending_Monome .~
-          ( [ ( Su.label, (button, False) )
-            | button <- Su.buttons ] ++
+          ( buttonMsgs False ++
             map (\xy -> (K.label, (xy, False)))
             (pcToXys_st st_0fs_1s pc1) )
           & stPending_Vivid .~
