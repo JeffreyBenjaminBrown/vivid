@@ -88,7 +88,8 @@ st_01f = -- fingering keys 0 and 1
     , ( pc1, S.singleton $ LedBecauseSwitch xy1) ]
 
 st_0fs = -- 0 is both fingered and sustained
-  st_0f
+  st0
+  & stApp . edoFingers .~ M.fromList [ (xy0, v0) ]
   & stApp . edoSustaineded .~ Just (S.singleton v0)
   & stApp . edoLit .~  ( M.singleton pc0
                         $ S.fromList [ LedBecauseSwitch xy0
