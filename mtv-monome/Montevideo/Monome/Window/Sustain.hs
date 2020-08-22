@@ -130,27 +130,18 @@ handler _ b =
 sustainedVoices_inPitchClasses
   :: St EdoApp -> [PitchClass EdoApp] -> Either String [VoiceId]
 sustainedVoices_inPitchClasses st pcs =
-  case S.toList <$> st ^. stApp . edoSustaineded of
-    Nothing -> Right []
-    Just (susVs :: [VoiceId]) -> do
-
-      let m :: Pitch EdoApp -> PitchClass EdoApp
-          m = flip mod $ st ^. stApp . edoConfig . edo
-          vp :: VoiceId -> Either String (Pitch EdoApp)
-          vp vid = do
-            v :: Voice EdoApp <- let
-              err = Left $ "Voice " ++ show vid ++ " not found."
-              in maybe err Right $ M.lookup vid $ _stVoices st
-            return $ m $ _voicePitch v
-          isMatch :: VoiceId -> Either String (VoiceId, Bool)
-          isMatch vid = do
-            pc <- vp vid
-            Right ( vid
-                  , -- `map m` below is unnecessary *if* the caller only
-                    -- sends `PitchClass`es, but it could send `Pitch`es.
-                    -- TODO ? Enforce, by using newtypes instead of aliases.
-                    elem pc $ S.map m $ S.fromList $ pcs )
-      map fst . filter snd <$> mapM isMatch susVs
+  let susVs :: [VoiceId] = S.toList $ st ^. stApp . edoSustaineded
+      m :: Pitch EdoApp -> PitchClass EdoApp
+      m = flip mod $ st ^. stApp . edoConfig . edo
+      isMatch :: VoiceId -> Either String (VoiceId, Bool)
+      isMatch vid = do
+        pc <- vid_to_pitchClass st vid
+        Right ( vid
+              , -- `map m` below is unnecessary *if* the caller only
+                -- sends `PitchClass`es, but it could send `Pitch`es.
+                -- TODO ? Enforce, by using newtypes instead of aliases.
+                elem pc $ S.map m $ S.fromList $ pcs )
+  in map fst . filter snd <$> mapM isMatch susVs
 
 pitchClassesToDarken_uponSustainOff ::
   St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]
@@ -201,20 +192,14 @@ sustainOff st =
 
 sustainMore :: St EdoApp -> Either String (St EdoApp)
 sustainMore st =
-  mapLeft ("sustainMore: " ++) $
+  mapLeft ("sustainMore: " ++) $ do
   let app = st ^. stApp
-  in case M.elems $ app ^. edoFingers :: [VoiceId] of
-       [] -> Right st
-       vs -> do
-         pcs :: [PitchClass EdoApp] <-
-           mapM (vid_to_pitchClass st) $
-           M.elems $ app ^. edoFingers
-         let lit' = foldr insertOneSustainReason (app ^. edoLit) pcs
-             vs1 :: Set VoiceId = S.fromList vs
-             vs2 :: Set VoiceId = maybe vs1 (S.union vs1) $
-                                  app ^. edoSustaineded
-         Right $ st & stApp . edoSustaineded .~ Just vs2
-                    & stApp . edoLit         .~ lit'
+      fs :: [VoiceId] = M.elems $ app ^. edoFingers
+  fPcs :: [PitchClass EdoApp] <-
+    mapM (vid_to_pitchClass st) fs
+  let lit' = foldr insertOneSustainReason (app ^. edoLit) fPcs
+  Right $ st & stApp . edoSustaineded %~ S.union (S.fromList fs)
+             & stApp . edoLit         .~ lit'
 
 -- | `sustainLess st` returns `(st', pcs)`,
 -- where `pcs` are the pitch classes that were being fingered in `st`.
@@ -231,16 +216,13 @@ sustainLess :: St EdoApp -> Either String ( St EdoApp
 sustainLess st =
   mapLeft ("sustainLess: " ++) $ do
   let app = st ^. stApp
-      vs :: [VoiceId] = M.elems $ app ^. edoFingers
+      fs :: [VoiceId] = M.elems $ app ^. edoFingers
   pcs :: [PitchClass EdoApp] <-
-           mapM (vid_to_pitchClass st) vs
+           mapM (vid_to_pitchClass st) fs
   let lit' = foldr deleteOneSustainReason (app ^. edoLit) pcs
-      remove :: Set VoiceId = S.fromList vs
-      remain :: Set VoiceId = maybe mempty (flip S.difference remove)
-                              $ app ^. edoSustaineded
-
-  Right $ ( -- If `vs` is empty, this is just `(st, [])`
-            st & stApp . edoSustaineded .~ Just remain
+  Right $ ( -- If `fs` is empty, this is just `(st, [])`
+            st & ( stApp . edoSustaineded %~
+                   flip S.difference (S.fromList fs) )
                & stApp . edoLit         .~ lit'
           , pcs )
 
