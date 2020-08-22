@@ -237,12 +237,13 @@ sustainLess st =
            mapM (vid_to_pitchClass st) fs
   toSilence :: [VoiceId] <-
     sustainedVoices_inPitchClasses st fPcs
-  let lit' = foldr deleteOneSustainReason (app ^. edoLit) fPcs
   Right $ ( -- If `fs` is empty, this is just `(st, [])`
             st & ( stApp . edoSustaineded %~
-                   flip S.difference (S.fromList fs) )
-               & stApp . edoLit         .~ lit'
+                   flip S.difference (S.fromList toSilence) )
+               & ( stApp . edoLit         .~
+                   foldr deleteOneSustainReason (app ^. edoLit) fPcs )
           , toSilence )
+
 
 -- | `insertOneSustainReason pc` and `deleteOneSustainReason pc`
 -- insert or delete, respectively, sustain as a reason for `pc` to be lit.
