@@ -97,16 +97,15 @@ handler st ((==) button_sustainMore -> True,  True)  =
           else st1 & stPending_Monome %~ flip (++) (buttonMsgs True)
 
 handler st ((==) button_sustainLess -> True,  True)  =
-  mapLeft ("Window.Sustain.handler (sustainLess): " ++) $
-  case S.toList <$> st ^. stApp . edoSustaineded of
-    Nothing -> Right st
-    Just (susVs :: [VoiceId]) -> do
-      ( st1 :: St EdoApp, pcs :: [PitchClass EdoApp] ) <-
-        sustainLess st
-      scas :: [ScAction VoiceId] <-
-        map silenceMsg <$> sustainedVoices_inPitchClasses st pcs
-      let st2 = st1 & stPending_Vivid  %~ flip (++) scas
-      Right $ foldr updateVoiceParams st2 scas
+  mapLeft ("Window.Sustain.handler (sustainLess): " ++) $ do
+  ( st1 :: St EdoApp, pcs :: [PitchClass EdoApp] ) <-
+    sustainLess st
+  scas :: [ScAction VoiceId] <-
+    -- If nothing is fingered, this is empty,
+    -- and `handler` returns `st` unchanged.
+    map silenceMsg <$> sustainedVoices_inPitchClasses st pcs
+  let st2 = st1 & stPending_Vivid  %~ flip (++) scas
+  Right $ foldr updateVoiceParams st2 scas
 
 handler st ((==) button_sustainOff -> True,  True)  =
    mapLeft ("Window.Sustain.handler (sustainOff): " ++) $ do
@@ -221,13 +220,14 @@ sustainMore st =
 
 -- | `sustainLess st` returns `(st', pcs)`,
 -- where `pcs` are the pitch classes that were being fingered in `st`,
-
+--
 -- todo ? You could argue it would be more convenient
 -- if "sustainLess" was, rather than a momentary action,
 -- a new state for the keyboard. You'd push a button to enter "delete mode",
 -- then press keys to delete, then push the button again to exit that state.
 -- This would make it easier to use with a single hand.
 -- However, it would be slower to use, and harder to write.
+
 sustainLess :: St EdoApp -> Either String ( St EdoApp
                                           , [PitchClass EdoApp] )
 sustainLess st =

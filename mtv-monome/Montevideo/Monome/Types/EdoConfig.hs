@@ -41,8 +41,6 @@ data EdoConfig = EdoConfig
   , _skip :: Int -- ^ You'll probably want this to be 1, in which case
     -- each button in a column is one EDO-step lower than the one below it.
     -- For the Kite Guitar tuning, set (edo,spacing,skip) = (41,13,2).
-    -- PITFALL | TODO : The LED pattern that lights up when you play
-    -- makes no sense if skip is anything but 1.
   , _octaveStretchInCents :: Double  -- ^ Set to 0 for pure EDO (ED-2).
     -- For some useful recomendations re. stretch values, see
     -- http://x31eq.com/temper/net.html
