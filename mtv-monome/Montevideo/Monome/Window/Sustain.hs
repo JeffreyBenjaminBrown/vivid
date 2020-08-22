@@ -24,7 +24,6 @@ module Montevideo.Monome.Window.Sustain (
 
 import           Control.Lens
 import           Data.Either.Combinators
-import           Data.Map (Map)
 import qualified Data.Map as M
 import           Data.Set (Set)
 import qualified Data.Set as S
@@ -231,22 +230,20 @@ sustainMore st =
 sustainLess :: St EdoApp -> Either String ( St EdoApp
                                           , [PitchClass EdoApp] )
 sustainLess st =
-  mapLeft ("sustainLess: " ++) $
+  mapLeft ("sustainLess: " ++) $ do
   let app = st ^. stApp
-  in case M.elems $ app ^. edoFingers :: [VoiceId] of
-       [] -> Right (st, [])
-       vs -> do
+      vs :: [VoiceId] = M.elems $ app ^. edoFingers
+  pcs :: [PitchClass EdoApp] <-
+           mapM (vid_to_pitchClass st) vs
+  let lit' = foldr deleteOneSustainReason (app ^. edoLit) pcs
+      remove :: Set VoiceId = S.fromList vs
+      remain :: Set VoiceId = maybe mempty (flip S.difference remove)
+                              $ app ^. edoSustaineded
 
-         pcs :: [PitchClass EdoApp] <-
-           mapM (vid_to_pitchClass st) $
-           M.elems $ app ^. edoFingers
-         let lit' = foldr deleteOneSustainReason (app ^. edoLit) pcs
-             vs1 :: Set VoiceId = S.fromList vs
-             vs2 :: Set VoiceId = maybe vs1 (flip S.difference vs1) $
-                                  app ^. edoSustaineded
-         Right $ ( st & stApp . edoSustaineded .~ Just vs2
-                      & stApp . edoLit         .~ lit'
-                 , pcs )
+  Right $ ( -- If `vs` is empty, this is just `(st, [])`
+            st & stApp . edoSustaineded .~ Just remain
+               & stApp . edoLit         .~ lit'
+          , pcs )
 
 -- | `insertOneSustainReason pc` and `deleteOneSustainReason pc`
 -- insert or delete, respectively, sustain as a reason for `pc` to be lit.
