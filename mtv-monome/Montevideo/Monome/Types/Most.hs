@@ -101,7 +101,13 @@ data St app = St {
       -- Windows listed earlier are thus "above" later ones.
   , _stToMonome :: Socket -- ^ PITFALL: It's tempting to remove this from St.
     -- That's feasible now, but I'll want it here when using multiple monomes.
-  , _stVoices :: Map VoiceId (Voice app)
+  , _stVoices :: Map VoiceId (Voice app) -- ^ The set of all voices
+    -- currently in existence; a reflection of the state of SC.
+    --
+    -- TODO : Updates to this are too scattered.
+    -- Some come from Monome.Main.doScAction,
+    -- some from Monome.(JI | Window.Keyboard).handler,
+    -- and some from Monome.Window.Common.updateVoiceParams.
 
   -- | The purpose of `_stPending_Monome` and `_stPending_Vivid`
   -- is to isolate side-effects to a small portion of the code. Elsewhere,

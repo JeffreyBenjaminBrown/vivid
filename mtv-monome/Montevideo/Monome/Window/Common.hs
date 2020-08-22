@@ -53,7 +53,7 @@ silenceMsg xy = ScAction_Free
 -- and updates the parameters of the corresponding voice in the St.
 -- PITFALL: If the action is a `ScAction_Free`, this does nothing.
 -- It could instead set the parameter map to mempty,
--- but I don't see the advantage.
+-- but I don't see the advantage in that.
 updateVoiceParams :: ScAction VoiceId -> St app -> St app
 updateVoiceParams sca =
   if has _ScAction_Free sca then id else

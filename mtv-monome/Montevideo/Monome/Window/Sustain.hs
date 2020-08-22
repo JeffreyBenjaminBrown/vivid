@@ -13,10 +13,12 @@ module Montevideo.Monome.Window.Sustain (
   , handler
   , sustainedVoices_inPitchClasses -- ^ St EdoApp -> [PitchClass EdoApp]
                                    -- -> Either String [VoiceId]
-  , sustained_minus_fingered -- ^ St EdoApp -> Set VoiceId
+
+  , sustained_minus_fingered       -- ^ St EdoApp -> Set VoiceId
   , sustainOff                     -- ^ St EdoApp -> St EdoApp
   , sustainMore                    -- ^ St EdoApp -> St EdoApp
   , sustainLess                    -- ^ St EdoApp -> St EdoApp
+
   , insertOneSustainReason -- ^ PitchClass -> LitPitches -> LitPitches
   , deleteOneSustainReason -- ^ PitchClass -> LitPitches -> LitPitches
   , buttonMsgs -- ^ Bool -> [(WindowId, ((X,Y), Bool))]
@@ -78,9 +80,11 @@ sustainWindow = Window {
 -- Pressing `button_sustainMore` adds whatever is being fingered to
 -- the set of voices being sustained, be they empty or not to begin with.
 --
--- Most of the work of this handler is passed off to `sustainOff`
--- and `sustainMore`. The only exception is that those two inner functions
--- do not deal with the generation or processing of `LedMsg`s or `ScMsg`s.
+-- Most of the work of `handler` is passed off to `sustainOff`, `sustainMore`
+-- and `sustainLess`. The only exception is the generation of messages
+-- for SC and the LEDs, and updates to `_stVoices`.
+-- `handler` creates those messages itself. `Main.handleSwitch` calls
+-- `handler` to create those messages, and uses them to update `_stVoices`.
 handler :: St EdoApp
         -> ( (X,Y) -- ^ ignored, since the sustain window has only one button
            , Switch)
@@ -104,6 +108,8 @@ handler st ((==) button_sustainLess -> True,  True)  =
         -- and `handler` returns `st` unchanged.
         map silenceMsg toSilence
       st2 = st1 & stPending_Vivid  %~ flip (++) scas
+
+   -- TODO This call to updateVoiceParams seems uneeded.
   Right $ foldr updateVoiceParams st2 scas
 
 handler st ((==) button_sustainOff -> True,  True)  =
@@ -120,10 +126,15 @@ handler st ((==) button_sustainOff -> True,  True)  =
      st2 = st1 & ( stPending_Monome %~ flip (++)
                    (buttonMsgs False ++ kbdMsgs) )
                & stPending_Vivid  %~ flip (++) scas
+
+   -- TODO This call to updateVoiceParams seems uneeded.
    Right $ foldr updateVoiceParams st2 scas
 
 handler _ b =
   error $ "Sustain.handler: Impossible button input: " ++ show b
+
+
+-- * Some utilities
 
 -- | `sustainedVoices_inPitchClasses st pcs` returns every sustained voice
 -- in `st` that is equal modulo the edo to something in `pcs`.
@@ -173,6 +184,13 @@ sustained_minus_fingered st = let
     S.fromList $ M.elems $ st ^. stApp . edoFingers
   in S.difference sustained fingered
 
+
+-- * `sustainOff`, `sustainLess` and `sustainMore`
+--
+-- These functions change the value of `_edoSustaineded` and `_edoLit`.
+-- The `handler` is in charge of creating LED and SC messages,
+-- and thereby (indirectly) modifying `_stVoices`.
+
 sustainOff :: St EdoApp -> Either String (St EdoApp)
 sustainOff st =
   mapLeft ("sustainOff: " ++) $ let
@@ -181,12 +199,12 @@ sustainOff st =
      then Right st -- nothing is sustained, so nothing to do
      else do
 
-  pcs :: [PitchClass EdoApp] <-
+  susPcs :: [PitchClass EdoApp] <-
     mapM (vid_to_pitchClass st) $
     S.toList $ app ^. edoSustaineded
-  let lit' = foldr deleteOneSustainReason (app ^. edoLit) pcs
-  Right $ st & stApp . edoSustaineded .~ mempty
-             & stApp . edoLit         .~ lit'
+  Right $ st &   stApp . edoSustaineded .~ mempty
+             & ( stApp . edoLit         .~
+                 foldr deleteOneSustainReason (app ^. edoLit) susPcs )
 
 sustainMore :: St EdoApp -> Either String (St EdoApp)
 sustainMore st =
@@ -213,7 +231,7 @@ sustainLess :: St EdoApp -> Either String ( St EdoApp
                                           , [VoiceId] )
 sustainLess st =
   mapLeft ("sustainLess: " ++) $ do
-  let app = st ^. stApp
+  let app :: EdoApp = st ^. stApp
       fs :: [VoiceId] = M.elems $ app ^. edoFingers
   fPcs :: [PitchClass EdoApp] <-
            mapM (vid_to_pitchClass st) fs
