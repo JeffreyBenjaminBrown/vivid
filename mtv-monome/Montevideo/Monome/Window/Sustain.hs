@@ -97,12 +97,12 @@ handler st ((==) button_sustainMore -> True,  True)  =
 
 handler st ((==) button_sustainLess -> True,  True)  =
   mapLeft ("Window.Sustain.handler (sustainLess): " ++) $ do
-  ( st1 :: St EdoApp, toRemove :: [VoiceId] ) <-
+  ( st1 :: St EdoApp, toSilence :: [VoiceId] ) <-
     sustainLess st
   let scas :: [ScAction VoiceId] =
         -- If nothing is fingered, this is empty,
         -- and `handler` returns `st` unchanged.
-        map silenceMsg toRemove
+        map silenceMsg toSilence
       st2 = st1 & stPending_Vivid  %~ flip (++) scas
   Right $ foldr updateVoiceParams st2 scas
 
@@ -135,7 +135,7 @@ sustainedVoices_inPitchClasses st pcs =
       isMatch vid = do
         pc <- vid_to_pitchClass st vid
         Right ( vid
-              , -- `S.map (modEdo st)` below is unnecessary *if* the caller
+              , -- The call to `modEdo` below is unnecessary *if* the caller
                 -- only sends `PitchClass`es, but it could send `Pitch`es.
                 -- TODO ? Enforce, by using newtypes instead of aliases.
                 elem pc $ S.map (modEdo st) $ S.fromList pcs )
@@ -217,14 +217,14 @@ sustainLess st =
       fs :: [VoiceId] = M.elems $ app ^. edoFingers
   fPcs :: [PitchClass EdoApp] <-
            mapM (vid_to_pitchClass st) fs
-  toRemove :: [VoiceId] <-
+  toSilence :: [VoiceId] <-
     sustainedVoices_inPitchClasses st fPcs
   let lit' = foldr deleteOneSustainReason (app ^. edoLit) fPcs
   Right $ ( -- If `fs` is empty, this is just `(st, [])`
             st & ( stApp . edoSustaineded %~
                    flip S.difference (S.fromList fs) )
                & stApp . edoLit         .~ lit'
-          , toRemove )
+          , toSilence )
 
 -- | `insertOneSustainReason pc` and `deleteOneSustainReason pc`
 -- insert or delete, respectively, sustain as a reason for `pc` to be lit.
