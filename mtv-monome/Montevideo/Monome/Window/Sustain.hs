@@ -3,6 +3,7 @@ ViewPatterns
 #-}
 
 module Montevideo.Monome.Window.Sustain (
+  -- ** Data
     label
   , buttons
   , button_sustainLess
@@ -10,15 +11,18 @@ module Montevideo.Monome.Window.Sustain (
   , button_sustainOff
   , sustainWindow
 
+  -- ** Functions
   , handler
-  , sustainedVoices_inPitchClasses -- ^ St EdoApp -> [PitchClass EdoApp]
-                                   -- -> Either String [VoiceId]
 
-  , sustained_minus_fingered       -- ^ St EdoApp -> Set VoiceId
+  -- * `sustainOff`, `sustainMore`, and `sustainLess`
   , sustainOff                     -- ^ St EdoApp -> St EdoApp
   , sustainMore                    -- ^ St EdoApp -> St EdoApp
   , sustainLess                    -- ^ St EdoApp -> St EdoApp
 
+  -- * utilities
+  , sustainedVoices_inPitchClasses -- ^ St EdoApp -> [PitchClass EdoApp]
+                                   -- -> Either String [VoiceId]
+  , sustained_minus_fingered       -- ^ St EdoApp -> Set VoiceId
   , insertOneSustainReason -- ^ PitchClass -> LitPitches -> LitPitches
   , deleteOneSustainReason -- ^ PitchClass -> LitPitches -> LitPitches
   , buttonMsgs -- ^ Bool -> [(WindowId, ((X,Y), Bool))]
@@ -37,7 +41,7 @@ import           Montevideo.Monome.Window.Common
 import qualified Montevideo.Monome.Window.Keyboard as Kbd
 
 
--- * Data
+-- ** Data
 
 label :: WindowId
 label = "sustain window"
@@ -72,7 +76,7 @@ sustainWindow = Window {
 }
 
 
--- * Functions
+-- ** Functions
 
 -- | How sustain works:
 -- Releasing a button in the sustain window has no effect.
@@ -134,57 +138,6 @@ handler _ b =
   error $ "Sustain.handler: Impossible button input: " ++ show b
 
 
--- * Some utilities
-
--- | `sustainedVoices_inPitchClasses st pcs` returns every sustained voice
--- in `st` that is equal modulo the edo to something in `pcs`.
-sustainedVoices_inPitchClasses
-  :: St EdoApp -> [PitchClass EdoApp] -> Either String [VoiceId]
-sustainedVoices_inPitchClasses st pcs =
-  let susVs :: [VoiceId] = S.toList $ st ^. stApp . edoSustaineded
-      isMatch :: VoiceId -> Either String (VoiceId, Bool)
-      isMatch vid = do
-        pc <- vid_to_pitchClass st vid
-        Right ( vid
-              , -- The call to `modEdo` below is unnecessary *if* the caller
-                -- only sends `PitchClass`es, but it could send `Pitch`es.
-                -- TODO ? Enforce, by using newtypes instead of aliases.
-                elem pc $ S.map (modEdo st) $ S.fromList pcs )
-  in map fst . filter snd <$> mapM isMatch susVs
-
-pitchClassesToDarken_uponSustainOff ::
-  St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]
-  -- TODO ? speed: This calls `sustained_minus_fingered`.
-  -- Would it be faster to pass the result of `sustained_minus_fingered`
-  -- as a precomputed argument? (I'm guessing the compiler fogures it out.)
-
-pitchClassesToDarken_uponSustainOff oldSt newSt = let
-  -- `pitchClassesToDarken_uponSustainOff` is nearly equal to `sustained_minus_fingered`,
-  -- but it excludes visual anchors as well as fingered notes.
-    mustStayLit :: PitchClass EdoApp -> Either String Bool
-    mustStayLit pc = case M.lookup pc $ newSt ^. stApp . edoLit of
-      Nothing -> Right False
-      Just s -> if null s
-        then Left "Null value in LitPitches."
-        else Right True
-
-  in mapLeft ("pitchClassesToDarken_uponSustainOff: " ++) $ do
-  voicesToSilence_pcs :: [PitchClass EdoApp] <-
-    mapM (vid_to_pitchClass oldSt) $ S.toList $
-    sustained_minus_fingered oldSt
-  msls <- mapM mustStayLit voicesToSilence_pcs
-  Right $ map snd $ filter (not . fst) $
-    zip msls voicesToSilence_pcs
-
-sustained_minus_fingered :: St EdoApp -> Set VoiceId
-sustained_minus_fingered st = let
-  sustained :: Set VoiceId =
-    st ^. stApp . edoSustaineded
-  fingered :: Set VoiceId =
-    S.fromList $ M.elems $ st ^. stApp . edoFingers
-  in S.difference sustained fingered
-
-
 -- * `sustainOff`, `sustainLess` and `sustainMore`
 --
 -- These functions change the value of `_edoSustaineded` and `_edoLit`.
@@ -243,6 +196,57 @@ sustainLess st =
                & ( stApp . edoLit         .~
                    foldr deleteOneSustainReason (app ^. edoLit) fPcs )
           , toSilence )
+
+
+-- * utilities
+
+-- | `sustainedVoices_inPitchClasses st pcs` returns every sustained voice
+-- in `st` that is equal modulo the edo to something in `pcs`.
+sustainedVoices_inPitchClasses
+  :: St EdoApp -> [PitchClass EdoApp] -> Either String [VoiceId]
+sustainedVoices_inPitchClasses st pcs =
+  let susVs :: [VoiceId] = S.toList $ st ^. stApp . edoSustaineded
+      isMatch :: VoiceId -> Either String (VoiceId, Bool)
+      isMatch vid = do
+        pc <- vid_to_pitchClass st vid
+        Right ( vid
+              , -- The call to `modEdo` below is unnecessary *if* the caller
+                -- only sends `PitchClass`es, but it could send `Pitch`es.
+                -- TODO ? Enforce, by using newtypes instead of aliases.
+                elem pc $ S.map (modEdo st) $ S.fromList pcs )
+  in map fst . filter snd <$> mapM isMatch susVs
+
+pitchClassesToDarken_uponSustainOff ::
+  St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]
+  -- TODO ? speed: This calls `sustained_minus_fingered`.
+  -- Would it be faster to pass the result of `sustained_minus_fingered`
+  -- as a precomputed argument? (I'm guessing the compiler fogures it out.)
+
+pitchClassesToDarken_uponSustainOff oldSt newSt = let
+  -- `pitchClassesToDarken_uponSustainOff` is nearly equal to `sustained_minus_fingered`,
+  -- but it excludes visual anchors as well as fingered notes.
+    mustStayLit :: PitchClass EdoApp -> Either String Bool
+    mustStayLit pc = case M.lookup pc $ newSt ^. stApp . edoLit of
+      Nothing -> Right False
+      Just s -> if null s
+        then Left "Null value in LitPitches."
+        else Right True
+
+  in mapLeft ("pitchClassesToDarken_uponSustainOff: " ++) $ do
+  voicesToSilence_pcs :: [PitchClass EdoApp] <-
+    mapM (vid_to_pitchClass oldSt) $ S.toList $
+    sustained_minus_fingered oldSt
+  msls <- mapM mustStayLit voicesToSilence_pcs
+  Right $ map snd $ filter (not . fst) $
+    zip msls voicesToSilence_pcs
+
+sustained_minus_fingered :: St EdoApp -> Set VoiceId
+sustained_minus_fingered st = let
+  sustained :: Set VoiceId =
+    st ^. stApp . edoSustaineded
+  fingered :: Set VoiceId =
+    S.fromList $ M.elems $ st ^. stApp . edoFingers
+  in S.difference sustained fingered
 
 
 -- | `insertOneSustainReason pc` and `deleteOneSustainReason pc`
