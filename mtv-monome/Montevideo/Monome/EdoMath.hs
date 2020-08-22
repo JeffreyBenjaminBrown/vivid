@@ -8,6 +8,7 @@ module Montevideo.Monome.EdoMath (
   , pcToXys     -- ^ EdoConfig -> PitchClass -> (X,Y) -> [(X,Y)]
   , edoToLowXY  -- ^ EdoConfig -> PitchClass -> (X,Y)
   , vv, hv      -- ^ EdoConfig -> (X,Y)
+  , modEdo      -- ^ St EdoApp -> Pitch EdoApp -> PitchClass EdoApp
   ) where
 
 import Control.Lens
@@ -144,3 +145,6 @@ hv ec = case _gridVectors ec of
     v2 = pairAdd v1 $ vv ec
     in if abs (dot (vv ec) v1) <= abs (dot (vv ec) v2)
        then                v1  else                v2
+
+modEdo :: St EdoApp -> Pitch EdoApp -> PitchClass EdoApp
+modEdo st = flip mod $ st ^. stApp . edoConfig . edo

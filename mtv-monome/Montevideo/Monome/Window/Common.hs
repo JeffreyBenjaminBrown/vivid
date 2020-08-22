@@ -17,7 +17,7 @@ import           Data.Maybe
 import qualified Data.Set as S
 
 import           Montevideo.Dispatch.Types.Many
-import           Montevideo.Monome.Util.Button
+import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Synth
 
@@ -69,5 +69,5 @@ vid_to_pitchClass :: St EdoApp -> VoiceId
 vid_to_pitchClass st v =
   mapLeft ("vid_to_pitchClass: " ++) $ maybe
   (Left "vid_to_pitchClass: voice not found")
-  (Right . flip mod (st ^. stApp . edoConfig . edo) . _voicePitch)
+  (Right . modEdo st . _voicePitch)
   $ M.lookup v (_stVoices st)

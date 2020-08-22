@@ -131,16 +131,14 @@ sustainedVoices_inPitchClasses
   :: St EdoApp -> [PitchClass EdoApp] -> Either String [VoiceId]
 sustainedVoices_inPitchClasses st pcs =
   let susVs :: [VoiceId] = S.toList $ st ^. stApp . edoSustaineded
-      m :: Pitch EdoApp -> PitchClass EdoApp
-      m = flip mod $ st ^. stApp . edoConfig . edo
       isMatch :: VoiceId -> Either String (VoiceId, Bool)
       isMatch vid = do
         pc <- vid_to_pitchClass st vid
         Right ( vid
-              , -- `map m` below is unnecessary *if* the caller only
-                -- sends `PitchClass`es, but it could send `Pitch`es.
+              , -- `S.map (modEdo st)` below is unnecessary *if* the caller
+                -- only sends `PitchClass`es, but it could send `Pitch`es.
                 -- TODO ? Enforce, by using newtypes instead of aliases.
-                elem pc $ S.map m $ S.fromList $ pcs )
+                elem pc $ S.map (modEdo st) $ S.fromList pcs )
   in map fst . filter snd <$> mapM isMatch susVs
 
 pitchClassesToDarken_uponSustainOff ::
