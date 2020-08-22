@@ -117,7 +117,7 @@ data EdoApp = EdoApp
     -- ^ Where fingers are, what each is sounding,
     -- and what each is lighting up.
   , _edoLit :: LitPitches EdoApp
-  , _edoSustaineded :: Maybe (Set VoiceId)
+  , _edoSustaineded :: Set VoiceId
     -- ^ PITFALL: In spirit, the thing sustained is a Pitch,
     -- but it's represented as a voice,
     -- identified by the key that originally launched it.

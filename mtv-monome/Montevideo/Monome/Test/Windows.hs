@@ -33,7 +33,7 @@ test_edoKey_ScAction = TestCase $ do
       newVoice = VoiceId 1
       newXy = (0,1)
       st = st0 & ( stApp . edoSustaineded .~
-                   Just (S.singleton sustainedVoice) )
+                   S.singleton sustainedVoice )
       newPitch = xyToEdo_app (st ^. stApp) newXy
   assertBool "pressing a key that's sustained has no effect" $
     edoKey_ScAction (st ^. stApp) sustainedVoice (sustainedXy, True)

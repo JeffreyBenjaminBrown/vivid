@@ -25,9 +25,38 @@ tests = TestList [
     test_deleteOneSustainReason_and_insertOneSustainReason
   , TestLabel "test_sustainOn" test_sustainOn
   , TestLabel "test_sustainOff" test_sustainOff
-  , TestLabel "test_voicesToSilence_uponSustainOff" test_voicesToSilence_uponSustainOff
+  , TestLabel "test_sustained_minus_fingered" test_sustained_minus_fingered
   , TestLabel "test_sustainedVoices_inPitchClasses" test_sustainedVoices_inPitchClasses
+  , TestLabel "test_sustainLess" test_sustainLess
   ]
+
+test_sustainLess :: Test
+test_sustainLess = TestCase $ do
+
+  let Right (st, pcs) = sustainLess $ st0
+        & stApp . edoFingers .~ M.fromList [ (xy0, v0) ]
+        & stApp . edoSustaineded .~ S.singleton v0
+        & stApp . edoLit .~ ( M.singleton pc0
+                              $ S.fromList [ LedBecauseSwitch xy0
+                                           , LedBecauseSustain ] )
+    in do
+    assertBool "" $ st =^=
+      ( st0
+        & stApp . edoFingers .~ M.fromList [ (xy0, v0) ]
+        & stApp . edoSustaineded .~ mempty
+        & stApp . edoLit .~ ( M.singleton pc0 $ S.singleton $
+                              LedBecauseSwitch xy0 ) )
+    assertBool "" $ pcs == [pc0]
+
+  let st = st0
+        & stApp . edoFingers .~ M.fromList [ (xy1, v1) ]
+        & stApp . edoSustaineded .~ S.singleton v0
+        & stApp . edoLit .~ ( M.singleton pc0
+                              $ S.fromList [ LedBecauseSwitch xy0
+                                           , LedBecauseSustain ] )
+      Right (st', pcs) = sustainLess st
+      in do assertBool "" $ st =^= st'
+            assertBool "" $ pcs == [pc1]
 
 test_sustainedVoices_inPitchClasses :: Test
 test_sustainedVoices_inPitchClasses = TestCase $ do
@@ -47,10 +76,10 @@ test_sustainedVoices_inPitchClasses = TestCase $ do
     sustainedVoices_inPitchClasses st_0fs [pc1 + 31]
     == Right []
 
-test_voicesToSilence_uponSustainOff :: Test
-test_voicesToSilence_uponSustainOff = TestCase $ do
+test_sustained_minus_fingered :: Test
+test_sustained_minus_fingered = TestCase $ do
   assertBool "Turn off sustain. Voice 0 is fingered, 1 is turned off." $
-    voicesToSilence_uponSustainOff st_0fs_1s == S.singleton v1
+    sustained_minus_fingered st_0fs_1s == S.singleton v1
 
 test_sustainOn :: Test
 test_sustainOn = TestCase $ do
@@ -58,7 +87,7 @@ test_sustainOn = TestCase $ do
     fromRight (error "bork") (sustainMore st_0f) =^=
     ( st_0f & ( stApp . edoLit . at pc0 . _Just
                 %~ S.insert LedBecauseSustain )
-            & stApp . edoSustaineded .~ Just (S.singleton v0 ) )
+            & stApp . edoSustaineded .~ S.singleton v0 )
   assertBool "sustain won't turn on if nothing is fingered" $
     fromRight (error "bork") (sustainMore st0) =^= st0
 
@@ -68,13 +97,13 @@ test_sustainOff = TestCase $ do
     fromRight (error "bork") (sustainOff st_0s)
     =^= ( st_0s
           & stApp . edoLit .~ mempty
-          & stApp . edoSustaineded .~ Nothing )
+          & stApp . edoSustaineded .~ mempty )
 
   assertBool "turn sustain off, but finger persists" $
     fromRight (error "bork") (sustainOff st_0fs)
     =^= ( st_0fs & ( stApp . edoLit . at pc0 . _Just
                      %~ S.delete LedBecauseSustain )
-          & stApp . edoSustaineded .~ Nothing )
+          & stApp . edoSustaineded .~ mempty )
 
 test_deleteOneSustainReason_and_insertOneSustainReason :: Test
 test_deleteOneSustainReason_and_insertOneSustainReason = TestCase $ do
@@ -106,7 +135,7 @@ test_sustainHandler = TestCase $ do
   assertBool "THE TEST: turning ON sustain changes the sustain state, the set of sustained voices, the set of reasons for keys to be lit, and the messages pending to the monome." $
     fromRight (error "bork")
     (Su.handler st_0f (Su.button_sustainMore, True))
-    =^= ( st_0f & stApp . edoSustaineded .~ Just (S.singleton v0)
+    =^= ( st_0f & stApp . edoSustaineded .~ S.singleton v0
           & ( stApp . edoLit .~ M.singleton pc0
               ( S.fromList [ LedBecauseSustain
                            , LedBecauseSwitch xy0 ] ) )

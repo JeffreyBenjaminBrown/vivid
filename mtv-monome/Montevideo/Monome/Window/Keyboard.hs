@@ -123,9 +123,11 @@ edoKey_ScAction :: EdoApp -> VoiceId -> ((X,Y), Switch)
 edoKey_ScAction app vid (xy, sw) = do
   let pitch = xyToEdo_app app xy
       ec = app ^. edoConfig
-  if maybe False (S.member vid) $
-     app ^. edoSustaineded
-    then [] -- it's already sounding due to sustain
+  if S.member vid $ app ^. edoSustaineded
+    then ( -- it's already sounding due to sustain
+           -- TODO : This is no longer possible, because now every keypress
+           -- creates a new voice.
+           [] )
 
     else if sw -- sw <=> the key was pressed, rather than released
          then [ ScAction_New

@@ -13,7 +13,7 @@ module Montevideo.Monome.Window.Sustain (
   , handler
   , sustainedVoices_inPitchClasses -- ^ St EdoApp -> [PitchClass EdoApp]
                                    -- -> Either String [VoiceId]
-  , voicesToSilence_uponSustainOff -- ^ St EdoApp -> Set VoiceId
+  , sustained_minus_fingered -- ^ St EdoApp -> Set VoiceId
   , sustainOff                     -- ^ St EdoApp -> St EdoApp
   , sustainMore                    -- ^ St EdoApp -> St EdoApp
   , sustainLess                    -- ^ St EdoApp -> St EdoApp
@@ -116,7 +116,7 @@ handler st ((==) button_sustainOff -> True,  True)  =
        map ( (Kbd.label,) . (,False) ) $
        concatMap (pcToXys_st st) $ toDark
      scas :: [ScAction VoiceId] =
-       map silenceMsg $ S.toList $ voicesToSilence_uponSustainOff st
+       map silenceMsg $ S.toList $ sustained_minus_fingered st
      st2 = st1 & ( stPending_Monome %~ flip (++)
                    (buttonMsgs False ++ kbdMsgs) )
                & stPending_Vivid  %~ flip (++) scas
@@ -154,12 +154,12 @@ sustainedVoices_inPitchClasses st pcs =
 
 pitchClassesToDarken_uponSustainOff ::
   St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]
-  -- TODO ? speed: This calls `voicesToSilence_uponSustainOff`.
-  -- Would it be faster to pass the result of `voicesToSilence_uponSustainOff`
+  -- TODO ? speed: This calls `sustained_minus_fingered`.
+  -- Would it be faster to pass the result of `sustained_minus_fingered`
   -- as a precomputed argument? (I'm guessing the compiler fogures it out.)
 
 pitchClassesToDarken_uponSustainOff oldSt newSt = let
-  -- `pitchClassesToDarken_uponSustainOff` is nearly equal to `voicesToSilence_uponSustainOff`,
+  -- `pitchClassesToDarken_uponSustainOff` is nearly equal to `sustained_minus_fingered`,
   -- but it excludes visual anchors as well as fingered notes.
     mustStayLit :: PitchClass EdoApp -> Either String Bool
     mustStayLit pc = case M.lookup pc $ newSt ^. stApp . edoLit of
@@ -171,15 +171,15 @@ pitchClassesToDarken_uponSustainOff oldSt newSt = let
   in mapLeft ("pitchClassesToDarken_uponSustainOff: " ++) $ do
   voicesToSilence_pcs :: [PitchClass EdoApp] <-
     mapM (vid_to_pitchClass oldSt) $ S.toList $
-    voicesToSilence_uponSustainOff oldSt
+    sustained_minus_fingered oldSt
   msls <- mapM mustStayLit voicesToSilence_pcs
   Right $ map snd $ filter (not . fst) $
     zip msls voicesToSilence_pcs
 
-voicesToSilence_uponSustainOff :: St EdoApp -> Set VoiceId
-voicesToSilence_uponSustainOff st = let
+sustained_minus_fingered :: St EdoApp -> Set VoiceId
+sustained_minus_fingered st = let
   sustained :: Set VoiceId =
-    maybe mempty id $ st ^. stApp . edoSustaineded
+    st ^. stApp . edoSustaineded
   fingered :: Set VoiceId =
     S.fromList $ M.elems $ st ^. stApp . edoFingers
   in S.difference sustained fingered
@@ -194,10 +194,9 @@ sustainOff st =
 
   pcs :: [PitchClass EdoApp] <-
     mapM (vid_to_pitchClass st) $
-    S.toList $ maybe (error "impossible") id $
-    app ^. edoSustaineded
+    S.toList $ app ^. edoSustaineded
   let lit' = foldr deleteOneSustainReason (app ^. edoLit) pcs
-  Right $ st & stApp . edoSustaineded .~ Nothing
+  Right $ st & stApp . edoSustaineded .~ mempty
              & stApp . edoLit         .~ lit'
 
 sustainMore :: St EdoApp -> Either String (St EdoApp)
@@ -218,7 +217,7 @@ sustainMore st =
                     & stApp . edoLit         .~ lit'
 
 -- | `sustainLess st` returns `(st', pcs)`,
--- where `pcs` are the pitch classes that were being fingered in `st`,
+-- where `pcs` are the pitch classes that were being fingered in `st`.
 --
 -- todo ? You could argue it would be more convenient
 -- if "sustainLess" was, rather than a momentary action,

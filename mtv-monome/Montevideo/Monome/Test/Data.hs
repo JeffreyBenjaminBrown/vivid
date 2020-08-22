@@ -62,7 +62,7 @@ st0 = St {
                     , _edoXyShift = (3,5)
                     , _edoFingers = mempty
                     , _edoLit = mempty
-                    , _edoSustaineded = Nothing
+                    , _edoSustaineded = mempty
                     }
   }
 
@@ -78,7 +78,7 @@ st_0s = -- sustaining key 0 only
   st0
   & stApp . edoLit .~  M.singleton pc0
     (S.singleton LedBecauseSustain)
-  & stApp . edoSustaineded .~ Just (S.singleton v0)
+  & stApp . edoSustaineded .~ S.singleton v0
 
 st_01f = -- fingering keys 0 and 1
   st0 & stApp . edoFingers .~ M.fromList [ (xy0, v0)
@@ -90,8 +90,8 @@ st_01f = -- fingering keys 0 and 1
 st_0fs = -- 0 is both fingered and sustained
   st0
   & stApp . edoFingers .~ M.fromList [ (xy0, v0) ]
-  & stApp . edoSustaineded .~ Just (S.singleton v0)
-  & stApp . edoLit .~  ( M.singleton pc0
+  & stApp . edoSustaineded .~ S.singleton v0
+  & stApp . edoLit .~ ( M.singleton pc0
                         $ S.fromList [ LedBecauseSwitch xy0
                                      , LedBecauseSustain ] )
 
@@ -100,5 +100,5 @@ st_0af = -- 0 is both fingered and the anchor pitch
           %~ S.insert LedBecauseAnchor
 
 st_0fs_1s = -- 0 is both fingered and sustained, 1 is sustained
-  st_0fs & stApp . edoSustaineded . _Just %~ S.insert v1
+  st_0fs & stApp . edoSustaineded %~ S.insert v1
          & stApp . edoLit %~ M.insert pc1 (S.singleton LedBecauseSustain)
