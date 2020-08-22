@@ -8,7 +8,10 @@ module Montevideo.Monome.EdoMath (
   , pcToXys     -- ^ EdoConfig -> PitchClass -> (X,Y) -> [(X,Y)]
   , edoToLowXY  -- ^ EdoConfig -> PitchClass -> (X,Y)
   , vv, hv      -- ^ EdoConfig -> (X,Y)
-  , modEdo      -- ^ St EdoApp -> Pitch EdoApp -> PitchClass EdoApp
+  , modEdo_cfg -- ^ Integral a => St EdoApp -> a -> a
+  , modEdo     -- ^ Integral a => St EdoApp -> a -> a
+  , pToPc      -- ^ EdoConfig -> EdoPitch -> EdoPitchClass
+  , pToPc_st   -- ^ St EdoApp -> EdoPitch -> EdoPitchClass
   ) where
 
 import Control.Lens
@@ -22,7 +25,8 @@ edoToFreq :: EdoConfig -> Pitch EdoApp -> Float
 edoToFreq ec f =
   let two :: Float = realToFrac $ fromCents $
                      10 * (1200 + ec ^. octaveStretchInCents)
-  in two**(fi f / fi (ec ^. edo) )
+  in two ** ( fi (_unEdoPitch f) /
+              fi (ec ^. edo) )
 
 xyToEdo_app :: EdoApp -> (X,Y) -> Pitch EdoApp
 xyToEdo_app app xy =
@@ -55,7 +59,7 @@ pcToXys ec shift pc = let
 _enharmonicToXYs :: EdoConfig -> (X,Y) -> [(X,Y)]
 _enharmonicToXYs ec btn = let
 
-  low = edoToLowXY ec $ xyToEdo ec btn
+  low = edoToLowXY ec $ pToPc ec $ xyToEdo ec btn
   ((v1,v2),(h1,h2)) = (vv ec, hv ec)
   wideGrid = [
     ( i*h1 + j*v1
@@ -74,24 +78,23 @@ _enharmonicToXYs ec btn = let
 -- 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,0]
 -- (notice the 0 at the end).
 xyToEdo :: EdoConfig -> (X,Y) -> Pitch EdoApp
-xyToEdo ec (x,y) = _spacing ec * x
-                 + _skip ec    * y
-
+xyToEdo ec (x,y) = EdoPitch
+                 $ _spacing ec * x
+                 + _skip    ec * y
 
 -- | The leftmost appearance of the input pitchclass on the monome.
 --
 -- PITFALL: Does not take into account shifting via _edoXyShift.
 --
--- In the PitchClass domain, xyToEdo and edoToLowXY are inverses:
+-- In the PitchClass domain, xyToEdo and edoToLowXY are roughly inverse:
 -- xyToEdo <$> edoToLowXY <$> [0..31] == [0,1,2,3,4,5,6,7,8,9,10,11,12,
 -- 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,0]
 -- (notice the 0 at the end).
 --
 -- This algorithm used to give the leftmost of the topmost instances,
 -- but now it gives the lowermost of the leftmost instances of the note.
--- Hopefully it doesn't matter,
--- since `_enharmonicToXYs` generates lots of out-of-bounds instances
--- on all four sides.
+-- Hopefully it doesn't matter, since `_enharmonicToXYs`
+-- generates lots of out-of-bounds instances on all four sides.
 --
 -- Without Thanos tunings, the algorithm was much simpler:
 --   edoToLowXY ec pc = ( div j $ _spacing ec
@@ -101,11 +104,9 @@ xyToEdo ec (x,y) = _spacing ec * x
 edoToLowXY :: EdoConfig -> PitchClass EdoApp -> (X,Y)
 edoToLowXY ec pc = let
   sk = _skip ec
-  sp = _spacing ec
-  e = _edo ec
   f :: X -> (X, Y)
   f x = let
-    y = mod (pc - x*sp) e
+    y = mod (_unEdoPitchClass pc - x * _spacing ec) $ _edo ec
     y' = div y sk
     in if mod y sk == 0 && y' >= 0 && y' <= 15
        then (x, y')
@@ -146,5 +147,15 @@ hv ec = case _gridVectors ec of
     in if abs (dot (vv ec) v1) <= abs (dot (vv ec) v2)
        then                v1  else                v2
 
-modEdo :: St EdoApp -> Pitch EdoApp -> PitchClass EdoApp
-modEdo st = flip mod $ st ^. stApp . edoConfig . edo
+modEdo_cfg :: Integral a => EdoConfig -> a -> a
+modEdo_cfg ec = flip mod $ fromIntegral $
+                _edo ec
+
+modEdo :: Integral a => St EdoApp -> a -> a
+modEdo = modEdo_cfg . _edoConfig . _stApp
+
+pToPc :: EdoConfig -> EdoPitch -> EdoPitchClass
+pToPc ec = EdoPitchClass . modEdo_cfg ec . _unEdoPitch
+
+pToPc_st :: St EdoApp -> EdoPitch -> EdoPitchClass
+pToPc_st st = EdoPitchClass . modEdo st . _unEdoPitch

@@ -5,7 +5,7 @@ module Montevideo.Monome.Test.EdoMath where
 import Test.HUnit
 
 import           Montevideo.Monome.EdoMath
-import           Montevideo.Monome.Types.Most
+import           Montevideo.Monome.Types
 
 
 tests :: Test

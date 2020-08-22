@@ -212,8 +212,7 @@ sustainedVoices_inPitchClasses st pcs =
         Right ( vid
               , -- The call to `modEdo` below is unnecessary *if* the caller
                 -- only sends `PitchClass`es, but it could send `Pitch`es.
-                -- TODO ? Enforce, by using newtypes instead of aliases.
-                elem pc $ S.map (modEdo st) $ S.fromList pcs )
+                elem pc $ S.fromList pcs )
   in map fst . filter snd <$> mapM isMatch susVs
 
 pitchClassesToDarken_uponSustainOff ::

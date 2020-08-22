@@ -99,7 +99,7 @@ test_keyboardHandler = TestCase $ do
     =^= ( st_0f
           & ( stPending_Monome .~
               map (\xy -> (K.label, (xy, False)) )
-              (pcToXys_st st_01f pitch1 ) )
+              (pcToXys_st st_01f pc1 ) )
           & ( stPending_Vivid .~
               [ ScAction_Free
                 { _actionSynthDefEnum = Moop
@@ -153,7 +153,7 @@ test_keyboardHandler = TestCase $ do
                         , _voiceParams = mempty } ) )
              & ( stPending_Monome .~
                  ( map (\xy -> (K.label, (xy, True)) ) $
-                   pcToXys_st st_01f pitch1 ) )
+                   pcToXys_st st_01f pc1 ) )
              & ( stPending_Vivid .~ edoKey_ScAction
                  (st0 ^. stApp) nv (xy1, True) )
              & stApp . edoFingers %~ M.insert xy1 nv )

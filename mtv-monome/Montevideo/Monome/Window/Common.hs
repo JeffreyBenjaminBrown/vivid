@@ -69,5 +69,5 @@ vid_to_pitchClass :: St EdoApp -> VoiceId
 vid_to_pitchClass st v =
   mapLeft ("vid_to_pitchClass: " ++) $ maybe
   (Left "vid_to_pitchClass: voice not found")
-  (Right . modEdo st . _voicePitch)
+  (Right . pToPc_st st . _voicePitch)
   $ M.lookup v (_stVoices st)

@@ -5,6 +5,7 @@ module Montevideo.Monome.Types.Most (
     module Montevideo.Monome.Types.EdoConfig
   , module Montevideo.Monome.Types.Monome
   , Param, WindowId, VoiceId(..)
+  , EdoPitch(..), EdoPitchClass(..)
   , LitPitches
   , LedMsg
   , Pitch, PitchClass
@@ -47,8 +48,13 @@ newtype VoiceId = VoiceId Int
 type family Pitch app
 type family PitchClass app
 
-type instance Pitch      EdoApp = Int
-type instance PitchClass EdoApp = Int
+newtype EdoPitch = EdoPitch {_unEdoPitch :: Int}
+  deriving (Eq, Show, Ord)
+newtype EdoPitchClass = EdoPitchClass {_unEdoPitchClass :: Int}
+  deriving (Eq, Show, Ord)
+
+type instance Pitch      EdoApp = EdoPitch
+type instance PitchClass EdoApp = EdoPitchClass
 type instance Pitch      JiApp = Rational
 type instance PitchClass JiApp = Rational
 

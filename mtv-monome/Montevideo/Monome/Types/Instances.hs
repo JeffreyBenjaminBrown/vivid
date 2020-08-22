@@ -43,3 +43,19 @@ instance (Eq app, Eq (Pitch app)) => Eq (St app) where
     , _stVoices a        == _stVoices b
     , _stPending_Monome a == _stPending_Monome b
     , _stPending_Vivid a  == _stPending_Vivid b ]
+
+instance Num EdoPitch where
+  (+) (EdoPitch a) (EdoPitch b) = EdoPitch $ a + b
+  (*) (EdoPitch a) (EdoPitch b) = EdoPitch $ a * b
+  (-) (EdoPitch a) (EdoPitch b) = EdoPitch $ a - b
+  abs (EdoPitch a) = EdoPitch $ abs a
+  signum (EdoPitch a) = EdoPitch $ signum a
+  fromInteger a = EdoPitch $ fromIntegral a
+
+instance Num EdoPitchClass where
+  (+) (EdoPitchClass a) (EdoPitchClass b) = EdoPitchClass $ a + b
+  (*) (EdoPitchClass a) (EdoPitchClass b) = EdoPitchClass $ a * b
+  (-) (EdoPitchClass a) (EdoPitchClass b) = EdoPitchClass $ a - b
+  abs (EdoPitchClass a) = EdoPitchClass $ abs a
+  signum (EdoPitchClass a) = EdoPitchClass $ signum a
+  fromInteger a = EdoPitchClass $ fromIntegral a

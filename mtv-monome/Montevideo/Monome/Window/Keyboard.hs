@@ -54,7 +54,7 @@ handler    st          press@ (xy,sw)   =
     fingers' = app ^. edoFingers
                & if sw then M.insert xy vid else M.delete xy
     pcNow :: PitchClass EdoApp =
-      modEdo st $ xyToEdo_app app xy
+      pToPc_st st $ xyToEdo_app app xy
       -- what the key represents currently
     pcThen :: Maybe (PitchClass EdoApp) =
       ledBecause_toPitchClass @ EdoApp

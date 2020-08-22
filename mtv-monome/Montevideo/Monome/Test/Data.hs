@@ -38,14 +38,14 @@ meh = error "not relevant to this test"
   , _stPending_Vivid x  == _stPending_Vivid y
   , _stApp x            == _stApp y ]
 
-v0     :: VoiceId    = VoiceId 0
-v1     :: VoiceId    = VoiceId 1
-xy0    :: (X,Y)      = (0,0)
-xy1    :: (X,Y)      = (0,1)
-pitch0 :: Int        = xyToEdo_app (st0 ^. stApp) xy0
-pitch1 :: Int        = xyToEdo_app (st0 ^. stApp) xy1
-pc0    :: PitchClass EdoApp = mod pitch0 31
-pc1    :: PitchClass EdoApp = mod pitch1 31
+v0     :: VoiceId       = VoiceId 0
+v1     :: VoiceId       = VoiceId 1
+xy0    :: (X,Y)         = (0,0)
+xy1    :: (X,Y)         = (0,1)
+pitch0 :: EdoPitch      = xyToEdo_app (st0 ^. stApp) xy0
+pitch1 :: EdoPitch      = xyToEdo_app (st0 ^. stApp) xy1
+pc0    :: EdoPitchClass = pToPc config31 pitch0
+pc1    :: EdoPitchClass = pToPc config31 pitch1
 
 st0 :: St EdoApp
 st0 = St {
