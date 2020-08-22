@@ -21,8 +21,8 @@ import Montevideo.Synth
 tests :: Test
 tests = TestList [
     TestLabel "test_sustainHandler" test_sustainHandler
-  , TestLabel "test_deleteOneSustainedNote_and_insertOneSustainedNote"
-    test_deleteOneSustainedNote_and_insertOneSustainedNote
+  , TestLabel "test_deleteOneSustainReason_and_insertOneSustainReason"
+    test_deleteOneSustainReason_and_insertOneSustainReason
   , TestLabel "test_sustainOn" test_sustainOn
   , TestLabel "test_sustainOff" test_sustainOff
   , TestLabel "test_voicesToSilence_uponSustainOff" test_voicesToSilence_uponSustainOff
@@ -76,8 +76,8 @@ test_sustainOff = TestCase $ do
                      %~ S.delete LedBecauseSustain )
           & stApp . edoSustaineded .~ Nothing )
 
-test_deleteOneSustainedNote_and_insertOneSustainedNote :: Test
-test_deleteOneSustainedNote_and_insertOneSustainedNote = TestCase $ do
+test_deleteOneSustainReason_and_insertOneSustainReason :: Test
+test_deleteOneSustainReason_and_insertOneSustainReason = TestCase $ do
   let
     pc = 0
     lit_a :: Map (PitchClass EdoApp) (Set LedBecause) = -- lit b/c anchor
@@ -87,14 +87,14 @@ test_deleteOneSustainedNote_and_insertOneSustainedNote = TestCase $ do
     lit_as :: Map (PitchClass EdoApp) (Set LedBecause) = -- lit b/c both
       M.singleton pc $ S.fromList [LedBecauseAnchor, LedBecauseSustain]
   assertBool "add sustain to the reasons a lit (because anchored) key is lit"
-    $ insertOneSustainedNote pc lit_a == lit_as
+    $ insertOneSustainReason pc lit_a == lit_as
   assertBool "add sustain to the previously empty set of reasons a key is lit"
-    $ insertOneSustainedNote pc mempty == lit_s
+    $ insertOneSustainReason pc mempty == lit_s
 
   assertBool "if sustain was the only reason, then upon releasing sustain, there are no more reasons" $
-    deleteOneSustainedNote pc lit_s == mempty
+    deleteOneSustainReason pc lit_s == mempty
   assertBool "if the anchor note is sustained, then upon releasing sustain, the anchor reemains as reason to light the key" $
-    deleteOneSustainedNote pc lit_as == lit_a
+    deleteOneSustainReason pc lit_as == lit_a
 
 test_sustainHandler :: Test
 test_sustainHandler = TestCase $ do

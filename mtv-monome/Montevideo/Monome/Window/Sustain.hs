@@ -17,8 +17,8 @@ module Montevideo.Monome.Window.Sustain (
   , sustainOff                     -- ^ St EdoApp -> St EdoApp
   , sustainMore                    -- ^ St EdoApp -> St EdoApp
   , sustainLess                    -- ^ St EdoApp -> St EdoApp
-  , insertOneSustainedNote -- ^ PitchClass -> LitPitches -> LitPitches
-  , deleteOneSustainedNote -- ^ PitchClass -> LitPitches -> LitPitches
+  , insertOneSustainReason -- ^ PitchClass -> LitPitches -> LitPitches
+  , deleteOneSustainReason -- ^ PitchClass -> LitPitches -> LitPitches
   , buttonMsgs -- ^ Bool -> [(WindowId, ((X,Y), Bool))]
   ) where
 
@@ -63,6 +63,9 @@ sustainWindow :: Window EdoApp
 sustainWindow = Window {
     windowLabel = label
   , windowContains = flip elem buttons
+    -- TODO : Better would be if, when nothing is sustained,
+    -- this window only occupied the very coerner-most button,
+    -- allowing the other two buttons to be part of the Keyboard window.
   , windowInit = id
   , windowHandler = handler
 }
@@ -195,7 +198,7 @@ sustainOff st =
     mapM (vid_to_pitchClass st) $
     S.toList $ maybe (error "impossible") id $
     app ^. edoSustaineded
-  let lit' = foldr deleteOneSustainedNote (app ^. edoLit) pcs
+  let lit' = foldr deleteOneSustainReason (app ^. edoLit) pcs
   Right $ st & stApp . edoSustaineded .~ Nothing
              & stApp . edoLit         .~ lit'
 
@@ -209,17 +212,22 @@ sustainMore st =
          pcs :: [PitchClass EdoApp] <-
            mapM (vid_to_pitchClass st) $
            M.elems $ app ^. edoFingers
-         let lit' = foldr insertOneSustainedNote (app ^. edoLit) pcs
+         let lit' = foldr insertOneSustainReason (app ^. edoLit) pcs
              vs1 :: Set VoiceId = S.fromList vs
              vs2 :: Set VoiceId = maybe vs1 (S.union vs1) $
                                   app ^. edoSustaineded
          Right $ st & stApp . edoSustaineded .~ Just vs2
                     & stApp . edoLit         .~ lit'
 
--- | TODO: You can argue it both ways, but it might be more convenient
+-- | `sustainLess st` returns `(st', pcs)`,
+-- where `pcs` are the pitch classes that were being fingered in `st`,
+
+-- todo ? You could argue it would be more convenient
 -- if "sustainLess" was, rather than a momentary action,
 -- a new state for the keyboard. You'd push a button to enter "delete mode",
 -- then press keys to delete, then push the button again to exit that state.
+-- This would make it easier to use with a single hand.
+-- However, it would be slower to use, and harder to write.
 sustainLess :: St EdoApp -> Either String ( St EdoApp
                                           , [PitchClass EdoApp] )
 sustainLess st =
@@ -228,10 +236,11 @@ sustainLess st =
   in case M.elems $ app ^. edoFingers :: [VoiceId] of
        [] -> Right (st, [])
        vs -> do
+
          pcs :: [PitchClass EdoApp] <-
            mapM (vid_to_pitchClass st) $
            M.elems $ app ^. edoFingers
-         let lit' = foldr deleteOneSustainedNote (app ^. edoLit) pcs
+         let lit' = foldr deleteOneSustainReason (app ^. edoLit) pcs
              vs1 :: Set VoiceId = S.fromList vs
              vs2 :: Set VoiceId = maybe vs1 (flip S.difference vs1) $
                                   app ^. edoSustaineded
@@ -239,17 +248,23 @@ sustainLess st =
                       & stApp . edoLit         .~ lit'
                  , pcs )
 
--- | When sustain is toggled, the reasons for having LEDs on change.
+-- | `insertOneSustainReason pc` and `deleteOneSustainReason pc`
+-- insert or delete, respectively, sustain as a reason for `pc` to be lit.
+--
+-- Why that's needed:
+-- When sustain is toggled, the reasons for having LEDs on change.
 -- If it is turned on, some LEDs are now lit for two reasons:
 -- fingers and sustain. If it is turned off,
 -- sustain is no longer a reason to light up any LEDs.
-insertOneSustainedNote, deleteOneSustainedNote
+insertOneSustainReason, deleteOneSustainReason
   :: PitchClass EdoApp -> LitPitches EdoApp -> LitPitches EdoApp
-insertOneSustainedNote pc m =
+
+insertOneSustainReason pc m =
   let reasons :: Set LedBecause =
         maybe S.empty id $ M.lookup pc m
   in M.insert pc (S.insert LedBecauseSustain reasons) m
-deleteOneSustainedNote pc m =
+
+deleteOneSustainReason pc m =
   case M.lookup pc m of
     Nothing -> m -- TODO ? Should this throw an error? It shouldn't happen.
     Just reasons -> let
