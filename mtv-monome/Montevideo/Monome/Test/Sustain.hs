@@ -33,7 +33,7 @@ tests = TestList [
 test_sustainLess :: Test
 test_sustainLess = TestCase $ do
 
-  let Right (st, pcs) = sustainLess $ st0
+  let Right (st, vs) = sustainLess $ st0
         & stApp . edoFingers .~ M.fromList [ (xy0, v0) ]
         & stApp . edoSustaineded .~ S.singleton v0
         & stApp . edoLit .~ ( M.singleton pc0
@@ -46,7 +46,7 @@ test_sustainLess = TestCase $ do
         & stApp . edoSustaineded .~ mempty
         & stApp . edoLit .~ ( M.singleton pc0 $ S.singleton $
                               LedBecauseSwitch xy0 ) )
-    assertBool "" $ pcs == [pc0]
+    assertBool "" $ vs == [v0]
 
   let st = st0
         & stApp . edoFingers .~ M.fromList [ (xy1, v1) ]
@@ -54,9 +54,9 @@ test_sustainLess = TestCase $ do
         & stApp . edoLit .~ ( M.singleton pc0
                               $ S.fromList [ LedBecauseSwitch xy0
                                            , LedBecauseSustain ] )
-      Right (st', pcs) = sustainLess st
+      Right (st', vs) = sustainLess st
       in do assertBool "" $ st =^= st'
-            assertBool "" $ pcs == [pc1]
+            assertBool "" $ vs == []
 
 test_sustainedVoices_inPitchClasses :: Test
 test_sustainedVoices_inPitchClasses = TestCase $ do

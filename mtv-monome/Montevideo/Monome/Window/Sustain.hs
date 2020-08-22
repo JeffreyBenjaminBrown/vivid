@@ -97,13 +97,13 @@ handler st ((==) button_sustainMore -> True,  True)  =
 
 handler st ((==) button_sustainLess -> True,  True)  =
   mapLeft ("Window.Sustain.handler (sustainLess): " ++) $ do
-  ( st1 :: St EdoApp, pcs :: [PitchClass EdoApp] ) <-
+  ( st1 :: St EdoApp, toRemove :: [VoiceId] ) <-
     sustainLess st
-  scas :: [ScAction VoiceId] <-
-    -- If nothing is fingered, this is empty,
-    -- and `handler` returns `st` unchanged.
-    map silenceMsg <$> sustainedVoices_inPitchClasses st pcs
-  let st2 = st1 & stPending_Vivid  %~ flip (++) scas
+  let scas :: [ScAction VoiceId] =
+        -- If nothing is fingered, this is empty,
+        -- and `handler` returns `st` unchanged.
+        map silenceMsg toRemove
+      st2 = st1 & stPending_Vivid  %~ flip (++) scas
   Right $ foldr updateVoiceParams st2 scas
 
 handler st ((==) button_sustainOff -> True,  True)  =
@@ -210,19 +210,21 @@ sustainMore st =
 -- However, it would be slower to use, and harder to write.
 
 sustainLess :: St EdoApp -> Either String ( St EdoApp
-                                          , [PitchClass EdoApp] )
+                                          , [VoiceId] )
 sustainLess st =
   mapLeft ("sustainLess: " ++) $ do
   let app = st ^. stApp
       fs :: [VoiceId] = M.elems $ app ^. edoFingers
-  pcs :: [PitchClass EdoApp] <-
+  fPcs :: [PitchClass EdoApp] <-
            mapM (vid_to_pitchClass st) fs
-  let lit' = foldr deleteOneSustainReason (app ^. edoLit) pcs
+  toRemove :: [VoiceId] <-
+    sustainedVoices_inPitchClasses st fPcs
+  let lit' = foldr deleteOneSustainReason (app ^. edoLit) fPcs
   Right $ ( -- If `fs` is empty, this is just `(st, [])`
             st & ( stApp . edoSustaineded %~
                    flip S.difference (S.fromList fs) )
                & stApp . edoLit         .~ lit'
-          , pcs )
+          , toRemove )
 
 -- | `insertOneSustainReason pc` and `deleteOneSustainReason pc`
 -- insert or delete, respectively, sustain as a reason for `pc` to be lit.
