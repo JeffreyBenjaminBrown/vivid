@@ -1,9 +1,9 @@
 -- | Math for equal divisions of the octave.
 
 module Montevideo.Monome.EdoMath (
-    edoToFreq   -- ^ EdoConfig -> Pitch EdoApp -> Float
-  , xyToEdo     -- ^ EdoConfig -> (X,Y) -> Pitch EdoApp
-  , xyToEdo_app -- ^ EdoApp    -> (X,Y) -> Pitch EdoApp
+    edoToFreq   -- ^ EdoConfig -> EdoPitch -> Float
+  , xyToEdo     -- ^ EdoConfig -> (X,Y) -> EdoPitch
+  , xyToEdo_app -- ^ EdoApp    -> (X,Y) -> EdoPitch
   , pcToXys_st  -- ^ St EdoApp -> EdoPitchClass -> [(X,Y)]
   , pcToXys     -- ^ EdoConfig -> PitchClass -> (X,Y) -> [(X,Y)]
   , pcToLowXY   -- ^ EdoConfig -> PitchClass -> (X,Y)
@@ -21,14 +21,14 @@ import           Montevideo.Monome.Types.Most
 import           Montevideo.Util
 
 
-edoToFreq :: EdoConfig -> Pitch EdoApp -> Float
+edoToFreq :: EdoConfig -> EdoPitch -> Float
 edoToFreq ec f =
   let two :: Float = realToFrac $ fromCents $
                      10 * (1200 + ec ^. octaveStretchInCents)
   in two ** ( fi (_unEdoPitch f) /
               fi (ec ^. edo) )
 
-xyToEdo_app :: EdoApp -> (X,Y) -> Pitch EdoApp
+xyToEdo_app :: EdoApp -> (X,Y) -> EdoPitch
 xyToEdo_app app xy =
   xyToEdo (app ^. edoConfig) $
   pairAdd xy $ pairMul (-1) $ _edoXyShift app
@@ -77,7 +77,7 @@ _enharmonicToXYs ec btn = let
 -- xyToEdo <$> pcToLowXY <$> [0..31] == [0,1,2,3,4,5,6,7,8,9,10,11,12,
 -- 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,0]
 -- (notice the 0 at the end).
-xyToEdo :: EdoConfig -> (X,Y) -> Pitch EdoApp
+xyToEdo :: EdoConfig -> (X,Y) -> EdoPitch
 xyToEdo ec (x,y) = EdoPitch
                  $ _spacing ec * x
                  + _skip    ec * y
