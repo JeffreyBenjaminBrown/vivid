@@ -170,8 +170,13 @@ sustainMore st =
   Right $ st & stApp . edoSustaineded %~ S.union (S.fromList fs)
              & stApp . edoLit         .~ lit'
 
--- | `sustainLess st` returns `(st', pcs)`,
--- where `pcs` are the pitch classes that were being fingered in `st`.
+-- | `sustainLess st` returns `(st', toSilence)`,
+-- where `toSilence` are the pitch classes that should be silenced,
+-- and `st'` is `st` with `_edoLit` and `_edoSustaineded` updated
+-- to no longer include any voices enharmonic to any fingered voice.
+-- PITFALL: `toSilence` can be a proper subset of the voices that were
+-- sustained and are now not, because any sustained voice that is
+-- also being fingered should continue to sound.
 --
 -- todo ? You could argue it would be more convenient
 -- if "sustainLess" was, rather than a momentary action,
@@ -188,11 +193,13 @@ sustainLess st =
       fs :: [VoiceId] = M.elems $ app ^. edoFingers
   fPcs :: [EdoPitchClass] <-
            mapM (vid_to_pitchClass st) fs
-  toSilence :: [VoiceId] <-
+  toUnsustain :: [VoiceId] <-
     sustainedVoices_inPitchClasses st fPcs
+  let toSilence :: [VoiceId] =
+        S.toList $ S.difference (S.fromList toUnsustain) (S.fromList fs)
   Right $ ( -- If `fs` is empty, this is just `(st, [])`
             st & ( stApp . edoSustaineded %~
-                   flip S.difference (S.fromList toSilence) )
+                   flip S.difference (S.fromList toUnsustain) )
                & ( stApp . edoLit         .~
                    foldr deleteOneSustainReason (app ^. edoLit) fPcs )
           , toSilence )
