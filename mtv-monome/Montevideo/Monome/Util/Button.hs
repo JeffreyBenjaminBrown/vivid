@@ -32,11 +32,11 @@ readOSC_asSwitch :: OSC -> Either String ((X,Y), Switch)
 readOSC_asSwitch m =
   mapLeft ("readOSC_asSwitch" ++) $
   case m of
-    (OSC "/monome/grid/key" [OSC_I x, OSC_I y, OSC_I s]) -> do
+    (OSC "/256/grid/key" [OSC_I x, OSC_I y, OSC_I s]) -> do
       b <- boolFromInt $ fi s
       Right ((fi x, fi y), b)
     x ->
-      Left $ "readOSC_asSwitch: Bad OSC message: " ++ show x
+      Left $ "Bad OSC message: " ++ show x
 
 -- | Tells the monome to turn on an LED. See Test/HandTest.hs.
 ledOsc :: String -> ((X,Y), Led) -> ByteString

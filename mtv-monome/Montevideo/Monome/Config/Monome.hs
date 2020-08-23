@@ -49,9 +49,9 @@ import Montevideo.Monome.Types.Device
 --   send toMonome256 $ encodeOSC $ OSC "/sys/prefix" [ OSC_S "256" ]
 
 -- | To test a monome's LEDs:
--- send toMonome $ fade "/monome" 0 1 15 -- 15 is brightness
+-- send toMonome $ fade "/128" 0 1 15 -- 15 is brightness
   -- lower nonzero brightness values are like 0 on one of the monomes
--- send toMonome $ ledOsc "/monome" ((6,6) , True)
+-- send toMonome $ ledOsc "/256" ((6,6) , True)
   
 
 -- | = Send a message to something

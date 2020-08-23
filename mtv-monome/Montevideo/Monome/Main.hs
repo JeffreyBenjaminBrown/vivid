@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE LambdaCase
+, OverloadedStrings
 , DataKinds
 , ScopedTypeVariables #-}
 
@@ -24,6 +25,7 @@ import           Control.Lens hiding (set)
 import           Data.ByteString.Char8 (unpack)
 import           Data.Either.Combinators
 import qualified Data.Map as M
+
 import Vivid
 import Vivid.OSC
 
@@ -47,6 +49,7 @@ edoMonome :: Int -- ^ The monome address, as serialoscd reports on startup.
           -> EdoConfig
           -> IO (St EdoApp)
 edoMonome monomePort edoCfg = do
+  renameMonomes
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
     -- I don't know why it's port 8000, or why it used to be 11111.
   toMonome :: Socket <- sendsTo (unpack localhost) monomePort
@@ -89,7 +92,7 @@ edoMonome monomePort edoCfg = do
           st <- readMVar mst
           let f = maybe (putStrLn "voice with no synth") free
             in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
-          _ <- send toMonome $ allLedOsc "/monome" False
+          _ <- send toMonome $ allLedOsc "/256" False
           return st
         _   -> loop
     in putStrLn "press 'q' to quit"
@@ -107,6 +110,7 @@ jiMonome :: Int        -- ^ The monome address, as reported by serialoscd.
 jiMonome monomePort scale shifts = do
   -- PITFALL: Every comment written in edoMonome also applies here.
 
+  renameMonomes
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
   toMonome :: Socket <- sendsTo (unpack localhost) monomePort
 
@@ -140,7 +144,7 @@ jiMonome monomePort scale shifts = do
           st <- readMVar mst
           let f = maybe (putStrLn "voice with no synth") free
             in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
-          _ <- send toMonome $ allLedOsc "/monome" False
+          _ <- send toMonome $ allLedOsc "/256" False
           return st
         _   -> loop
     in putStrLn "press 'q' to quit"
@@ -148,6 +152,20 @@ jiMonome monomePort scale shifts = do
 
 
 -- ** Utilities they use
+
+-- | Every time serialosc is restarted, the prefix that a monome uses
+-- to filter messages (i.e. to decide which ones to respond to) is reset,
+-- to "monome". I don't want them to all respond to the same messages,
+-- so I have to give them different prefixes initially.
+-- (Alternatively I could have them listen to different ports, I think,
+-- but this is easy and that might not be.)
+renameMonomes :: IO ()
+renameMonomes = do
+  toMonome128 <- sendsTo (unpack localhost) 14336
+  toMonome256 <- sendsTo (unpack localhost) 15226
+  _ <- send toMonome128 $ encodeOSC $ OSC "/sys/prefix" [ OSC_S "128" ]
+  _ <- send toMonome256 $ encodeOSC $ OSC "/sys/prefix" [ OSC_S "256" ]
+  return ()
 
 initAllWindows :: forall app. MVar (St app) -> IO ()
 initAllWindows mst = do
