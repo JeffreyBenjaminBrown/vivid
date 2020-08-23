@@ -67,13 +67,10 @@ test_sustainedVoices_inPitchClasses = TestCase $ do
     sustainedVoices_inPitchClasses st_0fs [pc0]
     == Right [v0]
   assertBool "" $
-    sustainedVoices_inPitchClasses st_0fs [pc0 + 31, pc0 + 62]
+    sustainedVoices_inPitchClasses st_0fs [pc0, pc1]
     == Right [v0]
   assertBool "" $
-    sustainedVoices_inPitchClasses st_0fs [pc0 + 31, pc1 + 31]
-    == Right [v0]
-  assertBool "" $
-    sustainedVoices_inPitchClasses st_0fs [pc1 + 31]
+    sustainedVoices_inPitchClasses st_0fs [pc1]
     == Right []
 
 test_sustained_minus_fingered :: Test
