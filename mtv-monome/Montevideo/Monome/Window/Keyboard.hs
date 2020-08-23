@@ -53,10 +53,10 @@ handler    st          press@ (xy,sw)   =
   let
     fingers' = app ^. edoFingers
                & if sw then M.insert xy vid else M.delete xy
-    pcNow :: PitchClass EdoApp =
+    pcNow :: EdoPitchClass =
       pToPc_st st $ xyToEdo_app app xy
       -- what the key represents currently
-    pcThen :: Maybe (PitchClass EdoApp) =
+    pcThen :: Maybe EdoPitchClass =
       ledBecause_toPitchClass @ EdoApp
       (app ^. edoLit) $ LedBecauseSwitch xy
       -- what the key represented when it was pressed,
@@ -64,10 +64,10 @@ handler    st          press@ (xy,sw)   =
 
     lit  :: LitPitches EdoApp = app ^. edoLit
     lit' :: LitPitches EdoApp = updateStLit (xy,sw) pcNow pcThen lit
-    oldKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit
-    newKeys :: Set (PitchClass EdoApp) = S.fromList $ M.keys $ lit'
-    toDark  :: [PitchClass EdoApp] = S.toList $ S.difference oldKeys newKeys
-    toLight :: [PitchClass EdoApp] = S.toList $ S.difference newKeys oldKeys
+    oldKeys :: Set EdoPitchClass = S.fromList $ M.keys $ lit
+    newKeys :: Set EdoPitchClass = S.fromList $ M.keys $ lit'
+    toDark  :: [EdoPitchClass] = S.toList $ S.difference oldKeys newKeys
+    toLight :: [EdoPitchClass] = S.toList $ S.difference newKeys oldKeys
 
     kbdMsgs :: [LedMsg] =
       map (label,) $
@@ -90,8 +90,8 @@ handler    st          press@ (xy,sw)   =
   Right $ foldr updateVoiceParams st1 scas
 
 updateStLit :: ((X,Y), Switch)
-  -> PitchClass EdoApp         -- ^ what xy represents now
-  -> Maybe (PitchClass EdoApp) -- ^ what xy represented when last pressed
+  -> EdoPitchClass         -- ^ what xy represents now
+  -> Maybe EdoPitchClass -- ^ what xy represented when last pressed
   -> LitPitches EdoApp
   -> LitPitches EdoApp
 

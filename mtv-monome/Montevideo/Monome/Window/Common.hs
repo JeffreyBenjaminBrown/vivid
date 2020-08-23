@@ -32,7 +32,7 @@ import           Montevideo.Synth
 -- TODO (#speed) Instead, keep a map from xy to pitchclass
 
 ledBecause_toPitchClass :: forall app.
-  LitPitches app -- Map (PitchClass app) (Set LedBecause)
+  LitPitches app
   -> LedBecause
   -> Maybe (PitchClass app)
 ledBecause_toPitchClass m lb =
@@ -65,7 +65,7 @@ updateVoiceParams sca =
      M.toList $ _actionScMsg sca
 
 vid_to_pitchClass :: St EdoApp -> VoiceId
-                  ->  Either String (PitchClass EdoApp)
+                  ->  Either String EdoPitchClass
 vid_to_pitchClass st v =
   mapLeft ("vid_to_pitchClass: " ++) $ maybe
   (Left "vid_to_pitchClass: voice not found")

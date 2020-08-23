@@ -4,7 +4,7 @@ module Montevideo.Monome.EdoMath (
     edoToFreq   -- ^ EdoConfig -> Pitch EdoApp -> Float
   , xyToEdo     -- ^ EdoConfig -> (X,Y) -> Pitch EdoApp
   , xyToEdo_app -- ^ EdoApp    -> (X,Y) -> Pitch EdoApp
-  , pcToXys_st  -- ^ St EdoApp -> PitchClass EdoApp -> [(X,Y)]
+  , pcToXys_st  -- ^ St EdoApp -> EdoPitchClass -> [(X,Y)]
   , pcToXys     -- ^ EdoConfig -> PitchClass -> (X,Y) -> [(X,Y)]
   , edoToLowXY  -- ^ EdoConfig -> PitchClass -> (X,Y)
   , vv, hv      -- ^ EdoConfig -> (X,Y)
@@ -33,14 +33,14 @@ xyToEdo_app app xy =
   xyToEdo (app ^. edoConfig) $
   pairAdd xy $ pairMul (-1) $ _edoXyShift app
 
-pcToXys_st :: St EdoApp -> PitchClass EdoApp -> [(X,Y)]
+pcToXys_st :: St EdoApp -> EdoPitchClass -> [(X,Y)]
 pcToXys_st st = pcToXys (st ^. stApp . edoConfig)
                         (st ^. stApp . edoXyShift)
 
 -- | `pcToXys ec shift pc` finds all buttons that are enharmonically
 -- equal to a given PitchClass, taking into account how the board
 -- has been shifted in pitch space.
-pcToXys :: EdoConfig -> (X,Y) -> PitchClass EdoApp -> [(X,Y)]
+pcToXys :: EdoConfig -> (X,Y) -> EdoPitchClass -> [(X,Y)]
 pcToXys ec shift pc = let
   onMonome :: (X,Y) -> Bool -- monome button coordinates are in [0,15]
   onMonome (x,y) = x >= 0  && y >= 0  &&
@@ -101,7 +101,7 @@ xyToEdo ec (x,y) = EdoPitch
 --                      , mod j $ _spacing ec )
 --     where j = mod pc $ _edo ec
 
-edoToLowXY :: EdoConfig -> PitchClass EdoApp -> (X,Y)
+edoToLowXY :: EdoConfig -> EdoPitchClass -> (X,Y)
 edoToLowXY ec pc = let
   sk = _skip ec
   f :: X -> (X, Y)

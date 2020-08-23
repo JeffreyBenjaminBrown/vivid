@@ -20,7 +20,7 @@ module Montevideo.Monome.Window.Sustain (
   , sustainLess                    -- ^ St EdoApp -> St EdoApp
 
   -- * utilities
-  , sustainedVoices_inPitchClasses -- ^ St EdoApp -> [PitchClass EdoApp]
+  , sustainedVoices_inPitchClasses -- ^ St EdoApp -> [EdoPitchClass]
                                    -- -> Either String [VoiceId]
   , sustained_minus_fingered       -- ^ St EdoApp -> Set VoiceId
   , insertOneSustainReason -- ^ PitchClass -> LitPitches -> LitPitches
@@ -152,7 +152,7 @@ sustainOff st =
      then Right st -- nothing is sustained, so nothing to do
      else do
 
-  susPcs :: [PitchClass EdoApp] <-
+  susPcs :: [EdoPitchClass] <-
     mapM (vid_to_pitchClass st) $
     S.toList $ app ^. edoSustaineded
   Right $ st &   stApp . edoSustaineded .~ mempty
@@ -164,7 +164,7 @@ sustainMore st =
   mapLeft ("sustainMore: " ++) $ do
   let app = st ^. stApp
       fs :: [VoiceId] = M.elems $ app ^. edoFingers
-  fPcs :: [PitchClass EdoApp] <-
+  fPcs :: [EdoPitchClass] <-
     mapM (vid_to_pitchClass st) fs
   let lit' = foldr insertOneSustainReason (app ^. edoLit) fPcs
   Right $ st & stApp . edoSustaineded %~ S.union (S.fromList fs)
@@ -186,7 +186,7 @@ sustainLess st =
   mapLeft ("sustainLess: " ++) $ do
   let app :: EdoApp = st ^. stApp
       fs :: [VoiceId] = M.elems $ app ^. edoFingers
-  fPcs :: [PitchClass EdoApp] <-
+  fPcs :: [EdoPitchClass] <-
            mapM (vid_to_pitchClass st) fs
   toSilence :: [VoiceId] <-
     sustainedVoices_inPitchClasses st fPcs
@@ -203,12 +203,12 @@ sustainLess st =
 -- | `sustainedVoices_inPitchClasses st pcs` returns every sustained voice
 -- in `st` that is equal modulo the edo to something in `pcs`.
 sustainedVoices_inPitchClasses
-  :: St EdoApp -> [PitchClass EdoApp] -> Either String [VoiceId]
+  :: St EdoApp -> [EdoPitchClass] -> Either String [VoiceId]
 sustainedVoices_inPitchClasses st pcs =
   let susVs :: [VoiceId] = S.toList $ st ^. stApp . edoSustaineded
       isMatch :: VoiceId -> Either String (VoiceId, Bool)
       isMatch vid = do
-        pc <- vid_to_pitchClass st vid
+        pc :: EdoPitchClass <- vid_to_pitchClass st vid
         Right ( vid
               , -- The call to `modEdo` below is unnecessary *if* the caller
                 -- only sends `PitchClass`es, but it could send `Pitch`es.
@@ -216,7 +216,7 @@ sustainedVoices_inPitchClasses st pcs =
   in map fst . filter snd <$> mapM isMatch susVs
 
 pitchClassesToDarken_uponSustainOff ::
-  St EdoApp -> St EdoApp -> Either String [PitchClass EdoApp]
+  St EdoApp -> St EdoApp -> Either String [EdoPitchClass]
   -- TODO ? speed: This calls `sustained_minus_fingered`.
   -- Would it be faster to pass the result of `sustained_minus_fingered`
   -- as a precomputed argument? (I'm guessing the compiler fogures it out.)
@@ -224,7 +224,7 @@ pitchClassesToDarken_uponSustainOff ::
 pitchClassesToDarken_uponSustainOff oldSt newSt = let
   -- `pitchClassesToDarken_uponSustainOff` is nearly equal to `sustained_minus_fingered`,
   -- but it excludes visual anchors as well as fingered notes.
-    mustStayLit :: PitchClass EdoApp -> Either String Bool
+    mustStayLit :: EdoPitchClass -> Either String Bool
     mustStayLit pc = case M.lookup pc $ newSt ^. stApp . edoLit of
       Nothing -> Right False
       Just s -> if null s
@@ -232,12 +232,13 @@ pitchClassesToDarken_uponSustainOff oldSt newSt = let
         else Right True
 
   in mapLeft ("pitchClassesToDarken_uponSustainOff: " ++) $ do
-  voicesToSilence_pcs :: [PitchClass EdoApp] <-
+  voicesToSilence_pcs :: [EdoPitchClass] <-
     mapM (vid_to_pitchClass oldSt) $ S.toList $
     sustained_minus_fingered oldSt
-  msls <- mapM mustStayLit voicesToSilence_pcs
-  Right $ map snd $ filter (not . fst) $
-    zip msls voicesToSilence_pcs
+  msls :: [(Bool, EdoPitchClass)] <-
+    flip zip voicesToSilence_pcs <$>
+    mapM mustStayLit voicesToSilence_pcs
+  Right $ map snd $ filter (not . fst) msls
 
 sustained_minus_fingered :: St EdoApp -> Set VoiceId
 sustained_minus_fingered st = let
@@ -257,7 +258,7 @@ sustained_minus_fingered st = let
 -- fingers and sustain. If it is turned off,
 -- sustain is no longer a reason to light up any LEDs.
 insertOneSustainReason, deleteOneSustainReason
-  :: PitchClass EdoApp -> LitPitches EdoApp -> LitPitches EdoApp
+  :: EdoPitchClass -> LitPitches EdoApp -> LitPitches EdoApp
 
 insertOneSustainReason pc m =
   let reasons :: Set LedBecause =

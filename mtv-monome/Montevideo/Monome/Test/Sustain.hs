@@ -106,11 +106,11 @@ test_deleteOneSustainReason_and_insertOneSustainReason :: Test
 test_deleteOneSustainReason_and_insertOneSustainReason = TestCase $ do
   let
     pc = 0
-    lit_a :: Map (PitchClass EdoApp) (Set LedBecause) = -- lit b/c anchor
+    lit_a :: Map (EdoPitchClass) (Set LedBecause) = -- lit b/c anchor
       M.singleton pc $ S.singleton LedBecauseAnchor
-    lit_s :: Map (PitchClass EdoApp) (Set LedBecause) = -- lit b/c/ sustain
+    lit_s :: Map (EdoPitchClass) (Set LedBecause) = -- lit b/c/ sustain
       M.singleton pc $ S.singleton LedBecauseSustain
-    lit_as :: Map (PitchClass EdoApp) (Set LedBecause) = -- lit b/c both
+    lit_as :: Map (EdoPitchClass) (Set LedBecause) = -- lit b/c both
       M.singleton pc $ S.fromList [LedBecauseAnchor, LedBecauseSustain]
   assertBool "add sustain to the reasons a lit (because anchored) key is lit"
     $ insertOneSustainReason pc lit_a == lit_as

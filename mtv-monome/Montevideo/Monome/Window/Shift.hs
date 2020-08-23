@@ -68,7 +68,7 @@ handler    st0          (xy, True )      =
   let ec = st0 ^. stApp . edoConfig
   s <- shift ec xy
   let st' :: St EdoApp = st0 & stApp . edoXyShift %~ pairAdd s
-      lit :: [PitchClass EdoApp] = M.keys $ st0 ^. stApp . edoLit
+      lit :: [EdoPitchClass] = M.keys $ st0 ^. stApp . edoLit
       msgs :: [LedMsg] =
         map (Kbd.label,) $
         (map (,False) $ concatMap (pcToXys_st st0) lit) ++
