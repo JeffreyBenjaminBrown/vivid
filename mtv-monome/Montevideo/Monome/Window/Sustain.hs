@@ -112,6 +112,10 @@ handler st ((==) button_sustainLess -> True,  True)  =
         -- and `handler` returns `st` unchanged.
         map silenceMsg toSilence
       st2 = st1 & stPending_Vivid  %~ flip (++) scas
+                & ( stPending_Monome %~ flip (++)
+                    ( if null $ st1 ^. stApp . edoSustaineded
+                      then buttonMsgs False
+                      else [] ) )
 
    -- TODO This call to updateVoiceParams seems uneeded.
   Right $ foldr updateVoiceParams st2 scas
