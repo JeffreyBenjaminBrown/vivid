@@ -6,12 +6,12 @@ module Montevideo.Monome.EdoMath (
   , xyToEdo_app -- ^ EdoApp    -> (X,Y) -> Pitch EdoApp
   , pcToXys_st  -- ^ St EdoApp -> EdoPitchClass -> [(X,Y)]
   , pcToXys     -- ^ EdoConfig -> PitchClass -> (X,Y) -> [(X,Y)]
-  , edoToLowXY  -- ^ EdoConfig -> PitchClass -> (X,Y)
+  , pcToLowXY   -- ^ EdoConfig -> PitchClass -> (X,Y)
   , vv, hv      -- ^ EdoConfig -> (X,Y)
-  , modEdo_cfg -- ^ Integral a => St EdoApp -> a -> a
-  , modEdo     -- ^ Integral a => St EdoApp -> a -> a
-  , pToPc      -- ^ EdoConfig -> EdoPitch -> EdoPitchClass
-  , pToPc_st   -- ^ St EdoApp -> EdoPitch -> EdoPitchClass
+  , modEdo      -- ^ Integral a => St EdoApp -> a -> a
+  , modEdo_st   -- ^ Integral a => St EdoApp -> a -> a
+  , pToPc       -- ^ EdoConfig -> EdoPitch -> EdoPitchClass
+  , pToPc_st    -- ^ St EdoApp -> EdoPitch -> EdoPitchClass
   ) where
 
 import Control.Lens
@@ -47,7 +47,7 @@ pcToXys ec shift pc = let
                    x <= 15 && y <= 15
   in filter onMonome $
      _enharmonicToXYs ec $
-     pairAdd (edoToLowXY ec pc) shift
+     pairAdd (pcToLowXY ec pc) shift
 
 -- | A superset of all keys that sound the same note
 -- (modulo octave) visible on the monome.
@@ -59,7 +59,7 @@ pcToXys ec shift pc = let
 _enharmonicToXYs :: EdoConfig -> (X,Y) -> [(X,Y)]
 _enharmonicToXYs ec btn = let
 
-  low = edoToLowXY ec $ pToPc ec $ xyToEdo ec btn
+  low = pcToLowXY ec $ pToPc ec $ xyToEdo ec btn
   ((v1,v2),(h1,h2)) = (vv ec, hv ec)
   wideGrid = [
     ( i*h1 + j*v1
@@ -73,8 +73,8 @@ _enharmonicToXYs ec btn = let
 -- | `xyToEdo ec (x,y)` finds the pitch class that (x,y) corresponds to,
 -- assuming the board has not been shifted.
 --
--- In the PitchClass domain, xyToEdo and edoToLowXY are inverses:
--- xyToEdo <$> edoToLowXY <$> [0..31] == [0,1,2,3,4,5,6,7,8,9,10,11,12,
+-- In the PitchClass domain, xyToEdo and pcToLowXY are inverses:
+-- xyToEdo <$> pcToLowXY <$> [0..31] == [0,1,2,3,4,5,6,7,8,9,10,11,12,
 -- 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,0]
 -- (notice the 0 at the end).
 xyToEdo :: EdoConfig -> (X,Y) -> Pitch EdoApp
@@ -86,8 +86,8 @@ xyToEdo ec (x,y) = EdoPitch
 --
 -- PITFALL: Does not take into account shifting via _edoXyShift.
 --
--- In the PitchClass domain, xyToEdo and edoToLowXY are roughly inverse:
--- xyToEdo <$> edoToLowXY <$> [0..31] == [0,1,2,3,4,5,6,7,8,9,10,11,12,
+-- In the PitchClass domain, xyToEdo and pcToLowXY are roughly inverse:
+-- xyToEdo <$> pcToLowXY <$> [0..31] == [0,1,2,3,4,5,6,7,8,9,10,11,12,
 -- 13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,0]
 -- (notice the 0 at the end).
 --
@@ -97,12 +97,12 @@ xyToEdo ec (x,y) = EdoPitch
 -- generates lots of out-of-bounds instances on all four sides.
 --
 -- Without Thanos tunings, the algorithm was much simpler:
---   edoToLowXY ec pc = ( div j $ _spacing ec
+--   pcToLowXY ec pc = ( div j $ _spacing ec
 --                      , mod j $ _spacing ec )
 --     where j = mod pc $ _edo ec
 
-edoToLowXY :: EdoConfig -> EdoPitchClass -> (X,Y)
-edoToLowXY ec pc = let
+pcToLowXY :: EdoConfig -> EdoPitchClass -> (X,Y)
+pcToLowXY ec pc = let
   sk = _skip ec
   f :: X -> (X, Y)
   f x = let
@@ -147,15 +147,15 @@ hv ec = case _gridVectors ec of
     in if abs (dot (vv ec) v1) <= abs (dot (vv ec) v2)
        then                v1  else                v2
 
-modEdo_cfg :: Integral a => EdoConfig -> a -> a
-modEdo_cfg ec = flip mod $ fromIntegral $
+modEdo :: Integral a => EdoConfig -> a -> a
+modEdo ec = flip mod $ fromIntegral $
                 _edo ec
 
-modEdo :: Integral a => St EdoApp -> a -> a
-modEdo = modEdo_cfg . _edoConfig . _stApp
+modEdo_st :: Integral a => St EdoApp -> a -> a
+modEdo_st = modEdo . _edoConfig . _stApp
 
 pToPc :: EdoConfig -> EdoPitch -> EdoPitchClass
-pToPc ec = EdoPitchClass . modEdo_cfg ec . _unEdoPitch
+pToPc ec = EdoPitchClass . modEdo ec . _unEdoPitch
 
 pToPc_st :: St EdoApp -> EdoPitch -> EdoPitchClass
-pToPc_st st = EdoPitchClass . modEdo st . _unEdoPitch
+pToPc_st st = EdoPitchClass . modEdo_st st . _unEdoPitch

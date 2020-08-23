@@ -210,7 +210,7 @@ sustainedVoices_inPitchClasses st pcs =
       isMatch vid = do
         pc :: EdoPitchClass <- vid_to_pitchClass st vid
         Right ( vid
-              , -- The call to `modEdo` below is unnecessary *if* the caller
+              , -- The call to `modEdo_st` below is unnecessary *if* the caller
                 -- only sends `PitchClass`es, but it could send `Pitch`es.
                 elem pc $ S.fromList pcs )
   in map fst . filter snd <$> mapM isMatch susVs
