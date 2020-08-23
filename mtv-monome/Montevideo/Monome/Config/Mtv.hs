@@ -1,6 +1,7 @@
--- | PITFALL: Import this library qualified to avoid name conflicts.
+-- * Configure `Montevideo.Monome` -- how the synth sounds,
+-- and how the monome is interpreted.
 
-module Montevideo.Monome.Config.Config where
+module Montevideo.Monome.Config.Mtv where
 
 import Montevideo.Monome.Types.EdoConfig
 

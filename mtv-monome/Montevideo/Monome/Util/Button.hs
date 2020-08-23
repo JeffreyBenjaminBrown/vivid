@@ -25,6 +25,9 @@ boolFromInt 1 = Right True
 boolFromInt x = Left ( "boolFromInt: " ++ show x
                        ++ " is niether 0 nor 1." )
 
+-- | Example:
+-- > readOSC_asSwitch $ OSC "/monome/grid/key" [OSC_I 7, OSC_I 7, OSC_I 1]
+-- Right ((7,7),True)
 readOSC_asSwitch :: OSC -> Either String ((X,Y), Switch)
 readOSC_asSwitch m =
   mapLeft ("readOSC_asSwitch" ++) $

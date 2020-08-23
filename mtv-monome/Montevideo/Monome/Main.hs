@@ -29,7 +29,7 @@ import Vivid.OSC
 
 import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Dispatch.Types.Time (unTimestamp)
-import qualified Montevideo.Monome.Config.Config as Config
+import qualified Montevideo.Monome.Config.Mtv as Config
 import           Montevideo.Monome.Network.Util
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Util.Button
