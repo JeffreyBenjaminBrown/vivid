@@ -21,7 +21,7 @@ module Montevideo.Synth (
 
 import Vivid
 
-import qualified Montevideo.Monome.Config as Config
+import qualified Montevideo.Monome.Config.Config as Config
 import           Montevideo.Synth.Samples
 import           Montevideo.Synth.Vap as X
 import           Montevideo.Synth.Zot as X

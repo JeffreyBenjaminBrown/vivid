@@ -20,12 +20,15 @@ testToPort port = do
 -- | Test the monome.
 
 -- listenAndLogOsc 8000
--- toSerialosc <- sendsTo (unpack localhost) 12002
+-- toSerialosc <- sendsTo (Char8.unpack localhost) 12002
 -- send toSerialosc $ requestDeviceList 8000
 
 -- To get the right port number for toMonome, run the previous two lines.
--- toMonome <- sendsTo (unpack localhost) 14718
--- send toMonome $ requestDeviceInfo 8000
+-- toMonome128 <- sendsTo (Char8.unpack localhost) 14336
+-- toMonome256 <- sendsTo (Char8.unpack localhost) 15226
+-- send toMonome128 $ requestDeviceInfo 8000
+-- send toMonome128 $ encodeOSC $ OSC "/sys/prefix" [ OSC_S "128" ]
+-- send toMonome256 $ encodeOSC $ OSC "/sys/prefix" [ OSC_S "256" ]
 
 -- send toMonome $ fade "/monome" 0 1 15 -- 15 is brightness
   -- lower nonzero brightness values are like 0 on one of the monomes

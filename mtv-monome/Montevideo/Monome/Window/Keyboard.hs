@@ -18,7 +18,7 @@ import qualified Data.Set as S
 import           Data.Set (Set)
 
 import           Montevideo.Dispatch.Types.Many
-import qualified Montevideo.Monome.Config as Config
+import qualified Montevideo.Monome.Config.Config as Config
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Window.Common

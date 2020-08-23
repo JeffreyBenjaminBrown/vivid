@@ -8,7 +8,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 import           Montevideo.Dispatch.Types.Many
-import qualified Montevideo.Monome.Config as Config
+import qualified Montevideo.Monome.Config.Config as Config
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Test.Data
 import           Montevideo.Monome.Types.Most

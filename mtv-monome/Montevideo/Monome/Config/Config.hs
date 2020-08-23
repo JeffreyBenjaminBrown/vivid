@@ -1,21 +1,14 @@
 -- | PITFALL: Import this library qualified to avoid name conflicts.
 
-module Montevideo.Monome.Config where
+module Montevideo.Monome.Config.Config where
 
 import Montevideo.Monome.Types.EdoConfig
 
 
--- | * Configure the tuning
-
-
-
--- 22 1 5  -1.1
--- 31 1 6   0.5
--- 41 1 8   0
--- 41 2 13  0 (the Kite Guitar tuning)
--- 46 1 9   0
--- 87 2 17  0
-
+-- | * Configure the tuning.
+--
+-- An `EdoConfig` is one of the arguments to `Monome.Main.edoMonome`.
+-- Below are my favorites.
 
 my87 :: EdoConfig
 my87 = EdoConfig
