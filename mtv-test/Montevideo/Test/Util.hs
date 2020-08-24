@@ -18,8 +18,9 @@ test_lines' :: Test
 test_lines' = TestCase $ do
   assertBool ""      $ lines' '/' ""      == []
   assertBool ""      $ lines' '/' "abc"   == ["abc"]
-  assertBool "/abc"  $ lines' '/' "/abc"  == ["","abc"]
-  assertBool "/abc/" $ lines' '/' "/abc/" == ["","abc",""]
+  assertBool "/abc -- note that a leading '/' is ignored"
+                     $ lines' '/' "/abc"  == ["abc"]
+  assertBool "/abc/" $ lines' '/' "/abc/" == ["abc",""]
   assertBool "abc/"  $ lines' '/' "abc/"  == ["abc",""]
 
 test_lcmRatios :: Test

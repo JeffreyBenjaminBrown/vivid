@@ -131,9 +131,10 @@ unusedName names = head $ (L.\\) allStrings names where
   allStrings = [ c : s | s <- "" : allStrings
                        , c <- ['a'..'z'] ++ ['0'..'9'] ]
 
--- | `lines'` is like `lines` except you specify the separator.
+-- | `lines'` is like `lines` except you specify the separator,
+-- and it works for more than characters.
 -- PITFALL: `lines' d s` will ignore the first character of `s`if it is `d`
-lines' :: Char -> String -> [String]
+lines' :: Eq a => a -> [a] -> [[a]]
 lines' _ [] = []
 lines' separator s = let
   s' = if separator == head s then tail s else s
