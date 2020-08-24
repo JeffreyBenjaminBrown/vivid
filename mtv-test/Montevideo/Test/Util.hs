@@ -11,7 +11,16 @@ tests :: Test
 tests = TestList
   [ TestLabel "test_interleaves" test_interleaves
   , TestLabel "test_lcmRatios" test_lcmRatios
+  , TestLabel "test_lines'" test_lines'
   ]
+
+test_lines' :: Test
+test_lines' = TestCase $ do
+  assertBool ""      $ lines' '/' ""      == []
+  assertBool ""      $ lines' '/' "abc"   == ["abc"]
+  assertBool "/abc"  $ lines' '/' "/abc"  == ["","abc"]
+  assertBool "/abc/" $ lines' '/' "/abc/" == ["","abc",""]
+  assertBool "abc/"  $ lines' '/' "abc/"  == ["abc",""]
 
 test_lcmRatios :: Test
 test_lcmRatios = TestCase $ do

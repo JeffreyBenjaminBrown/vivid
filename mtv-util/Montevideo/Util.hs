@@ -19,6 +19,7 @@ module Montevideo.Util (
 
   -- | = strings
   , unusedName
+  , lines'
 
   -- | = lists
   , (!!!)
@@ -129,6 +130,15 @@ unusedName :: [String] -> String
 unusedName names = head $ (L.\\) allStrings names where
   allStrings = [ c : s | s <- "" : allStrings
                        , c <- ['a'..'z'] ++ ['0'..'9'] ]
+
+-- | `lines'` is like `lines` except you specify the separator.
+-- PITFALL: `lines' d s` will ignore the first character of `s`if it is `d`
+lines' :: Char -> String -> [String]
+lines' _ [] = []
+lines' separator s = let
+  s' = if separator == head s then tail s else s
+  (chunk, rest) = span (/= separator) s'
+  in chunk : lines' separator rest
 
 
 -- | = Lenses
