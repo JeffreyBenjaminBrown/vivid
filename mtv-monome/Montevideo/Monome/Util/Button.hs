@@ -12,7 +12,7 @@ import Vivid.OSC
 import Montevideo.Monome.Network.Monome
 import Montevideo.Monome.Types.Most
 import Montevideo.Util
-import Data.ByteString (ByteString)
+import Data.ByteString.Char8
 
 
 fromBool :: Num a => Bool -> a
@@ -29,14 +29,19 @@ boolFromInt x = Left ( "boolFromInt: " ++ show x
 -- > readOSC_asSwitch $ OSC "/monome/grid/key" [OSC_I 7, OSC_I 7, OSC_I 1]
 -- Right ((7,7),True)
 readOSC_asSwitch :: OSC -> Either String ((X,Y), Switch)
-readOSC_asSwitch m =
+readOSC_asSwitch m@(OSC s l) =
   mapLeft ("readOSC_asSwitch" ++) $
-  case m of
-    (OSC "/256/grid/key" [OSC_I x, OSC_I y, OSC_I s]) -> do
-      b <- boolFromInt $ fi s
-      Right ((fi x, fi y), b)
-    x ->
-      Left $ "Bad OSC message: " ++ show x
+  let ms :: [String] = lines' '/' $ unpack s
+      err = Left $ "Unrecognized OSC message: " ++ show m
+  in case l of
+       [OSC_I x, OSC_I y, OSC_I s] -> do
+         b <- boolFromInt $ fi s
+         case ms of
+           ["256","grid","key"] -> do
+             Right ((fi x, fi y), b)
+           _ -> err
+       _ -> err
+
 
 -- | Tells the monome to turn on an LED. See Test/HandTest.hs.
 ledOsc :: String -> ((X,Y), Led) -> ByteString
