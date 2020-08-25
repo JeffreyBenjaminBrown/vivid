@@ -45,7 +45,7 @@ relayIfHere dest ws w = f where
     then (send dest $ ledOsc "/256" msg) >> return ()
     else return ()
 
--- | `belongsHere allWindows w _` returns a `Filter` that returns `True`
+-- | `belongsHere allWindows w _` returns an `LedFilter` that returns `True`
 -- if `(X,Y)` belongs in `w` and none of the `Window`s preceding `w`.
 -- PITFALL: `allWindows` should include literally all of them, even `w`.
 belongsHere :: [Window app] -> Window app -> LedFilter
@@ -58,13 +58,11 @@ belongsHere allWindows w = f where
   f btn = not (obscured btn) && windowContains w btn
 
 findWindow :: [Window app] -> WindowId -> Maybe (Window app)
-findWindow ws l = L.find pred ws where
-  -- Pitfall: Assumes the window will be found.
-  pred = (==) l . windowLabel
+findWindow ws l =
+  L.find ((==) l . windowLabel) ws
 
 nextVoice :: St a -> VoiceId
 nextVoice st =
   case M.lookupMax $ _stVoices st of
-    Nothing -> VoiceId 0
+    Nothing             -> VoiceId 0
     Just (VoiceId i, _) -> VoiceId $ i+1
-    -- Note that (0,1) < (1,0).
