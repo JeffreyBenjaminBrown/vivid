@@ -44,7 +44,7 @@ import qualified Montevideo.Monome.Window.Keyboard as Kbd
 -- ** Data
 
 label :: WindowId
-label = "sustain window"
+label = SustainWindow
 
 buttons :: [(X,Y)]
 buttons = [button_sustainLess, button_sustainMore, button_sustainOff]

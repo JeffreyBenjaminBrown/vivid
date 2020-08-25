@@ -12,7 +12,7 @@ instance Eq (Window app) where
   (==) a b = windowLabel a == windowLabel b
 
 instance Show (Window app) where
-  show = windowLabel
+  show = show . windowLabel
 
 instance Show (Pitch app) => Show (Voice app) where
   show v = "Voice "

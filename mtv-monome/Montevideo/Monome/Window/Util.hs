@@ -31,7 +31,7 @@ relayToWindow :: St app -> WindowId -> Either String LedRelay
 relayToWindow st wl =
   mapLeft ("relayToWindow: " ++) $ do
   let ws = _stWindowLayers st
-  w <- maybe (Left $ "relayToWindow: " ++ wl ++ " not found.")
+  w <- maybe (Left $ "relayToWindow: " ++ show wl ++ " not found.")
        Right $ findWindow ws wl
   Right $ relayIfHere (_stToMonome st) ws w
 

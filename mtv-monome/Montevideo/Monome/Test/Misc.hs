@@ -40,9 +40,14 @@ testDependentPitchClass = TestCase $ do
 
 testBelongsHere :: Test
 testBelongsHere = TestCase $ do
-  let w1 = Window "w1" (\(x,y) -> x > y) (const []) $ \st _ -> Right st
-      w2 = Window "w2" (\(x,_) -> x > 4) (const []) $ \st _ -> Right st
-      w3 = Window "w3" (\(_,_) -> True)  (const []) $ \st _ -> Right st
+  -- PITFALL: These labels (e.g. KeyboardWindow) don't really mean anything;
+  -- I'm only using them to keep the labels distinct.
+  let w1 = Window KeyboardWindow (\(x,y) -> x > y)
+           (const []) $ \st _ -> Right st
+      w2 = Window ShiftWindow    (\(x,_) -> x > 4)
+           (const []) $ \st _ -> Right st
+      w3 = Window SustainWindow  (\(_,_) -> True)
+           (const []) $ \st _ -> Right st
       ws = [w1,w2,w3]
   assertBool "caught by w1 before reaching w3" $
     not $ belongsHere ws w3 (1,0)

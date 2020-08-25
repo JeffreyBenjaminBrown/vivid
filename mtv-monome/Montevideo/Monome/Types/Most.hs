@@ -4,7 +4,7 @@ TemplateHaskell #-}
 module Montevideo.Monome.Types.Most (
     module Montevideo.Monome.Types.EdoConfig
   , module Montevideo.Monome.Types.Monome
-  , Param, WindowId, VoiceId(..)
+  , Param, WindowId(..), VoiceId(..)
   , EdoPitch(..), EdoPitchClass(..)
   , LitPitches
   , LedMsg
@@ -30,7 +30,12 @@ import Montevideo.Synth
 
 
 type Param = String
-type WindowId = String
+
+data WindowId = KeyboardWindow
+              | ShiftWindow
+              | SustainWindow
+  deriving (Show, Eq, Ord)
+
 newtype VoiceId = VoiceId Int
   deriving (Show, Eq, Ord)
 

@@ -28,7 +28,7 @@ import           Montevideo.Monome.Window.Util
 
 
 label :: WindowId
-label = "keyboard window"
+label = KeyboardWindow
 
 keyboardWindow :: Window EdoApp
 keyboardWindow =  Window {

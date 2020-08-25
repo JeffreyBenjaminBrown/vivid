@@ -25,7 +25,7 @@ import           Montevideo.Util
 
 
 label :: WindowId
-label = "ji window"
+label = KeyboardWindow
 
 jiWindow :: Window JiApp
 jiWindow =  Window {

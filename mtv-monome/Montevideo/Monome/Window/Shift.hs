@@ -22,7 +22,7 @@ import qualified Montevideo.Monome.Window.Keyboard as Kbd
 
 
 label :: WindowId
-label = "shift window"
+label = ShiftWindow
 
 -- | = the arrows
 rightArrow, downArrow, leftArrow, upOctave, upArrow, downOctave :: (X,Y)
