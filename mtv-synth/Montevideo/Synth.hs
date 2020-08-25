@@ -72,13 +72,14 @@ boopPulse = sd ( 0              :: I "freq"
 
 
 -- * Boop for the monome
-type MoopParams = '["freq","amp"]
+type MoopParams = '["freq","amp","lag"]
 
 -- | PITFALL: A default freq of 0 might seem natural,
 -- but that causes a popping sounds when it's changed.
 moop :: SynthDef MoopParams
 moop = sd ( toI Config.freq :: I "freq"
           , 0 :: I "amp"
+          , 0.03 :: I "lag" -- measured in seconds
           ) $ do
   -- p <- pulse (freq_ (V::V "freq"))
   -- s <- saw (freq_ (V::V "freq"))
@@ -91,7 +92,7 @@ moop = sd ( toI Config.freq :: I "freq"
   sn3 <- sinOsc (freq_ $ 3 ~* (V::V "freq"))
   sn4 <- sinOsc (freq_ $ 4 ~* (V::V "freq"))
   -- sn5 <- sinOsc (freq_ $ 5 ~* (V::V "freq"))
-  s1 <- lag (in_ (V::V "amp"), lagSecs_ 0.03)
+  s1 <- lag (in_ (V::V "amp"), lagSecs_ (V::V "lag"))
         -- The lag smooths out discontinuities in the change in "amp".
         ~* 0.05 -- to prevent distortion
         ~* foldr1 (~+) ( map (\(f,a) -> f ~* a)
