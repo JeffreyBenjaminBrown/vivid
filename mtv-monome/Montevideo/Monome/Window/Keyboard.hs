@@ -36,10 +36,9 @@ keyboardWindow =  Window {
   , windowContains = \(x,y) -> let pred = numBetween 0 15
                                in pred x && pred y
   , windowInit = \st ->
-      st & stPending_Monome %~
-      flip (++) ( map ( (label,) . (,True) ) $
-                  concatMap (pcToXys_st st) $
-                  M.keys $ st ^. stApp . edoLit )
+      map ( (label,) . (,True) ) $
+      concatMap (pcToXys_st st) $
+      M.keys $ st ^. stApp . edoLit
   , windowHandler = handler }
 
 -- TODO ! duplicative of `JI.handler`

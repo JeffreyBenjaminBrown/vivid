@@ -55,9 +55,9 @@ shiftWindow :: Window EdoApp
 shiftWindow = Window {
     windowLabel = label
   , windowContains = \(x,y) -> numBetween 13 15 x && numBetween 14 15 y
-  , windowInit = stPending_Monome %~ flip (++)
-    ( (label,) . (,True) <$>
-      [ upArrow, downArrow, leftArrow, rightArrow ] )
+  , windowInit = const $
+    ( label,) . (,True) <$>
+    [ upArrow, downArrow, leftArrow, rightArrow ]
   , windowHandler = handler
 }
 

@@ -32,7 +32,7 @@ jiWindow =  Window {
     windowLabel = label
   , windowContains = \(x,y) -> let pred = numBetween 0 15
                                in pred x && pred y
-  , windowInit = id
+  , windowInit = const []
   , windowHandler = handler }
 
 -- TODO untested

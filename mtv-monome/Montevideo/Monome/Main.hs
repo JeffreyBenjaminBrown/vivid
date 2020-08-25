@@ -178,7 +178,8 @@ initAllWindows mst = do
   st <- readMVar mst
   let runWindowInit :: Window app -> IO ()
       runWindowInit w = let
-        st' :: St app = windowInit w st
+        st' :: St app = st & stPending_Monome
+                        %~ flip (++) (windowInit w st)
         in mapM_ (either putStrLn id) $
            doLedMessage st' <$> _stPending_Monome st'
   mapM_ runWindowInit $ _stWindowLayers st
