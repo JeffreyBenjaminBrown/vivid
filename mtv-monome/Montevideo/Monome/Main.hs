@@ -80,9 +80,11 @@ edoMonome monomePort edoCfg = do
       Right osc -> do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
-          Right switch ->
-            handleSwitch mst switch >>=
-            either putStrLn return
+          Right (monome,switch) -> case monome of
+            "256" -> handleSwitch mst switch >>=
+                     either putStrLn return
+            "128" -> putStrLn $ "Coming soon: a meaningful response to "
+                     ++ show osc ++ "."
 
   let loop :: IO (St EdoApp) =
         getChar >>= \case
@@ -132,9 +134,12 @@ jiMonome monomePort scale shifts = do
       Right osc -> do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
-          Right switch ->
-            handleSwitch mst switch >>=
-            either putStrLn return
+          Right (monome,switch) -> case monome of
+            "256" -> handleSwitch mst switch >>=
+                     either putStrLn return
+            "128" -> putStrLn $ "Coming soon: a meaningful response to "
+                     ++ show osc ++ "."
+
 
   let loop :: IO (St JiApp) =
         getChar >>= \case

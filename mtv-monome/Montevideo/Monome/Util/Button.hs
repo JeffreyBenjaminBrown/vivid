@@ -28,7 +28,9 @@ boolFromInt x = Left ( "boolFromInt: " ++ show x
 -- | Example:
 -- > readOSC_asSwitch $ OSC "/monome/grid/key" [OSC_I 7, OSC_I 7, OSC_I 1]
 -- Right ((7,7),True)
-readOSC_asSwitch :: OSC -> Either String ((X,Y), Switch)
+readOSC_asSwitch :: OSC -> Either String ( String, -- ^ Which monome.
+                                           ( -- ^ Which button.
+                                             (X,Y), Switch))
 readOSC_asSwitch m@(OSC s l) =
   mapLeft ("readOSC_asSwitch" ++) $
   let ms :: [String] = lines' '/' $ unpack s
@@ -37,8 +39,10 @@ readOSC_asSwitch m@(OSC s l) =
        [OSC_I x, OSC_I y, OSC_I s] -> do
          b <- boolFromInt $ fi s
          case ms of
+           ["128","grid","key"] -> do
+             Right ("128",((fi x, fi y), b))
            ["256","grid","key"] -> do
-             Right ((fi x, fi y), b)
+             Right ("256",((fi x, fi y), b))
            _ -> err
        _ -> err
 
