@@ -85,6 +85,7 @@ edoMonome monomePort edoCfg = do
                      either putStrLn return
             "128" -> putStrLn $ "Coming soon: a meaningful response to "
                      ++ show osc ++ "."
+            name  -> putStrLn $ "Unrecognized switch origin: " ++ show name
 
   let loop :: IO (St EdoApp) =
         getChar >>= \case
@@ -139,7 +140,7 @@ jiMonome monomePort scale shifts = do
                      either putStrLn return
             "128" -> putStrLn $ "Coming soon: a meaningful response to "
                      ++ show osc ++ "."
-
+            name  -> putStrLn $ "Unrecognized switch origin: " ++ show name
 
   let loop :: IO (St JiApp) =
         getChar >>= \case
