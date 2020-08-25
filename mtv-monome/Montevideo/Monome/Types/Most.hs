@@ -81,7 +81,8 @@ data Window app = Window {
     -- ^ PITFALL: A monome will respond to out-of-bounds (x,y) values.
     -- Every Window therefore needs a nontrivial windowContains field,
     -- even the background Window.
-  , windowInit :: St app -> [LedMsg]
+  , windowInitLeds :: St app -> [LedMsg]
+    -- ^ Some windows begin with some LEDs lit.
   , windowHandler :: -- ^ Acts on messages from the monome.
       St app
       -> ((X,Y), Switch) -- ^ the incoming button press|release

@@ -179,7 +179,7 @@ initAllWindows mst = do
   let runWindowInit :: Window app -> IO ()
       runWindowInit w = let
         st' :: St app = st & stPending_Monome
-                        %~ flip (++) (windowInit w st)
+                        %~ flip (++) (windowInitLeds w st)
         in mapM_ (either putStrLn id) $
            doLedMessage st' <$> _stPending_Monome st'
   mapM_ runWindowInit $ _stWindowLayers st

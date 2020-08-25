@@ -35,7 +35,7 @@ keyboardWindow =  Window {
     windowLabel = label
   , windowContains = \(x,y) -> let pred = numBetween 0 15
                                in pred x && pred y
-  , windowInit = \st ->
+  , windowInitLeds = \st ->
       map ( (label,) . (,True) ) $
       concatMap (pcToXys_st st) $
       M.keys $ st ^. stApp . edoLit
