@@ -7,7 +7,6 @@ module Montevideo.Monome.Window.Util (
   , LedRelay, LedFilter
   , relayToWindow -- ^ St -> WindowId -> [Window] -> LedRelay
   , relayIfHere   -- ^ Socket > [Window] -> Window -> LedRelay
-  , findWindow    -- ^ [Window] -> WindowId -> Maybe Window
 
   , nextVoice -- ^ M.Map VoiceId a -> VoiceId
   ) where
@@ -32,7 +31,7 @@ relayToWindow st mi wl =
   mapLeft ("relayToWindow: " ++) $ do
   let ws = _stWindowLayers st
   w :: Window app <- maybe (Left $ "Window " ++ show wl ++ " not found.")
-                     Right $ findWindow ws wl
+                     Right $ L.find ((==) wl . windowLabel) ws
   m :: Socket     <- maybe (Left $ "Relay to " ++ show mi ++ " not found.")
                      Right $ M.lookup mi $ _stToMonome st
   Right $ relayIfHere m ws w
@@ -58,10 +57,6 @@ belongsHere allWindows w = f where
   obscured xy = or $ map ($ xy) $ map windowContains obscurers
   f :: (X,Y) -> Bool
   f btn = not (obscured btn) && windowContains w btn
-
-findWindow :: [Window app] -> WindowId -> Maybe (Window app)
-findWindow ws l =
-  L.find ((==) l . windowLabel) ws
 
 nextVoice :: St a -> VoiceId
 nextVoice st =
