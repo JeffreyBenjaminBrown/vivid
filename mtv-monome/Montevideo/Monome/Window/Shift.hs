@@ -56,7 +56,7 @@ shiftWindow = Window {
     windowLabel = label
   , windowContains = \(x,y) -> numBetween 13 15 x && numBetween 14 15 y
   , windowInitLeds = const $
-    ( label,) . (,True) <$>
+    ( (Monome_256, label) ,) . (,True) <$>
     [ upArrow, downArrow, leftArrow, rightArrow ]
   , windowHandler = handler
 }
@@ -70,8 +70,8 @@ handler    st0          (xy, True )      =
   let st' :: St EdoApp = st0 & stApp . edoXyShift %~ pairAdd s
       lit :: [EdoPitchClass] = M.keys $ st0 ^. stApp . edoLit
       msgs :: [LedMsg] =
-        map (Kbd.label,) $
+        map ( (Monome_256, Kbd.label) ,) $
         (map (,False) $ concatMap (pcToXys_st st0) lit) ++
         (map (,True)  $ concatMap (pcToXys_st st') lit)
   Right $ st' & stPending_Monome %~
-                flip (++) (map (Monome_256,) msgs)
+                flip (++) msgs

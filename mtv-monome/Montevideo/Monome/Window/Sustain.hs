@@ -128,13 +128,13 @@ handler st ((==) button_sustainOff -> True,  True)  =
  
    let
      kbdMsgs :: [LedMsg] =
-       map ( (Kbd.label,) . (,False) ) $
+       map ( ( (Monome_256, Kbd.label) ,) .
+             (, False ) ) $
        concatMap (pcToXys_st st) $ toDark
      scas :: [ScAction VoiceId] =
        map silenceMsg $ S.toList $ sustained_minus_fingered st
      st2 = st1 & ( stPending_Monome %~ flip (++)
-                   ( buttonMsgs Monome_256 False ++
-                     map (Monome_256,) kbdMsgs) )
+                   ( buttonMsgs Monome_256 False ++ kbdMsgs) )
                & stPending_Vivid  %~ flip (++) scas
 
    -- TODO This call to updateVoiceParams seems uneeded.
@@ -289,10 +289,8 @@ deleteOneSustainReason pc m =
 
 -- TODO : This output should be less nested.
 -- Maybe ((monome,window), ((x,y), bool)).
-buttonMsgs :: MonomeId -> Bool -> [(MonomeId, LedMsg)]
+buttonMsgs :: MonomeId -> Bool -> [LedMsg]
 buttonMsgs mi light =
-  [ ( mi
-    , ( label
-      , ( button
-        , light) ) )
+  [ ( ( mi, label )
+    , ( button, light) )
   | button <- buttons ]

@@ -180,7 +180,7 @@ initAllWindows mst = do
   let runWindowInit :: Window app -> IO ()
       runWindowInit w = let
         st' :: St app = st & stPending_Monome %~ flip (++)
-                             (map (Monome_256,) $ windowInitLeds w st)
+                             (windowInitLeds w st)
         in mapM_ (either putStrLn id) $
            doLedMessage st' <$> _stPending_Monome st'
   mapM_ runWindowInit $ _stWindowLayers st
@@ -298,8 +298,8 @@ doScAction    st        sca =
           free s
         return $ Right $ stVoices . at vid .~ Nothing
 
-doLedMessage :: St app -> (MonomeId, LedMsg) -> Either String (IO ())
-doLedMessage st (mi, (wi, (xy,b))) =
+doLedMessage :: St app -> LedMsg -> Either String (IO ())
+doLedMessage st ((mi, wi), (xy, b)) =
   mapLeft ("doLedMessage: " ++) $
   case relayToWindow st mi wi of
     Left s         -> Left s

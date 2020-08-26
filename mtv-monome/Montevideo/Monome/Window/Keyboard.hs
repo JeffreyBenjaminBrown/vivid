@@ -36,7 +36,8 @@ keyboardWindow =  Window {
   , windowContains = \(x,y) -> let pred = numBetween 0 15
                                in pred x && pred y
   , windowInitLeds = \st ->
-      map ( (label,) . (,True) ) $
+      map ( ( (Monome_256, label) ,)
+            . (,True) ) $
       concatMap (pcToXys_st st) $
       M.keys $ st ^. stApp . edoLit
   , windowHandler = handler }
@@ -69,7 +70,7 @@ handler    st          press@ (xy,sw)   =
     toLight :: [EdoPitchClass] = S.toList $ S.difference newKeys oldKeys
 
     kbdMsgs :: [LedMsg] =
-      map (label,) $
+      map ((Monome_256, label) ,) $
       ( map (,False) $
         concatMap (pcToXys_st st) toDark) ++
       ( map (,True)  $
@@ -83,7 +84,7 @@ handler    st          press@ (xy,sw)   =
     st1 :: St EdoApp = st
       & stApp . edoFingers .~ fingers'
       & stApp . edoLit     .~ lit'
-      & stPending_Monome %~ (++ (map (Monome_256,) kbdMsgs))
+      & stPending_Monome %~ (++ kbdMsgs)
       & stPending_Vivid  %~ (++ scas)
       & stVoices         %~ (if sw then M.insert vid v else id)
   Right $ foldr updateVoiceParams st1 scas

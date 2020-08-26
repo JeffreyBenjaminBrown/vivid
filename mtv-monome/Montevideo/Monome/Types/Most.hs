@@ -73,7 +73,8 @@ type LitPitches app = Map (PitchClass app) (Set LedBecause)
   -- and if it's an anchor, we should never darken it.
   -- The Set is a Set because an LED could be on for multiple reasons.
 
-type LedMsg = (WindowId, ((X,Y), Led))
+type LedMsg = ( (MonomeId, WindowId)
+              , ((X,Y), Led) )
 
 -- | The reason a (pitch class of) LED(s) in the keyboard window is lit.
 data LedBecause =
@@ -126,7 +127,7 @@ data St app = St {
   -- | The purpose of `_stPending_Monome` and `_stPending_Vivid`
   -- is to isolate side-effects to a small portion of the code. Elsewhere,
   -- scattered functions can simply change an `St` instead of doing IO.
-  , _stPending_Monome :: [(MonomeId, LedMsg)]
+  , _stPending_Monome :: [LedMsg]
   , _stPending_Vivid :: [ScAction VoiceId]
   }
 

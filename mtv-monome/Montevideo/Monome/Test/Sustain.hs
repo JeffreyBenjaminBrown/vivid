@@ -154,7 +154,8 @@ test_sustainHandler = TestCase $ do
                                                LedBecauseSwitch xy0 )
           & stPending_Monome .~
           ( buttonMsgs Monome_256 False ++
-            map (\xy -> (Monome_256, (K.label, (xy, False))))
+            map (\xy -> ( (Monome_256, K.label)
+                        , (xy, False)))
             (pcToXys_st st_0fs_1s pc1) )
           & stPending_Vivid .~
           [ ScAction_Free
