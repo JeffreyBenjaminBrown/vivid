@@ -42,7 +42,7 @@ relayIfHere :: Socket -> [Window app] -> Window app -> LedRelay
 relayIfHere dest ws w = f where
   f :: ((X,Y),Led) -> IO ()
   f msg = if belongsHere ws w $ fst msg
-    then (send dest $ ledOsc "/256" msg) >> return ()
+    then (send dest $ ledOsc Monome_256 msg) >> return ()
     else return ()
 
 -- | `belongsHere allWindows w _` returns an `LedFilter` that returns `True`

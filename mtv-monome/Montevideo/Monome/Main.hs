@@ -10,6 +10,7 @@ module Montevideo.Monome.Main (
   , jiMonome
 
   -- ** Utilities they use
+  , renameMonomes -- ^ IO ()
   , initAllWindows -- ^ MVar St -> [Window] -> IO ()
   , handleSwitch -- ^ MVar (St app) -> ((X,Y), Switch)
                  -- -> IO (Either String ())
@@ -22,7 +23,7 @@ module Montevideo.Monome.Main (
 import           Control.Concurrent (forkIO, killThread)
 import           Control.Concurrent.MVar
 import           Control.Lens hiding (set)
-import           Data.ByteString.Char8 (unpack)
+import           Data.ByteString.Char8 (pack, unpack)
 import           Data.Either.Combinators
 import qualified Data.Map as M
 
@@ -81,11 +82,10 @@ edoMonome monomePort edoCfg = do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
           Right (monome,switch) -> case monome of
-            "256" -> handleSwitch mst switch >>=
-                     either putStrLn return
-            "128" -> putStrLn $ "Coming soon: a meaningful response to "
-                     ++ show osc ++ "."
-            name  -> putStrLn $ "Unrecognized switch origin: " ++ show name
+            Monome_256 -> handleSwitch mst switch >>=
+                          either putStrLn return
+            Monome_128 -> putStrLn $ "Coming soon: good responses to "
+                          ++ show osc ++ "."
 
   let loop :: IO (St EdoApp) =
         getChar >>= \case
@@ -95,7 +95,7 @@ edoMonome monomePort edoCfg = do
           st <- readMVar mst
           let f = maybe (putStrLn "voice with no synth") free
             in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
-          _ <- send toMonome $ allLedOsc "/256" False
+          _ <- send toMonome $ allLedOsc Monome_256 False
           return st
         _   -> loop
     in putStrLn "press 'q' to quit"
@@ -136,11 +136,10 @@ jiMonome monomePort scale shifts = do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
           Right (monome,switch) -> case monome of
-            "256" -> handleSwitch mst switch >>=
-                     either putStrLn return
-            "128" -> putStrLn $ "Coming soon: a meaningful response to "
-                     ++ show osc ++ "."
-            name  -> putStrLn $ "Unrecognized switch origin: " ++ show name
+            Monome_256 -> handleSwitch mst switch >>=
+                          either putStrLn return
+            Monome_128 -> putStrLn $ "Coming soon: good responses to "
+                          ++ show osc ++ "."
 
   let loop :: IO (St JiApp) =
         getChar >>= \case
@@ -150,7 +149,7 @@ jiMonome monomePort scale shifts = do
           st <- readMVar mst
           let f = maybe (putStrLn "voice with no synth") free
             in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
-          _ <- send toMonome $ allLedOsc "/256" False
+          _ <- send toMonome $ allLedOsc Monome_256 False
           return st
         _   -> loop
     in putStrLn "press 'q' to quit"
@@ -169,8 +168,10 @@ renameMonomes :: IO ()
 renameMonomes = do
   toMonome128 <- sendsTo (unpack localhost) 14336
   toMonome256 <- sendsTo (unpack localhost) 15226
-  _ <- send toMonome128 $ encodeOSC $ OSC "/sys/prefix" [ OSC_S "128" ]
-  _ <- send toMonome256 $ encodeOSC $ OSC "/sys/prefix" [ OSC_S "256" ]
+  _ <- send toMonome128 $ encodeOSC $ OSC "/sys/prefix"
+    [ OSC_S $ pack $ show Monome_128 ]
+  _ <- send toMonome256 $ encodeOSC $ OSC "/sys/prefix"
+    [ OSC_S $ pack $ show Monome_256 ]
   return ()
 
 initAllWindows :: forall app. MVar (St app) -> IO ()

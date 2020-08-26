@@ -28,9 +28,8 @@ boolFromInt x = Left ( "boolFromInt: " ++ show x
 -- | Example:
 -- > readOSC_asSwitch $ OSC "/monome/grid/key" [OSC_I 7, OSC_I 7, OSC_I 1]
 -- Right ((7,7),True)
-readOSC_asSwitch :: OSC -> Either String ( String, -- ^ Which monome.
-                                           ( -- ^ Which button.
-                                             (X,Y), Switch))
+readOSC_asSwitch :: OSC -> Either String ( MonomeId
+                                         , ((X,Y), Switch))
 readOSC_asSwitch m@(OSC s l) =
   mapLeft ("readOSC_asSwitch" ++) $
   let ms :: [String] = lines' '/' $ unpack s
@@ -39,18 +38,25 @@ readOSC_asSwitch m@(OSC s l) =
        [OSC_I x, OSC_I y, OSC_I s] -> do
          b <- boolFromInt $ fi s
          case ms of
-           ["128","grid","key"] -> do
-             Right ("128",((fi x, fi y), b))
-           ["256","grid","key"] -> do
-             Right ("256",((fi x, fi y), b))
+           [t1,t2,t3] ->
+             if t2 == "grid" && t3 == "key"
+             then let press = ((fi x, fi y), b)
+                  in if t1 == show Monome_128
+                     then Right (Monome_128, press)
+                     else if t1 == show Monome_256
+                          then Right (Monome_256, press)
+                          else err
+             else err
            _ -> err
        _ -> err
 
 
 -- | Tells the monome to turn on an LED. See Test/HandTest.hs.
-ledOsc :: String -> ((X,Y), Led) -> ByteString
-ledOsc prefix ((x, y), led) = onoff prefix x y $ fromBool led
+ledOsc :: MonomeId -> ((X,Y), Led) -> ByteString
+ledOsc prefix ((x, y), led) =
+  onoff ('/' : show prefix) x y $ fromBool led
 
--- | Tells the monome to turn on every LED. See Test/HandTest.hs.
-allLedOsc :: String -> Led -> ByteString
-allLedOsc prefix led = allLeds prefix $ fromBool led
+-- | Tells the monome to light or darken *every* LED. See Test/HandTest.hs.
+allLedOsc :: MonomeId -> Led -> ByteString
+allLedOsc prefix led =
+  allLeds ('/' : show prefix) $ fromBool led
