@@ -83,7 +83,7 @@ handler    st          press@ (xy,sw)   =
     st1 :: St EdoApp = st
       & stApp . edoFingers .~ fingers'
       & stApp . edoLit     .~ lit'
-      & stPending_Monome %~ (++ kbdMsgs)
+      & stPending_Monome %~ (++ (map (Monome_256,) kbdMsgs))
       & stPending_Vivid  %~ (++ scas)
       & stVoices         %~ (if sw then M.insert vid v else id)
   Right $ foldr updateVoiceParams st1 scas

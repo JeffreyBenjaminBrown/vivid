@@ -75,7 +75,7 @@ test_shiftHandler = TestCase $ do
       ++ map (,True)  (pcToXys (st_0a ^. stApp . edoConfig) newShift pc0)
     in fromRight (error "bork")
        (Sh.handler st_0a (Sh.downArrow, True))
-       =^= (st_0a & stPending_Monome .~ msgs
+       =^= (st_0a & stPending_Monome .~ map (Monome_256,) msgs
                   & stApp . edoXyShift .~ newShift)
 
   assertBool "shift the notes an octave higher" $ let
@@ -88,7 +88,7 @@ test_shiftHandler = TestCase $ do
       ++ map (,True)  (pcToXys (st_0a ^. stApp . edoConfig) newShift pc0)
     in fromRight (error "bork")
        (Sh.handler st_0a (Sh.upOctave, True)) =^=
-       (st_0a & stPending_Monome .~ msgs
+       (st_0a & stPending_Monome .~ map (Monome_256,) msgs
               & stApp . edoXyShift .~ newShift)
 
 test_keyboardHandler :: Test
@@ -98,8 +98,8 @@ test_keyboardHandler = TestCase $ do
     (K.handler st_01f (xy1, False))
     =^= ( st_0f
           & ( stPending_Monome .~
-              map (\xy -> (K.label, (xy, False)) )
-              (pcToXys_st st_01f pc1 ) )
+              ( map (\xy -> (Monome_256, (K.label, (xy, False)) ) ) $
+                pcToXys_st st_01f pc1 ) )
           & ( stPending_Vivid .~
               [ ScAction_Free
                 { _actionSynthDefEnum = Moop
@@ -152,7 +152,7 @@ test_keyboardHandler = TestCase $ do
                         , _voicePitch = xyToEdo_app (_stApp st_0f) xy1
                         , _voiceParams = mempty } ) )
              & ( stPending_Monome .~
-                 ( map (\xy -> (K.label, (xy, True)) ) $
+                 ( map (\xy -> (Monome_256, (K.label, (xy, True) ) ) ) $
                    pcToXys_st st_01f pc1 ) )
              & ( stPending_Vivid .~ edoKey_ScAction
                  (st0 ^. stApp) nv (xy1, True) )

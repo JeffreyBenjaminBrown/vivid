@@ -114,8 +114,7 @@ data St app = St {
   , _stWindowLayers :: [Window  app] -- ^ PITFALL: Order matters.
       -- Key presses are handled by the first window containing them.
       -- Windows listed earlier are thus "above" later ones.
-  , _stToMonome :: Socket -- ^ PITFALL: It's tempting to remove this from St.
-    -- That's feasible now, but I'll want it here when using multiple monomes.
+  , _stToMonome :: Map MonomeId Socket
   , _stVoices :: Map VoiceId (Voice app) -- ^ The set of all voices
     -- currently in existence; a reflection of the state of SC.
     --
@@ -127,7 +126,7 @@ data St app = St {
   -- | The purpose of `_stPending_Monome` and `_stPending_Vivid`
   -- is to isolate side-effects to a small portion of the code. Elsewhere,
   -- scattered functions can simply change an `St` instead of doing IO.
-  , _stPending_Monome :: [LedMsg]
+  , _stPending_Monome :: [(MonomeId, LedMsg)]
   , _stPending_Vivid :: [ScAction VoiceId]
   }
 

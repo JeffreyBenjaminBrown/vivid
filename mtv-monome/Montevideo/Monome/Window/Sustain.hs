@@ -101,7 +101,8 @@ handler st ((==) button_sustainMore -> True,  True)  =
   st1 <- sustainMore st
   Right $ if null $ st1 ^. stApp . edoSustaineded
           then st
-          else st1 & stPending_Monome %~ flip (++) (buttonMsgs True)
+          else st1 & stPending_Monome %~ flip (++)
+                     (buttonMsgs Monome_256 True)
 
 handler st ((==) button_sustainLess -> True,  True)  =
   mapLeft ("Window.Sustain.handler (sustainLess): " ++) $ do
@@ -114,7 +115,7 @@ handler st ((==) button_sustainLess -> True,  True)  =
       st2 = st1 & stPending_Vivid  %~ flip (++) scas
                 & ( stPending_Monome %~ flip (++)
                     ( if null $ st1 ^. stApp . edoSustaineded
-                      then buttonMsgs False
+                      then buttonMsgs Monome_256 False
                       else [] ) )
 
    -- TODO This call to updateVoiceParams seems uneeded.
@@ -132,7 +133,8 @@ handler st ((==) button_sustainOff -> True,  True)  =
      scas :: [ScAction VoiceId] =
        map silenceMsg $ S.toList $ sustained_minus_fingered st
      st2 = st1 & ( stPending_Monome %~ flip (++)
-                   (buttonMsgs False ++ kbdMsgs) )
+                   ( buttonMsgs Monome_256 False ++
+                     map (Monome_256,) kbdMsgs) )
                & stPending_Vivid  %~ flip (++) scas
 
    -- TODO This call to updateVoiceParams seems uneeded.
@@ -285,7 +287,12 @@ deleteOneSustainReason pc m =
          then M.delete pc m
          else M.insert pc reasons' m
 
-buttonMsgs :: Bool -> [(WindowId, ((X,Y), Bool))]
-buttonMsgs light =
-  [ ( label, (button, light) )
+-- TODO : This output should be less nested.
+-- Maybe ((monome,window), ((x,y), bool)).
+buttonMsgs :: MonomeId -> Bool -> [(MonomeId, LedMsg)]
+buttonMsgs mi light =
+  [ ( mi
+    , ( label
+      , ( button
+        , light) ) )
   | button <- buttons ]

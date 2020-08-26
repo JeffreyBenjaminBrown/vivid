@@ -73,4 +73,5 @@ handler    st0          (xy, True )      =
         map (Kbd.label,) $
         (map (,False) $ concatMap (pcToXys_st st0) lit) ++
         (map (,True)  $ concatMap (pcToXys_st st') lit)
-  Right $ st' & stPending_Monome %~ flip (++) msgs
+  Right $ st' & stPending_Monome %~
+                flip (++) (map (Monome_256,) msgs)

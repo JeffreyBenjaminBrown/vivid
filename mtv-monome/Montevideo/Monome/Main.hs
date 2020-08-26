@@ -58,7 +58,7 @@ edoMonome monomePort edoCfg = do
 
   mst <- newMVar $ St {
       _stWindowLayers = [sustainWindow, shiftWindow, keyboardWindow]
-    , _stToMonome = toMonome
+    , _stToMonome = M.singleton Monome_256 toMonome
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
@@ -119,7 +119,7 @@ jiMonome monomePort scale shifts = do
 
   mst <- newMVar $ St {
       _stWindowLayers = [jiWindow]
-    , _stToMonome = toMonome
+    , _stToMonome = M.singleton Monome_256 toMonome
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
@@ -179,8 +179,8 @@ initAllWindows mst = do
   st <- readMVar mst
   let runWindowInit :: Window app -> IO ()
       runWindowInit w = let
-        st' :: St app = st & stPending_Monome
-                        %~ flip (++) (windowInitLeds w st)
+        st' :: St app = st & stPending_Monome %~ flip (++)
+                             (map (Monome_256,) $ windowInitLeds w st)
         in mapM_ (either putStrLn id) $
            doLedMessage st' <$> _stPending_Monome st'
   mapM_ runWindowInit $ _stWindowLayers st
@@ -298,9 +298,9 @@ doScAction    st        sca =
           free s
         return $ Right $ stVoices . at vid .~ Nothing
 
-doLedMessage :: St app -> LedMsg -> Either String (IO ())
-doLedMessage st (l, (xy,b)) =
+doLedMessage :: St app -> (MonomeId, LedMsg) -> Either String (IO ())
+doLedMessage st (mi, (wi, (xy,b))) =
   mapLeft ("doLedMessage: " ++) $
-  case relayToWindow st l of
+  case relayToWindow st mi wi of
     Left s         -> Left s
     Right toWindow -> Right $ toWindow (xy,b)

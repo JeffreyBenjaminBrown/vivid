@@ -27,13 +27,15 @@ import Montevideo.Monome.Util.Button
 type LedRelay  = ((X,Y), Led) -> IO ()
 type LedFilter = (X,Y) -> Bool
 
-relayToWindow :: St app -> WindowId -> Either String LedRelay
-relayToWindow st wl =
+relayToWindow :: St app -> MonomeId -> WindowId -> Either String LedRelay
+relayToWindow st mi wl =
   mapLeft ("relayToWindow: " ++) $ do
   let ws = _stWindowLayers st
-  w <- maybe (Left $ "relayToWindow: " ++ show wl ++ " not found.")
-       Right $ findWindow ws wl
-  Right $ relayIfHere (_stToMonome st) ws w
+  w :: Window app <- maybe (Left $ "Window " ++ show wl ++ " not found.")
+                     Right $ findWindow ws wl
+  m :: Socket     <- maybe (Left $ "Relay to " ++ show mi ++ " not found.")
+                     Right $ M.lookup mi $ _stToMonome st
+  Right $ relayIfHere m ws w
 
 -- | `relayIfHere dest ws w` returns a `LedRelay` which,
 -- if the coordinate falls in `w` and in no other `Window` before `w` in `ws`,
