@@ -57,8 +57,12 @@ edoMonome monomePort edoCfg = do
     -- to find the port number above, use the first part of HandTest.hs
 
   mst <- newMVar $ St {
-      _stWindowLayers = [sustainWindow, shiftWindow, keyboardWindow]
-    , _stToMonome = M.singleton Monome_256 toMonome
+      _stWindowLayers = M.fromList
+        [ ( Monome_256
+          , [sustainWindow, shiftWindow, keyboardWindow] )
+        , ( Monome_128
+          , [keyboardWindow] ) ]
+    , _stToMonome     = M.singleton Monome_256 toMonome
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
@@ -81,11 +85,9 @@ edoMonome monomePort edoCfg = do
       Right osc -> do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
-          Right (monome,switch) -> case monome of
-            Monome_256 -> handleSwitch mst switch >>=
-                          either putStrLn return
-            Monome_128 -> putStrLn $ "Coming soon: good responses to "
-                          ++ show osc ++ "."
+          Right (monome,switch) ->
+            handleSwitch mst monome switch >>=
+            either putStrLn return
 
   let loop :: IO (St EdoApp) =
         getChar >>= \case
@@ -118,8 +120,8 @@ jiMonome monomePort scale shifts = do
   toMonome :: Socket <- sendsTo (unpack localhost) monomePort
 
   mst <- newMVar $ St {
-      _stWindowLayers = [jiWindow]
-    , _stToMonome = M.singleton Monome_256 toMonome
+      _stWindowLayers = M.singleton Monome_256 [jiWindow]
+    , _stToMonome     = M.singleton Monome_256 toMonome
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
@@ -135,11 +137,9 @@ jiMonome monomePort scale shifts = do
       Right osc -> do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
-          Right (monome,switch) -> case monome of
-            Monome_256 -> handleSwitch mst switch >>=
-                          either putStrLn return
-            Monome_128 -> putStrLn $ "Coming soon: good responses to "
-                          ++ show osc ++ "."
+          Right (monome,switch) ->
+            handleSwitch mst monome switch >>=
+            either putStrLn return
 
   let loop :: IO (St JiApp) =
         getChar >>= \case
@@ -177,27 +177,31 @@ renameMonomes = do
 initAllWindows :: forall app. MVar (St app) -> IO ()
 initAllWindows mst = do
   st <- readMVar mst
-  let runWindowInit :: Window app -> IO ()
-      runWindowInit w = let
+  let runWindowInit :: (MonomeId, Window app) -> IO ()
+      runWindowInit (mi, w) = let
         st' :: St app = st & stPending_Monome %~ flip (++)
-                             (windowInitLeds w st)
+                             (windowInitLeds w st mi)
         in mapM_ (either putStrLn id) $
            doLedMessage st' <$> _stPending_Monome st'
-  mapM_ runWindowInit $ _stWindowLayers st
+      mws :: [(MonomeId, Window app)] =
+        concatMap (\(m,ws) -> map (m,) ws) $
+        M.toList $ _stWindowLayers st
+  mapM_ runWindowInit mws
 
 -- | Called every time a monome button is pressed or released.
 -- Does two kinds of IO: talking to SuperCollider and changing the MVar.
 -- TODO : instead of MVar IO, return an St -> St.
 -- (That way I could test it.)
 handleSwitch :: forall app.
-                MVar (St app) -> ((X,Y), Switch) -> IO (Either String ())
+                MVar (St app) -> MonomeId -> ((X,Y), Switch)
+             -> IO (Either String ())
 -- PITFALL: The order of execution in `handleSwitch` is complex.
 -- `windowHandler` runs before `doScAction` and `doLedMessage`.
 -- Thus some updates to the St (everything but voice parameters,
 -- the `voiceSynth` field, and voice deletion)
 -- happen before SC has been informed.
 
-handleSwitch mst sw@ (btn,_) = do
+handleSwitch mst mi sw@ (btn,_) = do
   st0 <- takeMVar mst
   let
     go :: [Window app] -> IO (Either String ())
@@ -228,8 +232,11 @@ handleSwitch mst sw@ (btn,_) = do
                     , _stPending_Vivid = [] }
                   return $ Right ()
 
-  fmap (mapLeft ("Window.Util.handleSwitch: " ++)) $
-    go $ _stWindowLayers st0
+  case M.lookup mi $ _stWindowLayers st0 of
+    Nothing -> return $ Left $ "WIndows for " ++ show mi ++ " not found."
+    Just ws ->
+      fmap (mapLeft ("Window.Util.handleSwitch: " ++)) $
+        go ws
 
 -- | PITFALL: The order of execution here is kind of strange.
 -- See comments in `handleSwitch` for details.

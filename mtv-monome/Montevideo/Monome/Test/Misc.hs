@@ -43,11 +43,11 @@ testBelongsHere = TestCase $ do
   -- PITFALL: These labels (e.g. KeyboardWindow) don't really mean anything;
   -- I'm only using them to keep the labels distinct.
   let w1 = Window KeyboardWindow (\(x,y) -> x > y)
-           (const []) $ \st _ -> Right st
+           (const $ const []) $ \st _ -> Right st
       w2 = Window ShiftWindow    (\(x,_) -> x > 4)
-           (const []) $ \st _ -> Right st
+           (const $ const []) $ \st _ -> Right st
       w3 = Window SustainWindow  (\(_,_) -> True)
-           (const []) $ \st _ -> Right st
+           (const $ const []) $ \st _ -> Right st
       ws = [w1,w2,w3]
   assertBool "caught by w1 before reaching w3" $
     not $ belongsHere ws w3 (1,0)

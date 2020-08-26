@@ -30,10 +30,15 @@ relayToWindow :: St app -> MonomeId -> WindowId -> Either String LedRelay
 relayToWindow st mi wl =
   mapLeft ("relayToWindow: " ++) $ do
   let ws = _stWindowLayers st
-  w :: Window app <- maybe (Left $ "Window " ++ show wl ++ " not found.")
-                     Right $ L.find ((==) wl . windowLabel) ws
-  m :: Socket     <- maybe (Left $ "Relay to " ++ show mi ++ " not found.")
-                     Right $ M.lookup mi $ _stToMonome st
+  ws :: [Window app] <-
+    maybe (Left $ "Wdindows for " ++ show mi ++ " not found.")
+    Right $ M.lookup mi $ _stWindowLayers st
+  w :: Window app <-
+    maybe (Left $ "Window " ++ show wl ++ " not found.")
+    Right $ L.find ((==) wl . windowLabel) ws
+  m :: Socket <-
+    maybe (Left $ "Relay to " ++ show mi ++ " not found.")
+    Right $ M.lookup mi $ _stToMonome st
   Right $ relayIfHere m ws w
 
 -- | `relayIfHere dest ws w` returns a `LedRelay` which,
