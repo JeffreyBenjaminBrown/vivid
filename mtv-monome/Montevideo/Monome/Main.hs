@@ -46,14 +46,13 @@ import           Montevideo.Synth
 
 -- ** The apps
 
-edoMonome :: Int -- ^ The monome address, as serialoscd reports on startup.
-          -> EdoConfig
-          -> IO (St EdoApp)
-edoMonome monomePort edoCfg = do
+edoMonome :: EdoConfig -> IO (St EdoApp)
+edoMonome edoCfg = do
   renameMonomes
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
     -- I don't know why it's port 8000, or why it used to be 11111.
-  toMonome :: Socket <- sendsTo (unpack localhost) monomePort
+  to256 :: Socket <- sendsTo (unpack localhost) 15226
+  to128 :: Socket <- sendsTo (unpack localhost) 14336
     -- to find the port number above, use the first part of HandTest.hs
 
   mst <- newMVar $ St {
@@ -62,7 +61,8 @@ edoMonome monomePort edoCfg = do
           , [sustainWindow, shiftWindow, keyboardWindow] )
         , ( Monome_128
           , [keyboardWindow] ) ]
-    , _stToMonome     = M.singleton Monome_256 toMonome
+    , _stToMonome = M.fromList [ (Monome_256, to256)
+                               , (Monome_128, to128) ]
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
@@ -97,7 +97,9 @@ edoMonome monomePort edoCfg = do
           st <- readMVar mst
           let f = maybe (putStrLn "voice with no synth") free
             in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
-          _ <- send toMonome $ allLedOsc Monome_256 False
+          _ <- let off receiver name = send receiver $ allLedOsc name False
+               in off to256 Monome_256 >>
+                  off to128 Monome_128
           return st
         _   -> loop
     in putStrLn "press 'q' to quit"
