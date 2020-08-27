@@ -90,21 +90,20 @@ sustainWindow = Window {
 -- `handler` creates those messages itself. `Main.handleSwitch` calls
 -- `handler` to create those messages, and uses them to update `_stVoices`.
 handler :: St EdoApp
-        -> ( (X,Y) -- ^ ignored, since the sustain window has only one button
-           , Switch)
+        -> (MonomeId, ((X, Y), Switch))
         -> Either String (St EdoApp)
 
-handler st (_ , False) = Right st
+handler st (_, (_ , False)) = Right st
 
-handler st ((==) button_sustainMore -> True,  True)  =
+handler st (mi, ((==) button_sustainMore -> True,  True))  =
   mapLeft ("Window.Sustain.handler (sustainMore): " ++) $ do
   st1 <- sustainMore st
   Right $ if null $ st1 ^. stApp . edoSustaineded
           then st
           else st1 & stPending_Monome %~ flip (++)
-                     (buttonMsgs Monome_256 True)
+                     (buttonMsgs mi True)
 
-handler st ((==) button_sustainLess -> True,  True)  =
+handler st (mi, ((==) button_sustainLess -> True,  True))  =
   mapLeft ("Window.Sustain.handler (sustainLess): " ++) $ do
   ( st1 :: St EdoApp, toSilence :: [VoiceId] ) <-
     sustainLess st
@@ -115,13 +114,13 @@ handler st ((==) button_sustainLess -> True,  True)  =
       st2 = st1 & stPending_Vivid  %~ flip (++) scas
                 & ( stPending_Monome %~ flip (++)
                     ( if null $ st1 ^. stApp . edoSustaineded
-                      then buttonMsgs Monome_256 False
+                      then buttonMsgs mi False
                       else [] ) )
 
    -- TODO This call to updateVoiceParams seems uneeded.
   Right $ foldr updateVoiceParams st2 scas
 
-handler st ((==) button_sustainOff -> True,  True)  =
+handler st (mi, ((==) button_sustainOff -> True,  True))  =
    mapLeft ("Window.Sustain.handler (sustainOff): " ++) $ do
    st1 <- sustainOff st
    toDark <- pitchClassesToDarken_uponSustainOff st st1
@@ -134,7 +133,7 @@ handler st ((==) button_sustainOff -> True,  True)  =
      scas :: [ScAction VoiceId] =
        map silenceMsg $ S.toList $ sustained_minus_fingered st
      st2 = st1 & ( stPending_Monome %~ flip (++)
-                   ( buttonMsgs Monome_256 False ++ kbdMsgs) )
+                   ( buttonMsgs mi False ++ kbdMsgs) )
                & stPending_Vivid  %~ flip (++) scas
 
    -- TODO This call to updateVoiceParams seems uneeded.

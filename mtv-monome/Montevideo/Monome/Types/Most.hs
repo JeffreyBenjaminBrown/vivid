@@ -94,7 +94,7 @@ data Window app = Window {
     -- ^ Some windows begin with some LEDs lit.
   , windowHandler :: -- ^ Acts on messages from the monome.
       St app
-      -> ((X,Y), Switch) -- ^ the incoming button press|release
+      -> (MonomeId, ((X,Y), Switch)) -- ^ the incoming button press|release
       -> Either String (St app)
   }
 

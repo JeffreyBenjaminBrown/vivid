@@ -211,7 +211,7 @@ handleSwitch mst mi sw@ (btn,_) = do
      "Switch " ++ show sw ++ " claimed by no Window."
     go (w:ws) = case windowContains w btn of
       False -> go ws
-      True -> case windowHandler w st0 sw of
+      True -> case windowHandler w st0 (mi,sw) of
         Left s -> return $ Left s
         Right st1 -> do
 

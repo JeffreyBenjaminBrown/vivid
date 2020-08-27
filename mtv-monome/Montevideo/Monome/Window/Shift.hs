@@ -61,16 +61,19 @@ shiftWindow = Window {
   , windowHandler = handler
 }
 
-handler :: St EdoApp -> ((X,Y), Switch) -> Either String (St EdoApp)
-handler    st0          (_,  False)      = Right st0
-handler    st0          (xy, True )      =
+handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
+        -> Either String (St EdoApp)
+
+handler    st0          (_, (_,  False))      = Right st0
+
+handler    st0          (mi, (xy, True))      =
   mapLeft ("Shift window handler: " ++) $ do
   let ec = st0 ^. stApp . edoConfig
   s <- shift ec xy
   let st' :: St EdoApp = st0 & stApp . edoXyShift %~ pairAdd s
       lit :: [EdoPitchClass] = M.keys $ st0 ^. stApp . edoLit
       msgs :: [LedMsg] =
-        map ( (Monome_256, Kbd.label) ,) $
+        map ( (mi, Kbd.label) ,) $
         (map (,False) $ concatMap (pcToXys_st st0) lit) ++
         (map (,True)  $ concatMap (pcToXys_st st') lit)
   Right $ st' & stPending_Monome %~

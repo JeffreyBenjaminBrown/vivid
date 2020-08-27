@@ -126,12 +126,12 @@ test_sustainHandler :: Test
 test_sustainHandler = TestCase $ do
   assertBool "releasing (not turning off) the sustain button has no effect"
     $ fromRight (error "bork")
-    (Su.handler st0 (meh , False))
+    (Su.handler st0 (Monome_256, (meh , False)))
     =^= st0
 
   assertBool "THE TEST: turning ON sustain changes the sustain state, the set of sustained voices, the set of reasons for keys to be lit, and the messages pending to the monome." $
     fromRight (error "bork")
-    (Su.handler st_0f (Su.button_sustainMore, True))
+    (Su.handler st_0f (Monome_256, (Su.button_sustainMore, True)))
     =^= ( st_0f & stApp . edoSustaineded .~ S.singleton v0
           & ( stApp . edoLit .~ M.singleton pc0
               ( S.fromList [ LedBecauseSustain
@@ -147,7 +147,7 @@ test_sustainHandler = TestCase $ do
                "Pitch 0 is fingered, and 0 and 1 sounding; 1 turns off.") $
 
     fromRight (error "bork")
-    (Su.handler st_0fs_1s (Su.button_sustainOff, True))
+    (Su.handler st_0fs_1s (Monome_256, (Su.button_sustainOff, True)))
     =^= ( st_0fs_1s
           & stApp . edoSustaineded .~ mempty
           & stApp . edoLit .~ M.singleton pc0 ( S.singleton $

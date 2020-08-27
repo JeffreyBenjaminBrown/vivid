@@ -62,7 +62,7 @@ test_shiftHandler :: Test
 test_shiftHandler = TestCase $ do
   assertBool "releasing a shift button does nothing" $
     fromRight (error "bork")
-    (Sh.handler st_0a (meh, False))
+    (Sh.handler st_0a (Monome_256, (meh, False)))
     =^= st_0a
 
   assertBool "shift the notes one space closer to player's body" $ let
@@ -74,7 +74,7 @@ test_shiftHandler = TestCase $ do
       $  map (,False) (pcToXys (st_0a ^. stApp . edoConfig) oldShift pc0)
       ++ map (,True)  (pcToXys (st_0a ^. stApp . edoConfig) newShift pc0)
     in fromRight (error "bork")
-       (Sh.handler st_0a (Sh.downArrow, True))
+       (Sh.handler st_0a (Monome_256, (Sh.downArrow, True)))
        =^= (st_0a & stPending_Monome .~ msgs
                   & stApp . edoXyShift .~ newShift)
 
@@ -87,7 +87,7 @@ test_shiftHandler = TestCase $ do
       $  map (,False) (pcToXys (st_0a ^. stApp . edoConfig) oldShift pc0)
       ++ map (,True)  (pcToXys (st_0a ^. stApp . edoConfig) newShift pc0)
     in fromRight (error "bork")
-       (Sh.handler st_0a (Sh.upOctave, True)) =^=
+       (Sh.handler st_0a (Monome_256, (Sh.upOctave, True))) =^=
        (st_0a & stPending_Monome .~ msgs
               & stApp . edoXyShift .~ newShift)
 
@@ -95,7 +95,7 @@ test_keyboardHandler :: Test
 test_keyboardHandler = TestCase $ do
   assertBool "Releasing a key sends off-messages to monome, sends off-messages to Vivid, removes something from _edoFingers, and removes some things from _edoLit." $
     fromRight (error "bork")
-    (K.handler st_01f (xy1, False))
+    (K.handler st_01f (Monome_256, (xy1, False)))
     =^= ( st_0f
           & ( stPending_Monome .~
               ( map (\xy -> ( (Monome_256, K.label)
@@ -108,7 +108,7 @@ test_keyboardHandler = TestCase $ do
 
   assertBool "releasing a key that's also the anchor pitch sends no monome messages" $
     fromRight (error "bork")
-    (K.handler st_0af (xy0, False))
+    (K.handler st_0af (Monome_256, (xy0, False)))
     =^= ( st_0af
           & ( stApp . edoLit . at pc0 . _Just
               .~ S.singleton LedBecauseAnchor )
@@ -120,7 +120,7 @@ test_keyboardHandler = TestCase $ do
 
   assertBool "releasing a key that's a sustained voice sends no vivid or monome messages, but updates lit and fingers" $
     fromRight (error "bork")
-    (K.handler st_0fs (xy0, False))
+    (K.handler st_0fs (Monome_256, (xy0, False)))
     =^= ( st_0fs
           & ( stApp . edoLit . at pc0 . _Just
               .~ S.singleton LedBecauseSustain )
@@ -128,7 +128,7 @@ test_keyboardHandler = TestCase $ do
 
   assertBool "pressing a key that's a pitch from a sustained voice does everything it would do if that weren't the case." $
     fromRight (error "bork")
-    (K.handler st_0s (xy0, True))
+    (K.handler st_0s (Monome_256, (xy0, True)))
     =^= ( let nv = (nextVoice st_0s)
           in st_0s
              & ( stApp . edoLit . at pc0 . _Just
@@ -144,7 +144,7 @@ test_keyboardHandler = TestCase $ do
 
   assertBool "pressing a key adds a voice to _stVoices, sends on-messages to monome, sends on-messages to Vivid, adds something to _edoFingers, and adds something from _edoLit" $
     fromRight (error "bork")
-    (K.handler st_0f (xy1, True))
+    (K.handler st_0f (Monome_256, (xy1, True)))
     -- PITFALL: st_01f != st_0f
     =^= ( let nv = nextVoice st_0f
           in st_01f

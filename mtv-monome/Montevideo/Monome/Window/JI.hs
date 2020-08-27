@@ -38,9 +38,11 @@ jiWindow =  Window {
 -- TODO untested
 -- TODO ! duplicative of `Keyboard.handler`
 handler :: St JiApp
-        -> ((X,Y), Switch)
+        -> ( MonomeId -- ^ So far, the JI app doesn't send LED messages,
+                      -- so it doesn't use this argument.
+           , ((X,Y), Switch ))
         -> Either String (St JiApp)
-handler st press@ (xy,sw) =
+handler st (_, press@ (xy,sw)) =
   mapLeft ("JI handler: " ++) $ do
   let app = st ^. stApp
   vid <- if sw then Right $ nextVoice st

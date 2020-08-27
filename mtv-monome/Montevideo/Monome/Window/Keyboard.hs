@@ -43,8 +43,9 @@ keyboardWindow =  Window {
   , windowHandler = handler }
 
 -- TODO ! duplicative of `JI.handler`
-handler :: St EdoApp -> ((X,Y), Switch) -> Either String (St EdoApp)
-handler    st          press@ (xy,sw)   =
+handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
+        -> Either String (St EdoApp)
+handler    st          (mi, press@(xy,sw))   =
   mapLeft ("Keyboard handler: " ++) $ do
   let app = st ^. stApp
   vid <- if sw then Right $ nextVoice st
@@ -70,7 +71,7 @@ handler    st          press@ (xy,sw)   =
     toLight :: [EdoPitchClass] = S.toList $ S.difference newKeys oldKeys
 
     kbdMsgs :: [LedMsg] =
-      map ((Monome_256, label) ,) $
+      map ((mi, label) ,) $
       ( map (,False) $
         concatMap (pcToXys_st st) toDark) ++
       ( map (,True)  $
