@@ -127,7 +127,7 @@ handler st (mi, ((==) button_sustainOff -> True,  True))  =
  
    let
      kbdMsgs :: [LedMsg] =
-       map ( ( (Monome_256, Kbd.label) ,) .
+       map ( ( (mi, Kbd.label) ,) .
              (, False ) ) $
        concatMap (pcToXys_st st) $ toDark
      scas :: [ScAction VoiceId] =

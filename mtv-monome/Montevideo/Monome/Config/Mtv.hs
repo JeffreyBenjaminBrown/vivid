@@ -90,4 +90,4 @@ jiTranspose = (1/32)
 -- TODO : implement reverb tails, which will require some new signal
 -- aside from amp=0, because amp=0 takes effect immediately.
 freeDelay :: Float
-freeDelay = 0.1
+freeDelay = 3

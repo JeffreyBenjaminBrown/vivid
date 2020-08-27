@@ -42,7 +42,7 @@ data SynthDefEnum = -- PITFALL ! keep these alphabetically ordered
 
 -- | = Boop
 
-type BoopParams = '["freq",    "amp",    "on"]
+type BoopParams = '["freq", "amp", "on"]
 
 boop :: SynthDef BoopParams
 boop = sd ( 0              :: I "freq"
@@ -72,14 +72,14 @@ boopPulse = sd ( 0              :: I "freq"
 
 
 -- * Boop for the monome
-type MoopParams = '["freq","amp","lag"]
+type MoopParams = '["freq", "amp", "lag"]
 
 -- | PITFALL: A default freq of 0 might seem natural,
 -- but that causes a popping sounds when it's changed.
 moop :: SynthDef MoopParams
 moop = sd ( toI Config.freq :: I "freq"
           , 0 :: I "amp"
-          , 0.03 :: I "lag" -- measured in seconds
+          , 0.1 :: I "lag" -- measured in seconds
           ) $ do
   -- p <- pulse (freq_ (V::V "freq"))
   -- s <- saw (freq_ (V::V "freq"))
