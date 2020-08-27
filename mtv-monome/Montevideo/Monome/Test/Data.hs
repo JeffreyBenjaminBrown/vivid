@@ -36,6 +36,7 @@ meh = error "not relevant to this test"
 (=^=) x y = and [
     _stPending_Monome x == _stPending_Monome y
   , _stPending_Vivid x  == _stPending_Vivid y
+  , _stVoices x         == _stVoices y
   , _stApp x            == _stApp y ]
 
 v0     :: VoiceId       = VoiceId 0
