@@ -18,7 +18,7 @@ import qualified Data.Map as M
 
 import Montevideo.Monome.Network.Util
 import Montevideo.Monome.Types
-import Montevideo.Monome.Util.Button
+import Montevideo.Monome.Util.OSC
 
 
 -- | Forward a message to the monome if appropriate.
@@ -29,7 +29,6 @@ type LedFilter = (X,Y) -> Bool
 relayToWindow :: St app -> MonomeId -> WindowId -> Either String LedRelay
 relayToWindow st mi wl =
   mapLeft ("relayToWindow: " ++) $ do
-  let ws = _stWindowLayers st
   ws :: [Window app] <-
     maybe (Left $ "Wdindows for " ++ show mi ++ " not found.")
     Right $ M.lookup mi $ _stWindowLayers st

@@ -2,30 +2,31 @@
 , ViewPatterns
 #-}
 
-module Montevideo.Monome.Util.Button (
+module Montevideo.Monome.Util.OSC (
+  -- * re-exports
     X, Y, Switch, Led, LedBecause(..)
-  , readOSC_asSwitch, fromBool, boolFromInt
-  , ledOsc, allLedOsc
+
+  -- * OSC
+  , readOSC_asSwitch -- ^ OSC -> Either String ( MonomeId, ((X,Y), Switch))
+  , ledOsc           -- ^ MonomeId -> ((X,Y), Led) -> ByteString  
+  , allLedOsc        -- ^ MonomeId -> Led -> ByteString
+
+  -- * Monome-related conversions for `String`, `Int`, `Bool`, `MonomeId`
+  , inverseShowMonome -- ^ String -> Either String MonomeId
+  , fromBool          -- ^ Num a => Bool -> a
+  , boolFromInt       -- ^ Int -> Either String Bool
   ) where
 
+import Data.ByteString.Char8
 import Data.Either.Combinators
 import Vivid.OSC
 
 import Montevideo.Monome.Network.Monome
 import Montevideo.Monome.Types.Most
 import Montevideo.Util
-import Data.ByteString.Char8
 
 
-fromBool :: Num a => Bool -> a
-fromBool True = 1
-fromBool False = 0
-
-boolFromInt :: Int -> Either String Bool
-boolFromInt 0 = Right False
-boolFromInt 1 = Right True
-boolFromInt x = Left ( "boolFromInt: " ++ show x
-                       ++ " is niether 0 nor 1." )
+-- * OSC
 
 -- | Example:
 -- > readOSC_asSwitch $ OSC "/monome/grid/key" [OSC_I 7, OSC_I 7, OSC_I 1]
@@ -50,11 +51,6 @@ readOSC_asSwitch m@(OSC str l) =
            _ -> err
        _ -> err
 
-inverseShowMonome :: String -> Either String MonomeId
-inverseShowMonome ((==) (show Monome_256) -> True) = Right Monome_256
-inverseShowMonome ((==) (show Monome_128) -> True) = Right Monome_128
-inverseShowMonome m = Left $ "Monome not found: " ++ m ++ "."
-
 -- | Tells the monome to turn on an LED. See Test/HandTest.hs.
 ledOsc :: MonomeId -> ((X,Y), Led) -> ByteString
 ledOsc prefix ((x, y), led) =
@@ -64,3 +60,21 @@ ledOsc prefix ((x, y), led) =
 allLedOsc :: MonomeId -> Led -> ByteString
 allLedOsc prefix led =
   allLeds ('/' : show prefix) $ fromBool led
+
+
+-- * Monome-related conversions for `String`, `Int`, `Bool`, `MonomeId`
+
+inverseShowMonome :: String -> Either String MonomeId
+inverseShowMonome ((==) (show Monome_256) -> True) = Right Monome_256
+inverseShowMonome ((==) (show Monome_128) -> True) = Right Monome_128
+inverseShowMonome m = Left $ "Monome not found: " ++ m ++ "."
+
+fromBool :: Num a => Bool -> a
+fromBool True = 1
+fromBool False = 0
+
+boolFromInt :: Int -> Either String Bool
+boolFromInt 0 = Right False
+boolFromInt 1 = Right True
+boolFromInt x = Left ( "boolFromInt: " ++ show x
+                       ++ " is niether 0 nor 1." )

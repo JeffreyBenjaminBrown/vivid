@@ -9,7 +9,7 @@ import Data.Either.Combinators
 import Vivid.OSC
 
 import Montevideo.Monome.Network.Util
-import Montevideo.Monome.Util.Button
+import Montevideo.Monome.Util.OSC
 import Montevideo.Util
 import Data.ByteString (ByteString)
 import Data.ByteString.Char8 (unpack)
