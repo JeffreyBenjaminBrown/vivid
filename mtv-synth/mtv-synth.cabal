@@ -26,6 +26,7 @@ library
   exposed-modules:
       Montevideo.Synth
     , Montevideo.Synth.Config
+    , Montevideo.Synth.Msg
     , Montevideo.Synth.Samples
     , Montevideo.Synth.Vap
     , Montevideo.Synth.Zot

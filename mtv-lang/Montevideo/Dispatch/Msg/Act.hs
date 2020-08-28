@@ -26,7 +26,7 @@ import qualified Data.Map as M
 import qualified Vivid as V
 
 import Montevideo.Dispatch.Config
-import Montevideo.Dispatch.Msg.Mk
+import Montevideo.Synth.Msg
 import Montevideo.Dispatch.Types
 import Montevideo.Synth
 import Montevideo.Util

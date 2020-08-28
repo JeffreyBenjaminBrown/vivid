@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Montevideo.Dispatch.Msg.Mk (
+module Montevideo.Synth.Msg (
     boopScMsg    -- ^ ScMsg -> [ScMsg' BoopParams]
   , samplerScMsg -- ^ ScMsg -> [ScMsg' SamplerParams]
   , sqfmScMsg    -- ^ ScMsg -> [ScMsg' SqfmParams]
