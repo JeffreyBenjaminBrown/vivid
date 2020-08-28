@@ -37,6 +37,7 @@ module Montevideo.Util (
   , taxiMetric -- ^ Num a => (a,a) -> (a,a) -> a
   , pairAdd    -- ^ Num a => (a,a) -> (a,a) -> (a,a)
   , pairMul    -- ^ Num a => a -> (a,a) -> (a,a)
+  , logScale
   , myMod      -- ^ Int -> Int -> Int
 
   , lcmRatios
@@ -222,6 +223,22 @@ pairAdd (a,b) (c,d) = (a+c, b+d)
 pairMul :: Num a => a -> (a,a) -> (a,a)
 pairMul n (a,b) = (n*a,n*b)
 
+-- | `logScale (a,b) (c,d) e` will transform an linear input in `(a,b)`
+-- to an exponential output in `(c,d)`.
+-- If `c/d` is near 1, this should have very little effect;
+-- if it's near 0, a very noticeable one.
+-- Surprisingly, the logarithm is irrelevant.
+logScale :: Floating a
+         => (a,a) -- ^ The input range
+         -> (a,a) -- ^ The output range. PITFALL: Both must be positive.
+         -> a     -- ^ The input
+         -> a
+logScale (a,b) (c,d) e =
+  let lc = log c
+      ld = log d
+      perc0 = (e - a) / (b - a) -- like a %-age: how far e is from a to b
+      perc1 = (ld - lc)*perc0 + lc -- like perc0, but from lc to ld
+  in exp perc1
 
 -- | least common denominator
 lcmRatios :: Rational -> Rational -> Rational

@@ -12,7 +12,20 @@ tests = TestList
   [ TestLabel "test_interleaves" test_interleaves
   , TestLabel "test_lcmRatios" test_lcmRatios
   , TestLabel "test_lines'" test_lines'
+  , TestLabel "test_logScale" test_logScale
   ]
+
+test_logScale :: Test
+test_logScale = TestCase $ do
+  let near x y = x/y > 0.9 && x/y < 1.1
+  assertBool "logarithmically halfway from 1 to 100 is 10" $
+    near (logScale (0 ,10) (1,100)    5) 10
+  assertBool "logarithmically halfway from 1 to 100 is 10" $
+    near (logScale (10,20) (1,100)   15) 10
+  assertBool "logarithmically halfway from 10 to 1000 is 100" $
+    near (logScale (0 ,10) (10,1000)  5) 100
+  assertBool "logarithmically 5/8 of the way from 1 to 256 is 2**5" $
+    near (logScale  (10,18) (1,256)  15) 32
 
 test_lines' :: Test
 test_lines' = TestCase $ do
