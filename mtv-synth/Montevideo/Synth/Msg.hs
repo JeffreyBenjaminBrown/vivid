@@ -2,6 +2,7 @@
 
 module Montevideo.Synth.Msg (
     boopScMsg    -- ^ ScMsg -> [ScMsg' BoopParams]
+  , moopScMsg    -- ^ ScMsg -> [ScMsg' BoopParams]
   , samplerScMsg -- ^ ScMsg -> [ScMsg' SamplerParams]
   , sqfmScMsg    -- ^ ScMsg -> [ScMsg' SqfmParams]
   , vapScMsg     -- ^ ScMsg -> [ScMsg' VapParams]
@@ -21,6 +22,9 @@ import Montevideo.Dispatch.Types
 -- | = send a Map full of messages
 boopScMsg :: ScMsg -> [ScMsg' BoopParams]
 boopScMsg = map boopOneScMsg . M.toList
+
+moopScMsg :: ScMsg -> [ScMsg' MoopParams]
+moopScMsg = map moopOneScMsg . M.toList
 
 samplerScMsg :: ScMsg -> [ScMsg' SamplerParams]
 samplerScMsg = map samplerOneScMsg . M.toList
@@ -43,6 +47,13 @@ boopOneScMsg ("freq",n)  = ScMsg' (toI n :: I "freq")
 boopOneScMsg ("amp",n)   = ScMsg' (toI n :: I "amp")
 boopOneScMsg (param,val) = error $
   "boopOneScMsg: unexpected message: " ++ show param ++ "=" ++ show val
+
+moopOneScMsg :: (ParamName, Float) -> ScMsg' MoopParams
+moopOneScMsg ("freq",n)  = ScMsg' (toI n :: I "freq")
+moopOneScMsg ("amp",n)   = ScMsg' (toI n :: I "amp")
+moopOneScMsg ("lag",n)   = ScMsg' (toI n :: I "lag")
+moopOneScMsg (param,val) = error $
+  "moopOneScMsg: unexpected message: " ++ show param ++ "=" ++ show val
 
 samplerOneScMsg :: (ParamName, Float) -> ScMsg' SamplerParams
 samplerOneScMsg ("amp",n)     = ScMsg' (toI n :: I "amp")
