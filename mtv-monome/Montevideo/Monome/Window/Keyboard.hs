@@ -45,7 +45,7 @@ keyboardWindow =  Window {
 -- TODO ! duplicative of `JI.handler`
 handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
         -> Either String (St EdoApp)
-handler    st          (mi, press@(xy,sw))   =
+handler    st           (mi, press@(xy,sw)) =
   mapLeft ("Keyboard handler: " ++) $ do
   let app = st ^. stApp
   vid <- if sw then Right $ nextVoice st

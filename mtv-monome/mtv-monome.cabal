@@ -39,6 +39,7 @@ library
     , Montevideo.Monome.Window.Common
     , Montevideo.Monome.Window.JI
     , Montevideo.Monome.Window.Keyboard
+    , Montevideo.Monome.Window.Lag
     , Montevideo.Monome.Window.Shift
     , Montevideo.Monome.Window.Sustain
     , Montevideo.Monome.Window.Util

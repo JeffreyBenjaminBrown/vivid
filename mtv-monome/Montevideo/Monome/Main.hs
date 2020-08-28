@@ -38,6 +38,7 @@ import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Util.OSC
 import           Montevideo.Monome.Window.JI
 import           Montevideo.Monome.Window.Keyboard
+import           Montevideo.Monome.Window.Lag
 import           Montevideo.Monome.Window.Shift
 import           Montevideo.Monome.Window.Sustain
 import           Montevideo.Monome.Window.Util
@@ -60,12 +61,13 @@ edoMonome edoCfg = do
         [ ( Monome_256
           , [sustainWindow, shiftWindow, keyboardWindow] )
         , ( Monome_128
-          , [keyboardWindow] ) ]
+          , [lagWindow, keyboardWindow] ) ]
     , _stToMonome = M.fromList [ (Monome_256, to256)
                                , (Monome_128, to128) ]
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
+    , _stLag = 0.03
 
     , _stApp = EdoApp
         { _edoConfig = edoCfg
@@ -127,6 +129,8 @@ jiMonome monomePort scale shifts = do
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
+    , _stLag = 0.03
+
     , _stApp = JiApp { _jiGenerator = scale
                      , _jiShifts = shifts
                      , _jiFingers = mempty }

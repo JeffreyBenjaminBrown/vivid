@@ -13,7 +13,7 @@ module Montevideo.Monome.Types.Most (
   , Window(..)
   , Voice(..), voiceSynth, voicePitch, voiceParams
   , St(..), edoConfig, stApp, stWindowLayers, stToMonome, stVoices
-    , stPending_Monome, stPending_Vivid
+    , stPending_Monome, stPending_Vivid, stLag
   , EdoApp(..), edoXyShift, edoFingers, edoLit, edoSustaineded
   , JiApp(..), jiGenerator, jiShifts, jiFingers
   ) where
@@ -35,6 +35,7 @@ data MonomeId = Monome_256 | Monome_128
   deriving (Show, Eq, Ord)
 
 data WindowId = KeyboardWindow
+              | LagWindow
               | ShiftWindow
               | SustainWindow
   deriving (Show, Eq, Ord)
@@ -130,14 +131,17 @@ data St app = St {
   -- scattered functions can simply change an `St` instead of doing IO.
   , _stPending_Monome :: [LedMsg]
   , _stPending_Vivid :: [ScAction VoiceId]
+  , _stLag :: Float -- ^ TODO : Generalize to many parameters.
   }
 
 data EdoApp = EdoApp
   { _edoConfig :: EdoConfig
-  , _edoXyShift :: (X,Y) -- ^ this is relative -- a vector, not a point
+  , _edoXyShift :: (X,Y) -- ^ This is relative -- a vector, not a point.
+    -- TODO : For multiple keyboards, change (X,Y) -> (MonomeId, (X,Y))
   , _edoFingers :: Map (X,Y) VoiceId
     -- ^ Where fingers are, what each is sounding,
     -- and what each is lighting up.
+    -- TODO : For multiple keyboards, change (X,Y) -> (MonomeId, (X,Y))
   , _edoLit :: LitPitches EdoApp
   , _edoSustaineded :: Set VoiceId
     -- ^ PITFALL: In spirit, the thing sustained is a Pitch,
