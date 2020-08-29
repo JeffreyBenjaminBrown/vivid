@@ -8,7 +8,7 @@ patMelody = -- A melody (in Hz).
   mmho 4    -- This `Museq`'s duration will be 4.
     -- "mmho" = "mm" (make a Museq)
     --        + "h" (hold each note until the next one)
-    --        + "o" (insert "on=1" messages whereer "on" is not mentioned)
+    --        + "o" (insert "on=1" messages wherever "on" is not mentioned)
   $ pre2 "" -- This pattern is not polyphonic, so each event can be
             -- given the same label  -- in this case, the empty string.
   [ (0                    -- At time 0,

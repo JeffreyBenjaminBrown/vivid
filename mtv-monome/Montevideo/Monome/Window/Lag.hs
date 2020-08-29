@@ -26,11 +26,10 @@ lagWindow =  Window {
   , windowInitLeds = \_ _ -> []
   , windowHandler = handler }
 
--- TODO : magic numbers; reify
 handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
         -> Either String (St EdoApp)
 handler    st           (_, ((x,_),_)) =
+-- TODO : magic numbers; reify
   Right $ st & stLag .~ ( logScale (0,15)
                           ( 0.03, 10 )
                           $ fi x )
-  

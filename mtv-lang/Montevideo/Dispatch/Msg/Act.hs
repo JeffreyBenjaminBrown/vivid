@@ -182,8 +182,8 @@ dispatchConsumeScAction_Free _ _ (ScAction_New _ _ _) =
 -- | `dispatchConsumeScAction_Send reg when (ScAction_Send _ name msg)`,
 -- if it doesn't find `name` in `reg`, logs an error.
 -- Otherwise, it schedules an action to send everythingg in `msg` at `when`.
--- In the special case of a sampler receiving an "on" message,
---   it schedules an "off" message for shortly thereafter.
+-- In the special case of a sampler receiving a "trigger=1" message,
+--   it schedules a "trigger=0" message for shortly thereafter.
 dispatchConsumeScAction_Send ::
   SynthRegister -> Time -> ScAction SynthName -> IO ()
 dispatchConsumeScAction_Send reg when (ScAction_Send Boop name msg) =

@@ -1,3 +1,14 @@
+-- | PITFALL: The "on" and "trigger" messages are special.
+--
+-- "on" permits, in non-Sampler synths,
+--   separate amplitude and existence control.
+--   It isn't used in Sampler.
+--
+-- "trigger:" In the Sampler synth only,
+--   whenver the user schedules a "trigger=1" message in Montevideo.Dispatch,
+--   it automatically schedules a "trigger=0" for soon thereafter.
+--   This permits the buffer to be retriggered the next time.
+
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE DataKinds
            , ExtendedDefaultRules
