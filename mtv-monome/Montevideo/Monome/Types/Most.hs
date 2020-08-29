@@ -13,7 +13,7 @@ module Montevideo.Monome.Types.Most (
   , Window(..)
   , Voice(..), voiceSynth, voicePitch, voiceParams
   , St(..), edoConfig, stApp, stWindowLayers, stToMonome, stVoices
-    , stPending_Monome, stPending_Vivid, stLag
+    , stPending_Monome, stPending_Vivid, stPulse
   , EdoApp(..), edoXyShift, edoFingers, edoLit, edoSustaineded
   , JiApp(..), jiGenerator, jiShifts, jiFingers
   ) where
@@ -35,7 +35,7 @@ data MonomeId = Monome_256 | Monome_128
   deriving (Show, Eq, Ord)
 
 data WindowId = KeyboardWindow
-              | LagWindow
+              | PulseWindow
               | ShiftWindow
               | SustainWindow
   deriving (Show, Eq, Ord)
@@ -102,7 +102,7 @@ data Window app = Window {
 -- | The app allows the monome to control "voices" in SuperCollider.
 -- The `Synth` of a `Voice` is fixed, but the other values can change.
 data Voice app = Voice {
-    _voiceSynth  :: Maybe (Synth MoopParams) -- ^ This field is Nothing
+    _voiceSynth  :: Maybe (Synth ZotParams) -- ^ This field is Nothing
     -- until SuperCollider has allocated a synth.
   , _voicePitch  :: Pitch app -- ^ Used (so far) only for sustain,
     -- by way of vid_to_pitchClass.
@@ -131,7 +131,7 @@ data St app = St {
   -- scattered functions can simply change an `St` instead of doing IO.
   , _stPending_Monome :: [LedMsg]
   , _stPending_Vivid :: [ScAction VoiceId]
-  , _stLag :: Float -- ^ TODO : Generalize to many parameters.
+  , _stPulse :: Float -- ^ TODO : Generalize to many parameters.
   }
 
 data EdoApp = EdoApp

@@ -45,7 +45,7 @@ ledBecause_toPitchClass m lb =
 
 silenceMsg :: VoiceId -> ScAction VoiceId
 silenceMsg xy = ScAction_Free
-  { _actionSynthDefEnum = Moop
+  { _actionSynthDefEnum = Zot
   , _actionSynthName = xy
   }
 

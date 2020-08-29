@@ -76,7 +76,7 @@ my22 = EdoConfig
 
 -- | The amplitude of each voice.
 amp :: Float
-amp = 0.35
+amp = 0.1
 
 -- | The frequency of "note 0". (Notes can be negative.)
 freq :: Num a => a

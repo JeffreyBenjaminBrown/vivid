@@ -1,13 +1,29 @@
--- | PITFALL: The "on" and "trigger" messages are special.
+-- | PITFALL: A few of the messages deserve explanation.
 --
 -- "on" permits, in non-Sampler synths,
 --   separate amplitude and existence control.
 --   It isn't used in Sampler.
+--   In all the other synths, it is important to Dispatch,
+--   because Dispatch voices are persistent even after "note-off"
+--   ("on"=0) events. (TODO ? It seems like "amp" would work just as well,
+--   wouldn't it?)
 --
 -- "trigger:" In the Sampler synth only,
 --   whenver the user schedules a "trigger=1" message in Montevideo.Dispatch,
 --   it automatically schedules a "trigger=0" for soon thereafter.
 --   This permits the buffer to be retriggered the next time.
+--
+-- "lag" determines, in some synths, how long* a change in amplitude takes.
+--   It was initially implemented to smooth out clicks.
+--   It also can work as an envelope control for start, end or both.
+--   If "amp" is lagged, but it begins as a positive value,
+--   then it seems like it should click. Maybe the reason that doesn't happen
+--   is that waveforms are normalized to always start at 0.
+--   But it definitely works to smooth out an ending click,
+--   assuming the voice is not freed until after the decay.
+--
+--   * It's implemented via a filter; really what it means is how long
+--     it takes to be very close to the target value, something like -60 db.)
 
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE DataKinds

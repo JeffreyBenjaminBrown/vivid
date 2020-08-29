@@ -159,5 +159,5 @@ test_sustainHandler = TestCase $ do
             (pcToXys_st st_0fs_1s pc1) )
           & stPending_Vivid .~
           [ ScAction_Free
-            { _actionSynthDefEnum = Moop
+            { _actionSynthDefEnum = Zot
             , _actionSynthName = v1 } ] )

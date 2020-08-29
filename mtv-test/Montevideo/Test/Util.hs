@@ -18,7 +18,6 @@ tests = TestList
 
 test_linScale :: Test
 test_linScale = TestCase $ do
-  let near x y = x/y > 0.9 && x/y < 1.1
   assertBool "" $
     linScale (100,110) (200,250) 102
     == 210

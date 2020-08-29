@@ -34,14 +34,14 @@ test_jiKeySound = TestCase $ do
         in do
         assertBool "sound on" $ jiKey_ScAction ja (VoiceId 3) (xy,True)
           == [ ScAction_New
-               { _actionSynthDefEnum = Moop
+               { _actionSynthDefEnum = Zot
                , _actionSynthName = VoiceId 3
                , _actionScMsg = M.fromList
                  [ ("freq", Config.freq * Config.jiTranspose * fr freq)
                  , ("amp", Config.amp) ] } ]
         assertBool "sound off" $ jiKey_ScAction ja (VoiceId 4) (xy,False)
           == [ ScAction_Free
-               { _actionSynthDefEnum = Moop
+               { _actionSynthDefEnum = Zot
                , _actionSynthName = VoiceId 4 } ]
   mapM_ f [(0,0), (1,1), (1,3)]
 

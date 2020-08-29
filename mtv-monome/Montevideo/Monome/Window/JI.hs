@@ -75,7 +75,7 @@ jiKey_ScAction ja vid (xy,switch) = let
   doIfKeyFound freq =
     if switch
       then [ ScAction_New
-             { _actionSynthDefEnum = Moop
+             { _actionSynthDefEnum = Zot
              , _actionSynthName = vid
              , _actionScMsg = M.fromList
                [ ("freq", Config.freq * Config.jiTranspose * fr freq)

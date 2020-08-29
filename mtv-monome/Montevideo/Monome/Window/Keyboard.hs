@@ -134,10 +134,11 @@ edoKey_ScAction st vid (xy, sw) = do
 
     else if sw -- sw <=> the key was pressed, rather than released
          then [ ScAction_New
-                { _actionSynthDefEnum = Moop
+                { _actionSynthDefEnum = Zot
                 , _actionSynthName = vid
                 , _actionScMsg = M.fromList
                   [ ("freq", Config.freq * edoToFreq ec pitch)
                   , ("amp", Config.amp)
-                  , ("lag", _stLag st) ] } ]
+                  , ("on", 1)
+                  , ("pulse", _stPulse st) ] } ]
          else [silenceMsg vid]

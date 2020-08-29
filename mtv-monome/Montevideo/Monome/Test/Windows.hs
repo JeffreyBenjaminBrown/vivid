@@ -45,18 +45,18 @@ test_edoKey_ScAction = TestCase $ do
   assertBool "press a key that's not sustained.\n" $
     edoKey_ScAction st newVoice (newXy, True) ==
     [ ScAction_New
-      { _actionSynthDefEnum = Moop
+      { _actionSynthDefEnum = Zot
       , _actionSynthName = newVoice
       , _actionScMsg = M.fromList
         [ ("freq", Config.freq *
                    edoToFreq (st ^. stApp . edoConfig) newPitch)
-        , ( "lag", _stLag st)
+        , ( "pulse", _stPulse st)
         , ( "amp", Config.amp ) ] } ]
 
   assertBool "release a key that's not sustained" $
     edoKey_ScAction st newVoice (newXy, False) ==
     [ ScAction_Free
-      { _actionSynthDefEnum = Moop
+      { _actionSynthDefEnum = Zot
       , _actionSynthName = newVoice } ]
 
 test_shiftHandler :: Test
@@ -104,7 +104,7 @@ test_keyboardHandler = TestCase $ do
                 pcToXys_st st_01f pc1 ) )
           & ( stPending_Vivid .~
               [ ScAction_Free
-                { _actionSynthDefEnum = Moop
+                { _actionSynthDefEnum = Zot
                 , _actionSynthName = v1 } ] ) )
 
   assertBool "releasing a key that's also the anchor pitch sends no monome messages" $
@@ -116,7 +116,7 @@ test_keyboardHandler = TestCase $ do
           & stApp . edoFingers .~ mempty
           & stPending_Vivid .~
           [ ScAction_Free
-            { _actionSynthDefEnum = Moop
+            { _actionSynthDefEnum = Zot
             , _actionSynthName = v0 } ] )
 
   assertBool "releasing a key that's a sustained voice sends no vivid or monome messages, but updates lit and fingers" $

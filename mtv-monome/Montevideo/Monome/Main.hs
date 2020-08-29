@@ -60,12 +60,12 @@ edoMonome edoCfg = do
         [ ( Monome_256
           , [sustainWindow, shiftWindow, keyboardWindow] )
         , ( Monome_128
-          , [lagWindow, keyboardWindow] ) ]
+          , [pulseWindow, keyboardWindow] ) ]
     , _stToMonome = toMonomes
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
-    , _stLag = 0.03
+    , _stPulse = 0.03
 
     , _stApp = EdoApp
         { _edoConfig = edoCfg
@@ -123,7 +123,7 @@ jiMonome scale shifts = do
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
-    , _stLag = 0.03
+    , _stPulse = 0.03
 
     , _stApp = JiApp { _jiGenerator = scale
                      , _jiShifts = shifts
@@ -249,16 +249,17 @@ doScAction    st        sca =
 
     ScAction_Send _ _ _ -> do -- currently unused
       let vid :: VoiceId = _actionSynthName sca
-      s :: Synth MoopParams <-
+      s :: Synth ZotParams <-
         maybe (Left $ "VoiceId " ++ show vid ++ " has no assigned synth.")
         Right $ (_stVoices st M.! vid) ^. voiceSynth
       let go :: (ParamName, Float) -> Either String (IO ())
           go (param, f) =
              case param of
-               "amp"  -> Right $ set s (toI f :: I "amp")
-               "freq" -> Right $ set s (toI f :: I "freq")
-               "lag"  -> Right $ set s (toI f :: I "lag")
-               _      -> Left $ "unrecognized parameter " ++ param
+               "on"    -> Right $ set s (toI f :: I "on")
+               "amp"   -> Right $ set s (toI f :: I "amp")
+               "freq"  -> Right $ set s (toI f :: I "freq")
+               "pulse" -> Right $ set s (toI f :: I "pulse")
+               _       -> Left $ "unrecognized parameter " ++ param
       ios :: [IO ()] <- mapM go $ M.toList $ _actionScMsg sca
       Right $ mapM_ id ios >> return (Right id)
 
@@ -268,14 +269,15 @@ doScAction    st        sca =
                   ++ " (but not yet with a synth) in _stVoices.")
            Right $ M.lookup vid $ _stVoices st
       Right $ do
-        s <- synth moop () -- TODO change moop to `_actionSynthDefEnum sca`
+        s <- synth zot () -- TODO change zot to `_actionSynthDefEnum sca`
         let go :: (ParamName, Float) -> Either String (IO ())
             go (param, f) =
                case param of
-                 "amp"  -> Right $ set s (toI f :: I "amp")
-                 "freq" -> Right $ set s (toI f :: I "freq")
-                 "lag"  -> Right $ set s (toI f :: I "lag")
-                 _      -> Left $ "unrecognized parameter " ++ param
+                 "on"    -> Right $ set s (toI f :: I "on")
+                 "amp"   -> Right $ set s (toI f :: I "amp")
+                 "freq"  -> Right $ set s (toI f :: I "freq")
+                 "pulse" -> Right $ set s (toI f :: I "pulse")
+                 _       -> Left $ "unrecognized parameter " ++ param
         case mapM go $ M.toList $ _actionScMsg sca of
           Left err -> return $ Left err
           Right (ios :: [IO ()]) -> do
@@ -290,13 +292,13 @@ doScAction    st        sca =
     -- and then waits a bit (how much is determined in Monome.Config).
     -- (That smooths the click because amp messages are responded to a tad
     -- sluggishly, per the following line in the synth's definition:
-    -- s1 <- lag (in_ (V::V "amp"), lagSecs_ 0.03)
+    -- s1 <- pulse (in_ (V::V "amp"), pulseSecs_ 0.03)
     ScAction_Free _ _ -> do
       let vid :: VoiceId = _actionSynthName sca
       v :: Voice a <- maybe
         (Left $ "VoiceId " ++ show vid ++ " absent from _stVoices.")
         Right $ M.lookup vid $ _stVoices st
-      s :: Synth MoopParams <- maybe
+      s :: Synth ZotParams <- maybe
         (Left $ "Voice " ++ show vid ++ " has no assigned synth.")
         Right $ _voiceSynth v
       Right $ do

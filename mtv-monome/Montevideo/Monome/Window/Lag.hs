@@ -5,7 +5,7 @@
 
 module Montevideo.Monome.Window.Lag (
     handler
-  , lagWindow
+  , pulseWindow
   , label
   ) where
 
@@ -16,10 +16,10 @@ import           Montevideo.Util
 
 
 label :: WindowId
-label = LagWindow
+label = PulseWindow
 
-lagWindow :: Window EdoApp
-lagWindow =  Window {
+pulseWindow :: Window EdoApp
+pulseWindow =  Window {
     windowLabel = label
   , windowContains = \(x,y) -> numBetween 0 15 x &&
                                y == 0
@@ -30,6 +30,4 @@ handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
         -> Either String (St EdoApp)
 handler    st           (_, ((x,_),_)) =
 -- TODO : magic numbers; reify
-  Right $ st & stLag .~ ( logScale (0,15)
-                          ( 0.03, 10 )
-                          $ fi x )
+  Right $ st & stPulse .~ linScale (0,15) (0,1) (fi x)
