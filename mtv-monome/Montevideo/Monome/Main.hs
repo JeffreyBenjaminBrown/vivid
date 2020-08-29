@@ -26,12 +26,14 @@ import           Control.Lens hiding (set)
 import           Data.ByteString.Char8 (pack, unpack)
 import           Data.Either.Combinators
 import qualified Data.Map as M
+import           Data.Map (Map)
 
 import Vivid
 import Vivid.OSC
 
 import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Dispatch.Types.Time (unTimestamp)
+import           Montevideo.Monome.Config.Monome
 import qualified Montevideo.Monome.Config.Mtv as Config
 import           Montevideo.Monome.Network.Util
 import           Montevideo.Monome.Types.Most
@@ -49,12 +51,9 @@ import           Montevideo.Synth
 
 edoMonome :: EdoConfig -> IO (St EdoApp)
 edoMonome edoCfg = do
-  renameMonomes
+  toMonomes <- renameMonomes
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
     -- I don't know why it's port 8000, or why it used to be 11111.
-  to256 :: Socket <- sendsTo (unpack localhost) 15226
-  to128 :: Socket <- sendsTo (unpack localhost) 14336
-    -- to find the port number above, use the first part of HandTest.hs
 
   mst <- newMVar $ St {
       _stWindowLayers = M.fromList
@@ -62,8 +61,7 @@ edoMonome edoCfg = do
           , [sustainWindow, shiftWindow, keyboardWindow] )
         , ( Monome_128
           , [lagWindow, keyboardWindow] ) ]
-    , _stToMonome = M.fromList [ (Monome_256, to256)
-                               , (Monome_128, to128) ]
+    , _stToMonome = toMonomes
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
@@ -99,9 +97,7 @@ edoMonome edoCfg = do
           st <- readMVar mst
           let f = maybe (putStrLn "voice with no synth") free
             in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
-          _ <- let off receiver name = send receiver $ allLedOsc name False
-               in off to256 Monome_256 >>
-                  off to128 Monome_128
+          darkAllMonomes st
           return st
         _   -> loop
     in putStrLn "press 'q' to quit"
@@ -112,20 +108,18 @@ edoMonome edoCfg = do
 -- (Another would be to use the generators [1] and
 -- [1,9/8,5/4,4/3,3/2,5/3,15/8], but that's harder to play,
 -- and its geometry gives no insight into the scale.)
-jiMonome :: Int        -- ^ The monome address, as reported by serialoscd.
-         -> [Rational] -- ^ The horizontal grid generator.
+jiMonome :: [Rational] -- ^ The horizontal grid generator.
          -> [Rational] -- ^ The vertical grid generator.
          -> IO (St JiApp)
-jiMonome monomePort scale shifts = do
+jiMonome scale shifts = do
   -- PITFALL: Every comment written in edoMonome also applies here.
 
-  renameMonomes
+  toMonomes <- renameMonomes
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
-  toMonome :: Socket <- sendsTo (unpack localhost) monomePort
 
   mst <- newMVar $ St {
       _stWindowLayers = M.singleton Monome_256 [jiWindow]
-    , _stToMonome     = M.singleton Monome_256 toMonome
+    , _stToMonome     = toMonomes
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
@@ -155,7 +149,7 @@ jiMonome monomePort scale shifts = do
           st <- readMVar mst
           let f = maybe (putStrLn "voice with no synth") free
             in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
-          _ <- send toMonome $ allLedOsc Monome_256 False
+          darkAllMonomes st
           return st
         _   -> loop
     in putStrLn "press 'q' to quit"
@@ -170,15 +164,15 @@ jiMonome monomePort scale shifts = do
 -- so I have to give them different prefixes initially.
 -- (Alternatively I could have them listen to different ports, I think,
 -- but this is easy and that might not be.)
-renameMonomes :: IO ()
+renameMonomes :: IO (Map MonomeId Socket)
 renameMonomes = do
-  toMonome128 <- sendsTo (unpack localhost) 14336
-  toMonome256 <- sendsTo (unpack localhost) 15226
-  _ <- send toMonome128 $ encodeOSC $ OSC "/sys/prefix"
-    [ OSC_S $ pack $ show Monome_128 ]
-  _ <- send toMonome256 $ encodeOSC $ OSC "/sys/prefix"
-    [ OSC_S $ pack $ show Monome_256 ]
-  return ()
+  let f :: MonomeId -> IO (MonomeId, Socket)
+      f m = do
+        toMonome <- sendsTo (unpack localhost) $ monomePort m
+        _ <- send toMonome $ encodeOSC $ OSC "/sys/prefix"
+          [ OSC_S $ pack $ show m ]
+        return (m, toMonome)
+  fmap M.fromList $ mapM f allMonomeIds
 
 initAllWindows :: forall app. MVar (St app) -> IO ()
 initAllWindows mst = do
@@ -319,3 +313,10 @@ doLedMessage st ((mi, wi), (xy, b)) =
   case relayToWindow st mi wi of
     Left s         -> Left s
     Right toWindow -> Right $ toWindow (xy,b)
+
+darkAllMonomes :: St app -> IO ()
+darkAllMonomes st =
+  mapM_ (\mid -> off (receiver mid) mid) allMonomeIds
+  where
+    off socket name = send socket $ allLedOsc name False
+    receiver monomeId = (M.!) (_stToMonome st) monomeId

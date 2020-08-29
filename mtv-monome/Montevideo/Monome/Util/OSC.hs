@@ -6,6 +6,9 @@ module Montevideo.Monome.Util.OSC (
   -- * re-exports
     X, Y, Switch, Led, LedBecause(..)
 
+  -- * This isn't really OSC-specific but it's pretty close.
+  , allMonomeIds -- ^ [MonomeId]
+
   -- * OSC
   , readOSC_asSwitch -- ^ OSC -> Either String ( MonomeId, ((X,Y), Switch))
   , ledOsc           -- ^ MonomeId -> ((X,Y), Led) -> ByteString  
@@ -19,12 +22,17 @@ module Montevideo.Monome.Util.OSC (
 
 import Data.ByteString.Char8
 import Data.Either.Combinators
+import qualified Data.List as L
 import Vivid.OSC
 
 import Montevideo.Monome.Network.Monome
 import Montevideo.Monome.Types.Most
 import Montevideo.Util
 
+
+allMonomeIds :: [MonomeId]
+allMonomeIds = [ Monome_128
+               , Monome_256 ]
 
 -- * OSC
 
@@ -65,9 +73,10 @@ allLedOsc prefix led =
 -- * Monome-related conversions for `String`, `Int`, `Bool`, `MonomeId`
 
 inverseShowMonome :: String -> Either String MonomeId
-inverseShowMonome ((==) (show Monome_256) -> True) = Right Monome_256
-inverseShowMonome ((==) (show Monome_128) -> True) = Right Monome_128
-inverseShowMonome m = Left $ "Monome not found: " ++ m ++ "."
+inverseShowMonome s =
+  mapLeft ("inverseShowMonome: " ++) $
+  maybe (Left $ "MonomeId for " ++ s ++ " not found.")
+  Right $ L.find ((==) s . show) allMonomeIds
 
 fromBool :: Num a => Bool -> a
 fromBool True = 1

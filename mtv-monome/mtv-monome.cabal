@@ -23,6 +23,7 @@ source-repository head
 library
   exposed-modules:
       Montevideo.Monome.Config.Mtv
+    , Montevideo.Monome.Config.Monome
     , Montevideo.Monome.EdoMath
 --    , Montevideo.Monome.JiScales
     , Montevideo.Monome.Main
