@@ -13,7 +13,18 @@ tests = TestList
   , TestLabel "test_lcmRatios" test_lcmRatios
   , TestLabel "test_lines'" test_lines'
   , TestLabel "test_logScale" test_logScale
+  , TestLabel "test_linScale" test_linScale
   ]
+
+test_linScale :: Test
+test_linScale = TestCase $ do
+  let near x y = x/y > 0.9 && x/y < 1.1
+  assertBool "" $
+    linScale (100,110) (200,250) 102
+    == 210
+  assertBool "" $
+    linScale (-50,0) (-300,-200) (-10)
+    == (-220)
 
 test_logScale :: Test
 test_logScale = TestCase $ do

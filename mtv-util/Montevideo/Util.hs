@@ -37,6 +37,7 @@ module Montevideo.Util (
   , taxiMetric -- ^ Num a => (a,a) -> (a,a) -> a
   , pairAdd    -- ^ Num a => (a,a) -> (a,a) -> (a,a)
   , pairMul    -- ^ Num a => a -> (a,a) -> (a,a)
+  , linScale
   , logScale
   , myMod      -- ^ Int -> Int -> Int
 
@@ -222,6 +223,16 @@ pairAdd (a,b) (c,d) = (a+c, b+d)
 
 pairMul :: Num a => a -> (a,a) -> (a,a)
 pairMul n (a,b) = (n*a,n*b)
+
+linScale :: Floating a
+         => (a,a) -- ^ The input range
+         -> (a,a) -- ^ The output range.
+         -> a     -- ^ The input.
+         -> a
+linScale (a,b) (c,d) e = let
+  perc0 = (e - a) / (b - a) -- like a %-age: how far e is from a to b
+  perc1 = (d - c)*perc0 + c -- like perc0, but from lc to ld
+  in perc1
 
 -- | `logScale (a,b) (c,d) e` will transform an linear input in `(a,b)`
 -- to an exponential output in `(c,d)`.
