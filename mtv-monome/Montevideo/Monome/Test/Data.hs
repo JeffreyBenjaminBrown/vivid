@@ -37,6 +37,7 @@ meh = error "not relevant to this test"
     _stPending_Monome x == _stPending_Monome y
   , _stPending_Vivid x  == _stPending_Vivid y
   , _stVoices x         == _stVoices y
+  , _stLag x            == _stLag y
   , _stApp x            == _stApp y ]
 
 v0     :: VoiceId       = VoiceId 0
@@ -59,6 +60,7 @@ st0 = St {
          , (v1, v { _voicePitch = pitch1 } ) ]
   , _stPending_Monome = []
   , _stPending_Vivid = []
+  , _stLag = 1
   , _stApp = EdoApp { _edoConfig = config31
                     , _edoXyShift = (3,5)
                     , _edoFingers = mempty

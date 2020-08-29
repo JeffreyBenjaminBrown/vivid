@@ -76,7 +76,8 @@ handler    st           (mi, press@(xy,sw)) =
         concatMap (pcToXys_st st) toDark) ++
       ( map (,True)  $
         concatMap (pcToXys_st st) toLight)
-    scas :: [ScAction VoiceId] = edoKey_ScAction app vid press
+    scas :: [ScAction VoiceId] =
+      edoKey_ScAction st vid press
     v :: Voice EdoApp = Voice
       { _voiceSynth  = Nothing
       , _voicePitch  = xyToEdo_app app xy
@@ -119,10 +120,11 @@ updateStLit (xy,False) _ mpcThen m =
         False -> M.insert pc (S.delete (LedBecauseSwitch xy) reasons) m
 
 -- TODO ! duplicative of `jiKey_ScAction`
-edoKey_ScAction :: EdoApp -> VoiceId -> ((X,Y), Switch)
+edoKey_ScAction :: St EdoApp -> VoiceId -> ((X,Y), Switch)
                 -> [ScAction VoiceId]
-edoKey_ScAction app vid (xy, sw) = do
-  let pitch = xyToEdo_app app xy
+edoKey_ScAction st vid (xy, sw) = do
+  let app = _stApp st
+      pitch = xyToEdo_app app xy
       ec = app ^. edoConfig
   if S.member vid $ app ^. edoSustaineded
     then ( -- it's already sounding due to sustain
@@ -136,6 +138,6 @@ edoKey_ScAction app vid (xy, sw) = do
                 , _actionSynthName = vid
                 , _actionScMsg = M.fromList
                   [ ("freq", Config.freq * edoToFreq ec pitch)
-                  , ("amp", Config.amp) ]
-                } ]
+                  , ("amp", Config.amp)
+                  , ("lag", _stLag st) ] } ]
          else [silenceMsg vid]

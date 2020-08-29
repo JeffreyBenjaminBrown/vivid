@@ -36,24 +36,25 @@ test_edoKey_ScAction = TestCase $ do
                    S.singleton sustainedVoice )
       newPitch = xyToEdo_app (st ^. stApp) newXy
   assertBool "pressing a key that's sustained has no effect" $
-    edoKey_ScAction (st ^. stApp) sustainedVoice (sustainedXy, True)
+    edoKey_ScAction st sustainedVoice (sustainedXy, True)
     == []
   assertBool "releasing a key that's sustained has no effect" $
-    edoKey_ScAction (st ^. stApp) sustainedVoice (sustainedXy, False)
+    edoKey_ScAction st sustainedVoice (sustainedXy, False)
     == []
 
   assertBool "press a key that's not sustained.\n" $
-    edoKey_ScAction (st ^. stApp) newVoice (newXy, True) ==
+    edoKey_ScAction st newVoice (newXy, True) ==
     [ ScAction_New
       { _actionSynthDefEnum = Moop
       , _actionSynthName = newVoice
       , _actionScMsg = M.fromList
         [ ("freq", Config.freq *
                    edoToFreq (st ^. stApp . edoConfig) newPitch)
+        , ( "lag", _stLag st)
         , ( "amp", Config.amp ) ] } ]
 
   assertBool "release a key that's not sustained" $
-    edoKey_ScAction (st ^. stApp) newVoice (newXy, False) ==
+    edoKey_ScAction st newVoice (newXy, False) ==
     [ ScAction_Free
       { _actionSynthDefEnum = Moop
       , _actionSynthName = newVoice } ]
@@ -138,7 +139,7 @@ test_keyboardHandler = TestCase $ do
                          , _voicePitch = xyToEdo_app (_stApp st_0s) xy0
                          , _voiceParams = mempty } ) )
              & ( stPending_Vivid .~ edoKey_ScAction
-                 (st0 ^. stApp) nv (xy0, True) )
+                 st0 nv (xy0, True) )
              & ( stApp . edoFingers .~ M.fromList
                  [ (xy0,nv) ] ) )
 
@@ -157,5 +158,5 @@ test_keyboardHandler = TestCase $ do
                                , (xy, True) ) ) $
                    pcToXys_st st_01f pc1 ) )
              & ( stPending_Vivid .~ edoKey_ScAction
-                 (st0 ^. stApp) nv (xy1, True) )
+                 st0 nv (xy1, True) )
              & stApp . edoFingers %~ M.insert xy1 nv )

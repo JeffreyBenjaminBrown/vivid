@@ -241,7 +241,7 @@ handleSwitch mst mi sw@ (btn,_) = do
   case M.lookup mi $ _stWindowLayers st0 of
     Nothing -> return $ Left $ "WIndows for " ++ show mi ++ " not found."
     Just ws ->
-      fmap (mapLeft ("Window.Util.handleSwitch: " ++)) $
+      fmap (mapLeft ("Monome.Main.handleSwitch: " ++)) $
         go ws
 
 -- | PITFALL: The order of execution here is kind of strange.
@@ -263,6 +263,7 @@ doScAction    st        sca =
              case param of
                "amp"  -> Right $ set s (toI f :: I "amp")
                "freq" -> Right $ set s (toI f :: I "freq")
+               "lag"  -> Right $ set s (toI f :: I "lag")
                _      -> Left $ "unrecognized parameter " ++ param
       ios :: [IO ()] <- mapM go $ M.toList $ _actionScMsg sca
       Right $ mapM_ id ios >> return (Right id)
@@ -279,6 +280,7 @@ doScAction    st        sca =
                case param of
                  "amp"  -> Right $ set s (toI f :: I "amp")
                  "freq" -> Right $ set s (toI f :: I "freq")
+                 "lag"  -> Right $ set s (toI f :: I "lag")
                  _      -> Left $ "unrecognized parameter " ++ param
         case mapM go $ M.toList $ _actionScMsg sca of
           Left err -> return $ Left err
