@@ -78,7 +78,7 @@ edoMonome edoCfg = do
         , _edoSustaineded = mempty
         , _edoParamGroup = PG_FM
         , _edoZotDefaults = mempty
-        , _edoZotRanges = mempty
+        , _edoZotRanges = zotDefaultRanges
         }
     }
 

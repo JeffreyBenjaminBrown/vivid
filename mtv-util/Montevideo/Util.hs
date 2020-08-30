@@ -38,6 +38,7 @@ module Montevideo.Util (
   , taxiMetric -- ^ Num a => (a,a) -> (a,a) -> a
   , pairAdd    -- ^ Num a => (a,a) -> (a,a) -> (a,a)
   , pairMul    -- ^ Num a => a -> (a,a) -> (a,a)
+  , numScale
   , linScale
   , logScale
   , myMod      -- ^ Int -> Int -> Int
@@ -227,6 +228,11 @@ pairAdd (a,b) (c,d) = (a+c, b+d)
 
 pairMul :: Num a => a -> (a,a) -> (a,a)
 pairMul n (a,b) = (n*a,n*b)
+
+numScale :: Floating a => NumScale
+         -> (a,a) -> (a,a) -> a -> a
+numScale Lin = linScale
+numScale Log = logScale
 
 linScale :: Floating a
          => (a,a) -- ^ The input range

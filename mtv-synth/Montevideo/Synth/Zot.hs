@@ -11,6 +11,7 @@
 
 module Montevideo.Synth.Zot where
 
+import qualified Data.Map as M
 import Vivid hiding (Log)
 
 import Montevideo.Vivid.LongVarLists ()
@@ -96,39 +97,40 @@ instance Show ZotParam where
 
 -- | These defaults can be changed during play.
 -- TODO: Experiment, tweak.
-zotDefaultRange :: ZotParam -> (NumScale, Float, Float)
-zotDefaultRange Zot_on    = (Lin, 0, 1)     -- monome ignores
-zotDefaultRange Zot_freq  = (Log, 40, 20e3) -- monome ignores
-zotDefaultRange Zot_amp   = let top = 0.2
-                            in (Log, top * 2**(-8), top)
-zotDefaultRange Zot_pulse = (Lin, 0, 1)
-zotDefaultRange Zot_fm_m  = (Lin, 0, 2)
-zotDefaultRange Zot_fm_f  = (Log, 2**(-8), 1)
-zotDefaultRange Zot_fm_b  = (Lin, 0, 2)
-zotDefaultRange Zot_pm_m  = (Lin, 0, 1)
-zotDefaultRange Zot_pm_f  = (Log, 2**(-8), 1)
-zotDefaultRange Zot_pm_b  = (Lin, 0, 2)
-zotDefaultRange Zot_wm_m  = (Lin, -1,2)
-zotDefaultRange Zot_wm_f  = (Log, 2**(-8), 1)
-zotDefaultRange Zot_wm_b  = (Lin, -1,2)
-zotDefaultRange Zot_w     = (Lin, 0, 1)
-zotDefaultRange Zot_am    = (Lin, 0, 1)
-zotDefaultRange Zot_am_b  = (Lin, 0, 1)
-zotDefaultRange Zot_am_f  = (Log, 2**(-8), 1)
-zotDefaultRange Zot_rm    = (Lin, 0, 1)
-zotDefaultRange Zot_rm_b  = (Lin, 0, 1)
-zotDefaultRange Zot_rm_f  = (Log, 2**(-8), 1)
-zotDefaultRange Zot_hpf   = (Log, 2, 2**8)
-zotDefaultRange Zot_hpf_m = (Lin, 0, 1)
-zotDefaultRange Zot_lpf   = (Log, 2, 2**8)
-zotDefaultRange Zot_lpf_m = (Lin, 0, 1)
-zotDefaultRange Zot_bpf   = (Log, 2, 2**8)
-zotDefaultRange Zot_bpf_m = (Lin, 0, 1)
-zotDefaultRange Zot_bpf_q = (Log, 2**(-4), 2**4)
-zotDefaultRange Zot_lim   = (Log, 2**(-4), 2**4)
-zotDefaultRange Zot_sh    = (Log, 2**(-16), 1)
-zotDefaultRange Zot_sh_b  = (Log, 2**(-16), 1)
-zotDefaultRange Zot_del   = (Log, 2**(-4), 2**4)
+zotDefaultRanges :: M.Map ZotParam (NumScale, Float, Float)
+zotDefaultRanges = M.fromList
+  [ (Zot_on    , (Lin, 0, 1))     -- monome ignores
+  , (Zot_freq  , (Log, 40, 20e3)) -- monome ignores
+  , (Zot_amp   , let top = 0.2 in
+                 (Log, top * 2**(-8), top) )
+  , (Zot_pulse , (Lin, 0, 1))
+  , (Zot_fm_m  , (Lin, 0, 2))
+  , (Zot_fm_f  , (Log, 2**(-8), 1))
+  , (Zot_fm_b  , (Lin, 0, 2))
+  , (Zot_pm_m  , (Lin, 0, 1))
+  , (Zot_pm_f  , (Log, 2**(-8), 1))
+  , (Zot_pm_b  , (Lin, 0, 2))
+  , (Zot_wm_m  , (Lin, -1,2))
+  , (Zot_wm_f  , (Log, 2**(-8), 1))
+  , (Zot_wm_b  , (Lin, -1,2))
+  , (Zot_w     , (Lin, 0, 1))
+  , (Zot_am    , (Lin, 0, 1))
+  , (Zot_am_b  , (Lin, 0, 1))
+  , (Zot_am_f  , (Log, 2**(-8), 1))
+  , (Zot_rm    , (Lin, 0, 1))
+  , (Zot_rm_b  , (Lin, 0, 1))
+  , (Zot_rm_f  , (Log, 2**(-8), 1))
+  , (Zot_hpf   , (Log, 2, 2**8))
+  , (Zot_hpf_m , (Lin, 0, 1))
+  , (Zot_lpf   , (Log, 2, 2**8))
+  , (Zot_lpf_m , (Lin, 0, 1))
+  , (Zot_bpf   , (Log, 2, 2**8))
+  , (Zot_bpf_m , (Lin, 0, 1))
+  , (Zot_bpf_q , (Log, 2**(-4), 2**4))
+  , (Zot_lim   , (Log, 2**(-4), 2**4))
+  , (Zot_sh    , (Log, 2**(-16), 1))
+  , (Zot_sh_b  , (Log, 2**(-16), 1))
+  , (Zot_del   , (Log, 2**(-4), 2**4)) ]
 
 
 -- | For details on the meaning of these parameters,

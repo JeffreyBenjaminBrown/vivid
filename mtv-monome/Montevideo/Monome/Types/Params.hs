@@ -7,6 +7,7 @@ import           Data.Either.Combinators
 import qualified Data.Bimap as Bi
 
 import           Montevideo.Monome.Types.Monome
+import           Montevideo.Synth
 
 
 -- | Two parameters are omitted: "on", which is only ever 1
@@ -25,21 +26,21 @@ data ParamGroup
   deriving (Eq, Ord, Show)
 makePrisms ''ParamGroup
 
-paramGroupStrings :: ParamGroup -> [String]
-paramGroupStrings PG_FM     = ["fm-m", "fm-f", "fm-b"] 
-paramGroupStrings PG_PM     = ["pm-m", "pm-f", "pm-b,"] 
-paramGroupStrings PG_WM     = ["wm-m", "wm-f", "wm-b", "w"] 
-paramGroupStrings PG_source = ["amp", "pulse"] 
-paramGroupStrings PG_AM     = ["am", "am-b", "am-f"] 
-paramGroupStrings PG_RM     = ["rm", "rm-b", "rm-f"] 
-paramGroupStrings PG_HLF    = ["hpf", "hpf-m", "lpf", "lpf-m"] 
-paramGroupStrings PG_BF     = ["bpf", "bpf-m", "bpf-q"] 
-paramGroupStrings PG_end    = ["lim", "sh", "sh-b, del"] 
+paramGroup_params :: ParamGroup -> [ZotParam]
+paramGroup_params PG_FM     = [Zot_fm_m, Zot_fm_f, Zot_fm_b]
+paramGroup_params PG_PM     = [Zot_pm_m, Zot_pm_f, Zot_pm_b]
+paramGroup_params PG_WM     = [Zot_wm_m, Zot_wm_f, Zot_wm_b, Zot_w]
+paramGroup_params PG_source = [Zot_amp, Zot_pulse]
+paramGroup_params PG_AM     = [Zot_am, Zot_am_b, Zot_am_f]
+paramGroup_params PG_RM     = [Zot_rm, Zot_rm_b, Zot_rm_f]
+paramGroup_params PG_HLF    = [Zot_hpf, Zot_hpf_m, Zot_lpf, Zot_lpf_m]
+paramGroup_params PG_BF     = [Zot_bpf, Zot_bpf_m, Zot_bpf_q]
+paramGroup_params PG_end    = [Zot_lim, Zot_sh, Zot_sh_b, Zot_del]
 
-paramGroup_toParam :: ParamGroup -> Int -> Either String String
+paramGroup_toParam :: ParamGroup -> Int -> Either String ZotParam
 paramGroup_toParam pg i =
   mapLeft ("paramGroup_toParam: " ++) $
-  case drop i $ paramGroupStrings pg of
+  case drop i $ paramGroup_params pg of
     [] -> Left ( "ParamGroup " ++ show pg ++
                  " has fewer than " ++ show i ++ " parameters." )
     (s:_) -> Right s

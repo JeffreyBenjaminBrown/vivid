@@ -37,6 +37,6 @@ handler    st           (mi,       (xy,    True)) = do
   let pgOld :: ParamGroup = st ^. stApp . edoParamGroup
       xyOld :: (X,Y) = paramGroup_toXy pgOld
   Right $ st & stApp . edoParamGroup .~ pgNew
-             & ( stPending_Monome .~
+             & ( stPending_Monome %~ flip (++)
                  [ ((mi, label), (xyOld, False))
                  , ((mi, label), (xy,    True)) ] )
