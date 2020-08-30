@@ -22,7 +22,7 @@ module Montevideo.Monome.Main (
 
 import           Control.Concurrent (forkIO, killThread)
 import           Control.Concurrent.MVar
-import           Control.Lens hiding (set)
+import           Control.Lens hiding (set, set')
 import           Data.ByteString.Char8 (pack, unpack)
 import           Data.Either.Combinators
 import qualified Data.Map as M
@@ -45,6 +45,7 @@ import           Montevideo.Monome.Window.Shift
 import           Montevideo.Monome.Window.Sustain
 import           Montevideo.Monome.Window.Util
 import           Montevideo.Synth
+import           Montevideo.Synth.Msg
 
 
 -- ** The apps
@@ -245,6 +246,10 @@ doScAction :: St app -> ScAction VoiceId
            -> Either String (IO (Either String (St a -> St a)))
 doScAction    st        sca =
   mapLeft ("doScAction: " ++) $
+  let go :: Synth ZotParams -> (ParamName, Float) -> Either String (IO ())
+      go s (param, f) = Right $
+        mapM_ (set' s) $ zotScMsg $ M.singleton param f
+  in
   case sca of
 
     ScAction_Send _ _ _ -> do -- currently unused
@@ -252,15 +257,7 @@ doScAction    st        sca =
       s :: Synth ZotParams <-
         maybe (Left $ "VoiceId " ++ show vid ++ " has no assigned synth.")
         Right $ (_stVoices st M.! vid) ^. voiceSynth
-      let go :: (ParamName, Float) -> Either String (IO ())
-          go (param, f) =
-             case param of
-               "on"    -> Right $ set s (toI f :: I "on")
-               "amp"   -> Right $ set s (toI f :: I "amp")
-               "freq"  -> Right $ set s (toI f :: I "freq")
-               "pulse" -> Right $ set s (toI f :: I "pulse")
-               _       -> Left $ "unrecognized parameter " ++ param
-      ios :: [IO ()] <- mapM go $ M.toList $ _actionScMsg sca
+      ios :: [IO ()] <- mapM (go s) $ M.toList $ _actionScMsg sca
       Right $ mapM_ id ios >> return (Right id)
 
     ScAction_New _ _ _ -> do
@@ -270,15 +267,7 @@ doScAction    st        sca =
            Right $ M.lookup vid $ _stVoices st
       Right $ do
         s <- synth zot () -- TODO change zot to `_actionSynthDefEnum sca`
-        let go :: (ParamName, Float) -> Either String (IO ())
-            go (param, f) =
-               case param of
-                 "on"    -> Right $ set s (toI f :: I "on")
-                 "amp"   -> Right $ set s (toI f :: I "amp")
-                 "freq"  -> Right $ set s (toI f :: I "freq")
-                 "pulse" -> Right $ set s (toI f :: I "pulse")
-                 _       -> Left $ "unrecognized parameter " ++ param
-        case mapM go $ M.toList $ _actionScMsg sca of
+        case mapM (go s) $ M.toList $ _actionScMsg sca of
           Left err -> return $ Left err
           Right (ios :: [IO ()]) -> do
             mapM_ id ios
