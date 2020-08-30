@@ -246,8 +246,8 @@ doScAction :: St app -> ScAction VoiceId
            -> Either String (IO (Either String (St a -> St a)))
 doScAction    st        sca =
   mapLeft ("doScAction: " ++) $
-  let go :: Synth ZotParams -> (ParamName, Float) -> Either String (IO ())
-      go s (param, f) = Right $
+  let go :: Synth ZotParams -> (ParamName, Float) -> IO ()
+      go s (param, f) =
         mapM_ (set' s) $ zotScMsg $ M.singleton param f
   in
   case sca of
@@ -257,7 +257,7 @@ doScAction    st        sca =
       s :: Synth ZotParams <-
         maybe (Left $ "VoiceId " ++ show vid ++ " has no assigned synth.")
         Right $ (_stVoices st M.! vid) ^. voiceSynth
-      ios :: [IO ()] <- mapM (go s) $ M.toList $ _actionScMsg sca
+      let ios :: [IO ()] = map (go s) $ M.toList $ _actionScMsg sca
       Right $ mapM_ id ios >> return (Right id)
 
     ScAction_New _ _ _ -> do
@@ -267,12 +267,10 @@ doScAction    st        sca =
            Right $ M.lookup vid $ _stVoices st
       Right $ do
         s <- synth zot () -- TODO change zot to `_actionSynthDefEnum sca`
-        case mapM (go s) $ M.toList $ _actionScMsg sca of
-          Left err -> return $ Left err
-          Right (ios :: [IO ()]) -> do
-            mapM_ id ios
-            return $ Right $
-              stVoices . at vid . _Just . voiceSynth .~ Just s
+        let ios :: [IO ()] = map (go s) $ M.toList $ _actionScMsg sca
+        mapM_ id ios
+        return $ Right $
+          stVoices . at vid . _Just . voiceSynth .~ Just s
 
     -- PITFALL: If a voice is deleted right away,
     -- there's usually an audible pop.
