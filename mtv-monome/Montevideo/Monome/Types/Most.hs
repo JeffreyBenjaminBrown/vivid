@@ -35,6 +35,7 @@ data MonomeId = Monome_256 | Monome_128
   deriving (Show, Eq, Ord)
 
 data WindowId = KeyboardWindow
+              | ParamGroupWindow
               | PulseWindow
               | ShiftWindow
               | SustainWindow

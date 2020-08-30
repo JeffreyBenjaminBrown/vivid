@@ -40,6 +40,7 @@ library
     , Montevideo.Monome.Window.Common
     , Montevideo.Monome.Window.JI
     , Montevideo.Monome.Window.Keyboard
+    , Montevideo.Monome.Window.ParamGroup
     , Montevideo.Monome.Window.ParamVal
     , Montevideo.Monome.Window.Shift
     , Montevideo.Monome.Window.Sustain
@@ -54,6 +55,7 @@ library
       Paths_monome
   build-depends:
                 base
+              , bimap
               , bytestring
               , containers
               , either
