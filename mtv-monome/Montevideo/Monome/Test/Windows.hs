@@ -51,6 +51,7 @@ test_edoKey_ScAction = TestCase $ do
         [ ("freq", Config.freq *
                    edoToFreq (st ^. stApp . edoConfig) newPitch)
         , ( "pulse", _stPulse st)
+        , ( "on", 1 )
         , ( "amp", Config.amp ) ] } ]
 
   assertBool "release a key that's not sustained" $
