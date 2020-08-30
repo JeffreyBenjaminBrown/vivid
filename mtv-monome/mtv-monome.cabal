@@ -36,7 +36,9 @@ library
     , Montevideo.Monome.Types
     , Montevideo.Monome.Types.Device
     , Montevideo.Monome.Types.EdoConfig
+    , Montevideo.Monome.Types.Instances
     , Montevideo.Monome.Types.Most
+    , Montevideo.Monome.Types.Params
     , Montevideo.Monome.Window.Common
     , Montevideo.Monome.Window.JI
     , Montevideo.Monome.Window.Keyboard

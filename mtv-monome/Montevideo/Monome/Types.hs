@@ -11,6 +11,7 @@ module Montevideo.Monome.Types
 
   , module Montevideo.Monome.Types.Monome
   , module Montevideo.Monome.Types.Most
+  , module Montevideo.Monome.Types.Params
   ) where
 
 import Montevideo.Monome.Types.Device
@@ -18,3 +19,4 @@ import Montevideo.Monome.Types.EdoConfig
 import Montevideo.Monome.Types.Instances()
 import Montevideo.Monome.Types.Monome
 import Montevideo.Monome.Types.Most
+import Montevideo.Monome.Types.Params
