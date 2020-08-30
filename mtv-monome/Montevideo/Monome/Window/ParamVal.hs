@@ -29,5 +29,5 @@ paramValWindow =  Window {
 handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
         -> Either String (St EdoApp)
 handler    st           (_, ((x,_),_)) =
-  -- TODO : magic numbers; reify
-  Right $ st & stPulse .~ linScale (0,15) (0,1) (fi x)
+  -- Right $ st & stPulse .~ linScale (0,15) (0,1) (fi x)
+  Right st

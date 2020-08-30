@@ -97,6 +97,11 @@ instance Show ZotParam where
 -- | These defaults can be changed during play.
 -- TODO: Experiment, tweak.
 zotDefaultRange :: ZotParam -> (NumScale, Float, Float)
+zotDefaultRange Zot_on    = (Lin, 0, 1)     -- monome ignores
+zotDefaultRange Zot_freq  = (Log, 40, 20e3) -- monome ignores
+zotDefaultRange Zot_amp   = let top = 0.2
+                            in (Log, top * 2**(-8), top)
+zotDefaultRange Zot_pulse = (Lin, 0, 1)
 zotDefaultRange Zot_fm_m  = (Lin, 0, 2)
 zotDefaultRange Zot_fm_f  = (Log, 2**(-8), 1)
 zotDefaultRange Zot_fm_b  = (Lin, 0, 2)
@@ -107,9 +112,6 @@ zotDefaultRange Zot_wm_m  = (Lin, -1,2)
 zotDefaultRange Zot_wm_f  = (Log, 2**(-8), 1)
 zotDefaultRange Zot_wm_b  = (Lin, -1,2)
 zotDefaultRange Zot_w     = (Lin, 0, 1)
-zotDefaultRange Zot_amp   = let top = 0.2
-                            in (Log, top * 2**(-8), top)
-zotDefaultRange Zot_pulse = (Lin, 0, 1)
 zotDefaultRange Zot_am    = (Lin, 0, 1)
 zotDefaultRange Zot_am_b  = (Lin, 0, 1)
 zotDefaultRange Zot_am_f  = (Log, 2**(-8), 1)
