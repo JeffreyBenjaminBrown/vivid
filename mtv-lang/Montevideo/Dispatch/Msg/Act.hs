@@ -10,8 +10,7 @@
 {-# LANGUAGE DataKinds #-}
 
 module Montevideo.Dispatch.Msg.Act (
-    set'    -- ^ VividAction m => Synth params -> ScMsg' params -> m ()
-  , dispatchConsumeScAction
+    dispatchConsumeScAction
     -- ^ SynthRegister -> Time     -> ScAction -> IO (SynthRegister -> SynthRegister)
   , dispatchConsumeScAction_New
     -- ^ SynthRegister             -> ScAction -> IO (SynthRegister -> SynthRegister)
@@ -30,10 +29,6 @@ import Montevideo.Synth.Msg
 import Montevideo.Dispatch.Types
 import Montevideo.Synth
 import Montevideo.Util
-
-
-set' :: V.VividAction m => V.Synth params -> ScMsg' params -> m ()
-set' _synth (ScMsg' m) = V.set _synth m
 
 
 -- | Unused, so far --

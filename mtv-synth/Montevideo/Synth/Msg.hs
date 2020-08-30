@@ -1,7 +1,8 @@
 {-# LANGUAGE DataKinds #-}
 
 module Montevideo.Synth.Msg (
-    boopScMsg    -- ^ ScMsg -> [ScMsg' BoopParams]
+    set' -- ^ V.VividAction m => V.Synth params -> ScMsg' params -> m ()
+  , boopScMsg    -- ^ ScMsg -> [ScMsg' BoopParams]
   , moopScMsg    -- ^ ScMsg -> [ScMsg' BoopParams]
   , samplerScMsg -- ^ ScMsg -> [ScMsg' SamplerParams]
   , sqfmScMsg    -- ^ ScMsg -> [ScMsg' SqfmParams]
@@ -11,10 +12,15 @@ module Montevideo.Synth.Msg (
 where
 
 import qualified Data.Map as M
+import qualified Vivid as V
 
 import Vivid
 import Montevideo.Synth
 import Montevideo.Dispatch.Types
+
+
+set' :: V.VividAction m => V.Synth params -> ScMsg' params -> m ()
+set' _synth (ScMsg' m) = V.set _synth m
 
 
 -- | == per-synth boilerplate
