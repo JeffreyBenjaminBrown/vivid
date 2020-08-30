@@ -32,7 +32,8 @@
            , GADTs #-}
 
 module Montevideo.Synth (
-  module X
+    module Montevideo.Synth.Vap
+  , module Montevideo.Synth.Zot
   , SynthDefEnum(..)
   , BoopParams
   , boop
@@ -49,10 +50,10 @@ module Montevideo.Synth (
 import Vivid
 
 import qualified Montevideo.Monome.Config.Mtv as Config
-import           Montevideo.Synth.Samples
-import           Montevideo.Synth.Vap as X
-import           Montevideo.Synth.Zot as X
 import           Montevideo.Synth.Config
+import           Montevideo.Synth.Samples
+import           Montevideo.Synth.Vap
+import           Montevideo.Synth.Zot
 
 
 -- | == Synths

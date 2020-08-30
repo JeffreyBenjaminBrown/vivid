@@ -20,7 +20,12 @@ import Montevideo.Util
 
 -- | See the definition of `ZotParams` (plural) for what each means.
 data ZotParam
-  = Zot_fm_m
+  = Zot_on
+  | Zot_freq
+  | Zot_amp
+  | Zot_pulse
+
+  | Zot_fm_m
   | Zot_fm_f
   | Zot_fm_b
   | Zot_pm_m
@@ -30,14 +35,14 @@ data ZotParam
   | Zot_wm_f
   | Zot_wm_b
   | Zot_w
-  | Zot_amp
-  | Zot_pulse
+
   | Zot_am
   | Zot_am_b
   | Zot_am_f
   | Zot_rm
   | Zot_rm_b
   | Zot_rm_f
+
   | Zot_hpf
   | Zot_hpf_m
   | Zot_lpf
@@ -45,6 +50,7 @@ data ZotParam
   | Zot_bpf
   | Zot_bpf_m
   | Zot_bpf_q
+
   | Zot_lim
   | Zot_sh
   | Zot_sh_b
@@ -52,6 +58,11 @@ data ZotParam
   deriving (Eq, Ord)
 
 instance Show ZotParam where
+  show Zot_on    = "on"
+  show Zot_freq  = "freq"
+  show Zot_amp   = "amp"
+  show Zot_pulse = "pulse"
+
   show Zot_fm_m  = "fm-m"
   show Zot_fm_f  = "fm-f"
   show Zot_fm_b  = "fm-b"
@@ -62,14 +73,14 @@ instance Show ZotParam where
   show Zot_wm_f  = "wm-f"
   show Zot_wm_b  = "wm-b"
   show Zot_w     = "w"
-  show Zot_amp   = "amp"
-  show Zot_pulse = "pulse"
+
   show Zot_am    = "am"
   show Zot_am_b  = "am-b"
   show Zot_am_f  = "am-f"
   show Zot_rm    = "rm"
   show Zot_rm_b  = "rm-b"
   show Zot_rm_f  = "rm-f"
+
   show Zot_hpf   = "hpf"
   show Zot_hpf_m = "hpf-m"
   show Zot_lpf   = "lpf"
@@ -77,6 +88,7 @@ instance Show ZotParam where
   show Zot_bpf   = "bpf"
   show Zot_bpf_m = "bpf-m"
   show Zot_bpf_q = "bpf-q"
+
   show Zot_lim   = "lim"
   show Zot_sh    = "sh"
   show Zot_sh_b  = "sh-b"

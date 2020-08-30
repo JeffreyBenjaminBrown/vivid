@@ -67,7 +67,7 @@ edoMonome edoCfg = do
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
-    , _stPulse = 0.03
+    , _stZotDefaults = mempty
 
     , _stApp = EdoApp
         { _edoConfig = edoCfg
@@ -128,7 +128,7 @@ jiMonome scale shifts = do
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
-    , _stPulse = 0.03
+    , _stZotDefaults = mempty
 
     , _stApp = JiApp { _jiGenerator = scale
                      , _jiShifts = shifts
