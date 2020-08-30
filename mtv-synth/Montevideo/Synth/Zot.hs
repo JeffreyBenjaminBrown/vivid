@@ -11,12 +11,14 @@
 
 module Montevideo.Synth.Zot where
 
-import Vivid
+import Vivid hiding (Log)
 
 import Montevideo.Vivid.LongVarLists ()
 import Montevideo.Synth.Config
+import Montevideo.Util
 
 
+-- | See the definition of `ZotParams` (plural) for what each means.
 data ZotParam
   = Zot_fm_m
   | Zot_fm_f
@@ -79,6 +81,40 @@ instance Show ZotParam where
   show Zot_sh    = "sh"
   show Zot_sh_b  = "sh-b"
   show Zot_del   = "del"
+
+-- | These defaults can be changed during play.
+-- TODO: Experiment, tweak.
+zotDefaultRange :: ZotParam -> (NumScale, Float, Float)
+zotDefaultRange Zot_fm_m  = (Lin, 0, 2)
+zotDefaultRange Zot_fm_f  = (Log, 2**(-8), 1)
+zotDefaultRange Zot_fm_b  = (Lin, 0, 2)
+zotDefaultRange Zot_pm_m  = (Lin, 0, 1)
+zotDefaultRange Zot_pm_f  = (Log, 2**(-8), 1)
+zotDefaultRange Zot_pm_b  = (Lin, 0, 2)
+zotDefaultRange Zot_wm_m  = (Lin, -1,2)
+zotDefaultRange Zot_wm_f  = (Log, 2**(-8), 1)
+zotDefaultRange Zot_wm_b  = (Lin, -1,2)
+zotDefaultRange Zot_w     = (Lin, 0, 1)
+zotDefaultRange Zot_amp   = let top = 0.2
+                            in (Log, top * 2**(-8), top)
+zotDefaultRange Zot_pulse = (Lin, 0, 1)
+zotDefaultRange Zot_am    = (Lin, 0, 1)
+zotDefaultRange Zot_am_b  = (Lin, 0, 1)
+zotDefaultRange Zot_am_f  = (Log, 2**(-8), 1)
+zotDefaultRange Zot_rm    = (Lin, 0, 1)
+zotDefaultRange Zot_rm_b  = (Lin, 0, 1)
+zotDefaultRange Zot_rm_f  = (Log, 2**(-8), 1)
+zotDefaultRange Zot_hpf   = (Log, 2, 2**8)
+zotDefaultRange Zot_hpf_m = (Lin, 0, 1)
+zotDefaultRange Zot_lpf   = (Log, 2, 2**8)
+zotDefaultRange Zot_lpf_m = (Lin, 0, 1)
+zotDefaultRange Zot_bpf   = (Log, 2, 2**8)
+zotDefaultRange Zot_bpf_m = (Lin, 0, 1)
+zotDefaultRange Zot_bpf_q = (Log, 2**(-4), 2**4)
+zotDefaultRange Zot_lim   = (Log, 2**(-4), 2**4)
+zotDefaultRange Zot_sh    = (Log, 2**(-16), 1)
+zotDefaultRange Zot_sh_b  = (Log, 2**(-16), 1)
+zotDefaultRange Zot_del   = (Log, 2**(-4), 2**4)
 
 
 -- | For details on the meaning of these parameters,
@@ -246,8 +282,8 @@ zot = sd ( 0 :: I "on"
   -- This clamps filt_3. High values of `lim` mean *less* clamping.
   lim <- tanh' (filt_3 ~/ (V::V"lim")) ~* (V::V"lim")
 
-  -- Shift the frequency of `lim`. (This shifts all frequencies equally
-  -- in Hz, so it destroys harmonicity.)
+  -- Shift the frequency of `lim`.
+  -- (All frequencies shift equally in Hz, destroying harmonicity.)
   -- `sh` is an additive pitch shift. Negative values are reasonable.
   -- `sh-b` adds feedback into the amount shifted by.
   -- It seems natural to omit any "mix" parameter between those, so I did.

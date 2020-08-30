@@ -2,6 +2,7 @@
 
 module Montevideo.Util (
     Filename, FileSubPath
+  , NumScale(..)
 
   -- | = shorthand
   , fi -- ^ fromIntegral
@@ -65,6 +66,9 @@ import Vivid (getTime, pick, MonadRandom)
 
 
 type Filename = String
+
+data NumScale = Lin | Log
+  deriving (Show, Eq, Ord)
 
 -- | the part before the filename, i.e. before the first `/`
 type FileSubPath = String
