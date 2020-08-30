@@ -14,7 +14,7 @@ module Montevideo.Monome.Types.Most (
   , Voice(..), voiceSynth, voicePitch, voiceParams
   , St(..), edoConfig, stApp, stWindowLayers, stToMonome, stVoices
     , stPending_Monome, stPending_Vivid, stPulse
-  , EdoApp(..), edoXyShift, edoFingers, edoLit, edoSustaineded
+  , EdoApp(..), edoXyShift, edoFingers, edoLit, edoSustaineded, edoParamGroup
   , JiApp(..), jiGenerator, jiShifts, jiFingers
   ) where
 
@@ -26,6 +26,7 @@ import           Vivid hiding (Param)
 import Montevideo.Dispatch.Types.Many
 import Montevideo.Monome.Types.EdoConfig
 import Montevideo.Monome.Types.Monome
+import Montevideo.Monome.Types.Params
 import Montevideo.Synth
 
 
@@ -148,6 +149,7 @@ data EdoApp = EdoApp
     -- ^ PITFALL: In spirit, the thing sustained is a Pitch,
     -- but it's represented as a voice,
     -- identified by the key that originally launched it.
+  , _edoParamGroup :: ParamGroup
   } deriving (Show, Eq)
 
 -- | This is a just-intoned alternative to the EDO app.

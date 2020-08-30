@@ -6,7 +6,7 @@ import           Control.Lens
 import           Data.Either.Combinators
 import qualified Data.Bimap as Bi
 
-import           Montevideo.Monome.Types.Most
+import           Montevideo.Monome.Types.Monome
 
 
 -- | Two parameters are omitted: "on", which is only ever 1

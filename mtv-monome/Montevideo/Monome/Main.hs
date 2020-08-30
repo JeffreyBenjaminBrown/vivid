@@ -36,10 +36,11 @@ import           Montevideo.Dispatch.Types.Time (unTimestamp)
 import           Montevideo.Monome.Config.Monome
 import qualified Montevideo.Monome.Config.Mtv as Config
 import           Montevideo.Monome.Network.Util
-import           Montevideo.Monome.Types.Most
+import           Montevideo.Monome.Types
 import           Montevideo.Monome.Util.OSC
 import           Montevideo.Monome.Window.JI
 import           Montevideo.Monome.Window.Keyboard
+import           Montevideo.Monome.Window.ParamGroup
 import           Montevideo.Monome.Window.ParamVal
 import           Montevideo.Monome.Window.Shift
 import           Montevideo.Monome.Window.Sustain
@@ -61,7 +62,7 @@ edoMonome edoCfg = do
         [ ( Monome_256
           , [sustainWindow, shiftWindow, keyboardWindow] )
         , ( Monome_128
-          , [pulseWindow, keyboardWindow] ) ]
+          , [paramGroupWindow, pulseWindow, keyboardWindow] ) ]
     , _stToMonome = toMonomes
     , _stVoices = mempty
     , _stPending_Vivid = []
@@ -75,6 +76,7 @@ edoMonome edoCfg = do
         , _edoLit = mempty
           -- M.singleton (2 :: PitchClass) $ S.singleton LedBecauseAnchor
         , _edoSustaineded = mempty
+        , _edoParamGroup = PG_FM
         }
     }
 

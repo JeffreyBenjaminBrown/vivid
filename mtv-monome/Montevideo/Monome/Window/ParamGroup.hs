@@ -5,22 +5,22 @@
 
 module Montevideo.Monome.Window.ParamGroup (
     handler
-  , pulseWindow
+  , paramGroupWindow
   , label
   ) where
 
 import           Control.Lens
 import qualified Data.Bimap as Bi
 
-import           Montevideo.Monome.Types.Most
+import           Montevideo.Monome.Types
 import           Montevideo.Util
 
 
 label :: WindowId
 label = ParamGroupWindow
 
-pulseWindow :: Window EdoApp
-pulseWindow =  Window {
+paramGroupWindow :: Window EdoApp
+paramGroupWindow =  Window {
     windowLabel = label
   , windowContains = \(x,y) -> numBetween 0 2 x &&
                                numBetween 0 2 y
@@ -29,8 +29,14 @@ pulseWindow =  Window {
 
 handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
         -> Either String (St EdoApp)
-handler    st           (mi, press@(xy,sw)) =
-  -- Find what group (x,y) corresponds to.
-  -- Change the (supposed) _stParamGroup value to that.
-  -- Darken the old button, light the new one.
-  error "TODO"
+handler    st           (_,        (_,     False)) = Right st
+handler    st           (mi,       (xy,    True)) = do
+  pgNew :: ParamGroup <-
+    maybe (Left $ show xy ++ " not in " ++ show label ++ ".") Right $
+    Bi.lookupR xy paramGroupXys
+  let pgOld :: ParamGroup = st ^. stApp . edoParamGroup
+      xyOld :: (X,Y) = paramGroup_toXy pgOld
+  Right $ st & stApp . edoParamGroup .~ pgNew
+             & ( stPending_Monome .~
+                 [ ((mi, label), (xyOld, False))
+                 , ((mi, label), (xy,    True)) ] )
