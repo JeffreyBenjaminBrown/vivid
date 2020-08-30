@@ -5,7 +5,7 @@
 
 module Montevideo.Monome.Window.ParamVal (
     handler
-  , pulseWindow
+  , paramValWindow
   , label
   ) where
 
@@ -18,8 +18,8 @@ import           Montevideo.Util
 label :: WindowId
 label = PulseWindow
 
-pulseWindow :: Window EdoApp
-pulseWindow =  Window {
+paramValWindow :: Window EdoApp
+paramValWindow =  Window {
     windowLabel = label
   , windowContains = \(x,y) -> numBetween 0 15 x &&
                                y == 0

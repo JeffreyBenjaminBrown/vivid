@@ -62,7 +62,7 @@ edoMonome edoCfg = do
         [ ( Monome_256
           , [sustainWindow, shiftWindow, keyboardWindow] )
         , ( Monome_128
-          , [paramGroupWindow, pulseWindow, keyboardWindow] ) ]
+          , [paramGroupWindow, paramValWindow, keyboardWindow] ) ]
     , _stToMonome = toMonomes
     , _stVoices = mempty
     , _stPending_Vivid = []
