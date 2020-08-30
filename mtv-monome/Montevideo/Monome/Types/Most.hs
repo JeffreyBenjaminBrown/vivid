@@ -15,6 +15,7 @@ module Montevideo.Monome.Types.Most (
   , St(..), edoConfig, stApp, stWindowLayers, stToMonome, stVoices
     , stPending_Monome, stPending_Vivid, stPulse
   , EdoApp(..), edoXyShift, edoFingers, edoLit, edoSustaineded, edoParamGroup
+    , edoZotDefaults
   , JiApp(..), jiGenerator, jiShifts, jiFingers
   ) where
 
@@ -28,6 +29,7 @@ import Montevideo.Monome.Types.EdoConfig
 import Montevideo.Monome.Types.Monome
 import Montevideo.Monome.Types.Params
 import Montevideo.Synth
+import Montevideo.Synth.Zot
 
 
 type Param = String
@@ -150,6 +152,7 @@ data EdoApp = EdoApp
     -- but it's represented as a voice,
     -- identified by the key that originally launched it.
   , _edoParamGroup :: ParamGroup
+  , _edoZotDefaults :: Map ZotParam Float
   } deriving (Show, Eq)
 
 -- | This is a just-intoned alternative to the EDO app.

@@ -17,6 +17,70 @@ import Montevideo.Vivid.LongVarLists ()
 import Montevideo.Synth.Config
 
 
+data ZotParam
+  = Zot_fm_m
+  | Zot_fm_f
+  | Zot_fm_b
+  | Zot_pm_m
+  | Zot_pm_f
+  | Zot_pm_b
+  | Zot_wm_m
+  | Zot_wm_f
+  | Zot_wm_b
+  | Zot_w
+  | Zot_amp
+  | Zot_pulse
+  | Zot_am
+  | Zot_am_b
+  | Zot_am_f
+  | Zot_rm
+  | Zot_rm_b
+  | Zot_rm_f
+  | Zot_hpf
+  | Zot_hpf_m
+  | Zot_lpf
+  | Zot_lpf_m
+  | Zot_bpf
+  | Zot_bpf_m
+  | Zot_bpf_q
+  | Zot_lim
+  | Zot_sh
+  | Zot_sh_b
+  | Zot_del
+  deriving (Eq, Ord)
+
+instance Show ZotParam where
+  show Zot_fm_m  = "fm-m"
+  show Zot_fm_f  = "fm-f"
+  show Zot_fm_b  = "fm-b"
+  show Zot_pm_m  = "pm-m"
+  show Zot_pm_f  = "pm-f"
+  show Zot_pm_b  = "pm-b"
+  show Zot_wm_m  = "wm-m"
+  show Zot_wm_f  = "wm-f"
+  show Zot_wm_b  = "wm-b"
+  show Zot_w     = "w"
+  show Zot_amp   = "amp"
+  show Zot_pulse = "pulse"
+  show Zot_am    = "am"
+  show Zot_am_b  = "am-b"
+  show Zot_am_f  = "am-f"
+  show Zot_rm    = "rm"
+  show Zot_rm_b  = "rm-b"
+  show Zot_rm_f  = "rm-f"
+  show Zot_hpf   = "hpf"
+  show Zot_hpf_m = "hpf-m"
+  show Zot_lpf   = "lpf"
+  show Zot_lpf_m = "lpf-m"
+  show Zot_bpf   = "bpf"
+  show Zot_bpf_m = "bpf-m"
+  show Zot_bpf_q = "bpf-q"
+  show Zot_lim   = "lim"
+  show Zot_sh    = "sh"
+  show Zot_sh_b  = "sh-b"
+  show Zot_del   = "del"
+
+
 -- | For details on the meaning of these parameters,
 -- see the comments above their appearances in the definition of `zot`.
 type ZotParams = '[

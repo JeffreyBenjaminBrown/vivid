@@ -77,6 +77,7 @@ edoMonome edoCfg = do
           -- M.singleton (2 :: PitchClass) $ S.singleton LedBecauseAnchor
         , _edoSustaineded = mempty
         , _edoParamGroup = PG_FM
+        , _edoZotDefaults = mempty
         }
     }
 
