@@ -40,7 +40,7 @@ import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Util.OSC
 import           Montevideo.Monome.Window.JI
 import           Montevideo.Monome.Window.Keyboard
-import           Montevideo.Monome.Window.Lag
+import           Montevideo.Monome.Window.ParamVal
 import           Montevideo.Monome.Window.Shift
 import           Montevideo.Monome.Window.Sustain
 import           Montevideo.Monome.Window.Util

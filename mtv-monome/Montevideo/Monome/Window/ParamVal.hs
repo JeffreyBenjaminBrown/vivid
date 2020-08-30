@@ -3,7 +3,7 @@
 , TypeApplications
 #-}
 
-module Montevideo.Monome.Window.Lag (
+module Montevideo.Monome.Window.ParamVal (
     handler
   , pulseWindow
   , label
