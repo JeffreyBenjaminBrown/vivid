@@ -18,7 +18,7 @@ import           Montevideo.Util
 
 
 label :: WindowId
-label = PulseWindow
+label = ParamVal_Window
 
 paramValWindow :: Window EdoApp
 paramValWindow =  Window {
