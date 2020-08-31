@@ -30,9 +30,11 @@ paramGroup_params :: ParamGroup -> [ZotParam]
 paramGroup_params PG_FM     = [Zot_fm_m, Zot_fm_f, Zot_fm_b]
 paramGroup_params PG_PM     = [Zot_pm_m, Zot_pm_f, Zot_pm_b]
 paramGroup_params PG_WM     = [Zot_wm_m, Zot_wm_f, Zot_wm_b, Zot_w]
+
 paramGroup_params PG_source = [Zot_amp, Zot_pulse]
-paramGroup_params PG_AM     = [Zot_am, Zot_am_b, Zot_am_f]
-paramGroup_params PG_RM     = [Zot_rm, Zot_rm_b, Zot_rm_f]
+paramGroup_params PG_AM     = [Zot_am, Zot_am_f, Zot_am_b]
+paramGroup_params PG_RM     = [Zot_rm, Zot_rm_f, Zot_rm_b]
+
 paramGroup_params PG_HLF    = [Zot_hpf, Zot_hpf_m, Zot_lpf, Zot_lpf_m]
 paramGroup_params PG_BF     = [Zot_bpf, Zot_bpf_m, Zot_bpf_q]
 paramGroup_params PG_end    = [Zot_lim, Zot_sh, Zot_sh_b, Zot_del]
