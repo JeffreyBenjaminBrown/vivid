@@ -13,9 +13,8 @@ module Montevideo.Monome.Types.Most (
   , Window(..)
   , Voice(..), voiceSynth, voicePitch, voiceParams
   , St(..), edoConfig, stApp, stWindowLayers, stToMonome, stVoices
-    , stPending_Monome, stPending_Vivid, stZotDefaults
+    , stPending_Monome, stPending_Vivid, stZotDefaults, stZotRanges
   , EdoApp(..), edoXyShift, edoFingers, edoLit, edoSustaineded, edoParamGroup
-    , edoZotDefaults, edoZotRanges
   , JiApp(..), jiGenerator, jiShifts, jiFingers
   ) where
 
@@ -135,7 +134,9 @@ data St app = St {
   -- scattered functions can simply change an `St` instead of doing IO.
   , _stPending_Monome :: [LedMsg]
   , _stPending_Vivid :: [ScAction VoiceId]
-  , _stZotDefaults :: Map ZotParam Float
+  , _stZotDefaults :: Map ZotParam Float -- ^ Initially empty.
+    -- Used to override the defaults defined in `zot` itself.
+  , _stZotRanges  :: Map ZotParam (NumScale, Float, Float)
   }
 
 data EdoApp = EdoApp
@@ -152,8 +153,6 @@ data EdoApp = EdoApp
     -- but it's represented as a voice,
     -- identified by the key that originally launched it.
   , _edoParamGroup :: ParamGroup
-  , _edoZotDefaults :: Map ZotParam Float
-  , _edoZotRanges  :: Map ZotParam (NumScale, Float, Float)
   } deriving (Show, Eq)
 
 -- | This is a just-intoned alternative to the EDO app.

@@ -51,13 +51,15 @@ import           Montevideo.Synth.Msg
 
 -- ** The apps
 
-edoMonome :: EdoConfig -> IO (St EdoApp)
+-- | For usage, see Montevideo.Monome.Interactive.hs
+edoMonome :: EdoConfig -> IO ( MVar (St EdoApp)
+                             , IO (St EdoApp) )
 edoMonome edoCfg = do
   toMonomes <- renameMonomes
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
     -- I don't know why it's port 8000, or why it used to be 11111.
 
-  mst <- newMVar $ St {
+  mst :: MVar (St EdoApp) <- newMVar $ St {
       _stWindowLayers = M.fromList
         [ ( Monome_256
           , [sustainWindow, shiftWindow, keyboardWindow] )
@@ -68,6 +70,7 @@ edoMonome edoCfg = do
     , _stPending_Vivid = []
     , _stPending_Monome = []
     , _stZotDefaults = mempty
+    , _stZotRanges = zotDefaultRanges
 
     , _stApp = EdoApp
         { _edoConfig = edoCfg
@@ -77,8 +80,6 @@ edoMonome edoCfg = do
           -- M.singleton (2 :: PitchClass) $ S.singleton LedBecauseAnchor
         , _edoSustaineded = mempty
         , _edoParamGroup = PG_FM
-        , _edoZotDefaults = mempty
-        , _edoZotRanges = zotDefaultRanges
         }
     }
 
@@ -94,19 +95,15 @@ edoMonome edoCfg = do
             handleSwitch mst monome switch >>=
             either putStrLn return
 
-  let loop :: IO (St EdoApp) =
-        getChar >>= \case
-        'q' -> do -- quit
-          close inbox
-          killThread responder
-          st <- readMVar mst
-          let f = maybe (putStrLn "voice with no synth") free
-            in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
-          darkAllMonomes st
-          return st
-        _   -> loop
-    in putStrLn "press 'q' to quit"
-       >> loop
+  let quit :: IO (St EdoApp) = do
+        close inbox
+        killThread responder
+        st <- readMVar mst
+        let f = maybe (putStrLn "voice with no synth") free
+          in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
+        darkAllMonomes st
+        return st
+  return (mst, quit)
 
 -- | One way to make a major scale it to use
 -- the generators [1,4/3,3/2] and [1,5/4,3/2].
@@ -129,6 +126,7 @@ jiMonome scale shifts = do
     , _stPending_Vivid = []
     , _stPending_Monome = []
     , _stZotDefaults = mempty
+    , _stZotRanges = mempty
 
     , _stApp = JiApp { _jiGenerator = scale
                      , _jiShifts = shifts

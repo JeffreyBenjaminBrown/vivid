@@ -32,13 +32,12 @@ handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
         -> Either String (St EdoApp)
 handler    st           (_       , (_       , False )) = Right st
 handler    st           (mi      , ((x,y), True  )) = do
-  let app :: EdoApp = st ^. stApp
-      pg :: ParamGroup = app ^. edoParamGroup
+  let pg :: ParamGroup = st ^. stApp . edoParamGroup
   case paramGroup_toParam pg y :: Either String ZotParam of
     Left _ -> Right st
     Right (zp :: ZotParam) -> do
       let (ns, nMin, nMax) :: (NumScale, Float, Float) =
-            (M.!) (app ^. edoZotRanges) $ zp
+            (M.!) (st ^. stZotRanges) $ zp
       Right $ st
         & stZotDefaults %~ ( M.insert zp $
                              numScale ns (3,15) (nMin,nMax) $ fi x)
