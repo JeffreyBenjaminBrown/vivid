@@ -41,17 +41,12 @@ handler    st           (mi      , ((x,y), True  )) = do
 
       let val :: Float = numScale ns
                          (3,15) (fr nMin, fr nMax) (fi x)
-          scMsgs :: [ScAction VoiceId] = [
-            ScAction_Send { _actionSynthDefEnum = Zot
-                          , _actionSynthName    = v :: VoiceId
-                          , _actionScMsg = M.singleton (show zp) val }
-            | v <- M.keys $ _stVoices st ]
           (ns, nMin, nMax) :: (NumScale, Rational, Rational) =
             (M.!) (st ^. stZotRanges) $ zp
 
           st1 = st
             & stZotDefaults      %~ M.insert zp val
-            & stPending_Vivid    %~ flip (++) scMsgs
+            & stPending_Vivid    %~ flip (++) (paramToAllVoices st zp val)
             & ( stPending_Monome %~ flip (++)
                 (   ((mi, label), ((x ,y), True ))
                 : [ ((mi, label), ((x',y), False))
@@ -63,3 +58,10 @@ handler    st           (mi      , ((x,y), True  )) = do
               (st1 ^. stApp . edoParamGroup)
               (Just zp)
             ) )
+
+paramToAllVoices :: St EdoApp -> ZotParam -> Float -> [ScAction VoiceId]
+paramToAllVoices st zp f =
+  [ ScAction_Send { _actionSynthDefEnum = Zot
+                  , _actionSynthName = v :: VoiceId
+                  , _actionScMsg = M.singleton (show zp) f }
+  | v <- M.keys $ _stVoices st ]
