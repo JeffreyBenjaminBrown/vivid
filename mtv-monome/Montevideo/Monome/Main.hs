@@ -217,33 +217,40 @@ handleSwitch mst mi sw@ (btn,_) = do
       True -> case windowHandler w st0 (mi,sw) of
         Left s -> return $ Left s
         Right st1 -> do
-
-          mapM_ putStrLn $ _stPending_String st1
-          mapM_ (either putStrLn id) $
-            doLedMessage st1 <$> _stPending_Monome st1
-          let eioefs :: Either String [IO ( Either String
-                                            (St app -> St app ))] =
-                mapM (doScAction st1) (_stPending_Vivid  st1)
-          case eioefs of
-            Left s -> return $ Left s
-            Right (ioefs :: [IO (Either String (St app -> St app))]) -> do
-
-              efs :: [Either String (St app -> St app)] <-
-                mapM id ioefs
-              case mapM id efs :: Either String [St app -> St app] of
-                Left s -> return $ Left s
-                Right fs -> do
-                  putMVar mst (foldl (.) id fs st1)
-                    { _stPending_Monome = []
-                    , _stPending_Vivid = []
-                    , _stPending_String = [] }
-                  return $ Right ()
+          putMVar mst st1
+          stHandlePending mst
 
   case M.lookup mi $ _stWindowLayers st0 of
     Nothing -> return $ Left $ "WIndows for " ++ show mi ++ " not found."
     Just ws ->
       fmap (mapLeft ("Monome.Main.handleSwitch: " ++)) $
         go ws
+
+-- | Handle the pending messages in `_stPending_Monome`, `_stPending_Vivid`
+-- and `_stPending_String`.
+stHandlePending :: forall app. MVar (St app) -> IO (Either String ())
+stHandlePending mst = do
+  st1 <- takeMVar mst
+  mapM_ putStrLn $ _stPending_String st1
+  mapM_ (either putStrLn id) $
+    doLedMessage st1 <$> _stPending_Monome st1
+  let eioefs :: Either String [IO ( Either String
+                                    (St app -> St app ))] =
+        mapM (doScAction st1) (_stPending_Vivid  st1)
+  case eioefs of
+    Left s -> return $ Left s
+    Right (ioefs :: [IO (Either String (St app -> St app))]) -> do
+
+      efs :: [Either String (St app -> St app)] <-
+        mapM id ioefs
+      case mapM id efs :: Either String [St app -> St app] of
+        Left s -> return $ Left s
+        Right fs -> do
+          putMVar mst (foldl (.) id fs st1)
+            { _stPending_Monome = []
+            , _stPending_Vivid = []
+            , _stPending_String = [] }
+          return $ Right ()
 
 -- | PITFALL: The order of execution here is kind of strange.
 -- See comments in `handleSwitch` for details.
