@@ -15,6 +15,7 @@ module Montevideo.Monome.Main (
   , handleSwitch -- ^ MVar (St app) -> ((X,Y), Switch)
                  -- -> IO (Either String ())
   , handlePending -- ^ St app -> IO (Either String (St app))
+  , chDefault -- ^ MVar (St EdoApp) -> ZotParam -> Float -> IO ()
 
   -- * No need so far to export these. (No way to test them.)
   --  , doScAction    -- ^ St -> ScAction VoiceId -> IO ()
@@ -317,3 +318,16 @@ darkAllMonomes st =
   where
     off socket name = send socket $ allLedOsc name False
     receiver monomeId = (M.!) (_stToMonome st) monomeId
+
+-- | Change a default parameter value, and
+-- notify SC to change all sounding voices.
+chDefault :: MVar (St EdoApp) -> ZotParam -> Float -> IO ()
+chDefault mst p f = do
+  st0 <- takeMVar mst
+  let st1 = st0
+        & stPending_Vivid %~ flip (++) (paramToAllVoices st0 p f)
+        & stZotDefaults   %~ M.insert                        p f
+  est <- handlePending st1
+  case est :: Either String (St EdoApp) of
+    Left  s   -> putStrLn s >> putMVar mst st1
+    Right st2 ->               putMVar mst st2
