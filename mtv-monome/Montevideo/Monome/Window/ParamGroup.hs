@@ -7,12 +7,17 @@ module Montevideo.Monome.Window.ParamGroup (
     handler
   , paramGroupWindow
   , label
+
+  , paramReport      -- ^ St EdoApp ->                     ZotParam -> String
+  , paramGroupReport -- ^ St EdoApp -> ParamGroup -> Maybe ZotParam -> [String]
   ) where
 
 import           Control.Lens
+import qualified Data.Map as M
 import qualified Data.Bimap as Bi
 
 import           Montevideo.Monome.Types
+import           Montevideo.Synth
 import           Montevideo.Util
 
 
@@ -37,6 +42,32 @@ handler    st           (mi,       (xy,    True)) = do
   let pgOld :: ParamGroup = st ^. stApp . edoParamGroup
       xyOld :: (X,Y) = paramGroup_toXy pgOld
   Right $ st & stApp . edoParamGroup .~ pgNew
+             & ( stPending_String %~ flip (++)
+                 (paramGroupReport st pgNew Nothing) )
              & ( stPending_Monome %~ flip (++)
                  [ ((mi, label), (xyOld, False))
                  , ((mi, label), (xy,    True)) ] )
+
+paramReport :: St EdoApp -> ZotParam -> String
+paramReport st p = let
+  zDefault :: ZotParam -> String =
+    maybe "Unset"                                       show .
+    flip M.lookup (st ^. stZotDefaults)
+  zRange :: ZotParam -> String =
+    maybe "paramGroupMessages: ERROR: missing ZotParam" show .
+    flip M.lookup (st ^. stZotRanges)
+  in zRange p ++ " " ++
+     zDefault p ++ " " ++
+     show p
+
+paramGroupReport :: St EdoApp -> ParamGroup -> Maybe ZotParam -> [String]
+paramGroupReport st g mp = let
+  zs :: [ZotParam] = paramGroup_params g
+  zCaret :: ZotParam -> String
+  zCaret p = case mp of
+    Just p' -> if p == p' then " <-" else ""
+    Nothing -> ""
+  go :: ZotParam -> String
+  go z = paramReport st z ++ " " ++
+         zCaret z
+  in map go zs

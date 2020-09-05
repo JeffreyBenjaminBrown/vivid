@@ -13,6 +13,7 @@ import           Control.Lens
 import           Data.Map as M
 
 import           Montevideo.Monome.Types
+import qualified Montevideo.Monome.Window.ParamGroup as PG
 import           Montevideo.Synth
 import           Montevideo.Util
 
@@ -36,14 +37,21 @@ handler    st           (mi      , ((x,y), True  )) = do
   case paramGroup_toParam pg y :: Either String ZotParam of
     Left _ -> Right st
     Right (zp :: ZotParam) -> do
+
       let (ns, nMin, nMax) :: (NumScale, Float, Float) =
             (M.!) (st ^. stZotRanges) $ zp
-      Right $ st
-        & stZotDefaults %~ ( M.insert zp $
-                             numScale ns (3,15) (nMin,nMax) $ fi x)
-        & ( stPending_Monome %~ flip (++)
-            (   ((mi, label), ((x ,y), True ))
-            -- This is wasteful -- 13 LED messages where 2 would suffice --
-            -- but whatever, nothing else happens during such a button press.
-            : [ ((mi, label), ((x',y), False))
-              | x' <- [3..15], x' /= x ] ) )
+          st1 = st
+            & stZotDefaults %~ ( M.insert zp $
+                                 numScale ns (3,15) (nMin,nMax) $ fi x)
+            & ( stPending_Monome %~ flip (++)
+                (   ((mi, label), ((x ,y), True ))
+                : [ ((mi, label), ((x',y), False))
+                  -- This is wwasteful: 13 messages where 2 would work.
+                  -- But nothing else happens during such a button press.
+                  | x' <- [3..15], x' /= x ] ) )
+      Right $ st1
+        & ( stPending_String %~ flip (++)
+            ( PG.paramGroupReport st1
+              (st1 ^. stApp . edoParamGroup)
+              (Just zp)
+            ) )
