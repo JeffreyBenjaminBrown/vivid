@@ -11,9 +11,10 @@ module Montevideo.Monome.Main (
 
   -- ** Utilities they use
   , renameMonomes -- ^ IO ()
-  , initAllWindows -- ^ MVar St -> [Window] -> IO ()
+  , drawMonomeWindows -- ^ MVar St -> [Window] -> IO ()
   , handleSwitch -- ^ MVar (St app) -> ((X,Y), Switch)
                  -- -> IO (Either String ())
+  , handlePending -- ^ St app -> IO (Either String (St app))
 
   -- * No need so far to export these. (No way to test them.)
   --  , doScAction    -- ^ St -> ScAction VoiceId -> IO ()
@@ -85,7 +86,7 @@ edoMonome edoCfg = do
         }
     }
 
-  initAllWindows mst
+  drawMonomeWindows mst
 
   responder <- forkIO $ forever $ do
     decodeOSC <$> recv inbox 4096 >>= \case
@@ -137,7 +138,7 @@ jiMonome scale shifts = do
                      , _jiShifts = shifts
                      , _jiFingers = mempty }
     }
-  initAllWindows mst
+  drawMonomeWindows mst
 
   responder <- forkIO $ forever $ do
     decodeOSC <$> recv inbox 4096 >>= \case
@@ -184,8 +185,8 @@ renameMonomes = do
         return (m, toMonome)
   fmap M.fromList $ mapM f allMonomeIds
 
-initAllWindows :: forall app. MVar (St app) -> IO ()
-initAllWindows mst = do
+drawMonomeWindows :: forall app. MVar (St app) -> IO ()
+drawMonomeWindows mst = do
   st <- readMVar mst
   let runWindowInit :: (MonomeId, Window app) -> IO ()
       runWindowInit (mi, w) = let
@@ -200,7 +201,7 @@ initAllWindows mst = do
 
 -- | Called every time a monome button is pressed or released.
 -- Does two kinds of IO:
-  -- stHandlePending: send to SuperCollider, the monome, and the console
+  -- handlePending: send to SuperCollider, the monome, and the console
   -- Change the MVar.
 handleSwitch :: forall app.
                 St app -> MonomeId -> ((X,Y), Switch)
@@ -220,18 +221,18 @@ handleSwitch st0 mi sw@ (btn,_) =
                  " claimed by no Window."
       Just w -> case windowHandler w st0 (mi,sw) of
         Left s    -> return $ Left s
-        Right st1 -> stHandlePending st1
+        Right st1 -> handlePending st1
 
   case M.lookup mi $ _stWindowLayers st0 of
     Nothing -> return $ Left $ "WIndows for " ++ show mi ++ " not found."
     Just ws -> go ws
 
--- | `stHandlePending st` does two things:
+-- | `handlePending st` does two things:
 --   (1) Act on the pending messages in `_stPending_Monome`,
 --       `_stPending_Vivid` and `_stPending_String`.
 --   (2) Empty those fields in `st`.
-stHandlePending :: forall app. St app -> IO (Either String (St app))
-stHandlePending st1 = do
+handlePending :: forall app. St app -> IO (Either String (St app))
+handlePending st1 = do
   mapM_ putStrLn $ _stPending_String st1
   mapM_ (either putStrLn id) $
     doLedMessage st1 <$> _stPending_Monome st1

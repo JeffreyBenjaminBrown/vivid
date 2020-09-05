@@ -7,6 +7,8 @@ module Montevideo.Monome.Window.ParamVal (
     handler
   , paramValWindow
   , label
+
+  , paramToAllVoices -- ^ St EdoApp -> ZotParam -> Float -> [ScAction VoiceId]
   ) where
 
 import           Control.Lens
