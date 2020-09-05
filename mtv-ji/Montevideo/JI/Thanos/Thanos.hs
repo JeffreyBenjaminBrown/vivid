@@ -7,7 +7,7 @@
 
 module Montevideo.JI.Thanos.Thanos where
 
-import Prelude hiding (span, String) -- PITFALL: Hiding String.
+import Prelude hiding (span)
 
 import Control.Lens
 import           Data.List hiding (span)
@@ -31,7 +31,7 @@ type Interval = Int -- ^ A value from an Edo system. For instance,
 -- on a Kite guitar each pair of adjacent strings is tuned 13\41 apart.
 type Spacing = Interval
 
-type String = Int
+type GuitarString = Int
 type Fret = Int
 type FretDistance = Int -- ^ The distance between two frets.
 
@@ -51,15 +51,15 @@ data ThanosReport = ThanosReport
   deriving (Eq, Ord, Show)
 
 data IntervalReport = IntervalReport
-  { ir_Edo  :: Interval -- ^ This
+  { ir_Edo  :: Interval -- ^ This ...
   , ir_Ratio  :: Rational -- ^ and this represent the same note
-  , ir_String :: String   -- ^ This
+  , ir_GuitarString :: GuitarString   -- ^ This ...
   , ir_Fret   :: Fret }   -- ^ and this represent where it lies closest.
   deriving (Eq, Ord)
 
 instance Show IntervalReport where
   show r = show (ir_Edo r) ++ " steps = " ++ show (ir_Ratio r)
-           ++ ": string "  ++ show (ir_String r)
+           ++ ": string "  ++ show (ir_GuitarString r)
            ++ " fret "     ++ show (ir_Fret r)
 
 
@@ -130,7 +130,7 @@ thanosReport edo modulus spacing = let
   mkIntervalReport ((a,b),(c,d)) = IntervalReport
     { ir_Edo  = a
     , ir_Ratio  = b
-    , ir_String = c
+    , ir_GuitarString = c
     , ir_Fret   = d }
   in ThanosReport
      { tReport_edo = edo
@@ -155,18 +155,18 @@ thanosReport'
   -> ( FretDistance -- ^ 5-limit maximum prime fret reach
      , FretDistance -- ^ 7-limit maximum prime fret reach
      , FretDistance -- ^ 13-limit maximum prime fret reach
-     , [((Interval, Rational), (String, Fret))])
+     , [((Interval, Rational), (GuitarString, Fret))])
 thanosReport' edo modulus spacing = let
   notes :: [(Interval, Rational)] =
     primeIntervals edo
-  layout :: [[(String, Fret)]] =
+  layout :: [[(GuitarString, Fret)]] =
     -- The outer list has length 6.
     -- Each inner list represents the closest places a given prime lies.
     -- Most of them will probably be length 1.
     map (shortWaysToReach modulus spacing . fst) notes
-  cs :: [[(String,Fret)]] = choices layout
+  cs :: [[(GuitarString,Fret)]] = choices layout
   maxFretDiff :: Int --how many primes to use: 4 (7-limit) or 6 (13-limit)
-              -> [(String,Fret)] -> FretDistance
+              -> [(GuitarString,Fret)] -> FretDistance
   maxFretDiff n choice = let
     frets = 0 : map snd (take n choice)
     in maximum frets - minimum frets
@@ -203,7 +203,7 @@ shortWaysToReach
   -> Interval -- ^ A step of the Edo one would like to approximate.
   -- For instance, since Kite wanted to be able to reach 24\41 easily,
   -- his list surely included the number 24. (24\41 ~ 3/2).
-  -> [(String, Fret)]
+  -> [(GuitarString, Fret)]
 
 shortWaysToReach modulus spacing edoStep = let
   spaceMultiples :: [(Int, Spacing)] = let
