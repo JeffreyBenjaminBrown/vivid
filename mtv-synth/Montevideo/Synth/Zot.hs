@@ -105,7 +105,7 @@ zotDefaultRanges = M.fromList
                  (Log, top * 2**(-8), top) )
   , (Zot_pulse , (Lin, 0, 1))
   , (Zot_fm_m  , (Lin, 0, 2))
-  , (Zot_fm_f  , (Log, 2**(-8), 1))
+  , (Zot_fm_f  , (Log, 2**(-16), 1))
   , (Zot_fm_b  , (Lin, 0, 2))
   , (Zot_pm_m  , (Lin, 0, 1))
   , (Zot_pm_f  , (Log, 2**(-8), 1))
