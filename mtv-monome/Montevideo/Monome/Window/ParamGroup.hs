@@ -70,4 +70,4 @@ paramGroupReport st g mp = let
   go :: ZotParam -> String
   go z = paramReport st z ++ " " ++
          zCaret z
-  in map go zs
+  in "" : map go zs -- The empty string becomes a newline under putStrLn.
