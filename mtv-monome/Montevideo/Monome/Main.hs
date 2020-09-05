@@ -236,7 +236,7 @@ stHandlePending mst = do
     doLedMessage st1 <$> _stPending_Monome st1
   let eioefs :: Either String [IO ( Either String
                                     (St app -> St app ))] =
-        mapM (doScAction st1) (_stPending_Vivid  st1)
+        mapM (doScAction st1) (_stPending_Vivid st1)
   case eioefs of
     Left s -> return $ Left s
     Right (ioefs :: [IO (Either String (St app -> St app))]) -> do
@@ -259,18 +259,18 @@ doScAction :: St app -> ScAction VoiceId
            -> Either String (IO (Either String (St a -> St a)))
 doScAction    st        sca =
   mapLeft ("doScAction: " ++) $
-  let go :: Synth ZotParams -> (ParamName, Float) -> IO ()
-      go s (param, f) =
+  let setVivid :: Synth ZotParams -> (ParamName, Float) -> IO ()
+      setVivid s (param, f) =
         mapM_ (set' s) $ zotScMsg $ M.singleton param f
   in
   case sca of
 
-    ScAction_Send _ _ _ -> do -- currently unused
+    ScAction_Send _ _ _ -> do
       let vid :: VoiceId = _actionSynthName sca
       s :: Synth ZotParams <-
         maybe (Left $ "VoiceId " ++ show vid ++ " has no assigned synth.")
         Right $ (_stVoices st M.! vid) ^. voiceSynth
-      let ios :: [IO ()] = map (go s) $ M.toList $ _actionScMsg sca
+      let ios :: [IO ()] = map (setVivid s) $ M.toList $ _actionScMsg sca
       Right $ mapM_ id ios >> return (Right id)
 
     ScAction_New _ _ _ -> do
@@ -280,7 +280,7 @@ doScAction    st        sca =
            Right $ M.lookup vid $ _stVoices st
       Right $ do
         s <- synth zot () -- TODO change zot to `_actionSynthDefEnum sca`
-        let ios :: [IO ()] = map (go s) $ M.toList $ _actionScMsg sca
+        let ios :: [IO ()] = map (setVivid s) $ M.toList $ _actionScMsg sca
         mapM_ id ios
         return $ Right $
           stVoices . at vid . _Just . voiceSynth .~ Just s
