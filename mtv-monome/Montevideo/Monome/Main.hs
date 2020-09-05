@@ -93,9 +93,11 @@ edoMonome edoCfg = do
       Right osc -> do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
-          Right (monome,switch) ->
-            handleSwitch mst monome switch >>=
-            either putStrLn return
+          Right (monome,switch) -> do
+            est :: St app <- takeMVar mst
+            h :: Either String (St app) <-
+              handleSwitch est monome switch
+            either putStrLn (putMVar mst) h
 
   let quit :: IO (St EdoApp) = do
         close inbox
@@ -143,9 +145,11 @@ jiMonome scale shifts = do
       Right osc -> do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
-          Right (monome,switch) ->
-            handleSwitch mst monome switch >>=
-            either putStrLn return
+          Right (monome,switch) -> do
+            est :: St app <- takeMVar mst
+            h :: Either String (St app) <-
+              handleSwitch est monome switch
+            either putStrLn (putMVar mst) h
 
   let loop :: IO (St JiApp) =
         getChar >>= \case
@@ -198,39 +202,29 @@ initAllWindows mst = do
 -- Does two kinds of IO:
   -- stHandlePending: send to SuperCollider, the monome, and the console
   -- Change the MVar.
--- TODO : instead of MVar IO, return an St -> St.
--- (That way I could test it.)
 handleSwitch :: forall app.
-                MVar (St app) -> MonomeId -> ((X,Y), Switch)
-             -> IO (Either String ())
+                St app -> MonomeId -> ((X,Y), Switch)
+             -> IO (Either String (St app))
 -- PITFALL: The order of execution in `handleSwitch` is complex.
 -- `windowHandler` runs before `doScAction` and `doLedMessage`.
 -- Thus some updates to the St (everything but voice parameters,
 -- the `voiceSynth` field, and voice deletion)
 -- happen before SC has been informed.
 
-handleSwitch mst mi sw@ (btn,_) = do
-  st0 <- takeMVar mst
+handleSwitch st0 mi sw@ (btn,_) =
+  fmap (mapLeft ("Monome.Main.handleSwitch: " ++)) $ do
   let
-    go :: [Window app] -> IO (Either String ())
+    go :: [Window app] -> IO (Either String (St app))
     go ws = case L.find (\w -> windowContains w btn) ws of
       Nothing -> return $ Left $ "Switch " ++ show sw ++
                  " claimed by no Window."
       Just w -> case windowHandler w st0 (mi,sw) of
-        Left s -> return $ Left s
-        Right st1 -> do
-          est :: Either String (St app) <-
-            stHandlePending st1
-          case est of
-            Left  s   -> return $ Left s
-            Right st2 -> do putMVar mst st2
-                            return $ Right ()
+        Left s    -> return $ Left s
+        Right st1 -> stHandlePending st1
 
   case M.lookup mi $ _stWindowLayers st0 of
     Nothing -> return $ Left $ "WIndows for " ++ show mi ++ " not found."
-    Just ws ->
-      fmap (mapLeft ("Monome.Main.handleSwitch: " ++)) $
-        go ws
+    Just ws -> go ws
 
 -- | `stHandlePending st` does two things:
 --   (1) Act on the pending messages in `_stPending_Monome`,
