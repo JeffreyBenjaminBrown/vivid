@@ -12,6 +12,7 @@ module Montevideo.Monome.Window.ParamVal (
 import           Control.Lens
 import           Data.Map as M
 
+import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.Types
 import qualified Montevideo.Monome.Window.ParamGroup as PG
 import           Montevideo.Synth
@@ -38,16 +39,23 @@ handler    st           (mi      , ((x,y), True  )) = do
     Left _ -> Right st
     Right (zp :: ZotParam) -> do
 
-      let (ns, nMin, nMax) :: (NumScale, Rational, Rational) =
+      let val :: Float = numScale ns
+                         (3,15) (fr nMin, fr nMax) (fi x)
+          scMsgs :: [ScAction VoiceId] = [
+            ScAction_Send { _actionSynthDefEnum = Zot
+                          , _actionSynthName    = v :: VoiceId
+                          , _actionScMsg = M.singleton (show zp) val }
+            | v <- M.keys $ _stVoices st ]
+          (ns, nMin, nMax) :: (NumScale, Rational, Rational) =
             (M.!) (st ^. stZotRanges) $ zp
+
           st1 = st
-            & stZotDefaults %~ ( M.insert zp $ numScale ns
-                                 (3,15) (fr nMin, fr nMax) $ fi x)
+            & stZotDefaults      %~ M.insert zp val
+            & stPending_Vivid    %~ flip (++) scMsgs
             & ( stPending_Monome %~ flip (++)
                 (   ((mi, label), ((x ,y), True ))
                 : [ ((mi, label), ((x',y), False))
-                  -- This is wwasteful: 13 messages where 2 would work.
-                  -- But nothing else happens during such a button press.
+                  -- This is wwasteful: 13 messages where 2 would suffice.
                   | x' <- [3..15], x' /= x ] ) )
       Right $ st1
         & ( stPending_String %~ flip (++)
