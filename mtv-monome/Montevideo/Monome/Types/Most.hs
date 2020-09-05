@@ -138,7 +138,7 @@ data St app = St {
   , _stPending_String :: [String]
   , _stZotDefaults :: Map ZotParam Float -- ^ Initially empty.
     -- Used to override the defaults defined in `zot` itself.
-  , _stZotRanges  :: Map ZotParam (NumScale, Float, Float)
+  , _stZotRanges  :: Map ZotParam (NumScale, Rational, Rational)
   }
 
 data EdoApp = EdoApp

@@ -38,11 +38,11 @@ handler    st           (mi      , ((x,y), True  )) = do
     Left _ -> Right st
     Right (zp :: ZotParam) -> do
 
-      let (ns, nMin, nMax) :: (NumScale, Float, Float) =
+      let (ns, nMin, nMax) :: (NumScale, Rational, Rational) =
             (M.!) (st ^. stZotRanges) $ zp
           st1 = st
-            & stZotDefaults %~ ( M.insert zp $
-                                 numScale ns (3,15) (nMin,nMax) $ fi x)
+            & stZotDefaults %~ ( M.insert zp $ numScale ns
+                                 (3,15) (fr nMin, fr nMax) $ fi x)
             & ( stPending_Monome %~ flip (++)
                 (   ((mi, label), ((x ,y), True ))
                 : [ ((mi, label), ((x',y), False))
