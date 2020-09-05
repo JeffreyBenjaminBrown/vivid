@@ -25,6 +25,7 @@ import           Control.Concurrent.MVar
 import           Control.Lens hiding (set, set')
 import           Data.ByteString.Char8 (pack, unpack)
 import           Data.Either.Combinators
+import qualified Data.List as L
 import qualified Data.Map as M
 import           Data.Map (Map)
 
@@ -212,11 +213,10 @@ handleSwitch mst mi sw@ (btn,_) = do
   st0 <- takeMVar mst
   let
     go :: [Window app] -> IO (Either String ())
-    go [] = return $ Left $
-     "Switch " ++ show sw ++ " claimed by no Window."
-    go (w:ws) = case windowContains w btn of
-      False -> go ws
-      True -> case windowHandler w st0 (mi,sw) of
+    go ws = case L.find (\w -> windowContains w btn) ws of
+      Nothing -> return $ Left $ "Switch " ++ show sw ++
+                 " claimed by no Window."
+      Just w -> case windowHandler w st0 (mi,sw) of
         Left s -> return $ Left s
         Right st1 -> do
           est :: Either String (St app) <-
