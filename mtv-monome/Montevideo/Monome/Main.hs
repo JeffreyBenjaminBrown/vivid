@@ -69,6 +69,7 @@ edoMonome edoCfg = do
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
+    , _stPending_String = []
     , _stZotDefaults = mempty
     , _stZotRanges = zotDefaultRanges
 
@@ -125,6 +126,7 @@ jiMonome scale shifts = do
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
+    , _stPending_String = []
     , _stZotDefaults = mempty
     , _stZotRanges = mempty
 
@@ -216,6 +218,7 @@ handleSwitch mst mi sw@ (btn,_) = do
         Left s -> return $ Left s
         Right st1 -> do
 
+          mapM_ putStrLn $ _stPending_String st1
           mapM_ (either putStrLn id) $
             doLedMessage st1 <$> _stPending_Monome st1
           let eioefs :: Either String [IO ( Either String
@@ -232,7 +235,8 @@ handleSwitch mst mi sw@ (btn,_) = do
                 Right fs -> do
                   putMVar mst (foldl (.) id fs st1)
                     { _stPending_Monome = []
-                    , _stPending_Vivid = [] }
+                    , _stPending_Vivid = []
+                    , _stPending_String = [] }
                   return $ Right ()
 
   case M.lookup mi $ _stWindowLayers st0 of

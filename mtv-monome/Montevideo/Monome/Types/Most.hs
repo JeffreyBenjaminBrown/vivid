@@ -13,7 +13,8 @@ module Montevideo.Monome.Types.Most (
   , Window(..)
   , Voice(..), voiceSynth, voicePitch, voiceParams
   , St(..), edoConfig, stApp, stWindowLayers, stToMonome, stVoices
-    , stPending_Monome, stPending_Vivid, stZotDefaults, stZotRanges
+    , stPending_Monome, stPending_Vivid, stPending_String
+    , stZotDefaults, stZotRanges
   , EdoApp(..), edoXyShift, edoFingers, edoLit, edoSustaineded, edoParamGroup
   , JiApp(..), jiGenerator, jiShifts, jiFingers
   ) where
@@ -134,6 +135,7 @@ data St app = St {
   -- scattered functions can simply change an `St` instead of doing IO.
   , _stPending_Monome :: [LedMsg]
   , _stPending_Vivid :: [ScAction VoiceId]
+  , _stPending_String :: [String]
   , _stZotDefaults :: Map ZotParam Float -- ^ Initially empty.
     -- Used to override the defaults defined in `zot` itself.
   , _stZotRanges  :: Map ZotParam (NumScale, Float, Float)

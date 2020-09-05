@@ -36,6 +36,7 @@ meh = error "not relevant to this test"
 (=^=) x y = and [
     _stPending_Monome x == _stPending_Monome y
   , _stPending_Vivid x  == _stPending_Vivid y
+  , _stPending_String x == _stPending_String y
   , _stVoices x         == _stVoices y
   , _stZotDefaults x    == _stZotDefaults y
   , _stApp x            == _stApp y ]
@@ -60,12 +61,14 @@ st0 = St {
          , (v1, v { _voicePitch = pitch1 } ) ]
   , _stPending_Monome = []
   , _stPending_Vivid = []
+  , _stPending_String = []
   , _stZotDefaults = mempty
   , _stApp = EdoApp { _edoConfig = config31
                     , _edoXyShift = (3,5)
                     , _edoFingers = mempty
                     , _edoLit = mempty
                     , _edoSustaineded = mempty
+                    , _edoParamGroup = PG_FM
                     }
   }
 
