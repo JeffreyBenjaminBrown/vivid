@@ -3,14 +3,14 @@
 -- Define some shorthand for showing and changing things.
 sh aLens = (^. aLens) <$> readMVar mst
 ch aLens aFunc = modifyMVar_ mst $ return . (aLens %~ aFunc)
+-- TODO the following should affect held notes, not just new ones
+d :: ZotParam -> Float -> IO () = ( \p f -> -- change a default
+  ch stZotDefaults $ M.insert p f )
+b :: ZotParam -> Rational -> IO () = ( \p r -> -- change a range's floor
+  ch (stZotRanges . at p . _Just . _2) $ const r )
+t :: ZotParam -> Rational -> IO () = ( \p r -> -- change a range's ceiling
+  ch (stZotRanges . at p . _Just . _3) $ const r )
 
 -- Read portions of the St like this:
 sh stZotDefaults
 sh $ stZotRanges . at Zot_fm_m
-
--- Set things like this:
-ch stZotDefaults $ M.insert Zot_fm_f $ 2**(-16)
-ch (stZotRanges . at Zot_fm_m . _Just . _2) $ const $ 4**(-12)
-ch (stZotRanges . at Zot_fm_m . _Just . _3) $ const 4
-ch (stZotRanges . at Zot_fm_f . _Just . _2) $ const $ 4**(-12)
-ch (stZotRanges . at Zot_fm_f . _Just . _3) $ const 4
