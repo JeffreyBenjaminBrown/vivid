@@ -194,7 +194,9 @@ initAllWindows mst = do
   mapM_ runWindowInit mws
 
 -- | Called every time a monome button is pressed or released.
--- Does two kinds of IO: talking to SuperCollider and changing the MVar.
+-- Does two kinds of IO:
+  -- stHandlePending: send to SuperCollider, the monome, and the console
+  -- Change the MVar.
 -- TODO : instead of MVar IO, return an St -> St.
 -- (That way I could test it.)
 handleSwitch :: forall app.
@@ -234,29 +236,23 @@ stHandlePending mst = do
   mapM_ putStrLn $ _stPending_String st1
   mapM_ (either putStrLn id) $
     doLedMessage st1 <$> _stPending_Monome st1
-  let eioefs :: Either String [IO ( Either String
-                                    (St app -> St app ))] =
-        mapM (doScAction st1) (_stPending_Vivid st1)
-  case eioefs of
+  case mapM (doScAction st1) (_stPending_Vivid st1) of
     Left s -> return $ Left s
-    Right (ioefs :: [IO (Either String (St app -> St app))]) -> do
+    Right (iofs :: [IO (St app -> St app ) ] )-> do
 
-      efs :: [Either String (St app -> St app)] <-
-        mapM id ioefs
-      case mapM id efs :: Either String [St app -> St app] of
-        Left s -> return $ Left s
-        Right fs -> do
-          putMVar mst (foldl (.) id fs st1)
-            { _stPending_Monome = []
-            , _stPending_Vivid = []
-            , _stPending_String = [] }
-          return $ Right ()
+      fs :: [St app -> St app] <-
+        mapM id iofs
+      putMVar mst (foldl (.) id fs st1)
+        { _stPending_Monome = []
+        , _stPending_Vivid = []
+        , _stPending_String = [] }
+      return $ Right ()
 
--- | PITFALL: The order of execution here is kind of strange.
--- See comments in `handleSwitch` for details.
--- TODO ? Could the outer Either be stripped from this function?
+-- | `doScAction st sca` sends the instructions described by `sca` to Vivid,
+-- and if necessary, returns how to update `st` to reflect the creation
+-- or deletion of a voice.
 doScAction :: St app -> ScAction VoiceId
-           -> Either String (IO (Either String (St a -> St a)))
+           -> Either String (IO (St a -> St a))
 doScAction    st        sca =
   mapLeft ("doScAction: " ++) $
   let setVivid :: Synth ZotParams -> (ParamName, Float) -> IO ()
@@ -270,8 +266,9 @@ doScAction    st        sca =
       s :: Synth ZotParams <-
         maybe (Left $ "VoiceId " ++ show vid ++ " has no assigned synth.")
         Right $ (_stVoices st M.! vid) ^. voiceSynth
-      let ios :: [IO ()] = map (setVivid s) $ M.toList $ _actionScMsg sca
-      Right $ mapM_ id ios >> return (Right id)
+      let ios :: [IO ()] = -- Send each (key,val) from `sca` separately.
+            map (setVivid s) $ M.toList $ _actionScMsg sca
+      Right $ mapM_ id ios >> return id
 
     ScAction_New _ _ _ -> do
       let vid :: VoiceId = _actionSynthName sca
@@ -282,17 +279,16 @@ doScAction    st        sca =
         s <- synth zot () -- TODO change zot to `_actionSynthDefEnum sca`
         let ios :: [IO ()] = map (setVivid s) $ M.toList $ _actionScMsg sca
         mapM_ id ios
-        return $ Right $
-          stVoices . at vid . _Just . voiceSynth .~ Just s
+        return $ stVoices . at vid . _Just . voiceSynth .~ Just s
 
     -- PITFALL: If a voice is deleted right away,
     -- there's usually an audible pop.
     -- (It depends on how far the waveform is displaced from 0.)
     -- To avoid that, this first sends an `amp=0` message,
-    -- and then waits a bit (how much is determined in Monome.Config).
-    -- (That smooths the click because amp messages are responded to a tad
-    -- sluggishly, per the following line in the synth's definition:
-    -- s1 <- pulse (in_ (V::V "amp"), pulseSecs_ 0.03)
+    -- and then waits for a duration defined in Monome.Config.
+    -- That smooths the click because amp messages are responded to
+    -- sluggishly, per the "lag" in the synth's definition.
+
     ScAction_Free _ _ -> do
       let vid :: VoiceId = _actionSynthName sca
       v :: Voice a <- maybe
@@ -307,7 +303,7 @@ doScAction    st        sca =
         doScheduledAt ( Timestamp $ fromRational now
                         + realToFrac Config.freeDelay ) $
           free s
-        return $ Right $ stVoices . at vid .~ Nothing
+        return $ stVoices . at vid .~ Nothing
 
 doLedMessage :: St app -> LedMsg -> Either String (IO ())
 doLedMessage st ((mi, wi), (xy, b)) =
