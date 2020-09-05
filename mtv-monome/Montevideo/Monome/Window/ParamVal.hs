@@ -49,8 +49,8 @@ handler    st           (mi      , ((x,y), True  )) = do
             & stPending_Vivid    %~ flip (++) (paramToAllVoices st zp val)
             & ( stPending_Monome %~ flip (++)
                 (   ((mi, label), ((x ,y), True ))
-                : [ ((mi, label), ((x',y), False))
-                  -- This is wwasteful: 13 messages where 2 would suffice.
+                : [ ((mi, label), ((x',y), False)) -- TODO ? This is wasteful:
+                  -- It sends 13 messages when 2 would suffice.
                   | x' <- [3..15], x' /= x ] ) )
       Right $ st1
         & ( stPending_String %~ flip (++)

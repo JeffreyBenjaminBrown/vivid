@@ -219,8 +219,12 @@ handleSwitch mst mi sw@ (btn,_) = do
       True -> case windowHandler w st0 (mi,sw) of
         Left s -> return $ Left s
         Right st1 -> do
-          putMVar mst st1
-          stHandlePending mst
+          est :: Either String (St app) <-
+            stHandlePending st1
+          case est of
+            Left  s   -> return $ Left s
+            Right st2 -> do putMVar mst st2
+                            return $ Right ()
 
   case M.lookup mi $ _stWindowLayers st0 of
     Nothing -> return $ Left $ "WIndows for " ++ show mi ++ " not found."
@@ -228,25 +232,25 @@ handleSwitch mst mi sw@ (btn,_) = do
       fmap (mapLeft ("Monome.Main.handleSwitch: " ++)) $
         go ws
 
--- | Handle the pending messages in `_stPending_Monome`, `_stPending_Vivid`
--- and `_stPending_String`.
-stHandlePending :: forall app. MVar (St app) -> IO (Either String ())
-stHandlePending mst = do
-  st1 <- takeMVar mst
+-- | `stHandlePending st` does two things:
+--   (1) Act on the pending messages in `_stPending_Monome`,
+--       `_stPending_Vivid` and `_stPending_String`.
+--   (2) Empty those fields in `st`.
+stHandlePending :: forall app. St app -> IO (Either String (St app))
+stHandlePending st1 = do
   mapM_ putStrLn $ _stPending_String st1
   mapM_ (either putStrLn id) $
     doLedMessage st1 <$> _stPending_Monome st1
   case mapM (doScAction st1) (_stPending_Vivid st1) of
     Left s -> return $ Left s
-    Right (iofs :: [IO (St app -> St app ) ] )-> do
+    Right ( iofs :: [IO (St app -> St app ) ] ) -> do
 
       fs :: [St app -> St app] <-
         mapM id iofs
-      putMVar mst (foldl (.) id fs st1)
+      return $ Right $ (foldl (.) id fs st1)
         { _stPending_Monome = []
         , _stPending_Vivid = []
         , _stPending_String = [] }
-      return $ Right ()
 
 -- | `doScAction st sca` sends the instructions described by `sca` to Vivid,
 -- and if necessary, returns how to update `st` to reflect the creation
