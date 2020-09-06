@@ -19,7 +19,7 @@ storePreset st = let
      "/home/jeff/mtv/mtv-monome/Montevideo/Monome/Presets.hs"
      $ unlines ss
 
-pr1, pr2 :: M.Map ZotParam Float
+pr1, pr2, pr3, pr4 :: M.Map ZotParam Float
 
 -- | smooth mellow buzz
 pr1 = M.fromList
@@ -73,4 +73,40 @@ pr3 = M.fromList
   , (Zot_am_f, 6.25e-2)
   , (Zot_rm, 0.0)
   , (Zot_rm_f, 0.25)
+  ]
+
+-- | thin, fuzzy, with occasional bad pops
+pr4 = M.fromList
+  [ (Zot_amp, 7.937005e-2)
+  , (Zot_amp, 7.937005e-2)
+  , (Zot_pulse, 0.25)
+  , (Zot_fm_m, 0.6666667)
+  , (Zot_fm_f, 1.0)
+  , (Zot_pm_m, 0.41666666)
+  , (Zot_pm_f, 1.0)
+  , (Zot_pm_b, 2.0)
+  , (Zot_wm_m, 1.5)
+  , (Zot_wm_f, 2.4803141e-2)
+  , (Zot_wm_b, 1.5)
+  , (Zot_w, 0.6666667)
+  , (Zot_am, 0.5833333)
+  , (Zot_am_b, 0.6666667)
+  , (Zot_am_f, 0.25)
+  , (Zot_hpf, 2.0)
+  , (Zot_hpf_m, 0.0)
+  , (Zot_lpf, 2.0)
+  , (Zot_lpf_m, 0.0)
+  , (Zot_bpf, 2.0)
+  , (Zot_bpf_m, 0.0)
+  , (Zot_bpf_q, 6.25e-2)
+  , (Zot_lim, 6.25e-2)
+  , (Zot_sh, 1.5258788e-5)
+  , (Zot_sh_b, 1.5258788e-5)
+  , (Zot_del, 6.25e-2)
+  , (Zot_source_l, 0.0)
+  , (Zot_am_l, 0.0)
+  , (Zot_rm_l, 0.0)
+  , (Zot_filt_l, 0.33333334)
+  , (Zot_lim_l, 0.0)
+  , (Zot_shift_l, 0.0)
   ]
