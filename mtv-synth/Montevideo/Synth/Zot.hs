@@ -6,6 +6,13 @@
   -- Every other `*-b` parameter adds in feedback without
   -- any compensating reduction elsewhere.
 
+-- PITFALL: Adding more parameters can generate a very mysterious warning.
+-- That's because the Instances for VarList only reach up to tuples of
+-- 38 parameters. If you ask for something with 39, it'll give you a
+-- "can't match type _ with type _" error, rather than a "no VarList instance"
+-- error like you might expect. The solution is to edit
+-- Montevideo.Vivid.LongVarLists.
+
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
 {-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
@@ -57,6 +64,14 @@ data ZotParam
   | Zot_sh
   | Zot_sh_b
   | Zot_del
+
+  | Zot_source_l
+  | Zot_am_l
+  | Zot_rm_l
+  | Zot_filt_l
+  | Zot_lim_l
+  | Zot_shift_l
+
   deriving (Eq, Ord)
 
 instance Show ZotParam where
@@ -99,6 +114,13 @@ strings = B.fromList
   , (Zot_sh    , "sh")
   , (Zot_sh_b  , "sh-b")
   , (Zot_del   , "del")
+
+  , (Zot_source_l, "source-l")
+  , (Zot_am_l, "am-l")
+  , (Zot_rm_l, "rm-l")
+  , (Zot_filt_l, "filt-l")
+  , (Zot_lim_l, "lim-l")
+  , (Zot_shift_l, "shift-l")
   ]
 
 codeStrings :: B.Bimap ZotParam String
@@ -138,6 +160,15 @@ codeStrings = B.fromList
   , (Zot_sh    , "Zot_sh")
   , (Zot_sh_b  , "Zot_sh_b")
   , (Zot_del   , "Zot_del")
+
+  , (Zot_source_l, "Zot_source_l")
+  , (Zot_am_l, "Zot_am_l")
+  , (Zot_rm_l, "Zot_rm_l")
+  , (Zot_filt_l, "Zot_filt_l")
+  , (Zot_lim_l, "Zot_lim_l")
+  , (Zot_shift_l, "Zot_shift_l")
+  ]
+
   ]
 
 -- | These defaults can be changed during play.
@@ -175,8 +206,15 @@ zotDefaultRanges = M.fromList
   , (Zot_lim   , (Log, 2^^(-4), 2^^4))
   , (Zot_sh    , (Log, 2^^(-16), 1))
   , (Zot_sh_b  , (Log, 2^^(-16), 1))
-  , (Zot_del   , (Log, 2^^(-4), 2^^4)) ]
+  , (Zot_del   , (Log, 2^^(-4), 2^^4))
 
+  , (Zot_source_l , (Lin, 0, 1))
+  , (Zot_am_l     , (Lin, 0, 1))
+  , (Zot_rm_l     , (Lin, 0, 1))
+  , (Zot_filt_l   , (Lin, 0, 1))
+  , (Zot_lim_l    , (Lin, 0, 1))
+  , (Zot_shift_l  , (Lin, 0, 1))
+  ]
 
 -- | For details on the meaning of these parameters,
 -- see the comments above their appearances in the definition of `zot`.
@@ -198,9 +236,17 @@ type ZotParams = '[
   ,"lpf","lpf-m"
   ,"bpf","bpf-m","bpf-q"
   ,"hpf","hpf-m"
-  ,"lim"                     -- lim = x  =>  |signal| will not exceed x
-  ,"sh", "sh-b"              -- pitch shift: baseline, feedback mul
-  ,"del"]                    -- delay in periods, maximum 1 second
+  ,"lim"        -- lim = x  =>  |signal| will not exceed x
+  ,"sh", "sh-b" -- pitch shift: baseline, feedback mul
+  ,"del"        -- delay in periods, maximum 1 second
+
+  , "source-l"  -- level; how much to tap that part of the signal chain
+  , "am-l"      -- level; how much to tap that part of the signal chain
+  , "rm-l"      -- level; how much to tap that part of the signal chain
+  , "filt-l"    -- level; how much to tap that part of the signal chain
+  , "lim-l"     -- level; how much to tap that part of the signal chain
+  , "shift-l"   -- level; how much to tap that part of the signal chain
+  ]
 
 zot :: SynthDef ZotParams
 zot = sd ( 0 :: I "on"
@@ -234,6 +280,13 @@ zot = sd ( 0 :: I "on"
          , 0 :: I "sh"
          , 0 :: I "sh-b"
          , 1 :: I "del"
+
+         , 0 :: I "source-l"
+         , 0 :: I "am-l"
+         , 0 :: I "rm-l"
+         , 0 :: I "filt-l"
+         , 0 :: I "lim-l"
+         , 1 :: I "shift-l"
          ) $ do
 
   -- Feedback from the `localOut` at the end of this definition.
@@ -368,5 +421,18 @@ zot = sd ( 0 :: I "on"
   -- The source of the feedback.
   localOut( [s1] )
 
-  out 0 [ (V::V "on") ~* (V::V "amp") ~* shift
-        , (V::V "on") ~* (V::V "amp") ~* shift ]
+  let x = (V::V "on") ~* (V::V "amp") ~*
+           ( (V::V "source-l") ~* source ~+
+             (V::V "am-l")     ~* amSig  ~+
+             (V::V "rm-l")     ~* rmSig  ~+
+             (V::V "filt-l")   ~* filt_3 ~+
+             (V::V "lim-l")    ~* lim    ~+
+             (V::V "shift-l")  ~* shift ) ~/
+           ( biOp Max 0.001 -- to avoid a divide-by-zero
+             ( (V::V "source-l") ~+ -- This normalizes the volume, so that
+               (V::V "am-l")     ~+ -- tapping multiple sources is no louder
+               (V::V "rm-l")     ~+ -- than tapping one of them.
+               (V::V "filt-l")   ~+
+               (V::V "lim-l")    ~+
+               (V::V "shift-l") ) )
+    in out 0 [ x, x ]

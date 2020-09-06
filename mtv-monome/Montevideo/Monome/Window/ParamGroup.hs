@@ -27,8 +27,9 @@ label = ParamGroupWindow
 paramGroupWindow :: Window EdoApp
 paramGroupWindow =  Window {
     windowLabel = label
-  , windowContains = \(x,y) -> numBetween 0 2 x &&
-                               numBetween 0 2 y
+  , windowContains = \(x,y) -> ( numBetween 0 2 x &&
+                                 numBetween 0 2 y )
+                               || (x,y) == (0,3)
   , windowInitLeds = \_ _ -> []
   , windowHandler = handler }
 

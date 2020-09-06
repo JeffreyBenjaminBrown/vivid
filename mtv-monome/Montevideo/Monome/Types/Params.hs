@@ -23,6 +23,7 @@ data ParamGroup
   | PG_HLF    -- ^ hpf, hpf-m, lpf,  lpf-m
   | PG_BF     -- ^ bpf, bpf-m, bpf-q
   | PG_end    -- ^ lim, sh, sh-b, del
+  | PG_levels -- ^ "source-l", "am-l", "rm-l", "filt-l", "lim-l", "shift-l"
   deriving (Eq, Ord, Show)
 makePrisms ''ParamGroup
 
@@ -38,6 +39,9 @@ paramGroup_params PG_RM     = [Zot_rm, Zot_rm_f, Zot_rm_b]
 paramGroup_params PG_HLF    = [Zot_hpf, Zot_hpf_m, Zot_lpf, Zot_lpf_m]
 paramGroup_params PG_BF     = [Zot_bpf, Zot_bpf_m, Zot_bpf_q]
 paramGroup_params PG_end    = [Zot_lim, Zot_sh, Zot_sh_b, Zot_del]
+
+paramGroup_params PG_levels = [ Zot_source_l, Zot_am_l, Zot_rm_l
+                              , Zot_filt_l, Zot_lim_l, Zot_shift_l ]
 
 paramGroup_toParam :: ParamGroup -> Int -> Either String ZotParam
 paramGroup_toParam pg i =
@@ -55,6 +59,7 @@ paramGroupXys = Bi.fromList
   , (PG_PM     , (1,0))
   , (PG_WM     , (2,0))
   , (PG_source , (0,1))
+  , (PG_levels , (0,3))
   , (PG_AM     , (1,1))
   , (PG_RM     , (2,1))
   , (PG_HLF    , (0,2))

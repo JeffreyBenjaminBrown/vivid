@@ -28,7 +28,7 @@ paramValWindow :: Window EdoApp
 paramValWindow =  Window {
     windowLabel = label
   , windowContains = \(x,y) -> numBetween 3 15 x &&
-                               numBetween 0 3 y
+                               numBetween 0 6 y
   , windowInitLeds = \_ _ -> []
   , windowHandler = handler }
 
