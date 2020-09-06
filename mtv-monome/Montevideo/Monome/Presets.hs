@@ -52,3 +52,25 @@ pr2 = M.fromList
   , (Zot_sh_b,9.688727e-5)
   , (Zot_del,2.5198421)
   ]
+
+-- | nasty
+pr3 = M.fromList
+  [ (Zot_amp, 7.937005e-2)
+  , (Zot_amp, 7.937005e-2)
+  , (Zot_pulse, 8.3333336e-2)
+  , (Zot_fm_m, 0.25)
+  , (Zot_fm_f, 0.5)
+  , (Zot_fm_b, 1.1666666)
+  , (Zot_pm_m, 0.16666667)
+  , (Zot_pm_f, 0.25)
+  , (Zot_pm_b, 1.3333334)
+  , (Zot_wm_m, 1.25)
+  , (Zot_wm_f, 6.25e-2)
+  , (Zot_wm_b, 2.0)
+  , (Zot_w, 0.25)
+  , (Zot_am, 1.0)
+  , (Zot_am_b, 2.0)
+  , (Zot_am_f, 6.25e-2)
+  , (Zot_rm, 0.0)
+  , (Zot_rm_f, 0.25)
+  ]
