@@ -12,6 +12,7 @@
 module Montevideo.Synth.Zot where
 
 import qualified Data.Map as M
+import qualified Data.Bimap as B
 import Vivid hiding (Log)
 
 import Montevideo.Vivid.LongVarLists ()
@@ -59,41 +60,85 @@ data ZotParam
   deriving (Eq, Ord)
 
 instance Show ZotParam where
-  show Zot_on    = "on"
-  show Zot_freq  = "freq"
-  show Zot_amp   = "amp"
-  show Zot_pulse = "pulse"
+  show = (strings B.!)
 
-  show Zot_fm_m  = "fm-m"
-  show Zot_fm_f  = "fm-f"
-  show Zot_fm_b  = "fm-b"
-  show Zot_pm_m  = "pm-m"
-  show Zot_pm_f  = "pm-f"
-  show Zot_pm_b  = "pm-b"
-  show Zot_wm_m  = "wm-m"
-  show Zot_wm_f  = "wm-f"
-  show Zot_wm_b  = "wm-b"
-  show Zot_w     = "w"
+strings :: B.Bimap ZotParam String
+strings = B.fromList
+  [ (Zot_on    , "on")
+  , (Zot_freq  , "freq")
+  , (Zot_amp   , "amp")
+  , (Zot_pulse , "pulse")
 
-  show Zot_am    = "am"
-  show Zot_am_b  = "am-b"
-  show Zot_am_f  = "am-f"
-  show Zot_rm    = "rm"
-  show Zot_rm_b  = "rm-b"
-  show Zot_rm_f  = "rm-f"
+  , (Zot_fm_m  , "fm-m")
+  , (Zot_fm_f  , "fm-f")
+  , (Zot_fm_b  , "fm-b")
+  , (Zot_pm_m  , "pm-m")
+  , (Zot_pm_f  , "pm-f")
+  , (Zot_pm_b  , "pm-b")
+  , (Zot_wm_m  , "wm-m")
+  , (Zot_wm_f  , "wm-f")
+  , (Zot_wm_b  , "wm-b")
+  , (Zot_w     , "w")
 
-  show Zot_hpf   = "hpf"
-  show Zot_hpf_m = "hpf-m"
-  show Zot_lpf   = "lpf"
-  show Zot_lpf_m = "lpf-m"
-  show Zot_bpf   = "bpf"
-  show Zot_bpf_m = "bpf-m"
-  show Zot_bpf_q = "bpf-q"
+  , (Zot_am    , "am")
+  , (Zot_am_b  , "am-b")
+  , (Zot_am_f  , "am-f")
+  , (Zot_rm    , "rm")
+  , (Zot_rm_b  , "rm-b")
+  , (Zot_rm_f  , "rm-f")
 
-  show Zot_lim   = "lim"
-  show Zot_sh    = "sh"
-  show Zot_sh_b  = "sh-b"
-  show Zot_del   = "del"
+  , (Zot_hpf   , "hpf")
+  , (Zot_hpf_m , "hpf-m")
+  , (Zot_lpf   , "lpf")
+  , (Zot_lpf_m , "lpf-m")
+  , (Zot_bpf   , "bpf")
+  , (Zot_bpf_m , "bpf-m")
+  , (Zot_bpf_q , "bpf-q")
+
+  , (Zot_lim   , "lim")
+  , (Zot_sh    , "sh")
+  , (Zot_sh_b  , "sh-b")
+  , (Zot_del   , "del")
+  ]
+
+codeStrings :: B.Bimap ZotParam String
+codeStrings = B.fromList
+  [ (Zot_on    , "Zot_on")
+  , (Zot_freq  , "Zot_freq")
+  , (Zot_amp   , "Zot_amp")
+  , (Zot_pulse , "Zot_pulse")
+
+  , (Zot_fm_m  , "Zot_fm_m")
+  , (Zot_fm_f  , "Zot_fm_f")
+  , (Zot_fm_b  , "Zot_fm_b")
+  , (Zot_pm_m  , "Zot_pm_m")
+  , (Zot_pm_f  , "Zot_pm_f")
+  , (Zot_pm_b  , "Zot_pm_b")
+  , (Zot_wm_m  , "Zot_wm_m")
+  , (Zot_wm_f  , "Zot_wm_f")
+  , (Zot_wm_b  , "Zot_wm_b")
+  , (Zot_w     , "Zot_w")
+
+  , (Zot_am    , "Zot_am")
+  , (Zot_am_b  , "Zot_am_b")
+  , (Zot_am_f  , "Zot_am_f")
+  , (Zot_rm    , "Zot_rm")
+  , (Zot_rm_b  , "Zot_rm_b")
+  , (Zot_rm_f  , "Zot_rm_f")
+
+  , (Zot_hpf   , "Zot_hpf")
+  , (Zot_hpf_m , "Zot_hpf_m")
+  , (Zot_lpf   , "Zot_lpf")
+  , (Zot_lpf_m , "Zot_lpf_m")
+  , (Zot_bpf   , "Zot_bpf")
+  , (Zot_bpf_m , "Zot_bpf_m")
+  , (Zot_bpf_q , "Zot_bpf_q")
+
+  , (Zot_lim   , "Zot_lim")
+  , (Zot_sh    , "Zot_sh")
+  , (Zot_sh_b  , "Zot_sh_b")
+  , (Zot_del   , "Zot_del")
+  ]
 
 -- | These defaults can be changed during play.
 -- TODO: Experiment, tweak.

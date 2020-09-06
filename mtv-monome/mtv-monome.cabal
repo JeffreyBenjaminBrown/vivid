@@ -30,6 +30,7 @@ library
     , Montevideo.Monome.Network.ListenAndLogOsc
     , Montevideo.Monome.Network.Monome
     , Montevideo.Monome.Network.Util
+    , Montevideo.Monome.Presets
     , Montevideo.Monome.Synth.Boop
     , Montevideo.Monome.Synth.Zot
     , Montevideo.Monome.Util.OSC
@@ -57,16 +58,16 @@ library
       Paths_monome
   build-depends:
                 base
+              , NumInstances
               , bimap
               , bytestring
               , containers
               , either
               , lens
+              , mtv-synth
               , network
-              , NumInstances
               , text
               , vivid
               , vivid-osc
-              , mtv-synth
   default-language: Haskell2010
   default-extensions: ScopedTypeVariables

@@ -13,7 +13,7 @@ import Control.Concurrent.MVar
 import Control.Lens hiding (set)
 
 import qualified Data.ByteString.Char8 as Char8
-import qualified Data.Bimap as Bi
+import qualified Data.Bimap as B
 import           Data.Either
 import           Data.Either.Combinators
 import           Data.Fixed
