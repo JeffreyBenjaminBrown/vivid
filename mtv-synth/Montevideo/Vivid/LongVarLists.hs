@@ -140,3 +140,105 @@ instance
          '[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af]
       makeTypedVarList (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af) =
          a ?> b ?> c ?> d ?> e ?> f ?> g ?> h ?> i ?> j ?> k ?> l ?> m ?> n ?> o ?> p ?> q ?> r ?> s ?> t ?> u ?> v ?> w ?> x ?> y ?> z ?> aa ?> ab ?> ac ?> ad ?> ae ?> af
+
+instance
+   (KnownSymbol a, KnownSymbol b, KnownSymbol c, KnownSymbol d, KnownSymbol e,
+    KnownSymbol f, KnownSymbol g, KnownSymbol h, KnownSymbol i, KnownSymbol j,
+    KnownSymbol k, KnownSymbol l, KnownSymbol m, KnownSymbol n, KnownSymbol o
+   ,KnownSymbol p,KnownSymbol q,KnownSymbol r,KnownSymbol s,KnownSymbol t
+   ,KnownSymbol u,KnownSymbol v,KnownSymbol w,KnownSymbol x,KnownSymbol y
+   ,KnownSymbol z, KnownSymbol aa, KnownSymbol ab, KnownSymbol ac
+   , KnownSymbol ad, KnownSymbol ae, KnownSymbol af, KnownSymbol ag
+   ) =>
+   VarList
+     (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af,I ag)
+   where
+      type InnerVars (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af, I ag) =
+         '[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag]
+      makeTypedVarList (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag) =
+         a ?> b ?> c ?> d ?> e ?> f ?> g ?> h ?> i ?> j ?> k ?> l ?> m ?> n ?> o ?> p ?> q ?> r ?> s ?> t ?> u ?> v ?> w ?> x ?> y ?> z ?> aa ?> ab ?> ac ?> ad ?> ae ?> af ?> ag
+
+instance
+   (KnownSymbol a, KnownSymbol b, KnownSymbol c, KnownSymbol d, KnownSymbol e,
+    KnownSymbol f, KnownSymbol g, KnownSymbol h, KnownSymbol i, KnownSymbol j,
+    KnownSymbol k, KnownSymbol l, KnownSymbol m, KnownSymbol n, KnownSymbol o
+   ,KnownSymbol p,KnownSymbol q,KnownSymbol r,KnownSymbol s,KnownSymbol t
+   ,KnownSymbol u,KnownSymbol v,KnownSymbol w,KnownSymbol x,KnownSymbol y
+   ,KnownSymbol z, KnownSymbol aa, KnownSymbol ab, KnownSymbol ac
+   , KnownSymbol ad, KnownSymbol ae, KnownSymbol af, KnownSymbol ag, KnownSymbol ah
+   ) =>
+   VarList
+     (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af,I ag,I ah)
+   where
+      type InnerVars (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af,I ag,I ah) =
+         '[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag,ah]
+      makeTypedVarList (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag,ah) =
+         a ?> b ?> c ?> d ?> e ?> f ?> g ?> h ?> i ?> j ?> k ?> l ?> m ?> n ?> o ?> p ?> q ?> r ?> s ?> t ?> u ?> v ?> w ?> x ?> y ?> z ?> aa ?> ab ?> ac ?> ad ?> ae ?> af ?> ag ?> ah
+
+instance
+   (KnownSymbol a, KnownSymbol b, KnownSymbol c, KnownSymbol d, KnownSymbol e,
+    KnownSymbol f, KnownSymbol g, KnownSymbol h, KnownSymbol i, KnownSymbol j,
+    KnownSymbol k, KnownSymbol l, KnownSymbol m, KnownSymbol n, KnownSymbol o
+   ,KnownSymbol p,KnownSymbol q,KnownSymbol r,KnownSymbol s,KnownSymbol t
+   ,KnownSymbol u,KnownSymbol v,KnownSymbol w,KnownSymbol x,KnownSymbol y
+   ,KnownSymbol z, KnownSymbol aa, KnownSymbol ab, KnownSymbol ac
+   , KnownSymbol ad, KnownSymbol ae, KnownSymbol af, KnownSymbol ag, KnownSymbol ah, KnownSymbol ai
+   ) =>
+   VarList
+     (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af,I ag,I ah,I ai)
+   where
+      type InnerVars (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af,I ag,I ah,I ai) =
+         '[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai]
+      makeTypedVarList (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai) =
+         a ?> b ?> c ?> d ?> e ?> f ?> g ?> h ?> i ?> j ?> k ?> l ?> m ?> n ?> o ?> p ?> q ?> r ?> s ?> t ?> u ?> v ?> w ?> x ?> y ?> z ?> aa ?> ab ?> ac ?> ad ?> ae ?> af ?> ag ?> ah ?> ai
+
+instance
+   (KnownSymbol a, KnownSymbol b, KnownSymbol c, KnownSymbol d, KnownSymbol e,
+    KnownSymbol f, KnownSymbol g, KnownSymbol h, KnownSymbol i, KnownSymbol j,
+    KnownSymbol k, KnownSymbol l, KnownSymbol m, KnownSymbol n, KnownSymbol o
+   ,KnownSymbol p,KnownSymbol q,KnownSymbol r,KnownSymbol s,KnownSymbol t
+   ,KnownSymbol u,KnownSymbol v,KnownSymbol w,KnownSymbol x,KnownSymbol y
+   ,KnownSymbol z, KnownSymbol aa, KnownSymbol ab, KnownSymbol ac
+   , KnownSymbol ad, KnownSymbol ae, KnownSymbol af, KnownSymbol ag, KnownSymbol ah, KnownSymbol ai, KnownSymbol aj
+   ) =>
+   VarList
+     (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af,I ag,I ah,I ai,I aj)
+   where
+      type InnerVars (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af,I ag,I ah,I ai,I aj) =
+         '[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj]
+      makeTypedVarList (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj) =
+         a ?> b ?> c ?> d ?> e ?> f ?> g ?> h ?> i ?> j ?> k ?> l ?> m ?> n ?> o ?> p ?> q ?> r ?> s ?> t ?> u ?> v ?> w ?> x ?> y ?> z ?> aa ?> ab ?> ac ?> ad ?> ae ?> af ?> ag ?> ah ?> ai ?> aj
+
+instance
+   (KnownSymbol a, KnownSymbol b, KnownSymbol c, KnownSymbol d, KnownSymbol e,
+    KnownSymbol f, KnownSymbol g, KnownSymbol h, KnownSymbol i, KnownSymbol j,
+    KnownSymbol k, KnownSymbol l, KnownSymbol m, KnownSymbol n, KnownSymbol o
+   ,KnownSymbol p,KnownSymbol q,KnownSymbol r,KnownSymbol s,KnownSymbol t
+   ,KnownSymbol u,KnownSymbol v,KnownSymbol w,KnownSymbol x,KnownSymbol y
+   ,KnownSymbol z, KnownSymbol aa, KnownSymbol ab, KnownSymbol ac
+   , KnownSymbol ad, KnownSymbol ae, KnownSymbol af, KnownSymbol ag, KnownSymbol ah, KnownSymbol ai, KnownSymbol aj, KnownSymbol ak
+   ) =>
+   VarList
+     (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af,I ag,I ah,I ai,I aj,I ak)
+   where
+      type InnerVars (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af,I ag,I ah,I ai,I aj,I ak) =
+         '[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak]
+      makeTypedVarList (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak) =
+         a ?> b ?> c ?> d ?> e ?> f ?> g ?> h ?> i ?> j ?> k ?> l ?> m ?> n ?> o ?> p ?> q ?> r ?> s ?> t ?> u ?> v ?> w ?> x ?> y ?> z ?> aa ?> ab ?> ac ?> ad ?> ae ?> af ?> ag ?> ah ?> ai ?> aj ?> ak
+
+instance
+   (KnownSymbol a, KnownSymbol b, KnownSymbol c, KnownSymbol d, KnownSymbol e,
+    KnownSymbol f, KnownSymbol g, KnownSymbol h, KnownSymbol i, KnownSymbol j,
+    KnownSymbol k, KnownSymbol l, KnownSymbol m, KnownSymbol n, KnownSymbol o
+   ,KnownSymbol p,KnownSymbol q,KnownSymbol r,KnownSymbol s,KnownSymbol t
+   ,KnownSymbol u,KnownSymbol v,KnownSymbol w,KnownSymbol x,KnownSymbol y
+   ,KnownSymbol z, KnownSymbol aa, KnownSymbol ab, KnownSymbol ac
+   , KnownSymbol ad, KnownSymbol ae, KnownSymbol af, KnownSymbol ag, KnownSymbol ah, KnownSymbol ai, KnownSymbol aj, KnownSymbol ak, KnownSymbol al
+   ) =>
+   VarList
+     (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af,I ag,I ah,I ai,I aj,I ak,I al)
+   where
+      type InnerVars (I a, I b, I c, I d, I e, I f, I g, I h, I i, I j, I k, I l, I m, I n, I o,I p,I q,I r,I s,I t,I u,I v,I w,I x,I y,I z,I aa,I ab,I ac,I ad,I ae,I af,I ag,I ah,I ai,I aj,I ak,I al) =
+         '[a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al]
+      makeTypedVarList (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al) =
+         a ?> b ?> c ?> d ?> e ?> f ?> g ?> h ?> i ?> j ?> k ?> l ?> m ?> n ?> o ?> p ?> q ?> r ?> s ?> t ?> u ?> v ?> w ?> x ?> y ?> z ?> aa ?> ab ?> ac ?> ad ?> ae ?> af ?> ag ?> ah ?> ai ?> aj ?> ak ?> al
