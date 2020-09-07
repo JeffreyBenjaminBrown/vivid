@@ -10,7 +10,7 @@ import Montevideo.Synth.Zot
 storePreset :: St app -> IO ()
 storePreset st = let
   pairs = map showPair $ M.toList $ _stZotDefaults st where
-    showPair (p,f) = "(" ++ (codeStrings B.! p) ++ ", " ++ show f ++ ")"
+    showPair (p,f) = "(" ++ (zotConstructors B.! p) ++ ", " ++ show f ++ ")"
   ss = [ "\n_ = M.fromList"
        , "  [ " ++ head pairs ]
        ++ map (\pair -> "  , " ++ pair) pairs

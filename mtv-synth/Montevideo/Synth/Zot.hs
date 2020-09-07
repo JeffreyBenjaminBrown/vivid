@@ -123,8 +123,8 @@ strings = B.fromList
   , (Zot_shift_l, "shift-l")
   ]
 
-codeStrings :: B.Bimap ZotParam String
-codeStrings = B.fromList
+zotConstructors :: B.Bimap ZotParam String
+zotConstructors = B.fromList
   [ (Zot_on    , "Zot_on")
   , (Zot_freq  , "Zot_freq")
   , (Zot_amp   , "Zot_amp")

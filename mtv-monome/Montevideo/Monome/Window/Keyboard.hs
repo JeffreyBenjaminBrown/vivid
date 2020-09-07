@@ -138,8 +138,8 @@ edoKey_ScAction st vid (xy, sw) = do
                 { _actionSynthDefEnum = Zot
                 , _actionSynthName = vid
                 , _actionScMsg =
-                  M.mapKeys show $ -- show :: ZotParam -> String
-                  M.union -- in fonclict, the first arg takes priority
+                  M.mapKeys show -- show :: ZotParam -> String
+                  $ M.union -- in fonclict, the first arg takes priority
                   ( M.fromList [ (Zot_freq, Config.freq *
                                             edoToFreq ec pitch)
                                , (Zot_on, 1) ] :: Map ZotParam Float )
