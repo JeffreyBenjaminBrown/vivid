@@ -13,7 +13,6 @@ module Montevideo.Monome.Window.Keyboard (
 import           Prelude hiding (pred)
 import           Control.Lens
 import           Data.Either.Combinators
-import           Data.Map (Map)
 import qualified Data.Map as M
 import qualified Data.Set as S
 import           Data.Set (Set)
@@ -141,9 +140,6 @@ edoKey_ScAction st vid (xy, sw) = do
                   M.mapKeys show -- show :: ZotParam -> String
                   $ M.union -- in fonclict, the first arg takes priority
                   ( M.fromList [ (Zot_freq, Config.freq *
-                                            edoToFreq ec pitch)
-                               , (Zot_on, 1) ] :: Map ZotParam Float )
-                  ( M.union (_stZotDefaults st)
-                    $ M.singleton Zot_amp Config.amp )
-                } ]
+                                            edoToFreq ec pitch) ] )
+                  $ _stZotDefaults st } ]
          else [silenceMsg vid]
