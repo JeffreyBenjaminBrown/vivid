@@ -169,10 +169,48 @@ zotConstructors = B.fromList
   , (Zot_shift_l, "Zot_shift_l")
   ]
 
+zotDefaults :: M.Map String Float
+zotDefaults = M.fromList
+  [ ("on", 0 )
+  , ("amp", defaultAmp)
+  , ("pulse", 0.5)
+  , ("freq", 0)
+  , ("fm-b", 0)
+  , ("fm-m", 0)
+  , ("fm-f", 1)
+  , ("pm-b", 0)
+  , ("pm-m", 0)
+  , ("pm-f", 1)
+  , ("wm-b", 0)
+  , ("wm-m", 0)
+  , ("wm-f", 1)
+  , ("w", 0.5)
+  , ("am", 0)
+  , ("am-b", 0)
+  , ("am-f", 1)
+  , ("rm", 0)
+  , ("rm-b", 0)
+  , ("rm-f", 1)
+  , ("lpf", 22050) -- any higher than this and it freaks out
+  , ("lpf-m", 0)
+  , ("bpf", 7)
+  , ("bpf-m", 0)
+  , ("bpf-q", 0.5)
+  , ("hpf", 1) -- negative and it freaks out
+  , ("hpf-m", 0)
+  , ("lim", 1)
+  , ("sh", 0)
+  , ("sh-b", 0)
+  , ("del", 1)
+  , ("source-l", 0)
+  , ("am-l", 0)
+  , ("rm-l", 0)
+  , ("filt-l", 0)
+  , ("lim-l", 0)
+  , ("shift-l", 1)
   ]
 
--- | These defaults can be changed during play.
--- TODO: Experiment, tweak.
+-- | The range can be changed from the default during play.
 zotDefaultRanges :: M.Map ZotParam (NumScale, Rational, Rational)
 zotDefaultRanges = M.fromList
   [ (Zot_on    , (Lin, 0, 1))     -- monome ignores
