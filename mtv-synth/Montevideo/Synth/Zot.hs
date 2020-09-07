@@ -221,13 +221,13 @@ zotDefaultRanges = M.fromList
   , (Zot_fm_m  , (Lin, 0, 2))
   , (Zot_fm_f  , (Log, 2^^(-16), 1))
   , (Zot_fm_b  , (Lin, 0, 2))
-  , (Zot_pm_m  , (Lin, 0, 1))
+  , (Zot_pm_m  , (Lin, 0, 4))
   , (Zot_pm_f  , (Log, 2^^(-8), 1))
   , (Zot_pm_b  , (Lin, 0, 2))
-  , (Zot_wm_m  , (Lin, -1,2))
+  , (Zot_wm_m  , (Lin, 0,0.5))
   , (Zot_wm_f  , (Log, 2^^(-8), 1))
   , (Zot_wm_b  , (Lin, -1,2))
-  , (Zot_w     , (Lin, 0, 1))
+  , (Zot_w     , (Lin, 0, 1/2)) -- it's symmetrical in [0,1]
   , (Zot_am    , (Lin, 0, 1))
   , (Zot_am_b  , (Lin, 0, 1))
   , (Zot_am_f  , (Log, 2^^(-8), 1))
@@ -236,11 +236,11 @@ zotDefaultRanges = M.fromList
   , (Zot_rm_f  , (Log, 2^^(-8), 1))
   , (Zot_hpf   , (Log, 2, 2^^8))
   , (Zot_hpf_m , (Lin, 0, 1))
-  , (Zot_lpf   , (Log, 2, 2^^8))
+  , (Zot_lpf   , (Log, 0.5, 2^^5))
   , (Zot_lpf_m , (Lin, 0, 1))
-  , (Zot_bpf   , (Log, 2, 2^^8))
+  , (Zot_bpf   , (Log, 1, 2^^5))
   , (Zot_bpf_m , (Lin, 0, 1))
-  , (Zot_bpf_q , (Log, 2^^(-4), 2^^4))
+  , (Zot_bpf_q , (Log, 2^^(-4), 2^^3))
   , (Zot_lim   , (Log, 2^^(-4), 2^^4))
   , (Zot_sh    , (Log, 2^^(-16), 1))
   , (Zot_sh_b  , (Log, 2^^(-16), 1))
@@ -272,7 +272,7 @@ type ZotParams = '[
                       -- am'd carrier = am-b * fb + (1 - am-b) * sin
   ,"rm","rm-b","rm-f" -- RM is the same as AM, except no bias.
   ,"lpf","lpf-m"
-  ,"bpf","bpf-m","bpf-q"
+  ,"bpf","bpf-m","bpf-q" -- Small bpf-q <=> narrow band.
   ,"hpf","hpf-m"
   ,"lim"        -- lim = x  =>  |signal| will not exceed x
   ,"sh", "sh-b" -- pitch shift: baseline, feedback mul
@@ -287,7 +287,7 @@ type ZotParams = '[
   ]
 
 zot :: SynthDef ZotParams
-zot = sd ( 0 :: I "on"
+zot = sd ( 1 :: I "on"
          , toI defaultAmp :: I "amp"
          , 0.5 :: I "pulse"
          , 0 :: I "freq"
@@ -309,7 +309,7 @@ zot = sd ( 0 :: I "on"
          , 1 :: I "rm-f"
          , 22050 :: I "lpf" -- any higher than this and it freaks out
          , 0 :: I "lpf-m"
-         , 300 :: I "bpf"
+         , 7 :: I "bpf"
          , 0 :: I "bpf-m"
          , 0.5 :: I "bpf-q"
          , 1 :: I "hpf" -- negative and it freaks out
@@ -336,7 +336,9 @@ zot = sd ( 0 :: I "on"
   -- assuming fb_11 ranges in [-1,1].
   fb_01 <- (fb_11 ~+ 1) ~/ 2
 
-  -- `fm` modulates the frequency of the `aSin` and `aPulse` signals below.
+  -- `fm` modulates the frequency of the `aSin` signal below.
+  -- (It used to modulate `aPulse` also, but that sounds staticky and
+  -- very inharmonic for almost all audio-rate fm.)
   -- `fm-f` is how fast their frequency wobbles, in terms of the fundamental.
   -- `fm-m` controls the "amplitude" in Hz of the wobble.
   -- `fm-b` controls how much magical feedback is part of `fm`.
@@ -365,17 +367,14 @@ zot = sd ( 0 :: I "on"
   -- `wm-f` controls the frequency of the wobble.
   -- `pm-a` controls its amplitude.
   -- `pm-b` is magical feedback.
-  --   TODO ? Does width outside of [0,1] make sense?
-  --   The docs say that's its range, and width=0.5 <=> square wave.
-  --   http://doc.sccode.org/Classes/Pulse.html
   wm <- (V :: V "w")
     ~+ 0.5 ~* (   (V::V"wm-b") ~* fb_11
                ~+ (V::V"wm-m")
                   ~* sinOsc (freq_ $ (V::V"freq") ~* (V::V"wm-f")))
 
   -- `aSin` and `aPulse` are the two fundamental signals.
-  aSin   <- sinOsc (freq_ fm, phase_ pm)
-  aPulse <- pulse  (freq_ fm, width_ wm)
+  aSin   <- sinOsc (freq_ fm             , phase_ pm)
+  aPulse <- pulse  (freq_ (V :: V "freq"), width_ wm)
   source <-          (V :: V "pulse" ) ~* aPulse
             ~+ (1 ~- (V :: V "pulse")) ~* aSin
 
@@ -417,19 +416,23 @@ zot = sd ( 0 :: I "on"
   -- TODO ? These are linear filters. SC offers a lot of other ones;
   -- I imagine some of those offer "q" parameters.
 
-  filt_1 <- (1 ~- (V::V"lpf-m")) ~*           rmSig
-            ~+    (V::V"lpf-m")  ~* lpf ( in_ rmSig
-                                        , freq_ $ (V::V"freq") ~*
-                                                  (V::V"lpf") )
-  filt_2 <- (1 ~- (V::V"bpf-m")) ~*           filt_1
-            ~+    (V::V"bpf-m")  ~* bpf ( in_ filt_1
-                                        , freq_ $ (V::V"freq") ~*
-                                                  (V::V"bpf")
-                                        , rq_ (V::V"bpf-q"))
-  filt_3   <- (1 ~- (V::V"hpf-m")) ~*           filt_2
-              ~+    (V::V"hpf-m")  ~* hpf ( in_ filt_2
-                                          , freq_ $ (V::V"freq") ~*
-                                                    (V::V"hpf"))
+  -- TODO : 22050 is a magic number; reify
+  filt_1 <- (1 ~- (V::V"lpf-m")) ~* rmSig
+            ~+ (  (V::V"lpf-m")  ~*
+                  lpf ( in_ rmSig
+                      , freq_ $ biOp Min 22050 $
+                        (V::V"freq") ~* (V::V"lpf") ) )
+  filt_2 <- (1 ~- (V::V"bpf-m")) ~* filt_1
+            ~+ (  (V::V"bpf-m")  ~*
+                  bpf ( in_ filt_1
+                      , freq_ $ biOp Min 22050 $
+                        (V::V"freq") ~* (V::V"bpf")
+                      , rq_ (V::V"bpf-q") ) )
+  filt_3 <- (1 ~- (V::V"hpf-m")) ~* filt_2
+            ~+ (  (V::V"hpf-m")  ~*
+                  hpf ( in_ filt_2
+                      , freq_ $ biOp Min 22050 $
+                        (V::V"freq") ~* (V::V"hpf") ) )
 
   -- This clamps filt_3. High values of `lim` mean *less* clamping.
   lim <- tanh' (filt_3 ~/ (V::V"lim")) ~* (V::V"lim")
@@ -459,18 +462,18 @@ zot = sd ( 0 :: I "on"
   -- The source of the feedback.
   localOut( [s1] )
 
-  let x = (V::V "on") ~* (V::V "amp") ~*
-           ( (V::V "source-l") ~* source ~+
-             (V::V "am-l")     ~* amSig  ~+
-             (V::V "rm-l")     ~* rmSig  ~+
-             (V::V "filt-l")   ~* filt_3 ~+
-             (V::V "lim-l")    ~* lim    ~+
-             (V::V "shift-l")  ~* shift ) ~/
-           ( biOp Max 0.001 -- to avoid a divide-by-zero
-             ( (V::V "source-l") ~+ -- This normalizes the volume, so that
-               (V::V "am-l")     ~+ -- tapping multiple sources is no louder
-               (V::V "rm-l")     ~+ -- than tapping one of them.
-               (V::V "filt-l")   ~+
-               (V::V "lim-l")    ~+
-               (V::V "shift-l") ) )
+  let x = (V::V "on") ~* (V::V "amp")
+          ~* ( (V::V "source-l") ~* source ~+
+               (V::V "am-l")     ~* amSig  ~+
+               (V::V "rm-l")     ~* rmSig  ~+
+               (V::V "filt-l")   ~* filt_3 ~+
+               (V::V "lim-l")    ~* lim    ~+
+               (V::V "shift-l")  ~* shift )
+          ~/ ( biOp Max 0.001 -- This avoids a divide-by-zero.
+               ( (V::V "source-l") ~+ -- This normalizes the volume, so that
+                 (V::V "am-l")     ~+ -- tapping multiple sources is no
+                 (V::V "rm-l")     ~+ -- louder than tapping just one.
+                 (V::V "filt-l")   ~+
+                 (V::V "lim-l")    ~+
+                 (V::V "shift-l") ) )
     in out 0 [ x, x ]
