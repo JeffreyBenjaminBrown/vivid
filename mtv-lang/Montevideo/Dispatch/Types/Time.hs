@@ -16,13 +16,10 @@ type Duration  = Rational -- ^ a length of time
 -- | TODO ? Maybe `RTime` means "relative time" --
 -- relative to something, e.g. the global cycle duration.
 -- Or maybe (I hope not) it means "wrapped time"?
-newtype RTime  = RTime Rational deriving (Ord,Eq)
+newtype RTime  = RTime {_unRTime :: Rational} deriving (Show,Ord,Eq)
 type RStart    = RTime
 type REnd      = RTime
 type RDuration = RTime
-
-instance Show RTime where
-  show (RTime t) = show t
 
 instance Num RTime where
   (+) (RTime t) (RTime s) = RTime (t + s)
