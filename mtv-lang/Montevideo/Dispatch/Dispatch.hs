@@ -175,5 +175,5 @@ dispatchLoop disp = do
   putMVar (mMuseqs      disp) notes
   putMVar (mReg         disp) reg
 
-  wait $ fromRational start - now
+  wait $ _unTime $ start - now
   dispatchLoop disp

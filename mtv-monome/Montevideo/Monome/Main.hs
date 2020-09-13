@@ -30,12 +30,12 @@ import           Data.Either.Combinators
 import qualified Data.List as L
 import qualified Data.Map as M
 import           Data.Map (Map)
+import           GHC.Float
 
 import Vivid
 import Vivid.OSC
 
-import           Montevideo.Dispatch.Types.Many
-import           Montevideo.Dispatch.Types.Time (unTimestamp)
+import           Montevideo.Dispatch.Types
 import           Montevideo.Monome.Config.Monome
 import qualified Montevideo.Monome.Config.Mtv as Config
 import           Montevideo.Monome.Network.Util
@@ -298,11 +298,11 @@ doScAction    st        sca =
         (Left $ "Voice " ++ show vid ++ " has no assigned synth.")
         Right $ _voiceSynth v
       Right $ do
-        now <- unTimestamp <$> getTime
+        Timestamp now <- getTime
         set s (0 :: I "amp")
-        doScheduledAt ( Timestamp $ fromRational now
-                        + realToFrac Config.freeDelay ) $
-          free s
+        doScheduledAt ( Timestamp $ now +
+                        float2Double Config.freeDelay )
+          $ free s
         return $ stVoices . at vid .~ Nothing
 
 doLedMessage :: St app -> LedMsg -> Either String (IO ())

@@ -313,11 +313,11 @@ meta f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
     prefixLabels s = over vec $ V.map
       $ over evLabel $ deleteShowQuotes . ((++) s)
     evs :: [Ev String y]
-    evs = map (evArc . both %~ RTime)
+    evs = map (evArc . both %~ RTime . _unTime)
       $ concat [ arc 0 1 a b $ _evData anF $
                  prefixLabels (_evLabel anF) x
-               | anF <- fs, let a = tr $ anF ^. evStart
-                                b = tr $ anF ^. evEnd ]
+               | anF <- fs, let a = Time $ tr $ anF ^. evStart
+                                b = Time $ tr $ anF ^. evEnd ]
 
 meta' :: forall l m x y. (Show l, Show m)
   => Museq l      (Museq String x -> Museq String y)
@@ -336,20 +336,21 @@ meta' f0 x0 = _meta (labelsToStrings f0) (labelsToStrings x0) where
     prefixLabels s = over vec $ V.map
       $ over evLabel $ deleteShowQuotes . ((++) s)
     evs :: [Ev String y]
-    evs = map (evArc . both %~ RTime)
+    evs = map (evArc . both %~ RTime . _unTime)
       $ concat [ arc 0 1 a b $ _evData anF $
                  prefixLabels (_evLabel anF) x
-               | anF <- fs, let a = tr $ anF ^. evStart
-                                b = tr $ anF ^. evEnd ]
+               | anF <- fs,
+                 let a = Time $ tr $ anF ^. evStart
+                     b = Time $ tr $ anF ^. evEnd ]
 
 -- | Unfinished. The idea is to let me see what's going on in `meta`,
 -- by pairing each function in the first argument with a string.
 -- To be used in conjunction with "bugs/empty-stream.hs".
 
 meta'' :: forall l m x y. (Show l, Show m)
-  => Museq l      ( String
-                  , Museq String x -> Museq String y)
-  -> Museq m      x
+  => Museq l ( String
+             , Museq String x -> Museq String y)
+  -> Museq m x
   -> ( RTime
      , [( Ev String String, Museq String x )]
      , [Event Time String y] )
@@ -383,7 +384,7 @@ meta'' ff0 x0 = _meta (labelsToStrings ff0) (labelsToStrings x0) where
 
     ews :: [Event Time String y]
     ews = concatMap g ffxs where
-      g (ff,x2) = let a = tr $ ff ^. evStart
-                      b = tr $ ff ^. evEnd
+      g (ff,x2) = let a = Time $ tr $ ff ^. evStart
+                      b = Time $ tr $ ff ^. evEnd
                       f = snd $ _evData ff
         in arc 0 1 a b $ f x2

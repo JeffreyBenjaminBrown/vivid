@@ -14,7 +14,6 @@ module Montevideo.Dispatch.Types.Functions (
   , actionToSynth -- ^ ScAction -> (SynthDefEnum, SynthName)
 
   -- | * Events
-  , eventRTimeToEventTime -- ^ Event RTime l a -> Event Time l a
   , evStart, evEnd -- ^ Lens' (Event t l a) t
   , showEvs -- ^ (Foldable t, Show a, Show label)
             --   => t (Ev label a) -> String
@@ -41,7 +40,6 @@ import qualified Data.Vector as V
 
 import Montevideo.Util
 import Montevideo.Synth
-import Montevideo.Dispatch.Types.Time
 import Montevideo.Dispatch.Types.Many
 
 
@@ -64,11 +62,6 @@ actionToSynth (ScAction_Send s n _) = (s,n)
 
 
 -- | * Events
-
-eventRTimeToEventTime :: Event RTime l a -> Event Time l a
-eventRTimeToEventTime ev =
-  let (s,t) = _evArc ev
-  in ev { _evArc = (tr s, tr t) }
 
 evStart, evEnd :: Lens' (Event t l a) t
 evStart = evArc . _1

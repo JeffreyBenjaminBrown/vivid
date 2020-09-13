@@ -56,24 +56,22 @@ arc :: forall l a.
 -- of the vector again.
 
 arc time0 tempoPeriod from to m = let
-  period = tempoPeriod * tr (_sup m) :: Duration
-  startVec = V.map (view evStart) $ _vec $ m :: V.Vector RTime
-  latestPhase0 = prevPhase0 time0 period from :: Time
+  period       :: Duration       = tempoPeriod * Time (_unRTime $ _sup m)
+  startVec     :: V.Vector RTime = V.map (view evStart) $ _vec $ m
+  latestPhase0 :: Time           = prevPhase0 time0 period from
 
   -- The earliest start time for which an event from `m`
   -- might still be happening.
   oldestRelevantPhase0 :: Time =
-    latestPhase0 - tr (longestDur m) * tempoPeriod :: Time
+    latestPhase0 - (Time $ _unRTime $ longestDur m) * tempoPeriod
   -- A non-positive number.
   -- If it is -1, we must look 1 cycle into the past.
   oldestRelevantCycle :: Int =
     div' (oldestRelevantPhase0 - latestPhase0) period
 
-  -- HACK: The inputs ought to be RTimes,
-  -- but then I'd be switching types, from Ev to AbsEv.
-  makeTimesAbsolute :: (Time,Time) -> (Time,Time)
+  makeTimesAbsolute :: (RTime,RTime) -> (Time,Time)
   makeTimesAbsolute (a,b) = (f a, f b) where
-    f rt = tr rt * tempoPeriod + latestPhase0
+    f rt = Time (_unRTime rt) * tempoPeriod + latestPhase0
 
   -- If an event to be rendered started before this frame,
   -- the portion before is discarded.
@@ -90,7 +88,7 @@ arc time0 tempoPeriod from to m = let
   dropImpossibles = filter $ uncurry (<=) . view evArc
 
   futzTimes :: Event RTime l a -> Event Time l a
-  futzTimes ev = over evArc f $ eventRTimeToEventTime ev
+  futzTimes ev = over evArc f ev
     where f = truncateEnds . truncateStarts . makeTimesAbsolute
   in dropImpossibles $ map futzTimes $ _arcFold
      oldestRelevantCycle period startVec time0 oldestRelevantPhase0 to m
@@ -118,9 +116,9 @@ _arcFold cycle period startVec time0 from to m =
     -- When arc first calls _arcFold, the `from` argument need not be
     -- on a period boundary. In every successive call to _arcFold, I think,
     -- it will be.
-    pp0             ::  Time = prevPhase0 time0 period from
-    fromInCycles    :: RTime = fr $ (from - pp0) / period
-    toInCycles      :: RTime = fr $ (to   - pp0) / period
+    pp0          ::  Time = prevPhase0 time0 period from
+    fromInCycles :: RTime = RTime . _unTime $ (from - pp0) / period
+    toInCycles   :: RTime = RTime . _unTime $ (to   - pp0) / period
 
     -- Hypothesis: This is to ensure that on the first call
     -- to `_arcFold`, if `from` is after the start of all events,
