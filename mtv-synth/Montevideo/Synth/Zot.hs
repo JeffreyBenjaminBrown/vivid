@@ -30,8 +30,9 @@ import Montevideo.Util
 -- | See the definition of `ZotParams` (plural) for what each means.
 data ZotParam
   = Zot_on
-  | Zot_freq
   | Zot_amp
+  | Zot_freq
+  | Zot_attack
   | Zot_pulse
 
   | Zot_fm_m
@@ -80,8 +81,9 @@ instance Show ZotParam where
 strings :: B.Bimap ZotParam String
 strings = B.fromList
   [ (Zot_on    , "on")
-  , (Zot_freq  , "freq")
   , (Zot_amp   , "amp")
+  , (Zot_freq  , "freq")
+  , (Zot_attack, "attack")
   , (Zot_pulse , "pulse")
 
   , (Zot_fm_m  , "fm-m")
@@ -126,8 +128,9 @@ strings = B.fromList
 zotConstructors :: B.Bimap ZotParam String
 zotConstructors = B.fromList
   [ (Zot_on    , "Zot_on")
-  , (Zot_freq  , "Zot_freq")
   , (Zot_amp   , "Zot_amp")
+  , (Zot_freq  , "Zot_freq")
+  , (Zot_attack, "Zot_attack")
   , (Zot_pulse , "Zot_pulse")
 
   , (Zot_fm_m  , "Zot_fm_m")
@@ -173,8 +176,9 @@ zotDefaults :: M.Map String Float
 zotDefaults = M.fromList
   [ ("on", 0 )
   , ("amp", defaultAmp)
-  , ("pulse", 0.5)
   , ("freq", 0)
+  , ("attack", 0.003)
+  , ("pulse", 0.5)
   , ("fm-b", 0)
   , ("fm-m", 0)
   , ("fm-f", 1)
@@ -214,9 +218,10 @@ zotDefaults = M.fromList
 zotDefaultRanges :: M.Map ZotParam (NumScale, Rational, Rational)
 zotDefaultRanges = M.fromList
   [ (Zot_on    , (Lin, 0, 1))     -- monome ignores
-  , (Zot_freq  , (Log, 40, 20e3)) -- monome ignores
   , (Zot_amp   , let top = 0.2 in
                  (Log, top * 2^^(-8), top) )
+  , (Zot_freq  , (Log, 40, 20e3)) -- monome ignores
+  , (Zot_attack, (Log, 0.001, 0.5))
   , (Zot_pulse , (Lin, 0, 1))
   , (Zot_fm_m  , (Lin, 0, 2))
   , (Zot_fm_f  , (Log, 2^^(-16), 1))
@@ -261,8 +266,9 @@ type ZotParams = '[
   -- FM applies to both, PM to the sinewave only, WM (width mod)
   -- to the pulse wave only. Width=0.5 => square wave.
   "on", "amp"
-  ,"pulse"                   -- pulse + sin = 1
   ,"freq"                    -- baseline freq
+  ,"attack"                  -- time in seconds
+  ,"pulse"                   -- pulse + sin = 1
   ,"fm-b","fm-m","fm-f"      -- fb mul, sin mul, sin freq
   , "pm-b","pm-m","pm-f"     -- fb mul, sin mul, sin freq
   , "wm-b","wm-m","wm-f","w" -- fb mul, sin mul, sin freq, baseline
@@ -289,8 +295,9 @@ type ZotParams = '[
 zot :: SynthDef ZotParams
 zot = sd ( 1 :: I "on"
          , toI defaultAmp :: I "amp"
-         , 0.5 :: I "pulse"
          , 0 :: I "freq"
+         , 0.003 :: I "attack"
+         , 0.5 :: I "pulse"
          , 0 :: I "fm-b"
          , 0 :: I "fm-m"
          , 1 :: I "fm-f"
@@ -375,8 +382,13 @@ zot = sd ( 1 :: I "on"
   -- `aSin` and `aPulse` are the two fundamental signals.
   aSin   <- sinOsc (freq_ fm             , phase_ pm)
   aPulse <- pulse  (freq_ (V :: V "freq"), width_ wm)
-  source <-          (V :: V "pulse" ) ~* aPulse
-            ~+ (1 ~- (V :: V "pulse")) ~* aSin
+  source <- (          (V :: V "pulse" ) ~* aPulse
+              ~+ (1 ~- (V :: V "pulse")) ~* aSin )
+            ~* ( envGen_wGate
+                 (V::V "on")
+                 (V::V "attack")
+                 (env 0 [(1,1)] Curve_Lin)
+                 DoNothing )
 
   -- This next section runs `source` through AM,
   -- and then runs the output of that through FM

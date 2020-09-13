@@ -95,6 +95,7 @@ vapOneScMsg (param,val)      = error $
 zotOneScMsg :: (ParamName, Float) -> ScMsg' ZotParams
 zotOneScMsg ("on",n)    = ScMsg' (toI n :: I "on")
 zotOneScMsg ("amp",n)   = ScMsg' (toI n :: I "amp")
+zotOneScMsg ("attack",n)= ScMsg' (toI n :: I "attack")
 zotOneScMsg ("pulse",n) = ScMsg' (toI n :: I "pulse")
 zotOneScMsg ("freq",n)  = ScMsg' (toI n :: I "freq")
 zotOneScMsg ("fm-b",n)  = ScMsg' (toI n :: I "fm-b")
