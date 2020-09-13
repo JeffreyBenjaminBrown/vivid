@@ -9,3 +9,16 @@ defaultAmp = 0.02
 
 dirtSamplesFolder :: FilePath
 dirtSamplesFolder = "/home/jeff/code/music/Tidal/Dirt-Samples"
+
+filterFreqMax, filterFreqMin :: Num a => a
+
+-- | This is the Nyquist frequency if sampling at 44.1 KHz.
+-- Frequencies above this cannot be worked with.
+filterFreqMax = 22050
+
+-- | On the low side, human hearing only extends to about 40 Hz.
+-- Some filters go crazy at values "close to zero".
+-- I don't know what "close" means, but at least for the synths I've written
+-- so far, I don't think I lose anything by flooring filter frequencies
+-- at 10 Hz.
+filterFreqMin = 10

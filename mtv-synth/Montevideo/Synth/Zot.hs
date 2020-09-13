@@ -195,7 +195,7 @@ zotDefaults = M.fromList
   , ("rm", 0)
   , ("rm-b", 0)
   , ("rm-f", 1)
-  , ("lpf", 22050) -- any higher than this and it freaks out
+  , ("lpf", filterFreqMax)
   , ("lpf-m", 0)
   , ("bpf", 7)
   , ("bpf-m", 0)
@@ -314,7 +314,7 @@ zot = sd ( 1 :: I "on"
          , 0 :: I "rm"
          , 0 :: I "rm-b"
          , 1 :: I "rm-f"
-         , 22050 :: I "lpf" -- any higher than this and it freaks out
+         , filterFreqMax :: I "lpf" -- any higher than this and it freaks out
          , 0 :: I "lpf-m"
          , 7 :: I "bpf"
          , 0 :: I "bpf-m"
@@ -428,22 +428,24 @@ zot = sd ( 1 :: I "on"
   -- TODO ? These are linear filters. SC offers a lot of other ones;
   -- I imagine some of those offer "q" parameters.
 
-  -- TODO : 22050 is a magic number; reify
+  let freqRange :: SDBody' ZotParams Signal -> SDBody' ZotParams Signal
+      freqRange = biOp Min filterFreqMax .
+                  biOp Max filterFreqMin
   filt_1 <- (1 ~- (V::V"lpf-m")) ~* rmSig
             ~+ (  (V::V"lpf-m")  ~*
                   lpf ( in_ rmSig
-                      , freq_ $ biOp Min 22050 $
+                      , freq_ $ freqRange $
                         (V::V"freq") ~* (V::V"lpf") ) )
   filt_2 <- (1 ~- (V::V"bpf-m")) ~* filt_1
             ~+ (  (V::V"bpf-m")  ~*
                   bpf ( in_ filt_1
-                      , freq_ $ biOp Min 22050 $
+                      , freq_ $ freqRange $
                         (V::V"freq") ~* (V::V"bpf")
                       , rq_ (V::V"bpf-q") ) )
   filt_3 <- (1 ~- (V::V"hpf-m")) ~* filt_2
             ~+ (  (V::V"hpf-m")  ~*
                   hpf ( in_ filt_2
-                      , freq_ $ biOp Min 22050 $
+                      , freq_ $ freqRange $
                         (V::V"freq") ~* (V::V"hpf") ) )
 
   -- This clamps filt_3. High values of `lim` mean *less* clamping.
