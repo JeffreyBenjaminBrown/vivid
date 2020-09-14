@@ -17,7 +17,7 @@ data ParamGroup
   = PG_FM     -- ^ fm-m, fm-f, fm-b
   | PG_PM     -- ^ pm-m, pm-f, pm-b,
   | PG_WM     -- ^ wm-m, wm-f, wm-b, w
-  | PG_source -- ^ amp, attack, pulse
+  | PG_source -- ^ amp, attack, release, pulse
   | PG_AM     -- ^ am, am-b, am-f
   | PG_RM     -- ^ rm, rm-b, rm-f
   | PG_HLF    -- ^ hpf, hpf-m, lpf,  lpf-m
@@ -32,7 +32,7 @@ paramGroup_params PG_FM     = [Zot_fm_m, Zot_fm_f, Zot_fm_b]
 paramGroup_params PG_PM     = [Zot_pm_m, Zot_pm_f, Zot_pm_b]
 paramGroup_params PG_WM     = [Zot_wm_m, Zot_wm_f, Zot_wm_b, Zot_w]
 
-paramGroup_params PG_source = [Zot_amp, Zot_attack, Zot_pulse]
+paramGroup_params PG_source = [Zot_amp, Zot_att, Zot_rel, Zot_pulse]
 paramGroup_params PG_AM     = [Zot_am, Zot_am_f, Zot_am_b]
 paramGroup_params PG_RM     = [Zot_rm, Zot_rm_f, Zot_rm_b]
 

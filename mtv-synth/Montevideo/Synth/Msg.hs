@@ -93,11 +93,13 @@ vapOneScMsg (param,val)      = error $
   "vapOneScMsg: unexpected message: " ++ show param ++ "=" ++ show val
 
 zotOneScMsg :: (ParamName, Float) -> ScMsg' ZotParams
-zotOneScMsg ("on",n)    = ScMsg' (toI n :: I "on")
-zotOneScMsg ("amp",n)   = ScMsg' (toI n :: I "amp")
-zotOneScMsg ("attack",n)= ScMsg' (toI n :: I "attack")
-zotOneScMsg ("pulse",n) = ScMsg' (toI n :: I "pulse")
+zotOneScMsg ("on",_)    = ScMsg' () -- unused by Zot
+zotOneScMsg ("off",n)   = ScMsg' (toI n :: I "off")
 zotOneScMsg ("freq",n)  = ScMsg' (toI n :: I "freq")
+zotOneScMsg ("amp",n)   = ScMsg' (toI n :: I "amp")
+zotOneScMsg ("att",n)   = ScMsg' (toI n :: I "att")
+zotOneScMsg ("rel",n)   = ScMsg' (toI n :: I "rel")
+zotOneScMsg ("pulse",n) = ScMsg' (toI n :: I "pulse")
 zotOneScMsg ("fm-b",n)  = ScMsg' (toI n :: I "fm-b")
 zotOneScMsg ("fm-m",n)  = ScMsg' (toI n :: I "fm-m")
 zotOneScMsg ("fm-f",n)  = ScMsg' (toI n :: I "fm-f")

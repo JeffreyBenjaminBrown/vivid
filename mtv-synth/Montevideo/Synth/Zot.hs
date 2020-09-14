@@ -29,10 +29,11 @@ import Montevideo.Util
 
 -- | See the definition of `ZotParams` (plural) for what each means.
 data ZotParam
-  = Zot_on
-  | Zot_amp
+  = Zot_off
   | Zot_freq
-  | Zot_attack
+  | Zot_amp
+  | Zot_att
+  | Zot_rel
   | Zot_pulse
 
   | Zot_fm_m
@@ -80,10 +81,12 @@ instance Show ZotParam where
 
 strings :: B.Bimap ZotParam String
 strings = B.fromList
-  [ (Zot_on    , "on")
-  , (Zot_amp   , "amp")
+  [ (Zot_off   , "off")
   , (Zot_freq  , "freq")
-  , (Zot_attack, "attack")
+
+  , (Zot_amp   , "amp")
+  , (Zot_att   , "att")
+  , (Zot_rel   , "rel")
   , (Zot_pulse , "pulse")
 
   , (Zot_fm_m  , "fm-m")
@@ -117,20 +120,21 @@ strings = B.fromList
   , (Zot_sh_b  , "sh-b")
   , (Zot_del   , "del")
 
-  , (Zot_source_l, "source-l")
-  , (Zot_am_l, "am-l")
-  , (Zot_rm_l, "rm-l")
-  , (Zot_filt_l, "filt-l")
-  , (Zot_lim_l, "lim-l")
-  , (Zot_shift_l, "shift-l")
+  , (Zot_source_l , "source-l")
+  , (Zot_am_l     , "am-l")
+  , (Zot_rm_l     , "rm-l")
+  , (Zot_filt_l   , "filt-l")
+  , (Zot_lim_l    , "lim-l")
+  , (Zot_shift_l  , "shift-l")
   ]
 
 zotConstructors :: B.Bimap ZotParam String
 zotConstructors = B.fromList
-  [ (Zot_on    , "Zot_on")
-  , (Zot_amp   , "Zot_amp")
+  [ (Zot_off   , "Zot_off")
   , (Zot_freq  , "Zot_freq")
-  , (Zot_attack, "Zot_attack")
+  , (Zot_amp   , "Zot_amp")
+  , (Zot_att   , "Zot_att")
+  , (Zot_rel   , "Zot_rel")
   , (Zot_pulse , "Zot_pulse")
 
   , (Zot_fm_m  , "Zot_fm_m")
@@ -172,91 +176,60 @@ zotConstructors = B.fromList
   , (Zot_shift_l, "Zot_shift_l")
   ]
 
-zotDefaults :: M.Map String Float
-zotDefaults = M.fromList
-  [ ("on", 0 )
-  , ("amp", defaultAmp)
-  , ("freq", 0)
-  , ("attack", 0.003)
-  , ("pulse", 0.5)
-  , ("fm-b", 0)
-  , ("fm-m", 0)
-  , ("fm-f", 1)
-  , ("pm-b", 0)
-  , ("pm-m", 0)
-  , ("pm-f", 1)
-  , ("wm-b", 0)
-  , ("wm-m", 0)
-  , ("wm-f", 1)
-  , ("w", 0.5)
-  , ("am", 0)
-  , ("am-b", 0)
-  , ("am-f", 1)
-  , ("rm", 0)
-  , ("rm-b", 0)
-  , ("rm-f", 1)
-  , ("lpf", filterFreqMax)
-  , ("lpf-m", 0)
-  , ("bpf", 7)
-  , ("bpf-m", 0)
-  , ("bpf-q", 0.5)
-  , ("hpf", 1) -- negative and it freaks out
-  , ("hpf-m", 0)
-  , ("lim", 1)
-  , ("sh", 0)
-  , ("sh-b", 0)
-  , ("del", 1)
-  , ("source-l", 0)
-  , ("am-l", 0)
-  , ("rm-l", 0)
-  , ("filt-l", 0)
-  , ("lim-l", 0)
-  , ("shift-l", 1)
-  ]
+zotDefaultValues :: M.Map String Float
+zotDefaultValues =
+  M.mapKeys (strings B.!)
+  $ M.map fst _zotDefaultInfo
+
+zotDefaultRanges :: M.Map ZotParam (NumScale, Rational, Rational)
+zotDefaultRanges = M.map snd _zotDefaultInfo
 
 -- | The range can be changed from the default during play.
-zotDefaultRanges :: M.Map ZotParam (NumScale, Rational, Rational)
-zotDefaultRanges = M.fromList
-  [ (Zot_on    , (Lin, 0, 1))     -- monome ignores
-  , (Zot_amp   , let top = 0.2 in
-                 (Log, top * 2^^(-8), top) )
-  , (Zot_freq  , (Log, 40, 20e3)) -- monome ignores
-  , (Zot_attack, (Log, 0.001, 0.5))
-  , (Zot_pulse , (Lin, 0, 1))
-  , (Zot_fm_m  , (Lin, 0, 2))
-  , (Zot_fm_f  , (Log, 2^^(-16), 1))
-  , (Zot_fm_b  , (Lin, 0, 2))
-  , (Zot_pm_m  , (Lin, 0, 4))
-  , (Zot_pm_f  , (Log, 2^^(-8), 1))
-  , (Zot_pm_b  , (Lin, 0, 2))
-  , (Zot_wm_m  , (Lin, 0,0.5))
-  , (Zot_wm_f  , (Log, 2^^(-8), 1))
-  , (Zot_wm_b  , (Lin, -1,2))
-  , (Zot_w     , (Lin, 0, 1/2)) -- it's symmetrical in [0,1]
-  , (Zot_am    , (Lin, 0, 1))
-  , (Zot_am_b  , (Lin, 0, 1))
-  , (Zot_am_f  , (Log, 2^^(-8), 1))
-  , (Zot_rm    , (Lin, 0, 1))
-  , (Zot_rm_b  , (Lin, 0, 1))
-  , (Zot_rm_f  , (Log, 2^^(-8), 1))
-  , (Zot_hpf   , (Log, 2, 2^^8))
-  , (Zot_hpf_m , (Lin, 0, 1))
-  , (Zot_lpf   , (Log, 0.5, 2^^5))
-  , (Zot_lpf_m , (Lin, 0, 1))
-  , (Zot_bpf   , (Log, 1, 2^^5))
-  , (Zot_bpf_m , (Lin, 0, 1))
-  , (Zot_bpf_q , (Log, 2^^(-4), 2^^3))
-  , (Zot_lim   , (Log, 2^^(-4), 2^^4))
-  , (Zot_sh    , (Log, 2^^(-16), 1))
-  , (Zot_sh_b  , (Log, 2^^(-16), 1))
-  , (Zot_del   , (Log, 2^^(-4), 2^^4))
+_zotDefaultInfo :: M.Map ZotParam ( Float
+                                 , (NumScale, Rational, Rational))
+_zotDefaultInfo = M.fromList
+  [ (Zot_off   , (0, (Lin, 0, 1)))     -- Monome ignores.
+  , (Zot_freq  , (0, (Log, 40, 20e3))) -- Monome determines via Keyboard
+                                       -- rather than ParamVal window.
+  , (Zot_amp   , (defaultAmp, let top = 0.2
+                              in (Log, top * 2^^(-8), top) ) )
+  , (Zot_att   , (0.003, (Log, 0.001, 0.5)))
+  , (Zot_rel   , (0.05, (Log, 0.05, 2)))
+  , (Zot_pulse , (0.5, (Lin, 0, 1)))
+  , (Zot_fm_m  , (0, (Lin, 0, 2)))
+  , (Zot_fm_f  , (1, (Log, 2^^(-16), 1)))
+  , (Zot_fm_b  , (0, (Lin, 0, 2)))
+  , (Zot_pm_m  , (0, (Lin, 0, 4)))
+  , (Zot_pm_f  , (1, (Log, 2^^(-8), 1)))
+  , (Zot_pm_b  , (0, (Lin, 0, 2)))
+  , (Zot_wm_m  , (0, (Lin, 0,0.5)))
+  , (Zot_wm_f  , (1, (Log, 2^^(-8), 1)))
+  , (Zot_wm_b  , (0, (Lin, -1,2)))
+  , (Zot_w     , (0.5, (Lin, 0, 1/2))) -- width is symmetrical over [0,1]
+  , (Zot_am    , (0, (Lin, 0, 1)))
+  , (Zot_am_f  , (1, (Log, 2^^(-8), 1)))
+  , (Zot_am_b  , (0, (Lin, 0, 1)))
+  , (Zot_rm    , (0, (Lin, 0, 1)))
+  , (Zot_rm_f  , (1, (Log, 2^^(-8), 1)))
+  , (Zot_rm_b  , (0, (Lin, 0, 1)))
+  , (Zot_lpf   , (filterFreqMax, (Log, 0.5, 2^^5)))
+  , (Zot_lpf_m , (0, (Lin, 0, 1)))
+  , (Zot_bpf   , (7, (Log, 1, 32)))
+  , (Zot_bpf_m , (0, (Lin, 0, 1)))
+  , (Zot_bpf_q , (0.5, (Log, 2^^(-4), 2^^3)))
+  , (Zot_hpf   , (1, (Log, 2, 2^^8)))
+  , (Zot_hpf_m , (0, (Lin, 0, 1)))
+  , (Zot_lim   , (1, (Log, 2^^(-4), 2^^4)))
+  , (Zot_sh    , (0, (Log, 2^^(-16), 1)))
+  , (Zot_sh_b  , (0, (Log, 2^^(-16), 1)))
+  , (Zot_del   , (1, (Log, 2^^(-4), 2^^4)))
 
-  , (Zot_source_l , (Lin, 0, 1))
-  , (Zot_am_l     , (Lin, 0, 1))
-  , (Zot_rm_l     , (Lin, 0, 1))
-  , (Zot_filt_l   , (Lin, 0, 1))
-  , (Zot_lim_l    , (Lin, 0, 1))
-  , (Zot_shift_l  , (Lin, 0, 1))
+  , (Zot_source_l , (0, (Lin, 0, 1)))
+  , (Zot_am_l     , (0, (Lin, 0, 1)))
+  , (Zot_rm_l     , (0, (Lin, 0, 1)))
+  , (Zot_filt_l   , (0, (Lin, 0, 1)))
+  , (Zot_lim_l    , (0, (Lin, 0, 1)))
+  , (Zot_shift_l  , (1, (Lin, 0, 1)))
   ]
 
 -- | For details on the meaning of these parameters,
@@ -265,13 +238,15 @@ type ZotParams = '[
   -- The originating waveform.
   -- FM applies to both, PM to the sinewave only, WM (width mod)
   -- to the pulse wave only. Width=0.5 => square wave.
-  "on", "amp"
-  ,"freq"                    -- baseline freq
-  ,"attack"                  -- time in seconds
-  ,"pulse"                   -- pulse + sin = 1
-  ,"fm-b","fm-m","fm-f"      -- fb mul, sin mul, sin freq
-  , "pm-b","pm-m","pm-f"     -- fb mul, sin mul, sin freq
-  , "wm-b","wm-m","wm-f","w" -- fb mul, sin mul, sin freq, baseline
+   "off"
+  ,"freq"                   -- baseline freq
+  ,"amp"                    -- amplitude
+  ,"att"                    -- attack time in seconds
+  ,"rel"                    -- release time in seconds
+  ,"pulse"                  -- pulse + sin = 1
+  ,"fm-b","fm-m","fm-f"     -- fb mul, sin mul, sin freq
+  ,"pm-b","pm-m","pm-f"     -- fb mul, sin mul, sin freq
+  ,"wm-b","wm-m","wm-f","w" -- fb mul, sin mul, sin freq, baseline
 
   -- Serially next: Each of these
   ,"am","am-b","am-f" -- amSig = am * am'd carrier + (1-am) * carrier
@@ -293,45 +268,45 @@ type ZotParams = '[
   ]
 
 zot :: SynthDef ZotParams
-zot = sd ( 1 :: I "on"
-         , toI defaultAmp :: I "amp"
-         , 0 :: I "freq"
-         , 0.003 :: I "attack"
-         , 0.5 :: I "pulse"
-         , 0 :: I "fm-b"
-         , 0 :: I "fm-m"
-         , 1 :: I "fm-f"
-         , 0 :: I "pm-b"
-         , 0 :: I "pm-m"
-         , 1 :: I "pm-f"
-         , 0 :: I "wm-b"
-         , 0 :: I "wm-m"
-         , 1 :: I "wm-f"
-         , 0.5 :: I "w"
-         , 0 :: I "am"
-         , 0 :: I "am-b"
-         , 1 :: I "am-f"
-         , 0 :: I "rm"
-         , 0 :: I "rm-b"
-         , 1 :: I "rm-f"
-         , filterFreqMax :: I "lpf" -- any higher than this and it freaks out
-         , 0 :: I "lpf-m"
-         , 7 :: I "bpf"
-         , 0 :: I "bpf-m"
-         , 0.5 :: I "bpf-q"
-         , 1 :: I "hpf" -- negative and it freaks out
-         , 0 :: I "hpf-m"
-         , 1 :: I "lim"
-         , 0 :: I "sh"
-         , 0 :: I "sh-b"
-         , 1 :: I "del"
-
-         , 0 :: I "source-l"
-         , 0 :: I "am-l"
-         , 0 :: I "rm-l"
-         , 0 :: I "filt-l"
-         , 0 :: I "lim-l"
-         , 1 :: I "shift-l"
+zot = sd ( toI $ zotDefaultValues M.! "off" :: I "off"
+         , toI $ zotDefaultValues M.! "freq" :: I "freq"
+         , toI $ zotDefaultValues M.! "amp" :: I "amp"
+         , toI $ zotDefaultValues M.! "att" :: I "att"
+         , toI $ zotDefaultValues M.! "rel" :: I "rel"
+         , toI $ zotDefaultValues M.! "pulse" :: I "pulse"
+         , toI $ zotDefaultValues M.! "fm-b" :: I "fm-b"
+         , toI $ zotDefaultValues M.! "fm-m" :: I "fm-m"
+         , toI $ zotDefaultValues M.! "fm-f" :: I "fm-f"
+         , toI $ zotDefaultValues M.! "pm-b" :: I "pm-b"
+         , toI $ zotDefaultValues M.! "pm-m" :: I "pm-m"
+         , toI $ zotDefaultValues M.! "pm-f" :: I "pm-f"
+         , toI $ zotDefaultValues M.! "wm-b" :: I "wm-b"
+         , toI $ zotDefaultValues M.! "wm-m" :: I "wm-m"
+         , toI $ zotDefaultValues M.! "wm-f" :: I "wm-f"
+         , toI $ zotDefaultValues M.! "w" :: I "w"
+         , toI $ zotDefaultValues M.! "am" :: I "am"
+         , toI $ zotDefaultValues M.! "am-b" :: I "am-b"
+         , toI $ zotDefaultValues M.! "am-f" :: I "am-f"
+         , toI $ zotDefaultValues M.! "rm" :: I "rm"
+         , toI $ zotDefaultValues M.! "rm-b" :: I "rm-b"
+         , toI $ zotDefaultValues M.! "rm-f" :: I "rm-f"
+         , toI $ zotDefaultValues M.! "lpf" :: I "lpf"
+         , toI $ zotDefaultValues M.! "lpf-m" :: I "lpf-m"
+         , toI $ zotDefaultValues M.! "bpf" :: I "bpf"
+         , toI $ zotDefaultValues M.! "bpf-m" :: I "bpf-m"
+         , toI $ zotDefaultValues M.! "bpf-q" :: I "bpf-q"
+         , toI $ zotDefaultValues M.! "hpf" :: I "hpf"
+         , toI $ zotDefaultValues M.! "hpf-m" :: I "hpf-m"
+         , toI $ zotDefaultValues M.! "lim" :: I "lim"
+         , toI $ zotDefaultValues M.! "sh" :: I "sh"
+         , toI $ zotDefaultValues M.! "sh-b" :: I "sh-b"
+         , toI $ zotDefaultValues M.! "del" :: I "del"
+         , toI $ zotDefaultValues M.! "source-l" :: I "source-l"
+         , toI $ zotDefaultValues M.! "am-l" :: I "am-l"
+         , toI $ zotDefaultValues M.! "rm-l" :: I "rm-l"
+         , toI $ zotDefaultValues M.! "filt-l" :: I "filt-l"
+         , toI $ zotDefaultValues M.! "lim-l" :: I "lim-l"
+         , toI $ zotDefaultValues M.! "shift-l" :: I "shift-l"
          ) $ do
 
   -- Feedback from the `localOut` at the end of this definition.
@@ -385,9 +360,14 @@ zot = sd ( 1 :: I "on"
   source <- (          (V :: V "pulse" ) ~* aPulse
               ~+ (1 ~- (V :: V "pulse")) ~* aSin )
             ~* ( envGen_wGate
-                 (V::V "on")
-                 (V::V "attack")
+                 1 -- The gate "signal" starts at 1 and never changes.
+                 (V::V "att")
                  (env 0 [(1,1)] Curve_Lin)
+                 DoNothing )
+            ~* ( envGen_wGate
+                 (V::V "off")
+                 (V::V "rel")
+                 (env 1 [(0,1)] Curve_Lin)
                  DoNothing )
 
   -- This next section runs `source` through AM,
@@ -476,7 +456,7 @@ zot = sd ( 1 :: I "on"
   -- The source of the feedback.
   localOut( [s1] )
 
-  let x = (V::V "on") ~* (V::V "amp")
+  let x = (V::V "amp")
           ~* ( (V::V "source-l") ~* source ~+
                (V::V "am-l")     ~* amSig  ~+
                (V::V "rm-l")     ~* rmSig  ~+

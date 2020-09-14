@@ -52,7 +52,7 @@ handler    st           (mi,       (xy,    True)) = do
 paramReport :: St EdoApp -> ZotParam -> String
 paramReport st p = let
   zDefault :: ZotParam -> String =
-    maybe (show (zotDefaults M.! (show p)) ++ " (default)") show .
+    maybe (show (zotDefaultValues M.! (show p)) ++ " (default)") show .
     flip M.lookup (st ^. stZotDefaults)
   zRange :: ZotParam -> String =
     maybe "paramGroupMessages: ERROR: missing ZotParam"     show .
