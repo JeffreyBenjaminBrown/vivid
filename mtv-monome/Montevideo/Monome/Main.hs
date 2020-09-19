@@ -20,6 +20,8 @@ module Montevideo.Monome.Main (
   -- * No need so far to export these. (No way to test them.)
   --  , doScAction    -- ^ St -> ScAction VoiceId -> IO ()
   --  , doLedMessage  -- ^ St -> [Window] -> LedMsg -> IO ()
+
+  , freeAllVoices -- ^ MVar (St app) -> IO ()
   ) where
 
 import           Control.Concurrent (forkIO, killThread)
@@ -30,6 +32,7 @@ import           Data.Either.Combinators
 import qualified Data.List as L
 import qualified Data.Map as M
 import           Data.Map (Map)
+import           Data.Maybe
 import           GHC.Float
 
 import Vivid
@@ -331,3 +334,19 @@ chDefault mst p f = do
   case est :: Either String (St EdoApp) of
     Left  s   -> putStrLn s >> putMVar mst st1
     Right st2 ->               putMVar mst st2
+
+-- | This leaves the lights on. That's useful,
+-- because using the command requires using the keyboard,
+-- i.e. probably taking one's eyes off the monome.
+-- todo : It would be better if it erased the sustain window.
+freeAllVoices :: MVar (St EdoApp) -> IO ()
+freeAllVoices mst = do
+  st <- takeMVar mst
+  let voices :: [Synth ZotParams] =
+        catMaybes $ map _voiceSynth $ M.elems $ _stVoices st
+  mapM_ free voices
+  putMVar mst $ st &
+    stVoices .~ mempty &
+    stApp . edoFingers .~ mempty &
+    stApp . edoLit .~ mempty &
+    stApp . edoSustaineded .~ mempty

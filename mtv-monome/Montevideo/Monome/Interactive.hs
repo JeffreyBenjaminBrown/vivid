@@ -11,3 +11,4 @@ sp :: IO () = ( -- store a preset
   readMVar mst >>= storePreset )
 lp :: Map ZotParam Float -> IO () = ( \m -> -- load a preset
   ch stZotDefaults $ const m )
+hey :: IO () = freeAllVoices mst
