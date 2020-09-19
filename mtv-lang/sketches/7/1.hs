@@ -19,16 +19,16 @@ go = nZot . toHz . rootScale rs where
                                    , (1, (4, lyd))
                                    , (2, (1, lyd7)) ]
 
-modDrums = nAmpTo $ defaultAmp * 2.5
+modDrums = nAmpTo $ maxAmp * 2.5
 
 zotTones = mergec $
              mmh 2 $ pre2 "a" $ map (_2 %~ mfl)
-             [ (0, [("amp",defaultAmp / 2), ("pulse",0.1)
+             [ (0, [("amp",maxAmp / 2), ("pulse",0.1)
                    , ("sh",1/2) , ("sh-b",0)
                    , ("lpf",3), ("lpf-m",2)
                    ])
              , (0.5, [("rm",0)])
-             , (1, [("amp",defaultAmp*1.5), ("pulse",0)
+             , (1, [("amp",maxAmp*1.5), ("pulse",0)
                    , ("sh",-0.25), ("sh-b",-0.5) -- super-weird
                    , ("am",1/3), ("am-f",1/3), ("am-b",1)
                    , ("del",1000)

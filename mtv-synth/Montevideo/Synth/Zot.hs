@@ -191,8 +191,8 @@ _zotDefaultInfo = M.fromList
   [ (Zot_off   , (0, (Lin, 0, 1)))     -- Monome ignores.
   , (Zot_freq  , (0, (Log, 40, 20e3))) -- Monome determines via Keyboard
                                        -- rather than ParamVal window.
-  , (Zot_amp   , ( defaultAmp / 4
-                 , ( Log0, defaultAmp * 2^^(-6), defaultAmp ) ) )
+  , (Zot_amp   , ( maxAmp / 4
+                 , ( Log0, maxAmp * 2^^(-6), maxAmp ) ) )
   , (Zot_att   , (0.003, (Log, 0.001, 0.5)))
   , (Zot_rel   , (0.05, (Log, 0.05, 2)))
   , (Zot_pulse , (0.5, (Lin, 0, 1)))

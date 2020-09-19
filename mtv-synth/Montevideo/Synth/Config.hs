@@ -4,8 +4,11 @@
 module Montevideo.Synth.Config where
 
 
-defaultAmp :: Fractional a => a
-defaultAmp = 0.1
+-- | PITFALL: This is not a binding maximum,
+-- just an arbitrary level that other things are defined in terms of.
+-- SuperCollider distorts for values outside of [-1,1].
+maxAmp :: Fractional a => a
+maxAmp = 0.1
 
 dirtSamplesFolder :: FilePath
 dirtSamplesFolder = "/home/jeff/code/music/Tidal/Dirt-Samples"

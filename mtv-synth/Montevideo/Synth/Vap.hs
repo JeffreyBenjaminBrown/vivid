@@ -20,7 +20,7 @@ type VapParams = '[ "freq",      "amp"
 
 vap :: SynthDef VapParams
 vap = sd ( 0   :: I "freq"
-         , toI defaultAmp :: I "amp"
+         , toI maxAmp :: I "amp"
          , 0   :: I "saw"
          , 0   :: I "delay-freq"
          , 0   :: I "delay-amp"
