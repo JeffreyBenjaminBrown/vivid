@@ -41,6 +41,7 @@ module Montevideo.Util (
   , numScale
   , linScale
   , logScale
+  , log0Scale
   , myMod      -- ^ Int -> Int -> Int
 
   , lcmRatios
@@ -68,7 +69,7 @@ import Vivid (getTime, pick, MonadRandom)
 
 type Filename = String
 
-data NumScale = Lin | Log
+data NumScale = Lin | Log | Log0
   deriving (Show, Eq, Ord)
 
 -- | the part before the filename, i.e. before the first `/`
@@ -229,10 +230,11 @@ pairAdd (a,b) (c,d) = (a+c, b+d)
 pairMul :: Num a => a -> (a,a) -> (a,a)
 pairMul n (a,b) = (n*a,n*b)
 
-numScale :: Floating a => NumScale
+numScale :: (Eq a, Floating a) => NumScale
          -> (a,a) -> (a,a) -> a -> a
-numScale Lin = linScale
-numScale Log = logScale
+numScale Lin  = linScale
+numScale Log  = logScale
+numScale Log0 = log0Scale
 
 linScale :: Floating a
          => (a,a) -- ^ The input range
@@ -260,6 +262,14 @@ logScale (a,b) (c,d) e =
       perc0 = (e - a) / (b - a) -- like a %-age: how far e is from a to b
       perc1 = (ld - lc)*perc0 + lc -- like perc0, but from lc to ld
   in exp perc1
+
+log0Scale :: (Eq a, Floating a)
+          => (a,a) -- ^ The input range
+          -> (a,a) -- ^ The output range. PITFALL: Both must be positive.
+          -> a     -- ^ The input
+          -> a
+log0Scale (a,b) (c,d) e =
+  if a == e then 0 else logScale (a+1,b) (c,d) e
 
 -- | least common denominator
 lcmRatios :: Rational -> Rational -> Rational

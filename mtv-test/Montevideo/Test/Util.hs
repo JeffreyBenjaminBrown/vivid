@@ -14,6 +14,7 @@ tests = TestList
   , TestLabel "test_lines'" test_lines'
   , TestLabel "test_logScale" test_logScale
   , TestLabel "test_linScale" test_linScale
+  , TestLabel "test_log0Scale" test_log0Scale
   ]
 
 test_linScale :: Test
@@ -24,6 +25,15 @@ test_linScale = TestCase $ do
   assertBool "" $
     linScale (-50,0) (-300,-200) (-10)
     == (-220)
+
+test_log0Scale :: Test
+test_log0Scale = TestCase $ do
+  let e = error "meh"
+  assertBool "" $
+    log0Scale (10,20) (e,e) 10 == 0
+  assertBool "" $
+    log0Scale (10,20) (15,32) 11 ==
+    logScale  (11,20) (15,32) 11
 
 test_logScale :: Test
 test_logScale = TestCase $ do
