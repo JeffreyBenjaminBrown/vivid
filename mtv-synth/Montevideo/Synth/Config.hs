@@ -4,8 +4,8 @@
 module Montevideo.Synth.Config where
 
 
-defaultAmp :: Float
-defaultAmp = 0.02
+defaultAmp :: Fractional a => a
+defaultAmp = 0.1
 
 dirtSamplesFolder :: FilePath
 dirtSamplesFolder = "/home/jeff/code/music/Tidal/Dirt-Samples"
