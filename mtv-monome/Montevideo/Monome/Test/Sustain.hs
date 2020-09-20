@@ -33,6 +33,9 @@ tests = TestList [
 test_sustainLess :: Test
 test_sustainLess = TestCase $ do
 
+  -- In the following, the fingered key is sustained when `sustainLess`
+  -- is called. It continues to sound (hence vs is empty),
+  -- but it is removed from the sustained pitches.
   let Right (st, vs) = sustainLess $ st0
         & stApp . edoFingers .~ M.fromList [ (xy0, v0) ]
         & stApp . edoSustaineded .~ S.singleton v0
@@ -46,7 +49,22 @@ test_sustainLess = TestCase $ do
         & stApp . edoSustaineded .~ mempty
         & stApp . edoLit .~ ( M.singleton pc0 $ S.singleton $
                               LedBecauseSwitch xy0 ) )
-    assertBool "" $ vs == [v0]
+    assertBool "" $ vs == []
+
+  let v = Voice { _voiceSynth = Nothing
+                , _voicePitch = error "set below"
+                , _voiceParams = mempty }
+      st1 :: St EdoApp = st0
+        & stApp . edoFingers .~ M.singleton (0,0) (VoiceId 0)
+        & stApp . edoSustaineded .~ S.singleton (VoiceId 1)
+        & ( stVoices .~ M.fromList
+            [ ( VoiceId 0, v { _voicePitch = 0 } )
+            , ( VoiceId 1, v { _voicePitch = EdoPitch $ st0 ^.
+                                             stApp . edoConfig . edo } ) ] )
+      Right (st2, vs) = sustainLess st1
+    in do
+    assertBool "" $ st2 == ( st1 & stApp . edoSustaineded .~ mempty )
+    assertBool "" $ vs == [ VoiceId 1 ]
 
   let st = st0
         & stApp . edoFingers .~ M.fromList [ (xy1, v1) ]

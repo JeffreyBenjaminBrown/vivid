@@ -179,6 +179,12 @@ sustainMore st =
 -- where `toSilence` are the pitch classes that should be silenced,
 -- and `st'` is `st` with `_edoLit` and `_edoSustaineded` updated
 -- to no longer include any voices enharmonic to any fingered voice.
+--
+-- PITFALL: `stVoices` is *not* adjusted here.
+-- It can't be changed yet, because the voices have yet to be silenced --
+-- that's an IO operation performed downstream which needs to refer
+-- to the `VoiceId` values in `stVoices`.
+--
 -- PITFALL: `toSilence` can be a proper subset of the voices that were
 -- sustained and are now not, because any sustained voice that is
 -- also being fingered should continue to sound.
