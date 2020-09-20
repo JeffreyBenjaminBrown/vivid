@@ -36,8 +36,9 @@ module Montevideo.Util (
   , numBetween -- ^ (Num a, Ord a) => a -> a -> a -> Bool
   , dot        -- ^ Num a => (a,a) -> (a,a) -> a
   , taxiMetric -- ^ Num a => (a,a) -> (a,a) -> a
-  , pairAdd    -- ^ Num a => (a,a) -> (a,a) -> (a,a)
-  , pairMul    -- ^ Num a => a -> (a,a) -> (a,a)
+  , pairAdd      -- ^ Num a => (a,a) -> (a,a) -> (a,a)
+  , pairMul      -- ^ Num a => a -> (a,a) -> (a,a)
+  , pairSubtract -- ^ Num a => (a,a) -> (a,a) -> (a,a)
   , numScale
   , linScale
   , logScale
@@ -229,6 +230,10 @@ pairAdd (a,b) (c,d) = (a+c, b+d)
 
 pairMul :: Num a => a -> (a,a) -> (a,a)
 pairMul n (a,b) = (n*a,n*b)
+
+-- | `pairSubtract ab cd` subtracts cd from ab
+pairSubtract :: Num a => (a,a) -> (a,a) -> (a,a)
+pairSubtract ab cd = pairAdd ab $ pairMul (-1) cd
 
 numScale :: (Eq a, Floating a) => NumScale
          -> (a,a) -> (a,a) -> a -> a
