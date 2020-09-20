@@ -47,11 +47,10 @@ test_edoKey_ScAction = TestCase $ do
     [ ScAction_New
       { _actionSynthDefEnum = Zot
       , _actionSynthName = newVoice
-      , _actionScMsg = M.fromList
-        [ ("freq", Config.freq *
-                   edoToFreq (st ^. stApp . edoConfig) newPitch)
-        , ( "on", 1 )
-        , ( "amp", Config.amp ) ] } ]
+      , _actionScMsg = M.singleton "freq" $
+                       Config.freq *
+                       edoToFreq (st ^. stApp . edoConfig) newPitch
+      } ]
 
   assertBool "release a key that's not sustained" $
     edoKey_ScAction st newVoice (newXy, False) ==

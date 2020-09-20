@@ -20,4 +20,4 @@ test_paramGroup_toXy = TestCase $ do
 test_paramGroup_toParam :: Test
 test_paramGroup_toParam = TestCase $ do
   assertBool "0" $          paramGroup_toParam PG_source 0 == Right Zot_amp
-  assertBool "2" $ isLeft $ paramGroup_toParam PG_source 2
+  assertBool "2" $ isLeft $ paramGroup_toParam PG_source 5

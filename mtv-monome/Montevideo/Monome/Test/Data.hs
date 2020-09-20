@@ -52,7 +52,16 @@ pc1    :: EdoPitchClass = pToPc config31 pitch1
 
 st0 :: St EdoApp
 st0 = St {
-    _stVoices = let v = Voice
+    _stApp = EdoApp { _edoConfig = config31
+                    , _edoXyShift = (3,5)
+                    , _edoFingers = mempty
+                    , _edoLit = mempty
+                    , _edoSustaineded = mempty
+                    , _edoParamGroup = PG_FM
+                    }
+  , _stWindowLayers = mempty
+  , _stToMonome = mempty
+  , _stVoices = let v = Voice
                         { _voiceSynth = Nothing
                         , _voicePitch = error "replaced below"
                         , _voiceParams = mempty }
@@ -63,13 +72,7 @@ st0 = St {
   , _stPending_Vivid = []
   , _stPending_String = []
   , _stZotDefaults = mempty
-  , _stApp = EdoApp { _edoConfig = config31
-                    , _edoXyShift = (3,5)
-                    , _edoFingers = mempty
-                    , _edoLit = mempty
-                    , _edoSustaineded = mempty
-                    , _edoParamGroup = PG_FM
-                    }
+  , _stZotRanges = mempty
   }
 
 st_0a = -- 0 is the anchor pitch
