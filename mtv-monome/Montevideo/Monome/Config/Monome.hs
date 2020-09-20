@@ -10,3 +10,4 @@ type Port = Int
 monomePort :: MonomeId -> Port
 monomePort Monome_256 = 15226
 monomePort Monome_128 = 14336
+monomePort Monome_old = 14718

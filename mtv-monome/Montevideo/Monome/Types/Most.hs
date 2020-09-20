@@ -34,7 +34,7 @@ import Montevideo.Util
 
 type Param = String
 
-data MonomeId = Monome_256 | Monome_128
+data MonomeId = Monome_256 | Monome_128 | Monome_old
   deriving (Show, Eq, Ord)
 
 data WindowId = KeyboardWindow

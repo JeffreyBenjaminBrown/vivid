@@ -32,7 +32,8 @@ import Montevideo.Util
 
 allMonomeIds :: [MonomeId]
 allMonomeIds = [ Monome_128
-               , Monome_256 ]
+               , Monome_256
+               , Monome_old ]
 
 -- * OSC
 
