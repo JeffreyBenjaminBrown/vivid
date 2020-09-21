@@ -15,8 +15,8 @@ import Montevideo.Monome.Window.Util
 
 tests :: Test
 tests = TestList [
-    TestLabel "testNotObscured" testNotObscured
-  , TestLabel "testDependentPitchClass" testDependentPitchClass
+    TestLabel "test_visible" test_visible
+  , TestLabel "test_dependentPitchClass" test_dependentPitchClass
   , TestLabel "test_nextVoice" test_nextVoice
   ]
 
@@ -29,8 +29,8 @@ test_nextVoice = TestCase $ do
   assertBool "next voice in m is 3" $
     nextVoice ( st0 {_stVoices = m} ) == VoiceId 3
 
-testDependentPitchClass :: Test
-testDependentPitchClass = TestCase $ do
+test_dependentPitchClass :: Test
+test_dependentPitchClass = TestCase $ do
   let m :: LitPitches EdoApp
       m = M.singleton 10 $ S.singleton $ LedBecauseSwitch (1,1)
   assertBool "ledBecause_toPitchClass finds it" $
@@ -38,8 +38,8 @@ testDependentPitchClass = TestCase $ do
   assertBool "ledBecause_toPitchClass does not find it" $
     ledBecause_toPitchClass @ EdoApp m (LedBecauseSwitch (1,0)) == Nothing
 
-testNotObscured :: Test
-testNotObscured = TestCase $ do
+test_visible :: Test
+test_visible = TestCase $ do
   -- PITFALL: These labels (e.g. KeyboardWindow) don't really mean anything;
   -- I'm only using them to keep the labels distinct.
   let w1 = Window
@@ -66,16 +66,16 @@ testNotObscured = TestCase $ do
       ws = map (orig,) [w1,w2,w3]
     in do
     assertBool "caught by w1 before reaching w3" $
-      not $ notObscured ws (orig, w3) (1,0)
+      not $ visible ws (orig, w3) (1,0)
     assertBool "caught by w2 before reaching w3" $
-      not $ notObscured ws (orig, w3) (5,6)
+      not $ visible ws (orig, w3) (5,6)
     assertBool "should reach w3, which contains it" $
-            notObscured ws (orig, w3) (0,0)
+            visible ws (orig, w3) (0,0)
     assertBool "should reach w2, but w2 does not contain it" $
-      not $ notObscured ws (orig, w2) (1,2)
+      not $ visible ws (orig, w2) (1,2)
 
   -- For these tests the top left corners of the windows differ.
   let ws = [ ((3,0), w1)
            , ((0,0), w2) ]
       in assertBool "would fall in w1 if w1 were at (0,0), but it's not." $
-         notObscured ws ((0,0),w2) (2,0)
+         visible ws ((0,0),w2) (2,0)
