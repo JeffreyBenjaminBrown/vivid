@@ -53,6 +53,7 @@ import           Montevideo.Monome.Window.Sustain
 import           Montevideo.Monome.Window.Util
 import           Montevideo.Synth
 import           Montevideo.Synth.Msg
+import           Montevideo.Util
 
 
 -- ** The apps
@@ -68,9 +69,16 @@ edoMonome edoCfg = do
   mst :: MVar (St EdoApp) <- newMVar $ St {
       _stWindowLayers = M.fromList
         [ ( Monome_256
-          , [sustainWindow, shiftWindow, keyboardWindow] )
+          , [ ((0,14), sustainWindow)
+            , ((13,14), shiftWindow)
+            , ((0,0), keyboardWindow) ] )
         , ( Monome_128
-          , [paramGroupWindow, paramValWindow, keyboardWindow] ) ]
+          , [ ((0,0), paramGroupWindow)
+            , ((3,0), paramValWindow) ] )
+        , ( Monome_old
+          , [ ((0,14), sustainWindow)
+            , ((13,14), shiftWindow)
+            , ((0,0), keyboardWindow) ] ) ]
     , _stToMonome = toMonomes
     , _stVoices = mempty
     , _stPending_Vivid = []
@@ -129,7 +137,7 @@ jiMonome scale shifts = do
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
 
   mst <- newMVar $ St {
-      _stWindowLayers = M.singleton Monome_256 [jiWindow]
+      _stWindowLayers = M.singleton Monome_256 [((0,0),jiWindow)]
     , _stToMonome     = toMonomes
     , _stVoices = mempty
     , _stPending_Vivid = []
@@ -192,13 +200,13 @@ renameMonomes = do
 drawMonomeWindows :: forall app. MVar (St app) -> IO ()
 drawMonomeWindows mst = do
   st <- readMVar mst
-  let runWindowInit :: (MonomeId, Window app) -> IO ()
-      runWindowInit (mi, w) = let
+  let runWindowInit :: (MonomeId, ((X,Y), Window app)) -> IO ()
+      runWindowInit (mi, (_, w)) = let
         st' :: St app = st & stPending_Monome %~ flip (++)
                              (windowInitLeds w st mi)
         in mapM_ (either putStrLn id) $
            doLedMessage st' <$> _stPending_Monome st'
-      mws :: [(MonomeId, Window app)] =
+      mws :: [(MonomeId, ((X,Y), Window app))] =
         concatMap (\(m,ws) -> map (m,) ws) $
         M.toList $ _stWindowLayers st
   mapM_ runWindowInit mws
@@ -216,16 +224,17 @@ handleSwitch :: forall app.
 -- the `voiceSynth` field, and voice deletion)
 -- happen before SC has been informed.
 
-handleSwitch st0 mi sw@ (btn,_) =
+handleSwitch st0 mi press@ (btn,sw) =
   fmap (mapLeft ("Monome.Main.handleSwitch: " ++)) $ do
   let
-    go :: [Window app] -> IO (Either String (St app))
-    go ws = case L.find (\w -> windowContains w btn) ws of
-      Nothing -> return $ Left $ "Switch " ++ show sw ++
+    go :: [((X,Y), Window app)] -> IO (Either String (St app))
+    go ws = case L.find (\(topLeft, w) -> windowContains w $ pairSubtract btn topLeft) ws of
+      Nothing -> return $ Left $ "Switch " ++ show press ++
                  " claimed by no Window."
-      Just w -> case windowHandler w st0 (mi,sw) of
-        Left s    -> return $ Left s
-        Right st1 -> handlePending st1
+      Just (topLeft, w) ->
+        case windowHandler w st0 (mi, (pairSubtract btn topLeft, sw)) of
+          Left s    -> return $ Left s
+          Right st1 -> handlePending st1
 
   case M.lookup mi $ _stWindowLayers st0 of
     Nothing -> return $ Left $ "WIndows for " ++ show mi ++ " not found."
@@ -309,11 +318,11 @@ doScAction    st        sca =
         return $ stVoices . at vid .~ Nothing
 
 doLedMessage :: St app -> LedMsg -> Either String (IO ())
-doLedMessage st ((mi, wi), (xy, b)) =
+doLedMessage st lm@((mi, wi), _) =
   mapLeft ("doLedMessage: " ++) $
   case relayToWindow st mi wi of
     Left s         -> Left s
-    Right toWindow -> Right $ toWindow (xy,b)
+    Right toWindow -> Right $ toWindow lm
 
 darkAllMonomes :: St app -> IO ()
 darkAllMonomes st =

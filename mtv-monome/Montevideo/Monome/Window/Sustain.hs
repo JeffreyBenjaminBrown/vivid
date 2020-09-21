@@ -52,17 +52,17 @@ buttons = [button_sustainLess, button_sustainMore, button_sustainOff]
 -- | Press this to add more notes to what's being sustained
 -- (whether or not any are currently sustained).
 button_sustainMore :: (X,Y)
-button_sustainMore = (0,15)
+button_sustainMore = (0,1)
 
 -- | Toggle this to enable erasure: Press a tone (in any octave)
 -- to erase it from the sustained chord.
 button_sustainLess :: (X,Y)
-button_sustainLess = (1,15)
+button_sustainLess = (1,1)
 
 -- | Press this to turn off sustain.
 -- This is also the button that lights to indicate sustain is on.
 button_sustainOff :: (X,Y)
-button_sustainOff = (0,14)
+button_sustainOff = (0,0)
 
 sustainWindow :: Window EdoApp
 sustainWindow = Window {

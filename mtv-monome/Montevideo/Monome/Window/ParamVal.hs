@@ -27,7 +27,7 @@ label = ParamVal_Window
 paramValWindow :: Window EdoApp
 paramValWindow =  Window {
     windowLabel = label
-  , windowContains = \(x,y) -> numBetween 3 15 x &&
+  , windowContains = \(x,y) -> numBetween 0 12 x &&
                                numBetween 0 5 y
   , windowInitLeds = \_ _ -> []
   , windowHandler = handler }
@@ -42,7 +42,7 @@ handler    st           (mi      , ((x,y), True  )) = do
     Right (zp :: ZotParam) -> do
 
       let val :: Float = numScale ns
-                         (3,15) (fr nMin, fr nMax) (fi x)
+                         (0,12) (fr nMin, fr nMax) (fi x)
           (ns, nMin, nMax) :: (NumScale, Rational, Rational) =
             (M.!) (st ^. stZotRanges) $ zp
 
@@ -53,7 +53,7 @@ handler    st           (mi      , ((x,y), True  )) = do
                 (   ((mi, label), ((x ,y), True ))
                 : [ ((mi, label), ((x',y), False)) -- TODO ? This is wasteful:
                   -- It sends 13 messages when 2 would suffice.
-                  | x' <- [3..15], x' /= x ] ) )
+                  | x' <- [0..12], x' /= x ] ) )
       Right $ st1
         & ( stPending_String %~ flip (++)
             ( PG.paramGroupReport st1

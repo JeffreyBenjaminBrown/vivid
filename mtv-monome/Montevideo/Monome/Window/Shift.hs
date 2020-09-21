@@ -26,12 +26,12 @@ label = ShiftWindow
 
 -- | = the arrows
 rightArrow, downArrow, leftArrow, upOctave, upArrow, downOctave :: (X,Y)
-rightArrow = (15,15)
-downArrow =  (14,15)
-leftArrow =  (13,15)
-upOctave =   (15,14)
-upArrow =    (14,14)
-downOctave = (13,14)
+rightArrow = (2,1)
+downArrow =  (1,1)
+leftArrow =  (0,1)
+upOctave =   (2,0)
+upArrow =    (1,0)
+downOctave = (0,0)
 
 -- | PITFALL: Remember (see Button.hs),
 -- higher Y => lower (closer to you) on the monome.
@@ -54,7 +54,7 @@ shift ec = mapLeft ("shift: " ++) . f where
 shiftWindow :: Window EdoApp
 shiftWindow = Window {
     windowLabel = label
-  , windowContains = \(x,y) -> numBetween 13 15 x && numBetween 14 15 y
+  , windowContains = \(x,y) -> numBetween 0 2 x && numBetween 0 1 y
   , windowInitLeds = \_ mi ->
     ( (mi, label) ,) . (,True) <$>
     [ upArrow, downArrow, leftArrow, rightArrow ]

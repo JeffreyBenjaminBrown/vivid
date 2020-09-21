@@ -95,6 +95,8 @@ data Window app = Window {
     -- ^ PITFALL: A monome will respond to out-of-bounds (x,y) values.
     -- Every Window therefore needs a nontrivial windowContains field,
     -- even the background Window.
+    -- ^ PITFALL: The (X,Y) is relative to the top-left corner of the window.
+    -- Windows do not know where they are placed. (Main does.)
   , windowInitLeds :: St app -> MonomeId -> [LedMsg]
     -- ^ Some windows begin with some LEDs lit.
   , windowHandler :: -- ^ Acts on messages from the monome.
@@ -117,7 +119,7 @@ data Voice app = Voice {
 -- | So far, viable options for `app` in `St app` are `EdoApp` or `JiApp`.
 data St app = St {
     _stApp :: app
-  , _stWindowLayers :: Map MonomeId [Window app]
+  , _stWindowLayers :: Map MonomeId [((X,Y), Window app)]
       -- ^ PITFALL: Order in the lists matters.
       -- Key presses are handled by the first window containing them.
       -- Windows listed earlier are thus "above" later ones.
