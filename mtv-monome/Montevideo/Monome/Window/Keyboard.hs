@@ -79,7 +79,7 @@ handler    st           (mi, press@(xy,sw)) =
         ( map (,True)  $
           concatMap (pcToXys_st st) toLight)
       in concat $ [ map ((mi', label) ,) x
-                  | mi' <- _stKeyboards st ]
+                  | mi' <- _edoKeyboards app ]
     scas :: [ScAction VoiceId] =
       edoKey_ScAction st vid press
 

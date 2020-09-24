@@ -12,7 +12,7 @@ module Montevideo.Monome.Types.Most (
   , LedBecause(..)
   , Window(..)
   , Voice(..), voiceSynth, voicePitch, voiceParams
-  , St(..), stApp, stWindowLayers, stKeyboards, stToMonome, stVoices
+  , St(..), stApp, stWindowLayers, edoKeyboards, stToMonome, stVoices
     , stPending_Monome, stPending_Vivid, stPending_String
     , stZotDefaults, stZotRanges
   , EdoApp(..), edoConfig, edoXyShift, edoFingers, edoLit
@@ -126,7 +126,6 @@ data St app = St {
       -- ^ PITFALL: Order in the lists matters.
       -- Key presses are handled by the first window containing them.
       -- Windows listed earlier are thus "above" later ones.
-  , _stKeyboards :: [MonomeId] -- ^ Which monomes have keyboards.
   , _stToMonome :: Map MonomeId Socket
   , _stVoices :: Map VoiceId (Voice app) -- ^ The set of all voices
     -- currently in existence; a reflection of the state of SC.
@@ -149,6 +148,7 @@ data St app = St {
 
 data EdoApp = EdoApp
   { _edoConfig :: EdoConfig
+  , _edoKeyboards :: [MonomeId] -- ^ Which monomes have keyboards.
   , _edoXyShift :: (X,Y) -- ^ This is relative -- a vector, not a point.
     -- TODO : For multiple keyboards, change (X,Y) -> (MonomeId, (X,Y))
   , _edoFingers :: Map (MonomeId, (X,Y)) VoiceId

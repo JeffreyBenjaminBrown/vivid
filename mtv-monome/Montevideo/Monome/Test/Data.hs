@@ -53,6 +53,7 @@ pc1    :: EdoPitchClass = pToPc config31 pitch1
 st0 :: St EdoApp
 st0 = St {
     _stApp = EdoApp { _edoConfig = config31
+                    , _edoKeyboards = [Monome_256]
                     , _edoXyShift = (3,5)
                     , _edoFingers = mempty
                     , _edoLit = mempty
