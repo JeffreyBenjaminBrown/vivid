@@ -80,6 +80,7 @@ edoMonome edoCfg = do
             , ((13,14), shiftWindow)
             , ((0,0), keyboardWindow) ] ) ]
     , _stToMonome = toMonomes
+    , _stKeyboards = [Monome_256, Monome_old]
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
@@ -139,6 +140,7 @@ jiMonome scale shifts = do
   mst <- newMVar $ St {
       _stWindowLayers = M.singleton Monome_256 [((0,0),jiWindow)]
     , _stToMonome     = toMonomes
+    , _stKeyboards = [Monome_256] -- not actually used
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []

@@ -72,14 +72,17 @@ handler    st           (mi, press@(xy,sw)) =
     toDark  :: [EdoPitchClass] = S.toList $ S.difference oldKeys newKeys
     toLight :: [EdoPitchClass] = S.toList $ S.difference newKeys oldKeys
 
-    kbdMsgs :: [LedMsg] =
-      map ((mi, label) ,) $
-      ( map (,False) $
-        concatMap (pcToXys_st st) toDark) ++
-      ( map (,True)  $
-        concatMap (pcToXys_st st) toLight)
+    kbdMsgs :: [LedMsg] = let
+      x :: [((X,Y), Led)] =
+        ( map (,False) $
+          concatMap (pcToXys_st st) toDark) ++
+        ( map (,True)  $
+          concatMap (pcToXys_st st) toLight)
+      in concat $ [ map ((mi', label) ,) x
+                  | mi' <- _stKeyboards st ]
     scas :: [ScAction VoiceId] =
       edoKey_ScAction st vid press
+
     v :: Voice EdoApp = Voice
       { _voiceSynth  = Nothing
       , _voicePitch  = xyToEdo_app app xy

@@ -126,10 +126,11 @@ handler st (mi, ((==) button_sustainOff -> True,  True))  =
    toDark <- pitchClassesToDarken_uponSustainOff st st1
  
    let
-     kbdMsgs :: [LedMsg] =
-       map ( ( (mi, Kbd.label) ,) .
-             (, False ) ) $
-       concatMap (pcToXys_st st) $ toDark
+     kbdMsgs :: [LedMsg] = let
+       x = map (, False ) $
+         concatMap (pcToXys_st st) $ toDark
+       in concat [ map ( (mi', Kbd.label) ,) x
+                 | mi' <- _stKeyboards st ]
      scas :: [ScAction VoiceId] =
        map silenceMsg $ S.toList $ sustained_minus_fingered st
      st2 = st1 & ( stPending_Monome %~ flip (++)
@@ -292,8 +293,6 @@ deleteOneSustainReason pc m =
          then M.delete pc m
          else M.insert pc reasons' m
 
--- TODO : This output should be less nested.
--- Maybe ((monome,window), ((x,y), bool)).
 buttonMsgs :: MonomeId -> Bool -> [LedMsg]
 buttonMsgs mi light =
   [ ( ( mi, label )
