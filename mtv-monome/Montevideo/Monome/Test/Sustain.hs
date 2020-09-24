@@ -37,7 +37,7 @@ test_sustainLess = TestCase $ do
   -- is called. It continues to sound (hence vs is empty),
   -- but it is removed from the sustained pitches.
   let Right (st, vs) = sustainLess $ st0
-        & stApp . edoFingers .~ M.fromList [ (xy0, v0) ]
+        & stApp . edoFingers .~ M.fromList [ ((Monome_256,xy0), v0) ]
         & stApp . edoSustaineded .~ S.singleton v0
         & stApp . edoLit .~ ( M.singleton pc0
                               $ S.fromList [ LedBecauseSwitch xy0
@@ -45,7 +45,7 @@ test_sustainLess = TestCase $ do
     in do
     assertBool "" $ st =^=
       ( st0
-        & stApp . edoFingers .~ M.fromList [ (xy0, v0) ]
+        & stApp . edoFingers .~ M.fromList [ ((Monome_256, xy0), v0) ]
         & stApp . edoSustaineded .~ mempty
         & stApp . edoLit .~ ( M.singleton pc0 $ S.singleton $
                               LedBecauseSwitch xy0 ) )
@@ -55,7 +55,7 @@ test_sustainLess = TestCase $ do
                 , _voicePitch = error "set below"
                 , _voiceParams = mempty }
       st1 :: St EdoApp = st0
-        & stApp . edoFingers .~ M.singleton (0,0) (VoiceId 0)
+        & stApp . edoFingers .~ M.singleton (Monome_256,(0,0)) (VoiceId 0)
         & stApp . edoSustaineded .~ S.singleton (VoiceId 1)
         & ( stVoices .~ M.fromList
             [ ( VoiceId 0, v { _voicePitch = 0 } )
@@ -67,7 +67,7 @@ test_sustainLess = TestCase $ do
     assertBool "" $ vs == [ VoiceId 1 ]
 
   let st = st0
-        & stApp . edoFingers .~ M.fromList [ (xy1, v1) ]
+        & stApp . edoFingers .~ M.fromList [ ((Monome_256, xy1), v1) ]
         & stApp . edoSustaineded .~ S.singleton v0
         & stApp . edoLit .~ ( M.singleton pc0
                               $ S.fromList [ LedBecauseSwitch xy0

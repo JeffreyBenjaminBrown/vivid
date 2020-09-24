@@ -119,7 +119,9 @@ data Voice app = Voice {
 -- | So far, viable options for `app` in `St app` are `EdoApp` or `JiApp`.
 data St app = St {
     _stApp :: app
-  , _stWindowLayers :: Map MonomeId [((X,Y), Window app)]
+  , _stWindowLayers :: Map MonomeId
+                       [ ( (X,Y) -- ^ the top-left corner
+                         , Window app ) ]
       -- ^ PITFALL: Order in the lists matters.
       -- Key presses are handled by the first window containing them.
       -- Windows listed earlier are thus "above" later ones.
@@ -147,10 +149,8 @@ data EdoApp = EdoApp
   { _edoConfig :: EdoConfig
   , _edoXyShift :: (X,Y) -- ^ This is relative -- a vector, not a point.
     -- TODO : For multiple keyboards, change (X,Y) -> (MonomeId, (X,Y))
-  , _edoFingers :: Map (X,Y) VoiceId
-    -- ^ Where fingers are, what each is sounding,
-    -- and what each is lighting up.
-    -- TODO : For multiple keyboards, change (X,Y) -> (MonomeId, (X,Y))
+  , _edoFingers :: Map (MonomeId, (X,Y)) VoiceId
+    -- ^ Where your fingers are, and which voice they correspond to.
   , _edoLit :: LitPitches EdoApp
   , _edoSustaineded :: Set VoiceId
     -- ^ PITFALL: In spirit, the thing sustained is a Pitch,

@@ -140,7 +140,7 @@ test_keyboardHandler = TestCase $ do
              & ( stPending_Vivid .~ edoKey_ScAction
                  st0 nv (xy0, True) )
              & ( stApp . edoFingers .~ M.fromList
-                 [ (xy0,nv) ] ) )
+                 [ ((Monome_256, xy0), nv) ] ) )
 
   assertBool "pressing a key adds a voice to _stVoices, sends on-messages to monome, sends on-messages to Vivid, adds something to _edoFingers, and adds something from _edoLit" $
     fromRight (error "bork")
@@ -158,4 +158,4 @@ test_keyboardHandler = TestCase $ do
                    pcToXys_st st_01f pc1 ) )
              & ( stPending_Vivid .~ edoKey_ScAction
                  st0 nv (xy1, True) )
-             & stApp . edoFingers %~ M.insert xy1 nv )
+             & stApp . edoFingers %~ M.insert (Monome_256, xy1) nv )

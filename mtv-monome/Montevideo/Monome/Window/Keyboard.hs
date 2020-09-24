@@ -14,6 +14,7 @@ import           Prelude hiding (pred)
 import           Control.Lens
 import           Data.Either.Combinators
 import qualified Data.Map as M
+import           Data.Map (Map)
 import qualified Data.Set as S
 import           Data.Set (Set)
 
@@ -50,10 +51,11 @@ handler    st           (mi, press@(xy,sw)) =
   let app = st ^. stApp
   vid <- if sw then Right $ nextVoice st
          else maybe (Left $ show xy ++ " not present in _edoFingers.")
-              Right $ M.lookup xy $ _edoFingers app
+              Right $ M.lookup (mi, xy) $ _edoFingers app
   let
-    fingers' = app ^. edoFingers
-               & if sw then M.insert xy vid else M.delete xy
+    fingers'  :: Map (MonomeId, (X,Y)) VoiceId =
+      app ^. edoFingers
+      & if sw then M.insert (mi,xy) vid else M.delete (mi,xy)
     pcNow :: EdoPitchClass =
       pToPc_st st $ xyToEdo_app app xy
       -- what the key represents currently
