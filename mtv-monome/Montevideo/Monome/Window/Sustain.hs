@@ -130,7 +130,7 @@ handler st (mi, ((==) button_sustainOff -> True,  True))  =
        x = map (, False ) $
          concatMap (pcToXys_st st) $ toDark
        in concat [ map ( (mi', Kbd.label) ,) x
-                 | mi' <- _edoKeyboards $ _stApp st ]
+                 | mi' <- M.keys $ _edoKeyboards $ _stApp st ]
      scas :: [ScAction VoiceId] =
        map silenceMsg $ S.toList $ sustained_minus_fingered st
      st2 = st1 & ( stPending_Monome %~ flip (++)

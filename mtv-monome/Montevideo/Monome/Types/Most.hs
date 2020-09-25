@@ -17,6 +17,7 @@ module Montevideo.Monome.Types.Most (
     , stZotDefaults, stZotRanges
   , EdoApp(..), edoConfig, edoXyShift, edoFingers, edoLit
     , edoSustaineded, edoParamGroup
+  , Keyboard(..)
   , JiApp(..), jiGenerator, jiShifts, jiFingers
   ) where
 
@@ -148,7 +149,11 @@ data St app = St {
 
 data EdoApp = EdoApp
   { _edoConfig :: EdoConfig
-  , _edoKeyboards :: [MonomeId] -- ^ Which monomes have keyboards.
+  , _edoKeyboards :: Map MonomeId Keyboard
+    -- ^ Not every monome needs to be associated with a keyboard.
+    -- It would be silly if none of them were, though.
+    -- PITFALL: Must be consistent with the _stWindowLayers field
+    -- of the containing St.
   , _edoXyShift :: (X,Y) -- ^ This is relative -- a vector, not a point.
     -- TODO : For multiple keyboards, change (X,Y) -> (MonomeId, (X,Y))
   , _edoFingers :: Map (MonomeId, (X,Y)) VoiceId
@@ -159,6 +164,15 @@ data EdoApp = EdoApp
     -- but it's represented as a voice,
     -- identified by the key that originally launched it.
   , _edoParamGroup :: ParamGroup
+  } deriving (Show, Eq)
+
+-- | A "keyboard" is a window. There is at most one per monome.
+data Keyboard = Keyboard {
+--  , _kbdZotDefaults :: Map ZotParam Float -- ^ Initially empty.
+--  , _kbdZotRanges  :: Map ZotParam (NumScale, Rational, Rational)
+--  , _kbdXyShift :: (X,Y) -- ^ This is relative -- a vector, not a point.
+--  , _kbdFingers :: Map (MonomeId, (X,Y)) VoiceId
+--  , _kbdSustaineded :: Set VoiceId
   } deriving (Show, Eq)
 
 -- | This is a just-intoned alternative to the EDO app.

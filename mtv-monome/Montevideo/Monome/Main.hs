@@ -89,7 +89,8 @@ edoMonome edoCfg = do
 
     , _stApp = EdoApp
         { _edoConfig = edoCfg
-        , _edoKeyboards = [Monome_256, Monome_old]
+        , _edoKeyboards = M.fromList [ (Monome_256, Keyboard)
+                                     , (Monome_old, Keyboard) ]
         , _edoXyShift = (0,0)
         , _edoFingers = mempty
         , _edoLit = mempty
