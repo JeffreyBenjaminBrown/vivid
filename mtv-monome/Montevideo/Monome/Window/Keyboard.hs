@@ -43,19 +43,23 @@ keyboardWindow =  Window {
       M.keys $ st ^. stApp . edoLit
   , windowHandler = handler }
 
--- TODO ! duplicative of `JI.handler`
 handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
         -> Either String (St EdoApp)
 handler    st           (mi, press@(xy,sw)) =
   mapLeft ("Keyboard handler: " ++) $ do
   let app = st ^. stApp
-  vid <- if sw then Right $ nextVoice st
-         else maybe (Left $ show xy ++ " not present in _edoFingers.")
-              Right $ M.lookup (mi, xy) $ _edoFingers app
+  kbd :: Keyboard <-
+         maybe (Left $ show mi ++ " absent from _edoKeyboards.")
+         Right $ M.lookup mi $ _edoKeyboards app
+  vid :: VoiceId <-
+    if sw then Right $ nextVoice st
+    else maybe (Left $ show xy ++ " not fingered on Keyboard.")
+         Right $ M.lookup xy $ _kbdFingers kbd
+
   let
-    fingers'  :: Map (MonomeId, (X,Y)) VoiceId =
-      app ^. edoFingers
-      & if sw then M.insert (mi,xy) vid else M.delete (mi,xy)
+    fingers' :: Map (X,Y) VoiceId =
+      _kbdFingers kbd &
+      if sw then M.insert xy vid else M.delete xy
     pcNow :: EdoPitchClass =
       pToPc_st st $ xyToEdo_app app xy
       -- what the key represents currently
@@ -89,7 +93,7 @@ handler    st           (mi, press@(xy,sw)) =
       , _voiceParams = mempty -- changed later, by `updateVoiceParams`
       }
     st1 :: St EdoApp = st
-      & stApp . edoFingers .~ fingers'
+      & stApp . edoKeyboards . at mi . _Just . kbdFingers .~ fingers'
       & stApp . edoLit     .~ lit'
       & stPending_Monome %~ (++ kbdMsgs)
       & stPending_Vivid  %~ (++ scas)

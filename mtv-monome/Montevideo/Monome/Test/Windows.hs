@@ -112,7 +112,8 @@ test_keyboardHandler = TestCase $ do
     =^= ( st_0af
           & ( stApp . edoLit . at pc0 . _Just
               .~ S.singleton LedBecauseAnchor )
-          & stApp . edoFingers .~ mempty
+          & ( stApp . edoKeyboards . at Monome_256 . _Just .~
+              Keyboard { _kbdFingers = mempty } )
           & stPending_Vivid .~
           [ ScAction_Free
             { _actionSynthDefEnum = Zot
@@ -124,7 +125,8 @@ test_keyboardHandler = TestCase $ do
     =^= ( st_0fs
           & ( stApp . edoLit . at pc0 . _Just
               .~ S.singleton LedBecauseSustain )
-          & stApp . edoFingers .~ mempty )
+          & ( stApp . edoKeyboards . at Monome_256 . _Just .~
+              Keyboard { _kbdFingers = mempty } ) )
 
   assertBool "pressing a key that's a pitch from a sustained voice does everything it would do if that weren't the case." $
     fromRight (error "bork")
@@ -139,8 +141,8 @@ test_keyboardHandler = TestCase $ do
                          , _voiceParams = mempty } ) )
              & ( stPending_Vivid .~ edoKey_ScAction
                  st0 nv (xy0, True) )
-             & ( stApp . edoFingers .~ M.fromList
-                 [ ((Monome_256, xy0), nv) ] ) )
+             & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdFingers
+                 %~ M.insert xy0 nv ) )
 
   assertBool "pressing a key adds a voice to _stVoices, sends on-messages to monome, sends on-messages to Vivid, adds something to _edoFingers, and adds something from _edoLit" $
     fromRight (error "bork")
@@ -158,4 +160,5 @@ test_keyboardHandler = TestCase $ do
                    pcToXys_st st_01f pc1 ) )
              & ( stPending_Vivid .~ edoKey_ScAction
                  st0 nv (xy1, True) )
-             & stApp . edoFingers %~ M.insert (Monome_256, xy1) nv )
+             & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdFingers
+                 %~ M.insert xy1 nv ) )

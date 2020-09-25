@@ -97,7 +97,7 @@ handler st (_, (_ , False)) = Right st
 
 handler st (mi, ((==) button_sustainMore -> True,  True))  =
   mapLeft ("Window.Sustain.handler (sustainMore): " ++) $ do
-  st1 <- sustainMore st
+  st1 <- sustainMore st mi
   Right $ if null $ st1 ^. stApp . edoSustaineded
           then st
           else st1 & stPending_Monome %~ flip (++)
@@ -106,7 +106,7 @@ handler st (mi, ((==) button_sustainMore -> True,  True))  =
 handler st (mi, ((==) button_sustainLess -> True,  True))  =
   mapLeft ("Window.Sustain.handler (sustainLess): " ++) $ do
   ( st1 :: St EdoApp, toSilence :: [VoiceId] ) <-
-    sustainLess st
+    sustainLess st mi
   let scas :: [ScAction VoiceId] =
         -- If nothing is fingered, this is empty,
         -- and `handler` returns `st` unchanged.
@@ -165,11 +165,12 @@ sustainOff st =
              & ( stApp . edoLit         .~
                  foldr deleteOneSustainReason (app ^. edoLit) susPcs )
 
-sustainMore :: St EdoApp -> Either String (St EdoApp)
-sustainMore st =
+sustainMore :: St EdoApp -> MonomeId -> Either String (St EdoApp)
+sustainMore st mi =
   mapLeft ("sustainMore: " ++) $ do
   let app = st ^. stApp
-      fs :: [VoiceId] = M.elems $ app ^. edoFingers
+      fs :: [VoiceId] = M.elems $ app ^.
+                        edoKeyboards . at mi . _Just . kbdFingers
   fPcs :: [EdoPitchClass] <-
     mapM (vid_to_pitchClass st) fs
   let lit' = foldr insertOneSustainReason (app ^. edoLit) fPcs
@@ -197,12 +198,13 @@ sustainMore st =
 -- This would make it easier to use with a single hand.
 -- However, it would be slower to use, and harder to write.
 
-sustainLess :: St EdoApp -> Either String ( St EdoApp
-                                          , [VoiceId] )
-sustainLess st =
+sustainLess :: St EdoApp -> MonomeId
+            -> Either String ( St EdoApp, [VoiceId] )
+sustainLess st mi =
   mapLeft ("sustainLess: " ++) $ do
   let app :: EdoApp = st ^. stApp
-      fs :: [VoiceId] = M.elems $ app ^. edoFingers
+      fs :: [VoiceId] = M.elems $ app ^.
+                        edoKeyboards . at mi . _Just . kbdFingers
   fPcs :: [EdoPitchClass] <-
            mapM (vid_to_pitchClass st) fs
   toUnsustain :: [VoiceId] <-
@@ -261,10 +263,14 @@ pitchClassesToDarken_uponSustainOff oldSt newSt = let
 
 sustained_minus_fingered :: St EdoApp -> Set VoiceId
 sustained_minus_fingered st = let
+  app :: EdoApp = st ^. stApp
   sustained :: Set VoiceId =
-    st ^. stApp . edoSustaineded
+    _edoSustaineded app
   fingered :: Set VoiceId =
-    S.fromList $ M.elems $ st ^. stApp . edoFingers
+    S.fromList $ concat
+    [ M.elems $ st ^.
+      stApp . edoKeyboards . at mi . _Just . kbdFingers
+    | mi <- M.keys $ _edoKeyboards app ]
   in S.difference sustained fingered
 
 

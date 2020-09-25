@@ -89,10 +89,11 @@ edoMonome edoCfg = do
 
     , _stApp = EdoApp
         { _edoConfig = edoCfg
-        , _edoKeyboards = M.fromList [ (Monome_256, Keyboard)
-                                     , (Monome_old, Keyboard) ]
+        , _edoKeyboards = let
+            k = Keyboard { _kbdFingers = mempty }
+            in M.fromList [ (Monome_256, k)
+                          , (Monome_old, k) ]
         , _edoXyShift = (0,0)
-        , _edoFingers = mempty
         , _edoLit = mempty
           -- M.singleton (2 :: PitchClass) $ S.singleton LedBecauseAnchor
         , _edoSustaineded = mempty
@@ -350,6 +351,9 @@ chDefault mst p f = do
 -- because using the command requires using the keyboard,
 -- i.e. probably taking one's eyes off the monome.
 -- todo : It would be better if it erased the sustain window.
+--
+-- PITFALL: Using this while fingering a monome key (which is difficult)
+-- results in a crash when that finger is later lifted.
 freeAllVoices :: MVar (St EdoApp) -> IO ()
 freeAllVoices mst = do
   st <- takeMVar mst
@@ -358,6 +362,8 @@ freeAllVoices mst = do
   mapM_ free voices
   putMVar mst $ st &
     stVoices .~ mempty &
-    stApp . edoFingers .~ mempty &
+    ( foldl (.) id
+      [ stApp . edoKeyboards . at mi . _Just . kbdFingers .~ mempty
+      | mi <- M.keys $ _edoKeyboards $ _stApp st ] ) &
     stApp . edoLit .~ mempty &
     stApp . edoSustaineded .~ mempty

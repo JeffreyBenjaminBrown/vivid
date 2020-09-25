@@ -53,9 +53,9 @@ pc1    :: EdoPitchClass = pToPc config31 pitch1
 st0 :: St EdoApp
 st0 = St {
     _stApp = EdoApp { _edoConfig = config31
-                    , _edoKeyboards = M.singleton Monome_256 Keyboard
+                    , _edoKeyboards = M.singleton Monome_256 $
+                      Keyboard { _kbdFingers = mempty }
                     , _edoXyShift = (3,5)
-                    , _edoFingers = mempty
                     , _edoLit = mempty
                     , _edoSustaineded = mempty
                     , _edoParamGroup = PG_FM
@@ -80,7 +80,8 @@ st_0a = -- 0 is the anchor pitch
   st0 & stApp . edoLit %~ M.insert pc0 (S.singleton LedBecauseAnchor)
 
 st_0f = -- fingering key 0 only
-  st0 & stApp . edoFingers .~ M.singleton (Monome_256, xy0) v0
+  st0 & ( stApp . edoKeyboards .~ M.singleton Monome_256
+          ( Keyboard { _kbdFingers = M.singleton xy0 v0 } ) )
       & stApp . edoLit .~  M.fromList
         [ ( pc0, S.singleton $ LedBecauseSwitch xy0) ]
 
@@ -91,15 +92,17 @@ st_0s = -- sustaining key 0 only
   & stApp . edoSustaineded .~ S.singleton v0
 
 st_01f = -- fingering keys 0 and 1
-  st0 & stApp . edoFingers .~ M.fromList [ ((Monome_256, xy0), v0)
-                                         , ((Monome_256, xy1), v1) ]
+  st0 & ( stApp . edoKeyboards .~ M.singleton Monome_256
+          ( Keyboard { _kbdFingers = M.fromList [ (xy0, v0)
+                                                , (xy1, v1) ] } ) )
   & stApp . edoLit .~ M.fromList
     [ ( pc0, S.singleton $ LedBecauseSwitch xy0)
     , ( pc1, S.singleton $ LedBecauseSwitch xy1) ]
 
 st_0fs = -- 0 is both fingered and sustained
   st0
-  & stApp . edoFingers .~ M.singleton (Monome_256, xy0) v0
+  & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdFingers
+      .~ M.singleton xy0 v0 )
   & stApp . edoSustaineded .~ S.singleton v0
   & stApp . edoLit .~ ( M.singleton pc0
                         $ S.fromList [ LedBecauseSwitch xy0

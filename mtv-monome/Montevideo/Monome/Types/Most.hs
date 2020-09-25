@@ -15,9 +15,9 @@ module Montevideo.Monome.Types.Most (
   , St(..), stApp, stWindowLayers, edoKeyboards, stToMonome, stVoices
     , stPending_Monome, stPending_Vivid, stPending_String
     , stZotDefaults, stZotRanges
-  , EdoApp(..), edoConfig, edoXyShift, edoFingers, edoLit
+  , EdoApp(..), edoConfig, edoKeyboards, edoXyShift, edoLit
     , edoSustaineded, edoParamGroup
-  , Keyboard(..)
+  , Keyboard(..), kbdFingers
   , JiApp(..), jiGenerator, jiShifts, jiFingers
   ) where
 
@@ -156,8 +156,6 @@ data EdoApp = EdoApp
     -- of the containing St.
   , _edoXyShift :: (X,Y) -- ^ This is relative -- a vector, not a point.
     -- TODO : For multiple keyboards, change (X,Y) -> (MonomeId, (X,Y))
-  , _edoFingers :: Map (MonomeId, (X,Y)) VoiceId
-    -- ^ Where your fingers are, and which voice they correspond to.
   , _edoLit :: LitPitches EdoApp
   , _edoSustaineded :: Set VoiceId
     -- ^ PITFALL: In spirit, the thing sustained is a Pitch,
@@ -168,10 +166,11 @@ data EdoApp = EdoApp
 
 -- | A "keyboard" is a window. There is at most one per monome.
 data Keyboard = Keyboard {
+    _kbdFingers :: Map (X,Y) VoiceId
+    -- ^ Where your fingers are, and which voice they correspond to.
 --  , _kbdZotDefaults :: Map ZotParam Float -- ^ Initially empty.
 --  , _kbdZotRanges  :: Map ZotParam (NumScale, Rational, Rational)
 --  , _kbdXyShift :: (X,Y) -- ^ This is relative -- a vector, not a point.
---  , _kbdFingers :: Map (MonomeId, (X,Y)) VoiceId
 --  , _kbdSustaineded :: Set VoiceId
   } deriving (Show, Eq)
 
@@ -192,4 +191,5 @@ data JiApp = JiApp
 makeLenses ''Voice
 makeLenses ''St
 makeLenses ''EdoApp
+makeLenses ''Keyboard
 makeLenses ''JiApp

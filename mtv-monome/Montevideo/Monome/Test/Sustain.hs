@@ -36,8 +36,9 @@ test_sustainLess = TestCase $ do
   -- In the following, the fingered key is sustained when `sustainLess`
   -- is called. It continues to sound (hence vs is empty),
   -- but it is removed from the sustained pitches.
-  let Right (st, vs) = sustainLess $ st0
-        & stApp . edoFingers .~ M.fromList [ ((Monome_256,xy0), v0) ]
+  let Right (st, vs) = flip sustainLess Monome_256 $
+        st0 & ( stApp . edoKeyboards . at Monome_256 . _Just .~
+                Keyboard { _kbdFingers = M.singleton xy0 v0 } )
         & stApp . edoSustaineded .~ S.singleton v0
         & stApp . edoLit .~ ( M.singleton pc0
                               $ S.fromList [ LedBecauseSwitch xy0
@@ -45,7 +46,8 @@ test_sustainLess = TestCase $ do
     in do
     assertBool "" $ st =^=
       ( st0
-        & stApp . edoFingers .~ M.fromList [ ((Monome_256, xy0), v0) ]
+        & ( stApp . edoKeyboards . at Monome_256 . _Just .~
+            Keyboard { _kbdFingers = M.singleton xy0 v0 } )
         & stApp . edoSustaineded .~ mempty
         & stApp . edoLit .~ ( M.singleton pc0 $ S.singleton $
                               LedBecauseSwitch xy0 ) )
@@ -55,24 +57,27 @@ test_sustainLess = TestCase $ do
                 , _voicePitch = error "set below"
                 , _voiceParams = mempty }
       st1 :: St EdoApp = st0
-        & stApp . edoFingers .~ M.singleton (Monome_256,(0,0)) (VoiceId 0)
+        & ( stApp . edoKeyboards . at Monome_256 . _Just
+            .~ Keyboard { _kbdFingers =
+                          M.singleton (0,0) $ VoiceId 0 } )
         & stApp . edoSustaineded .~ S.singleton (VoiceId 1)
         & ( stVoices .~ M.fromList
             [ ( VoiceId 0, v { _voicePitch = 0 } )
             , ( VoiceId 1, v { _voicePitch = EdoPitch $ st0 ^.
                                              stApp . edoConfig . edo } ) ] )
-      Right (st2, vs) = sustainLess st1
+      Right (st2, vs) = sustainLess st1 Monome_256
     in do
     assertBool "" $ st2 == ( st1 & stApp . edoSustaineded .~ mempty )
     assertBool "" $ vs == [ VoiceId 1 ]
 
   let st = st0
-        & stApp . edoFingers .~ M.fromList [ ((Monome_256, xy1), v1) ]
+        & ( stApp . edoKeyboards . at Monome_256 . _Just
+            .~ Keyboard { _kbdFingers = M.singleton xy1 v1 } )
         & stApp . edoSustaineded .~ S.singleton v0
         & stApp . edoLit .~ ( M.singleton pc0
                               $ S.fromList [ LedBecauseSwitch xy0
                                            , LedBecauseSustain ] )
-      Right (st', vs) = sustainLess st
+      Right (st', vs) = sustainLess st Monome_256
       in do assertBool "" $ st =^= st'
             assertBool "" $ vs == []
 
@@ -99,12 +104,12 @@ test_sustained_minus_fingered = TestCase $ do
 test_sustainOn :: Test
 test_sustainOn = TestCase $ do
   assertBool "turn sustain on" $
-    fromRight (error "bork") (sustainMore st_0f) =^=
+    fromRight (error "bork") (sustainMore st_0f Monome_256) =^=
     ( st_0f & ( stApp . edoLit . at pc0 . _Just
                 %~ S.insert LedBecauseSustain )
             & stApp . edoSustaineded .~ S.singleton v0 )
   assertBool "sustain won't turn on if nothing is fingered" $
-    fromRight (error "bork") (sustainMore st0) =^= st0
+    fromRight (error "bork") (sustainMore st0 Monome_256) =^= st0
 
 test_sustainOff :: Test
 test_sustainOff = TestCase $ do
