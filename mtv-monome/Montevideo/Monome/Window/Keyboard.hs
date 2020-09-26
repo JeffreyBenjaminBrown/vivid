@@ -11,7 +11,7 @@ module Montevideo.Monome.Window.Keyboard (
   ) where
 
 import           Prelude hiding (pred)
-import           Control.Lens
+import           Control.Lens hiding (to)
 import           Data.Either.Combinators
 import qualified Data.Map as M
 import           Data.Map (Map)
@@ -77,13 +77,10 @@ handler    st           (mi, press@(xy,sw)) =
     toDark  :: [EdoPitchClass] = S.toList $ S.difference oldKeys newKeys
     toLight :: [EdoPitchClass] = S.toList $ S.difference newKeys oldKeys
 
-  kbdMsgs :: [LedMsg] <- do
-    whereDark  :: [((X,Y), Led)] <- map (,False) . concat <$>
-                                    mapM (EM.pcToXys_st st mi) toDark
-    whereLight :: [((X,Y), Led)] <- map (,True) . concat <$>
-                                    mapM (EM.pcToXys_st st mi) toLight
-    Right $ concat [ map ((mi', label) ,) $ whereDark ++ whereLight
-                   | mi' <- M.keys $ _edoKeyboards app ]
+  whereDark  :: [LedMsg] <-
+    EM.pcsToLedMsgs_st st label False toDark
+  whereLight :: [LedMsg] <-
+    EM.pcsToLedMsgs_st st label True toLight
   scas :: [ScAction VoiceId] <-
     edoKey_ScAction st mi vid press
   vp :: Pitch EdoApp <-
@@ -98,7 +95,7 @@ handler    st           (mi, press@(xy,sw)) =
     st1 :: St EdoApp = st
       & stApp . edoKeyboards . at mi . _Just . kbdFingers .~ fingers'
       & stApp . edoLit     .~ lit'
-      & stPending_Monome %~ (++ kbdMsgs)
+      & stPending_Monome %~ (++ whereDark ++ whereLight)
       & stPending_Vivid  %~ (++ scas)
       & stVoices         %~ (if sw then M.insert vid v else id)
   Right $ foldr updateVoiceParams st1 scas

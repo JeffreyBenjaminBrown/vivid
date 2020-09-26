@@ -4,6 +4,8 @@ module Montevideo.Monome.EdoMath (
     edoToFreq   -- ^ EdoConfig -> EdoPitch -> Float
   , xyToEdo     -- ^ EdoConfig -> (X,Y) -> EdoPitch
   , xyToEdo_app -- ^ EdoApp    -> (X,Y) -> EdoPitch
+  , pcsToLedMsgs_st -- ^ St EdoApp -> WindowId -> Led -> [EdoPitchClass]
+                    -- -> Either String [LedMsg]
   , pcToXys_st  -- ^ St EdoApp -> EdoPitchClass -> [(X,Y)]
   , pcToXys     -- ^ EdoConfig -> PitchClass -> (X,Y) -> [(X,Y)]
   , pcToLowXY   -- ^ EdoConfig -> PitchClass -> (X,Y)
@@ -16,8 +18,9 @@ module Montevideo.Monome.EdoMath (
                     -- -> Either String (X,Y)
   ) where
 
-import Control.Lens hiding (from,to)
-import Data.Either.Combinators
+import           Control.Lens hiding (from,to)
+import qualified Data.Map as M
+import           Data.Either.Combinators
 
 import           Montevideo.JI.Util (fromCents)
 import           Montevideo.Monome.Types.Most
@@ -41,6 +44,19 @@ xyToEdo_app app mi xy = do
     xyToEdo (app ^. edoConfig) $
     pairAdd xy $ pairMul (-1) sh
 
+pcsToLedMsgs_st :: St EdoApp -> WindowId -> Led -> [EdoPitchClass]
+               -> Either String [LedMsg]
+pcsToLedMsgs_st st label led pcs =
+  fmap concat $ -- Either [[ ... ]] -> Either [ ... ]
+  sequenceA -- [Either ...] -> Either [...]
+  [ fmap ( -- inside the Either
+      fmap $ -- inside the [...]
+      \xy -> ((mi,label), (xy, led))) $
+    fmap concat $ -- Either [[ ... ]] -> Either [ ... ]
+    sequenceA $ -- [Either ...] -> Either [...]
+    map (pcToXys_st st mi) pcs
+  | mi <- M.keys $ _edoKeyboards $ _stApp st ]
+
 pcToXys_st :: St EdoApp -> MonomeId -> EdoPitchClass
            -> Either String [(X,Y)]
 pcToXys_st st mi = let
@@ -51,7 +67,6 @@ pcToXys_st st mi = let
        Left s -> const $ Left s -- This `const` prevents use of do notation.
        Right sh' ->
          Right . pcToXys (st ^. stApp . edoConfig) sh'
-
 
 -- | `pcToXys ec shift pc` finds all buttons that are enharmonically
 -- equal to a given PitchClass, taking into account how the pitches
@@ -176,10 +191,11 @@ pToPc ec = EdoPitchClass . modEdo ec . _unEdoPitch
 pToPc_st :: St EdoApp -> EdoPitch -> EdoPitchClass
 pToPc_st st = EdoPitchClass . modEdo_st st . _unEdoPitch
 
+-- TODO ? unused
 -- | Translate an (X,Y) from one Keyboard to another.
 -- If both have the same kbdShift, this leaves the (X,Y) unchanged.
 xyChangeMonome :: EdoApp -> MonomeId -> MonomeId -> (X,Y)
-           -> Either String (X,Y)
+               -> Either String (X,Y)
 xyChangeMonome app from to xy =
   mapLeft ("xyChangeMonome: " ++) $ do
   fromShift :: (X,Y) <- maybe (Left $ show from ++ " not found.") Right $
@@ -188,6 +204,7 @@ xyChangeMonome app from to xy =
                         app ^? edoKeyboards . at to . _Just . kbdShift
   Right $ xyChangeShift fromShift toShift xy
 
+-- TODO ? unused
 xyChangeShift :: (X,Y) -> (X,Y) -> (X,Y) -> (X,Y)
 xyChangeShift fromShift toShift xy =
   xy & pairAdd toShift & flip pairSubtract fromShift

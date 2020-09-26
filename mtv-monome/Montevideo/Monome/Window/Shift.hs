@@ -74,6 +74,9 @@ handler    st0          (mi, (xy, True))      =
         st0 & stApp . edoKeyboards . at mi . _Just . kbdShift %~ pairAdd s
       lit :: [EdoPitchClass] = M.keys $ st0 ^. stApp . edoLit
   msgs :: [LedMsg] <- do
+    -- todo: This could be a one-liner with pcsToLedMsgs_st,
+    -- if it were modified to accept a list of MonomeIds instead of
+    -- always using all of the app's Keyboards.
     x <- map (,False) . concat <$> mapM (pcToXys_st st0 mi) lit
     y <- map (,True)  . concat <$> mapM (pcToXys_st st' mi) lit
     Right $ map ( (mi, Kbd.label) ,) $ x ++ y

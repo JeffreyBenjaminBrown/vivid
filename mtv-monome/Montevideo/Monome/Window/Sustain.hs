@@ -124,17 +124,14 @@ handler st (mi, ((==) button_sustainOff -> True,  True))  =
    mapLeft ("Window.Sustain.handler (sustainOff): " ++) $ do
    st1 <- sustainOff st
    toDark <- pitchClassesToDarken_uponSustainOff st st1
- 
-   kbdMsgs :: [LedMsg] <- do
-     x :: [((X,Y), Led)] <- map (, False ) . concat <$>
-                            mapM (pcToXys_st st mi) toDark
-     Right $ concat [ map ( (mi', Kbd.label) ,) x
-                    | mi' <- M.keys $ _edoKeyboards $ _stApp st ]
+   whereDark :: [LedMsg] <-
+     pcsToLedMsgs_st st Kbd.label False toDark
+
    let
      scas :: [ScAction VoiceId] =
        map silenceMsg $ S.toList $ sustained_minus_fingered st
      st2 = st1 & ( stPending_Monome %~ flip (++)
-                   ( buttonMsgs mi False ++ kbdMsgs) )
+                   ( buttonMsgs mi False ++ whereDark) )
                & stPending_Vivid  %~ flip (++) scas
 
    -- TODO This call to updateVoiceParams seems uneeded.
