@@ -12,12 +12,12 @@ module Montevideo.Monome.Types.Most (
   , LedBecause(..)
   , Window(..)
   , Voice(..), voiceSynth, voicePitch, voiceParams
-  , St(..), stApp, stWindowLayers, edoKeyboards, stToMonome, stVoices
+  , St(..), stApp, stWindowLayers, stToMonome, stVoices
     , stPending_Monome, stPending_Vivid, stPending_String
     , stZotDefaults, stZotRanges
-  , EdoApp(..), edoConfig, edoKeyboards, edoXyShift, edoLit
+  , EdoApp(..), edoConfig, edoKeyboards, edoLit
     , edoSustaineded, edoParamGroup
-  , Keyboard(..), kbdFingers
+  , Keyboard(..), kbdFingers, kbdShift
   , JiApp(..), jiGenerator, jiShifts, jiFingers
   ) where
 
@@ -154,8 +154,6 @@ data EdoApp = EdoApp
     -- It would be silly if none of them were, though.
     -- PITFALL: Must be consistent with the _stWindowLayers field
     -- of the containing St.
-  , _edoXyShift :: (X,Y) -- ^ This is relative -- a vector, not a point.
-    -- TODO : For multiple keyboards, change (X,Y) -> (MonomeId, (X,Y))
   , _edoLit :: LitPitches EdoApp
   , _edoSustaineded :: Set VoiceId
     -- ^ PITFALL: In spirit, the thing sustained is a Pitch,
@@ -167,10 +165,10 @@ data EdoApp = EdoApp
 -- | A "keyboard" is a window. There is at most one per monome.
 data Keyboard = Keyboard {
     _kbdFingers :: Map (X,Y) VoiceId
+  , _kbdShift :: (X,Y) -- ^ This is relative -- a vector, not a point.
     -- ^ Where your fingers are, and which voice they correspond to.
 --  , _kbdZotDefaults :: Map ZotParam Float -- ^ Initially empty.
 --  , _kbdZotRanges  :: Map ZotParam (NumScale, Rational, Rational)
---  , _kbdXyShift :: (X,Y) -- ^ This is relative -- a vector, not a point.
 --  , _kbdSustaineded :: Set VoiceId
   } deriving (Show, Eq)
 
@@ -179,8 +177,8 @@ data Keyboard = Keyboard {
 -- I don't use it any more;
 -- I used it just long enough to convince myself that EDO is the way for me.
 --
--- If I remember right, the jiGenerator and the jiShifts are equivalent;
--- they might be better named "horizontal intervals" and "vertical intervals".
+-- The fields jiGenerator and jiShifts are equivalent;
+-- better names would be "horizontal intervals" and "vertical intervals".
 data JiApp = JiApp
   { _jiGenerator :: [Rational]
   , _jiShifts :: [Rational]

@@ -90,10 +90,10 @@ edoMonome edoCfg = do
     , _stApp = EdoApp
         { _edoConfig = edoCfg
         , _edoKeyboards = let
-            k = Keyboard { _kbdFingers = mempty }
+            k = Keyboard { _kbdFingers = mempty
+                         , _kbdShift = (0,0) }
             in M.fromList [ (Monome_256, k)
                           , (Monome_old, k) ]
-        , _edoXyShift = (0,0)
         , _edoLit = mempty
           -- M.singleton (2 :: PitchClass) $ S.singleton LedBecauseAnchor
         , _edoSustaineded = mempty

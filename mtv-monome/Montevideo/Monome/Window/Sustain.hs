@@ -125,12 +125,12 @@ handler st (mi, ((==) button_sustainOff -> True,  True))  =
    st1 <- sustainOff st
    toDark <- pitchClassesToDarken_uponSustainOff st st1
  
-   let
-     kbdMsgs :: [LedMsg] = let
-       x = map (, False ) $
-         concatMap (pcToXys_st st) $ toDark
-       in concat [ map ( (mi', Kbd.label) ,) x
+   kbdMsgs :: [LedMsg] <- do
+     x :: [((X,Y), Led)] <- map (, False ) . concat <$>
+                            mapM (pcToXys_st st mi) toDark
+     Right $ concat [ map ( (mi', Kbd.label) ,) x
                  | mi' <- M.keys $ _edoKeyboards $ _stApp st ]
+   let
      scas :: [ScAction VoiceId] =
        map silenceMsg $ S.toList $ sustained_minus_fingered st
      st2 = st1 & ( stPending_Monome %~ flip (++)

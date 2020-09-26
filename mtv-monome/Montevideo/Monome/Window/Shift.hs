@@ -70,11 +70,12 @@ handler    st0          (mi, (xy, True))      =
   mapLeft ("Shift window handler: " ++) $ do
   let ec = st0 ^. stApp . edoConfig
   s <- shift ec xy
-  let st' :: St EdoApp = st0 & stApp . edoXyShift %~ pairAdd s
+  let st' :: St EdoApp =
+        st0 & stApp . edoKeyboards . at mi . _Just . kbdShift %~ pairAdd s
       lit :: [EdoPitchClass] = M.keys $ st0 ^. stApp . edoLit
-      msgs :: [LedMsg] =
-        map ( (mi, Kbd.label) ,) $
-        (map (,False) $ concatMap (pcToXys_st st0) lit) ++
-        (map (,True)  $ concatMap (pcToXys_st st') lit)
+  msgs :: [LedMsg] <- do
+    x <- map (,False) . concat <$> mapM (pcToXys_st st0 mi) lit
+    y <- map (,True)  . concat <$> mapM (pcToXys_st st' mi) lit
+    Right $ map ( (mi, Kbd.label) ,) $ x ++ y
   Right $ st' & stPending_Monome %~
                 flip (++) msgs

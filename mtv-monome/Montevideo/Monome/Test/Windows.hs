@@ -34,17 +34,19 @@ test_edoKey_ScAction = TestCase $ do
       newXy = (0,1)
       st = st0 & ( stApp . edoSustaineded .~
                    S.singleton sustainedVoice )
-      newPitch = xyToEdo_app (st ^. stApp) newXy
+      newPitch :: EdoPitch =
+        either (error "wut? 1") id $
+        xyToEdo_app (st ^. stApp) Monome_256 newXy
   assertBool "pressing a key that's sustained has no effect" $
-    edoKey_ScAction st sustainedVoice (sustainedXy, True)
-    == []
+    edoKey_ScAction st Monome_256 sustainedVoice (sustainedXy, True)
+    == Right []
   assertBool "releasing a key that's sustained has no effect" $
-    edoKey_ScAction st sustainedVoice (sustainedXy, False)
-    == []
+    edoKey_ScAction st Monome_256 sustainedVoice (sustainedXy, False)
+    == Right []
 
   assertBool "press a key that's not sustained.\n" $
-    edoKey_ScAction st newVoice (newXy, True) ==
-    [ ScAction_New
+    edoKey_ScAction st Monome_256 newVoice (newXy, True) ==
+    Right [ ScAction_New
       { _actionSynthDefEnum = Zot
       , _actionSynthName = newVoice
       , _actionScMsg = M.singleton "freq" $
@@ -53,8 +55,8 @@ test_edoKey_ScAction = TestCase $ do
       } ]
 
   assertBool "release a key that's not sustained" $
-    edoKey_ScAction st newVoice (newXy, False) ==
-    [ ScAction_Free
+    edoKey_ScAction st Monome_256 newVoice (newXy, False) ==
+    Right [ ScAction_Free
       { _actionSynthDefEnum = Zot
       , _actionSynthName = newVoice } ]
 
@@ -66,7 +68,9 @@ test_shiftHandler = TestCase $ do
     =^= st_0a
 
   assertBool "shift the notes one space closer to player's body" $ let
-    oldShift = st_0a ^. stApp . edoXyShift
+    oldShift =
+      maybe (error "wut? 1") id $
+      st_0a ^? stApp . edoKeyboards . at Monome_256 . _Just . kbdShift
     newShift = pairAdd oldShift $
                fromRight (error "bork") $
                Sh.shift (st_0a ^. stApp . edoConfig) Sh.downArrow
@@ -76,20 +80,24 @@ test_shiftHandler = TestCase $ do
     in fromRight (error "bork")
        (Sh.handler st_0a (Monome_256, (Sh.downArrow, True)))
        =^= (st_0a & stPending_Monome .~ msgs
-                  & stApp . edoXyShift .~ newShift)
+                  & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdShift
+                      .~ newShift ) )
 
   assertBool "shift the notes an octave higher" $ let
-    oldShift = st_0a ^. stApp . edoXyShift
+    oldShift =
+      maybe (error "bork 3") id $
+      st_0a ^? stApp . edoKeyboards . at Monome_256 . _Just . kbdShift
     newShift = pairAdd oldShift $
-               fromRight (error "bork") $
+               fromRight (error "bork 2") $
                Sh.shift (st_0a ^. stApp . edoConfig) Sh.upOctave
     msgs :: [LedMsg] = map ( (Monome_256, K.label) ,)
       $  map (,False) (pcToXys (st_0a ^. stApp . edoConfig) oldShift pc0)
       ++ map (,True)  (pcToXys (st_0a ^. stApp . edoConfig) newShift pc0)
-    in fromRight (error "bork")
+    in fromRight (error "bork 1")
        (Sh.handler st_0a (Monome_256, (Sh.upOctave, True))) =^=
        (st_0a & stPending_Monome .~ msgs
-              & stApp . edoXyShift .~ newShift)
+              & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdShift
+                  .~ newShift ) )
 
 test_keyboardHandler :: Test
 test_keyboardHandler = TestCase $ do
@@ -100,7 +108,8 @@ test_keyboardHandler = TestCase $ do
           & ( stPending_Monome .~
               ( map (\xy -> ( (Monome_256, K.label)
                             , (xy, False)) ) $
-                pcToXys_st st_01f pc1 ) )
+                either (error "wut 1?") id $
+                pcToXys_st st_01f Monome_256 pc1 ) )
           & ( stPending_Vivid .~
               [ ScAction_Free
                 { _actionSynthDefEnum = Zot
@@ -112,8 +121,8 @@ test_keyboardHandler = TestCase $ do
     =^= ( st_0af
           & ( stApp . edoLit . at pc0 . _Just
               .~ S.singleton LedBecauseAnchor )
-          & ( stApp . edoKeyboards . at Monome_256 . _Just .~
-              Keyboard { _kbdFingers = mempty } )
+          & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdFingers
+              %~ const mempty )
           & stPending_Vivid .~
           [ ScAction_Free
             { _actionSynthDefEnum = Zot
@@ -125,8 +134,8 @@ test_keyboardHandler = TestCase $ do
     =^= ( st_0fs
           & ( stApp . edoLit . at pc0 . _Just
               .~ S.singleton LedBecauseSustain )
-          & ( stApp . edoKeyboards . at Monome_256 . _Just .~
-              Keyboard { _kbdFingers = mempty } ) )
+          & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdFingers
+              %~ const mempty ) )
 
   assertBool "pressing a key that's a pitch from a sustained voice does everything it would do if that weren't the case." $
     fromRight (error "bork")
@@ -137,10 +146,13 @@ test_keyboardHandler = TestCase $ do
                  %~ S.insert (LedBecauseSwitch xy0) )
              & ( stVoices %~ M.insert nv
                  ( Voice { _voiceSynth = Nothing
-                         , _voicePitch = xyToEdo_app (_stApp st_0s) xy0
+                         , _voicePitch =
+                           either (error "wut 2?") id $
+                           xyToEdo_app (_stApp st_0s) Monome_256 xy0
                          , _voiceParams = mempty } ) )
-             & ( stPending_Vivid .~ edoKey_ScAction
-                 st0 nv (xy0, True) )
+             & ( stPending_Vivid .~
+                 either (error "wut 1?") id
+                 ( edoKey_ScAction st0 Monome_256 nv (xy0, True) ) )
              & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdFingers
                  %~ M.insert xy0 nv ) )
 
@@ -152,13 +164,17 @@ test_keyboardHandler = TestCase $ do
           in st_01f
              & ( stVoices %~ M.insert nv
                  (Voice { _voiceSynth = Nothing
-                        , _voicePitch = xyToEdo_app (_stApp st_0f) xy1
+                        , _voicePitch =
+                          either (error "wut 3?") id $
+                          xyToEdo_app (_stApp st_0f) Monome_256 xy1
                         , _voiceParams = mempty } ) )
              & ( stPending_Monome .~
                  ( map (\xy -> ( (Monome_256, K.label)
                                , (xy, True) ) ) $
-                   pcToXys_st st_01f pc1 ) )
-             & ( stPending_Vivid .~ edoKey_ScAction
-                 st0 nv (xy1, True) )
+                   either (error "wut 2?") id $
+                   pcToXys_st st_01f Monome_256 pc1 ) )
+             & ( stPending_Vivid .~
+                 either (error "wut 1?") id
+                 ( edoKey_ScAction st0 Monome_256 nv (xy1, True) ) )
              & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdFingers
                  %~ M.insert xy1 nv ) )

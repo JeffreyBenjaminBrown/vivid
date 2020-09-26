@@ -36,9 +36,9 @@ test_sustainLess = TestCase $ do
   -- In the following, the fingered key is sustained when `sustainLess`
   -- is called. It continues to sound (hence vs is empty),
   -- but it is removed from the sustained pitches.
-  let Right (st, vs) = flip sustainLess Monome_256 $
-        st0 & ( stApp . edoKeyboards . at Monome_256 . _Just .~
-                Keyboard { _kbdFingers = M.singleton xy0 v0 } )
+  let Right (st, vs) = flip sustainLess Monome_256 $ st0
+        & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdFingers
+            %~ const (M.singleton xy0 v0) )
         & stApp . edoSustaineded .~ S.singleton v0
         & stApp . edoLit .~ ( M.singleton pc0
                               $ S.fromList [ LedBecauseSwitch xy0
@@ -46,8 +46,8 @@ test_sustainLess = TestCase $ do
     in do
     assertBool "" $ st =^=
       ( st0
-        & ( stApp . edoKeyboards . at Monome_256 . _Just .~
-            Keyboard { _kbdFingers = M.singleton xy0 v0 } )
+        & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdFingers
+            %~ const (M.singleton xy0 v0) )
         & stApp . edoSustaineded .~ mempty
         & stApp . edoLit .~ ( M.singleton pc0 $ S.singleton $
                               LedBecauseSwitch xy0 ) )
@@ -57,9 +57,8 @@ test_sustainLess = TestCase $ do
                 , _voicePitch = error "set below"
                 , _voiceParams = mempty }
       st1 :: St EdoApp = st0
-        & ( stApp . edoKeyboards . at Monome_256 . _Just
-            .~ Keyboard { _kbdFingers =
-                          M.singleton (0,0) $ VoiceId 0 } )
+        & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdFingers
+            %~ const (M.singleton (0,0) $ VoiceId 0) )
         & stApp . edoSustaineded .~ S.singleton (VoiceId 1)
         & ( stVoices .~ M.fromList
             [ ( VoiceId 0, v { _voicePitch = 0 } )
@@ -71,8 +70,8 @@ test_sustainLess = TestCase $ do
     assertBool "" $ vs == [ VoiceId 1 ]
 
   let st = st0
-        & ( stApp . edoKeyboards . at Monome_256 . _Just
-            .~ Keyboard { _kbdFingers = M.singleton xy1 v1 } )
+        & ( stApp . edoKeyboards . at Monome_256 . _Just . kbdFingers
+            %~ const (M.singleton xy1 v1) )
         & stApp . edoSustaineded .~ S.singleton v0
         & stApp . edoLit .~ ( M.singleton pc0
                               $ S.fromList [ LedBecauseSwitch xy0
@@ -179,7 +178,8 @@ test_sustainHandler = TestCase $ do
           ( buttonMsgs Monome_256 False ++
             map (\xy -> ( (Monome_256, K.label)
                         , (xy, False)))
-            (pcToXys_st st_0fs_1s pc1) )
+              ( either (error "wut? 1") id $
+                pcToXys_st st_0fs_1s Monome_256 pc1) )
           & stPending_Vivid .~
           [ ScAction_Free
             { _actionSynthDefEnum = Zot

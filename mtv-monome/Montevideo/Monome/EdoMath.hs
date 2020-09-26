@@ -28,18 +28,31 @@ edoToFreq ec f =
   in two ** ( fi (_unEdoPitch f) /
               fi (ec ^. edo) )
 
-xyToEdo_app :: EdoApp -> (X,Y) -> EdoPitch
-xyToEdo_app app xy =
+xyToEdo_app :: EdoApp -> MonomeId -> (X,Y)
+            -> Either String EdoPitch
+xyToEdo_app app mi xy = do
+  sh :: (X,Y) <-
+    maybe (Left $ show mi ++ " not found in edoKeyboards.") Right
+    $ app ^? edoKeyboards . at mi . _Just . kbdShift
+  Right $
   xyToEdo (app ^. edoConfig) $
-  pairAdd xy $ pairMul (-1) $ _edoXyShift app
+    pairAdd xy $ pairMul (-1) sh
 
-pcToXys_st :: St EdoApp -> EdoPitchClass -> [(X,Y)]
-pcToXys_st st = pcToXys (st ^. stApp . edoConfig)
-                        (st ^. stApp . edoXyShift)
+pcToXys_st :: St EdoApp -> MonomeId -> EdoPitchClass
+           -> Either String [(X,Y)]
+pcToXys_st st mi = let
+  sh :: Either String (X,Y) =
+    maybe (Left $ show mi ++ " not found in edoKeyboards.") Right
+    $ st ^? stApp . edoKeyboards . at mi . _Just . kbdShift
+  in case sh of
+       Left s -> const $ Left s -- This `const` prevents use of do notation.
+       Right sh' ->
+         Right . pcToXys (st ^. stApp . edoConfig) sh'
+
 
 -- | `pcToXys ec shift pc` finds all buttons that are enharmonically
--- equal to a given PitchClass, taking into account how the board
--- has been shifted in pitch space.
+-- equal to a given PitchClass, taking into account how the pitches
+-- have been shifted across the monome.
 pcToXys :: EdoConfig -> (X,Y) -> EdoPitchClass -> [(X,Y)]
 pcToXys ec shift pc = let
   onMonome :: (X,Y) -> Bool -- monome button coordinates are in [0,15]

@@ -36,10 +36,11 @@ keyboardWindow =  Window {
     windowLabel = label
   , windowContains = \(x,y) -> let pred = numBetween 0 15
                                in pred x && pred y
-  , windowInitLeds = \st mi ->
+  , windowInitLeds = \st mi -> let
+      errMsg = "Keyboard.keyboardWindow: todo: handle this gracefully" in
       map ( ( (mi, label) ,)
             . (,True) ) $
-      concatMap (pcToXys_st st) $
+      concatMap ( either (error errMsg) id . pcToXys_st st mi ) $
       M.keys $ st ^. stApp . edoLit
   , windowHandler = handler }
 
@@ -56,18 +57,18 @@ handler    st           (mi, press@(xy,sw)) =
     else maybe (Left $ show xy ++ " not fingered on Keyboard.")
          Right $ M.lookup xy $ _kbdFingers kbd
 
-  let
-    fingers' :: Map (X,Y) VoiceId =
-      _kbdFingers kbd &
-      if sw then M.insert xy vid else M.delete xy
-    pcNow :: EdoPitchClass =
-      pToPc_st st $ xyToEdo_app app xy
+  pcNow :: EdoPitchClass <-
+    pToPc_st st <$> xyToEdo_app app mi xy
       -- what the key represents currently
+  let
     pcThen :: Maybe EdoPitchClass =
       ledBecause_toPitchClass @ EdoApp
       (app ^. edoLit) $ LedBecauseSwitch xy
       -- what the key represented when it was pressed,
       -- if it is now being released
+    fingers' :: Map (X,Y) VoiceId =
+      _kbdFingers kbd &
+      if sw then M.insert xy vid else M.delete xy
 
     lit  :: LitPitches EdoApp = app ^. edoLit
     lit' :: LitPitches EdoApp = updateStLit (xy,sw) pcNow pcThen lit
@@ -76,20 +77,22 @@ handler    st           (mi, press@(xy,sw)) =
     toDark  :: [EdoPitchClass] = S.toList $ S.difference oldKeys newKeys
     toLight :: [EdoPitchClass] = S.toList $ S.difference newKeys oldKeys
 
-    kbdMsgs :: [LedMsg] = let
-      x :: [((X,Y), Led)] =
-        ( map (,False) $
-          concatMap (pcToXys_st st) toDark) ++
-        ( map (,True)  $
-          concatMap (pcToXys_st st) toLight)
-      in concat $ [ map ((mi', label) ,) x
+  kbdMsgs :: [LedMsg] <- do
+    whereDark  :: [((X,Y), Led)] <- map (,False) . concat <$>
+                                    mapM (pcToXys_st st mi) toDark
+    whereLight :: [((X,Y), Led)] <- map (,True) . concat <$>
+                                    mapM (pcToXys_st st mi) toLight
+    Right $ concat [ map ((mi', label) ,) $ whereDark ++ whereLight
                   | mi' <- M.keys $ _edoKeyboards app ]
-    scas :: [ScAction VoiceId] =
-      edoKey_ScAction st vid press
+  scas :: [ScAction VoiceId] <-
+    edoKey_ScAction st mi vid press
+  vp :: Pitch EdoApp <-
+    xyToEdo_app app mi xy
 
+  let
     v :: Voice EdoApp = Voice
       { _voiceSynth  = Nothing
-      , _voicePitch  = xyToEdo_app app xy
+      , _voicePitch  = vp
       , _voiceParams = mempty -- changed later, by `updateVoiceParams`
       }
     st1 :: St EdoApp = st
@@ -128,18 +131,18 @@ updateStLit (xy,False) _ mpcThen m =
         True -> M.delete pc m
         False -> M.insert pc (S.delete (LedBecauseSwitch xy) reasons) m
 
--- TODO ! duplicative of `jiKey_ScAction`
-edoKey_ScAction :: St EdoApp -> VoiceId -> ((X,Y), Switch)
-                -> [ScAction VoiceId]
-edoKey_ScAction st vid (xy, sw) = do
+edoKey_ScAction :: St EdoApp -> MonomeId -> VoiceId -> ((X,Y), Switch)
+                -> Either String [ScAction VoiceId]
+edoKey_ScAction st mi vid (xy, sw) = do
   let app = _stApp st
-      pitch = xyToEdo_app app xy
       ec = app ^. edoConfig
-  if S.member vid $ app ^. edoSustaineded
-    then ( -- it's already sounding due to sustain
-           -- TODO : This is no longer possible, because now every keypress
-           -- creates a new voice.
-           [] )
+  pitch <- xyToEdo_app app mi xy
+  Right $ if S.member vid $ app ^. edoSustaineded
+          then [] -- It's already sounding due to sustain.
+                  -- todo ? This is no longer possible, because now
+                  -- every keypress creates a new voice,
+                  -- so delete this conditional branch
+                  -- (flattening the if-then tree to lose its top fork).
 
     else if sw -- sw <=> the key was pressed, rather than released
          then [ ScAction_New
