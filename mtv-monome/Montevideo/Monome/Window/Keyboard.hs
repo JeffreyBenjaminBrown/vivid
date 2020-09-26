@@ -138,11 +138,10 @@ edoKey_ScAction st mi vid (xy, sw) = do
       ec = app ^. edoConfig
   pitch <- xyToEdo_app app mi xy
   Right $ if S.member vid $ app ^. edoSustaineded
-          then [] -- It's already sounding due to sustain.
-                  -- todo ? This is no longer possible, because now
-                  -- every keypress creates a new voice,
-                  -- so delete this conditional branch
-                  -- (flattening the if-then tree to lose its top fork).
+          then [] -- The voice is sounding due to sustain; don't change it.
+                  -- This branch is not possible on key presses (sw == True),
+                  -- because each press creates a new voice,
+                  -- but it is possible on key releases.
 
     else if sw -- sw <=> the key was pressed, rather than released
          then [ ScAction_New
