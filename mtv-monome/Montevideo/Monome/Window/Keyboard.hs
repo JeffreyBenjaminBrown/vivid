@@ -20,7 +20,7 @@ import           Data.Set (Set)
 
 import           Montevideo.Dispatch.Types.Many
 import qualified Montevideo.Monome.Config.Mtv as Config
-import           Montevideo.Monome.EdoMath
+import qualified Montevideo.Monome.EdoMath as EM
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Window.Common
 import           Montevideo.Synth
@@ -40,7 +40,7 @@ keyboardWindow =  Window {
       errMsg = "Keyboard.keyboardWindow: todo: handle this gracefully" in
       map ( ( (mi, label) ,)
             . (,True) ) $
-      concatMap ( either (error errMsg) id . pcToXys_st st mi ) $
+      concatMap ( either (error errMsg) id . EM.pcToXys_st st mi ) $
       M.keys $ st ^. stApp . edoLit
   , windowHandler = handler }
 
@@ -58,7 +58,7 @@ handler    st           (mi, press@(xy,sw)) =
          Right $ M.lookup xy $ _kbdFingers kbd
 
   pcNow :: EdoPitchClass <-
-    pToPc_st st <$> xyToEdo_app app mi xy
+    EM.pToPc_st st <$> EM.xyToEdo_app app mi xy
       -- what the key represents currently
   let
     pcThen :: Maybe EdoPitchClass =
@@ -79,15 +79,15 @@ handler    st           (mi, press@(xy,sw)) =
 
   kbdMsgs :: [LedMsg] <- do
     whereDark  :: [((X,Y), Led)] <- map (,False) . concat <$>
-                                    mapM (pcToXys_st st mi) toDark
+                                    mapM (EM.pcToXys_st st mi) toDark
     whereLight :: [((X,Y), Led)] <- map (,True) . concat <$>
-                                    mapM (pcToXys_st st mi) toLight
+                                    mapM (EM.pcToXys_st st mi) toLight
     Right $ concat [ map ((mi', label) ,) $ whereDark ++ whereLight
                    | mi' <- M.keys $ _edoKeyboards app ]
   scas :: [ScAction VoiceId] <-
     edoKey_ScAction st mi vid press
   vp :: Pitch EdoApp <-
-    xyToEdo_app app mi xy
+    EM.xyToEdo_app app mi xy
 
   let
     v :: Voice EdoApp = Voice
@@ -136,7 +136,7 @@ edoKey_ScAction :: St EdoApp -> MonomeId -> VoiceId -> ((X,Y), Switch)
 edoKey_ScAction st mi vid (xy, sw) = do
   let app = _stApp st
       ec = app ^. edoConfig
-  pitch <- xyToEdo_app app mi xy
+  pitch <- EM.xyToEdo_app app mi xy
   Right $ if S.member vid $ app ^. edoSustaineded
           then [] -- The voice is sounding due to sustain; don't change it.
                   -- This branch is not possible on key presses (sw == True),
@@ -151,6 +151,6 @@ edoKey_ScAction st mi vid (xy, sw) = do
                   M.mapKeys show -- show :: ZotParam -> String
                   $ M.union -- in fonclict, the first arg takes priority
                   ( M.fromList [ (Zot_freq, Config.freq *
-                                            edoToFreq ec pitch) ] )
+                                            EM.edoToFreq ec pitch) ] )
                   $ _stZotDefaults st } ]
          else [silenceMsg vid]
