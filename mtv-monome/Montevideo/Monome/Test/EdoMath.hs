@@ -13,17 +13,17 @@ tests :: Test
 tests = TestList [
     TestLabel "test_pcToLowXY" test_pcToLowXY
   , TestLabel "test_pcToXys" test_pcToXys
-  , TestLabel "test_xyToMonome" test_xyToMonome
+  , TestLabel "test_xyChangeMonome" test_xyChangeMonome
   ]
 
-test_xyToMonome :: Test
-test_xyToMonome = TestCase $ do
+test_xyChangeMonome :: Test
+test_xyChangeMonome = TestCase $ do
   let app = EdoApp { _edoKeyboards = M.fromList
                      [ (Monome_256, Keyboard { _kbdShift = (0,1) } )
                      , (Monome_old, Keyboard { _kbdShift = (1,0) } ) ] }
-  assertBool "" $ xyToMonome app Monome_256 Monome_old
+  assertBool "" $ xyChangeMonome app Monome_256 Monome_old
     (0,1) == Right (1,0)
-  assertBool "" $ xyToMonome app Monome_256 Monome_old
+  assertBool "" $ xyChangeMonome app Monome_256 Monome_old
     (1,1) == Right (2,0)
 
 test_pcToXys :: Test
