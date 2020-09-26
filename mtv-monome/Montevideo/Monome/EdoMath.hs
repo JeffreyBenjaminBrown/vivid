@@ -12,9 +12,12 @@ module Montevideo.Monome.EdoMath (
   , modEdo_st   -- ^ Integral a => St EdoApp -> a -> a
   , pToPc       -- ^ EdoConfig -> EdoPitch -> EdoPitchClass
   , pToPc_st    -- ^ St EdoApp -> EdoPitch -> EdoPitchClass
+  , xyToMonome  -- ^ EdoApp -> MonomeId -> MonomeId -> (X,Y)
+                -- -> Either String (X,Y)
   ) where
 
-import Control.Lens
+import Control.Lens hiding (from,to)
+import Data.Either.Combinators
 
 import           Montevideo.JI.Util (fromCents)
 import           Montevideo.Monome.Types.Most
@@ -172,3 +175,15 @@ pToPc ec = EdoPitchClass . modEdo ec . _unEdoPitch
 
 pToPc_st :: St EdoApp -> EdoPitch -> EdoPitchClass
 pToPc_st st = EdoPitchClass . modEdo_st st . _unEdoPitch
+
+-- | Translate an (X,Y) from one Keyboard to another.
+-- If both have the same kbdShift, this leaves the (X,Y) unchanged.
+xyToMonome :: EdoApp -> MonomeId -> MonomeId -> (X,Y)
+           -> Either String (X,Y)
+xyToMonome app from to xy =
+  mapLeft ("xyToMonome: " ++) $ do
+  fromShift :: (X,Y) <- maybe (Left $ show from ++ " not found.") Right $
+                        app ^? edoKeyboards . at from . _Just . kbdShift
+  toShift   :: (X,Y) <- maybe (Left $ show to ++ " not found.") Right $
+                        app ^? edoKeyboards . at to . _Just . kbdShift
+  Right $ xy & pairAdd toShift & flip pairSubtract fromShift
