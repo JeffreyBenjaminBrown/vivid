@@ -41,10 +41,10 @@ meh = error "not relevant to this test"
   , _stZotDefaults x    == _stZotDefaults y
   , _stApp x            == _stApp y ]
 
-v0     :: VoiceId       = VoiceId 0
-v1     :: VoiceId       = VoiceId 1
-xy0    :: (X,Y)         = (0,0)
-xy1    :: (X,Y)         = (0,1)
+v0     :: VoiceId  = VoiceId 0
+v1     :: VoiceId  = VoiceId 1
+xy0    :: (X,Y)    = (0,0)
+xy1    :: (X,Y)    = (0,1)
 pitch0 :: EdoPitch = either (error "impossible") id $
                      xyToEdo_app (st0 ^. stApp) Monome_256 xy0
 pitch1 :: EdoPitch = either (error "impossible") id $
@@ -110,8 +110,8 @@ st_0fs = st0 -- 0 is both fingered and sustained
 
 st_0af = st_0f -- 0 is both fingered and the anchor pitch
   & stApp . edoLit . at pc0 . _Just
-          %~ S.insert LedBecauseAnchor
+  %~ S.insert LedBecauseAnchor
 
 st_0fs_1s = st_0fs -- 0 is both fingered and sustained, 1 is sustained
   & stApp . edoSustaineded %~ S.insert v1
-         & stApp . edoLit %~ M.insert pc1 (S.singleton LedBecauseSustain)
+  & stApp . edoLit %~ M.insert pc1 (S.singleton LedBecauseSustain)

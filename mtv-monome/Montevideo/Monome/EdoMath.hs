@@ -35,7 +35,7 @@ xyToEdo_app app mi xy = do
     maybe (Left $ show mi ++ " not found in edoKeyboards.") Right
     $ app ^? edoKeyboards . at mi . _Just . kbdShift
   Right $
-  xyToEdo (app ^. edoConfig) $
+    xyToEdo (app ^. edoConfig) $
     pairAdd xy $ pairMul (-1) sh
 
 pcToXys_st :: St EdoApp -> MonomeId -> EdoPitchClass

@@ -175,9 +175,9 @@ test_sustainHandler = TestCase $ do
           & stApp . edoLit .~ M.singleton pc0 ( S.singleton $
                                                LedBecauseSwitch xy0 )
           & stPending_Monome .~
-          ( buttonMsgs Monome_256 False ++
-            map (\xy -> ( (Monome_256, K.label)
-                        , (xy, False)))
+            ( buttonMsgs Monome_256 False ++
+              map (\xy -> ( (Monome_256, K.label)
+                          , (xy, False)))
               ( either (error "wut? 1") id $
                 pcToXys_st st_0fs_1s Monome_256 pc1) )
           & stPending_Vivid .~

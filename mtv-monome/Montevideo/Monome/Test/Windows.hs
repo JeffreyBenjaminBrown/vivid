@@ -47,18 +47,18 @@ test_edoKey_ScAction = TestCase $ do
   assertBool "press a key that's not sustained.\n" $
     edoKey_ScAction st Monome_256 newVoice (newXy, True) ==
     Right [ ScAction_New
-      { _actionSynthDefEnum = Zot
-      , _actionSynthName = newVoice
-      , _actionScMsg = M.singleton "freq" $
-                       Config.freq *
-                       edoToFreq (st ^. stApp . edoConfig) newPitch
-      } ]
+            { _actionSynthDefEnum = Zot
+            , _actionSynthName = newVoice
+            , _actionScMsg = M.singleton "freq" $
+                             Config.freq *
+                             edoToFreq (st ^. stApp . edoConfig) newPitch
+            } ]
 
   assertBool "release a key that's not sustained" $
     edoKey_ScAction st Monome_256 newVoice (newXy, False) ==
     Right [ ScAction_Free
-      { _actionSynthDefEnum = Zot
-      , _actionSynthName = newVoice } ]
+            { _actionSynthDefEnum = Zot
+            , _actionSynthName = newVoice } ]
 
 test_shiftHandler :: Test
 test_shiftHandler = TestCase $ do

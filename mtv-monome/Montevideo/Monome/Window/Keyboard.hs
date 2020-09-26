@@ -83,7 +83,7 @@ handler    st           (mi, press@(xy,sw)) =
     whereLight :: [((X,Y), Led)] <- map (,True) . concat <$>
                                     mapM (pcToXys_st st mi) toLight
     Right $ concat [ map ((mi', label) ,) $ whereDark ++ whereLight
-                  | mi' <- M.keys $ _edoKeyboards app ]
+                   | mi' <- M.keys $ _edoKeyboards app ]
   scas :: [ScAction VoiceId] <-
     edoKey_ScAction st mi vid press
   vp :: Pitch EdoApp <-
