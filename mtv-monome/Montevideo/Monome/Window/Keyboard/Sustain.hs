@@ -2,7 +2,7 @@
 ViewPatterns
 #-}
 
-module Montevideo.Monome.Window.Sustain (
+module Montevideo.Monome.Window.Keyboard.Sustain (
   -- ** Data
     label
   , buttons
@@ -38,7 +38,7 @@ import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Window.Common
-import qualified Montevideo.Monome.Window.Keyboard as Kbd
+import qualified Montevideo.Monome.Window.Keyboard.Keyboard as Kbd
 
 
 -- ** Data

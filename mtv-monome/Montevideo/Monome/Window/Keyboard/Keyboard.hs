@@ -3,7 +3,7 @@
 , TypeApplications
 #-}
 
-module Montevideo.Monome.Window.Keyboard (
+module Montevideo.Monome.Window.Keyboard.Keyboard (
     handler
   , keyboardWindow
   , label

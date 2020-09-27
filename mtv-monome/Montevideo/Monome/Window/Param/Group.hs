@@ -3,7 +3,7 @@
 , TypeApplications
 #-}
 
-module Montevideo.Monome.Window.ParamGroup (
+module Montevideo.Monome.Window.Param.Group (
     handler
   , paramGroupWindow
   , label

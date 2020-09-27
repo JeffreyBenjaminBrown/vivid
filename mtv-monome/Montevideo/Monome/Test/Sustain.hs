@@ -13,8 +13,8 @@ import Montevideo.Dispatch.Types.Many
 import Montevideo.Monome.EdoMath
 import Montevideo.Monome.Test.Data
 import Montevideo.Monome.Types.Most
-import Montevideo.Monome.Window.Keyboard as K
-import Montevideo.Monome.Window.Sustain  as Su
+import Montevideo.Monome.Window.Keyboard.Keyboard as K
+import Montevideo.Monome.Window.Keyboard.Sustain  as Su
 import Montevideo.Synth
 
 

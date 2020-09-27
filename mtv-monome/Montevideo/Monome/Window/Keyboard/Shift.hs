@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Montevideo.Monome.Window.Shift (
+module Montevideo.Monome.Window.Keyboard.Shift (
     handler
   , label
   , shiftWindow
@@ -18,7 +18,7 @@ import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Util.OSC
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Util
-import qualified Montevideo.Monome.Window.Keyboard as Kbd
+import qualified Montevideo.Monome.Window.Keyboard.Keyboard as Kbd
 
 
 label :: WindowId

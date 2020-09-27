@@ -45,11 +45,11 @@ import           Montevideo.Monome.Network.Util
 import           Montevideo.Monome.Types
 import           Montevideo.Monome.Util.OSC
 import           Montevideo.Monome.Window.JI
-import           Montevideo.Monome.Window.Keyboard
-import           Montevideo.Monome.Window.ParamGroup
-import           Montevideo.Monome.Window.ParamVal
-import           Montevideo.Monome.Window.Shift
-import           Montevideo.Monome.Window.Sustain
+import           Montevideo.Monome.Window.Keyboard.Keyboard
+import           Montevideo.Monome.Window.Keyboard.Shift
+import           Montevideo.Monome.Window.Keyboard.Sustain
+import           Montevideo.Monome.Window.Param.Group
+import           Montevideo.Monome.Window.Param.Val
 import           Montevideo.Monome.Window.Util
 import           Montevideo.Synth
 import           Montevideo.Synth.Msg

@@ -33,20 +33,20 @@ library
     , Montevideo.Monome.Presets
     , Montevideo.Monome.Synth.Boop
     , Montevideo.Monome.Synth.Zot
-    , Montevideo.Monome.Util.OSC
     , Montevideo.Monome.Types
     , Montevideo.Monome.Types.Device
     , Montevideo.Monome.Types.EdoConfig
     , Montevideo.Monome.Types.Instances
     , Montevideo.Monome.Types.Most
     , Montevideo.Monome.Types.Params
+    , Montevideo.Monome.Util.OSC
     , Montevideo.Monome.Window.Common
     , Montevideo.Monome.Window.JI
-    , Montevideo.Monome.Window.Keyboard
-    , Montevideo.Monome.Window.ParamGroup
-    , Montevideo.Monome.Window.ParamVal
-    , Montevideo.Monome.Window.Shift
-    , Montevideo.Monome.Window.Sustain
+    , Montevideo.Monome.Window.Keyboard.Keyboard
+    , Montevideo.Monome.Window.Keyboard.Shift
+    , Montevideo.Monome.Window.Keyboard.Sustain
+    , Montevideo.Monome.Window.Param.Group
+    , Montevideo.Monome.Window.Param.Val
     , Montevideo.Monome.Window.Util
 
     , Montevideo.Monome.Test.Data

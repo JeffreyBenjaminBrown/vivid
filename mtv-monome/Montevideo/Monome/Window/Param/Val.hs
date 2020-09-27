@@ -3,7 +3,7 @@
 , TypeApplications
 #-}
 
-module Montevideo.Monome.Window.ParamVal (
+module Montevideo.Monome.Window.Param.Val (
     handler
   , paramValWindow
   , label
@@ -16,7 +16,7 @@ import           Data.Map as M
 
 import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.Types
-import qualified Montevideo.Monome.Window.ParamGroup as PG
+import qualified Montevideo.Monome.Window.Param.Group as PG
 import           Montevideo.Synth
 import           Montevideo.Util
 
