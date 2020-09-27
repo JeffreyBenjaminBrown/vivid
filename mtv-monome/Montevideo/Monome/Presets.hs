@@ -22,6 +22,8 @@ storePreset st = let
 pr1, pr2, pr3, pr4 :: M.Map ZotParam Float
 
 -- | smooth mellow buzz
+-- The AM_F causes a lot of noise if pulse is > 0.
+muho = pr1 -- ^ like a muted horn
 pr1 = M.fromList
   [ (Zot_amp,0.2)
   , (Zot_pulse,0.0)
@@ -53,7 +55,8 @@ pr2 = M.fromList
   , (Zot_del,2.5198421)
   ]
 
--- | nasty
+-- | nasty if AM big, mellow warbly otherwise
+loch = pr3 -- ^ reminds me of the Loch Ness Monster
 pr3 = M.fromList
   [ (Zot_amp, 7.937005e-2)
   , (Zot_amp, 7.937005e-2)
@@ -109,4 +112,17 @@ pr4 = M.fromList
   , (Zot_filt_l, 0.33333334)
   , (Zot_lim_l, 0.0)
   , (Zot_shift_l, 0.0)
+  ]
+
+-- | thick, fuzzy, warbly (PM)
+pr5 = M.fromList
+  [ (Zot_amp, 3.216662e-2)
+  , (Zot_amp, 3.216662e-2)
+  , (Zot_rel, 0.31622776)
+  , (Zot_pulse, 0.25)
+  , (Zot_pm_m, 0.33333334)
+  , (Zot_pm_f, 9.843133e-3)
+  , (Zot_am, 0.75)
+  , (Zot_am_b, 0.9166667)
+  , (Zot_am_f, 0.25)
   ]
