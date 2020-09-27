@@ -63,7 +63,7 @@ st0 = St {
                     , _edoParamGroup = PG_FM
                     }
   , _stWindowLayers = mempty
-  , _stToMonome = mempty
+  , _stToMonomes = mempty
   , _stVoices = let v = Voice
                         { _voiceSynth = Nothing
                         , _voicePitch = error "replaced below"

@@ -79,7 +79,7 @@ edoMonome edoCfg = do
           , [ ((0,14), sustainWindow)
             , ((13,14), shiftWindow)
             , ((0,0), keyboardWindow) ] ) ]
-    , _stToMonome = toMonomes
+    , _stToMonomes = toMonomes
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
@@ -141,7 +141,7 @@ jiMonome scale shifts = do
 
   mst <- newMVar $ St {
       _stWindowLayers = M.singleton Monome_256 [((0,0),jiWindow)]
-    , _stToMonome     = toMonomes
+    , _stToMonomes     = toMonomes
     , _stVoices = mempty
     , _stPending_Vivid = []
     , _stPending_Monome = []
@@ -334,7 +334,7 @@ darkAllMonomes st =
   mapM_ (\mid -> off (receiver mid) mid) allMonomeIds
   where
     off socket name = send socket $ allLedOsc name False
-    receiver monomeId = (M.!) (_stToMonome st) monomeId
+    receiver monomeId = (M.!) (_stToMonomes st) monomeId
 
 -- | Change a default parameter value, and
 -- notify SC to change all sounding voices.

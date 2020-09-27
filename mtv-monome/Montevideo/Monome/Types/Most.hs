@@ -12,7 +12,7 @@ module Montevideo.Monome.Types.Most (
   , LedBecause(..)
   , Window(..)
   , Voice(..), voiceSynth, voicePitch, voiceParams
-  , St(..), stApp, stWindowLayers, stToMonome, stVoices
+  , St(..), stApp, stWindowLayers, stToMonomes, stVoices
     , stPending_Monome, stPending_Vivid, stPending_String
     , stZotDefaults, stZotRanges
   , EdoApp(..), edoConfig, edoKeyboards, edoLit
@@ -127,7 +127,7 @@ data St app = St {
       -- ^ PITFALL: Order in the lists matters.
       -- Key presses are handled by the first window containing them.
       -- Windows listed earlier are thus "above" later ones.
-  , _stToMonome :: Map MonomeId Socket
+  , _stToMonomes :: Map MonomeId Socket
   , _stVoices :: Map VoiceId (Voice app) -- ^ The set of all voices
     -- currently in existence; a reflection of the state of SC.
     --

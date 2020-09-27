@@ -30,7 +30,7 @@ instance (Show app, Show (Pitch app)) => Show (St app) where
   show app = "St "
     ++ "{ _stApp app = "            ++ show (_stApp app)
     ++ ", _stWindowLayers app = "   ++ show (_stWindowLayers app)
-    ++ ", _stToMonome app = "       ++ show (_stToMonome app)
+    ++ ", _stToMonomes app = "      ++ show (_stToMonomes app)
     ++ ", _stVoices app = "         ++ show (_stVoices app)
     ++ ", _stPending_Monome app = " ++ show (_stPending_Monome app)
     ++ ", _stPending_Vivid app = "  ++ show (_stPending_Vivid app)
@@ -39,7 +39,7 @@ instance (Eq app, Eq (Pitch app)) => Eq (St app) where
   a == b = and
     [ _stApp a           == _stApp b
     , _stWindowLayers a  == _stWindowLayers b
-    , _stToMonome a      == _stToMonome b
+    , _stToMonomes a     == _stToMonomes b
     , _stVoices a        == _stVoices b
     , _stPending_Monome a == _stPending_Monome b
     , _stPending_Vivid a  == _stPending_Vivid b ]

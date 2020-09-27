@@ -45,7 +45,7 @@ relayToWindow st mi wl =
     Right $ L.find ((==) wl . windowLabel . snd) ws
   sock :: Socket <-
     maybe (Left $ "Relay to " ++ show mi ++ " not found.")
-    Right $ M.lookup mi $ _stToMonome st
+    Right $ M.lookup mi $ _stToMonomes st
   Right $ relayIfHere sock ws w
 
 
