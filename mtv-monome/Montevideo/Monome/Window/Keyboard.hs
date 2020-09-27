@@ -36,11 +36,11 @@ keyboardWindow =  Window {
     windowLabel = label
   , windowContains = \(x,y) -> let pred = numBetween 0 15
                                in pred x && pred y
-  , windowInitLeds = \st mi -> let
-      errMsg = "Keyboard.keyboardWindow: todo: handle this gracefully" in
-      map ( ( (mi, label) ,)
-            . (,True) ) $
-      concatMap ( either (error errMsg) id . EM.pcToXys_st st mi ) $
+  , windowInitLeds = \st mi ->
+      fmap ( map ( ( (mi, label) ,)
+                   . (, True) ) ) $
+      fmap concat $
+      mapM (EM.pcToXys_st st mi ) $
       M.keys $ st ^. stApp . edoLit
   , windowHandler = handler }
 

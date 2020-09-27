@@ -56,8 +56,9 @@ shiftWindow = Window {
     windowLabel = label
   , windowContains = \(x,y) -> numBetween 0 2 x && numBetween 0 1 y
   , windowInitLeds = \_ mi ->
-    ( (mi, label) ,) . (,True) <$>
-    [ upArrow, downArrow, leftArrow, rightArrow ]
+      Right $
+      ( (mi, label) ,) . (,True) <$>
+      [ upArrow, downArrow, leftArrow, rightArrow ]
   , windowHandler = handler
 }
 

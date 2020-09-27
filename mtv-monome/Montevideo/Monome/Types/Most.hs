@@ -99,7 +99,7 @@ data Window app = Window {
     -- even the background Window.
     -- ^ PITFALL: The (X,Y) is relative to the top-left corner of the window.
     -- Windows do not know where they are placed. (Main does.)
-  , windowInitLeds :: St app -> MonomeId -> [LedMsg]
+  , windowInitLeds :: St app -> MonomeId -> Either String [LedMsg]
     -- ^ Some windows begin with some LEDs lit.
   , windowHandler :: -- ^ Acts on messages from the monome.
       St app
@@ -167,9 +167,6 @@ data Keyboard = Keyboard {
     _kbdFingers :: Map (X,Y) VoiceId
   , _kbdShift :: (X,Y) -- ^ This is relative -- a vector, not a point.
     -- ^ Where your fingers are, and which voice they correspond to.
---  , _kbdZotDefaults :: Map ZotParam Float -- ^ Initially empty.
---  , _kbdZotRanges  :: Map ZotParam (NumScale, Rational, Rational)
---  , _kbdSustaineded :: Set VoiceId
   } deriving (Show, Eq)
 
 -- | This is a just-intoned alternative to the EDO app.

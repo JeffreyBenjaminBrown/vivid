@@ -205,8 +205,10 @@ drawMonomeWindows mst = do
   st <- readMVar mst
   let runWindowInit :: (MonomeId, ((X,Y), Window app)) -> IO ()
       runWindowInit (mi, (_, w)) = let
-        st' :: St app = st & stPending_Monome %~ flip (++)
-                             (windowInitLeds w st mi)
+        st' :: St app =
+          st & stPending_Monome %~ flip (++)
+          ( either (\s -> error $ "drawMonomeWindows.runWindowInit: " ++ s)
+            id $ windowInitLeds w st mi )
         in mapM_ (either putStrLn id) $
            doLedMessage st' <$> _stPending_Monome st'
       mws :: [(MonomeId, ((X,Y), Window app))] =

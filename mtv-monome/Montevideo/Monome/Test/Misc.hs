@@ -45,19 +45,19 @@ test_visible = TestCase $ do
   let w1 = Window
            { windowLabel = KeyboardWindow
            , windowContains = (\(x,y) -> x > y)
-           , windowInitLeds = const $ const []
+           , windowInitLeds = \_ _ -> Right []
            , windowHandler = \st _ -> Right st
            }
       w2 = Window
            { windowLabel = ShiftWindow
            , windowContains = (\(x,_) -> x > 4)
-           , windowInitLeds = const $ const []
+           , windowInitLeds = \_ _ -> Right []
            , windowHandler = \st _ -> Right st
            }
       w3 = Window
            { windowLabel = SustainWindow
            , windowContains = \(_,_) -> True
-           , windowInitLeds = const $ const []
+           , windowInitLeds = \_ _ -> Right []
            , windowHandler = \st _ -> Right st
            }
 

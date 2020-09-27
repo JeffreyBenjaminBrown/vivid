@@ -29,7 +29,7 @@ paramValWindow =  Window {
     windowLabel = label
   , windowContains = \(x,y) -> numBetween 0 12 x &&
                                numBetween 0 5 y
-  , windowInitLeds = \_ _ -> []
+  , windowInitLeds = \_ _ -> Right []
   , windowHandler = handler }
 
 handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))

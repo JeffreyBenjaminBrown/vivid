@@ -30,7 +30,7 @@ paramGroupWindow =  Window {
   , windowContains = \(x,y) -> ( numBetween 0 2 x &&
                                  numBetween 0 2 y )
                                || (x,y) == (0,3)
-  , windowInitLeds = \_ _ -> []
+  , windowInitLeds = \_ _ -> Right []
   , windowHandler = handler }
 
 handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))

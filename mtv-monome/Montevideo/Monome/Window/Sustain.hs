@@ -71,7 +71,7 @@ sustainWindow = Window {
     -- TODO : Better would be if, when nothing is sustained,
     -- this window only occupied the very coerner-most button,
     -- allowing the other two buttons to be part of the Keyboard window.
-  , windowInitLeds = const $ const []
+  , windowInitLeds = \_ _ -> Right []
   , windowHandler = handler
 }
 
