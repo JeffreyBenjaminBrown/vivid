@@ -13,7 +13,7 @@ storePreset st = let
     showPair (p,f) = "(" ++ (zotConstructors B.! p) ++ ", " ++ show f ++ ")"
   ss = [ "\n_ = M.fromList"
        , "  [ " ++ head pairs ]
-       ++ map (\pair -> "  , " ++ pair) pairs
+       ++ map (\p -> "  , " ++ p) (tail pairs)
        ++ ["  ]"]
   in appendFile
      "/home/jeff/mtv/mtv-monome/Montevideo/Monome/Presets.hs"
@@ -59,7 +59,6 @@ pr2 = M.fromList
 loch = pr3 -- ^ reminds me of the Loch Ness Monster
 pr3 = M.fromList
   [ (Zot_amp, 7.937005e-2)
-  , (Zot_amp, 7.937005e-2)
   , (Zot_pulse, 8.3333336e-2)
   , (Zot_fm_m, 0.25)
   , (Zot_fm_f, 0.5)
@@ -81,7 +80,6 @@ pr3 = M.fromList
 -- | thin, fuzzy, with occasional bad pops
 pr4 = M.fromList
   [ (Zot_amp, 7.937005e-2)
-  , (Zot_amp, 7.937005e-2)
   , (Zot_pulse, 0.25)
   , (Zot_fm_m, 0.6666667)
   , (Zot_fm_f, 1.0)
@@ -117,7 +115,6 @@ pr4 = M.fromList
 -- | thick, fuzzy, warbly (PM)
 pr5 = M.fromList
   [ (Zot_amp, 3.216662e-2)
-  , (Zot_amp, 3.216662e-2)
   , (Zot_rel, 0.31622776)
   , (Zot_pulse, 0.25)
   , (Zot_pm_m, 0.33333334)
