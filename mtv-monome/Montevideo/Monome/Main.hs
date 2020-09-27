@@ -44,6 +44,7 @@ import qualified Montevideo.Monome.Config.Mtv as Config
 import           Montevideo.Monome.Network.Util
 import           Montevideo.Monome.Types
 import           Montevideo.Monome.Util.OSC
+import           Montevideo.Monome.Window.Change
 import           Montevideo.Monome.Window.JI
 import           Montevideo.Monome.Window.Keyboard.Keyboard
 import           Montevideo.Monome.Window.Keyboard.Shift
@@ -74,6 +75,7 @@ edoMonome edoCfg = do
             , ((0,0), keyboardWindow) ] )
         , ( Monome_128
           , [ ((0,0), paramGroupWindow)
+            , ((0,7), changewindow Monome_128 [error "meh"] )
             , ((3,0), paramValWindow) ] )
         , ( Monome_old
           , [ ((0,14), sustainWindow)

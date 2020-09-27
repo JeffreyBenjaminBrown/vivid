@@ -39,7 +39,8 @@ type Param = String
 data MonomeId = Monome_256 | Monome_128 | Monome_old
   deriving (Show, Eq, Ord)
 
-data WindowId = KeyboardWindow
+data WindowId = ChangeWindow
+              | KeyboardWindow
               | ParamGroupWindow
               | ParamVal_Window
               | ShiftWindow
@@ -140,6 +141,8 @@ data St app = St {
   -- is to isolate side-effects to a small portion of the code. Elsewhere,
   -- scattered functions can simply change an `St` instead of doing IO.
   , _stPending_Monome :: [LedMsg]
+    -- ^ These messages are handled in order -- so if they refer to
+    -- the same buttons, later ones will override earlier ones.
   , _stPending_Vivid :: [ScAction VoiceId]
   , _stPending_String :: [String]
   , _stZotDefaults :: Map ZotParam Float -- ^ Initially empty.

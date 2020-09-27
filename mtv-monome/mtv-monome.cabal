@@ -40,6 +40,7 @@ library
     , Montevideo.Monome.Types.Most
     , Montevideo.Monome.Types.Params
     , Montevideo.Monome.Util.OSC
+    , Montevideo.Monome.Window.Change
     , Montevideo.Monome.Window.Common
     , Montevideo.Monome.Window.JI
     , Montevideo.Monome.Window.Keyboard.Keyboard
