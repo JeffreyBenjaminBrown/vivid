@@ -1,7 +1,7 @@
 -- | A window for changing what windows are on a monome.
 
 module Montevideo.Monome.Window.Change (
-  changewindow
+  changeWindow
   ) where
 
 import           Prelude hiding (pred)
@@ -17,16 +17,17 @@ type Choice app = [ ( (X,Y), Window app ) ]
 label :: WindowId
 label = ChangeWindow
 
-changewindow
+changeWindow
   :: [Choice app] -- ^ PITFALL: The choices should not include
   -- the ChangeWindow. (If they did the recursion would never stop.)
   -- Instead the handler finds the current ChangeWindow and puts it
   -- at the front of the new list.
   -> Window app
-changewindow choices =  Window {
+changeWindow choices =  Window {
     windowLabel = label
-  , windowContains = \(x,y) -> x == 0 &&
-                               numBetween 0 (length choices - 1) y
+  , windowContains = \(x,y) ->
+      x == 0
+      && numBetween 0 (length choices - 1) y
   , windowInitLeds = \_ _ -> Right []
   , windowHandler = handler choices }
 
@@ -36,6 +37,7 @@ handler :: forall app.
         -> Either String (St app)
 handler _       st (_ , (_    , False)) =
   Right st
+
 handler choices st (mi, ((_,y), True )) = let
   c :: Choice app = choices !! y -- safe thanks to `windowContains` above
   Just layers = st ^. stWindowLayers . at mi

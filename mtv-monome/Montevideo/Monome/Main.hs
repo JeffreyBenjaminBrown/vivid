@@ -74,7 +74,12 @@ edoMonome edoCfg = do
             , ((13,14), shiftWindow)
             , ((0,0), keyboardWindow) ] )
         , ( Monome_128
-          , [ ((0,0), paramGroupWindow)
+          , [ ((0,6), changeWindow
+                 [ [ ((0,0), paramGroupWindow)
+                   , ((3,0), paramValWindow) ]
+                 , [ ((0,0), paramGroupWindow)
+                   , ((3,2), paramValWindow) ] ] )
+            , ((0,0), paramGroupWindow)
             , ((3,0), paramValWindow) ] )
         , ( Monome_old
           , [ ((0,14), sustainWindow)
