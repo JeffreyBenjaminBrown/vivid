@@ -1,44 +1,53 @@
 -- | A window for changing what windows are on a monome.
 
-module Montevideo.Monome.Window.Change where
+module Montevideo.Monome.Window.Change (
+  changewindow
+  ) where
 
 import           Prelude hiding (pred)
-import           Control.Lens hiding (to)
-import           Data.Either.Combinators
-import qualified Data.Map as M
-import           Data.Map (Map)
-import qualified Data.Set as S
-import           Data.Set (Set)
+import           Control.Lens hiding (Choice)
+import qualified Data.List as L
 
-import           Montevideo.Dispatch.Types.Many
-import qualified Montevideo.Monome.Config.Mtv as Config
-import qualified Montevideo.Monome.EdoMath as EM
 import           Montevideo.Monome.Types.Most
-import           Montevideo.Monome.Window.Common
-import           Montevideo.Synth
 import           Montevideo.Util
-import           Montevideo.Monome.Window.Util
 
+
+type Choice app = [ ( (X,Y), Window app ) ]
 
 label :: WindowId
 label = ChangeWindow
 
-changewindow :: MonomeId                  -- ^ the affected monome
-               -> [ ( (X,Y), Window app ) ] -- ^ the choices
-               -> Window EdoApp
-changewindow mi choices =  Window {
+changewindow
+  :: [Choice app] -- ^ PITFALL: The choices should not include
+  -- the ChangeWindow. (If they did the recursion would never stop.)
+  -- Instead the handler finds the current ChangeWindow and puts it
+  -- at the front of the new list.
+  -> Window app
+changewindow choices =  Window {
     windowLabel = label
   , windowContains = \(x,y) -> x == 0 &&
                                numBetween 0 (length choices - 1) y
   , windowInitLeds = \_ _ -> Right []
-  , windowHandler = handler }
+  , windowHandler = handler choices }
 
-handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
-        -> Either String (St EdoApp)
-handler    st           (mi, press@(xy,    sw)) =
-  Right $ st &
-    _stPending_Monome .~ [
-      ((mi, label), ((0,0), True))
-      ,
-      ((mi, label), ((0,0), False))
-      ]
+handler :: forall app.
+           [Choice app]
+        -> St app -> (MonomeId, ((X,Y), Switch))
+        -> Either String (St app)
+handler _       st (_ , (_    , False)) =
+  Right st
+handler choices st (mi, ((_,y), True )) = let
+  c :: Choice app = choices !! y -- safe thanks to `windowContains` above
+  Just layers = st ^. stWindowLayers . at mi
+  Just (thisChangeWindow :: ((X,Y), Window app)) =
+    L.find f layers where
+           f         :: ((X,Y), Window app) -> Bool
+           f (_,window) = windowLabel window == ChangeWindow
+  in Right $ st
+     & ( stWindowLayers . at mi . _Just %~
+         const (thisChangeWindow : c) )
+     & ( stPending_Monome %~
+         flip (++) ( map ((mi,label),)
+                     $ [ ((0,y'), False)
+                       | y' <- [0 .. length choices - 1] ]
+                     ++ [((0,y), True)] ) )
