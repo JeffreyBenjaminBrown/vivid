@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
+
 module Montevideo.Monome.Presets where
 
 import qualified Data.Bimap as B
@@ -19,7 +21,7 @@ storePreset st = let
      "/home/jeff/mtv/mtv-monome/Montevideo/Monome/Presets.hs"
      $ unlines ss
 
-pr1, pr2, pr3, pr4 :: M.Map ZotParam Float
+pr1, pr2, pr3, pr4, pr5 :: M.Map ZotParam Float
 
 -- | smooth mellow buzz
 -- The AM_F causes a lot of noise if pulse is > 0.
