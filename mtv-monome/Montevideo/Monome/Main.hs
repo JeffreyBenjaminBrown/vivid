@@ -75,7 +75,6 @@ edoMonome edoCfg = do
             , ((0,0), keyboardWindow) ] )
         , ( Monome_128
           , [ ((0,0), paramGroupWindow)
-            , ((0,7), changewindow Monome_128 [error "meh"] )
             , ((3,0), paramValWindow) ] )
         , ( Monome_old
           , [ ((0,14), sustainWindow)
@@ -112,10 +111,11 @@ edoMonome edoCfg = do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
           Right (monome,switch) -> do
-            est :: St app <- takeMVar mst
-            h :: Either String (St app) <-
-              handleSwitch est monome switch
-            either putStrLn (putMVar mst) h
+            st :: St app <- takeMVar mst
+            st' :: Either String (St app) <-
+              handleSwitch st monome switch
+            either (\s -> putStrLn s >> putMVar mst st)
+              (putMVar mst) st'
 
   let quit :: IO (St EdoApp) = do
         close inbox
@@ -164,10 +164,11 @@ jiMonome scale shifts = do
         case readOSC_asSwitch osc of
           Left s -> putStrLn s
           Right (monome,switch) -> do
-            est :: St app <- takeMVar mst
-            h :: Either String (St app) <-
-              handleSwitch est monome switch
-            either putStrLn (putMVar mst) h
+            st :: St app <- takeMVar mst
+            st' :: Either String (St app) <-
+              handleSwitch st monome switch
+            either (\s -> putStrLn s >> putMVar mst st)
+              (putMVar mst) st'
 
   let loop :: IO (St JiApp) =
         getChar >>= \case
