@@ -40,6 +40,8 @@ data MonomeId = Monome_256 | Monome_128 | Monome_old
   deriving (Show, Eq, Ord)
 
 data WindowId = ChangeWindow
+              | ChordBank
+              | ChordFunction
               | KeyboardWindow
               | ParamGroupWindow
               | ParamVal_Window
@@ -148,6 +150,7 @@ data St app = St {
   , _stZotDefaults :: Map ZotParam Float -- ^ Initially empty.
     -- Used to override the defaults defined in `zot` itself.
   , _stZotRanges  :: Map ZotParam (NumScale, Rational, Rational)
+  , _stStoredChords :: Map (X,Y) [Pitch app]
   }
 
 data EdoApp = EdoApp
