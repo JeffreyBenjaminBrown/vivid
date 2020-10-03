@@ -106,9 +106,9 @@ pickChromaticTest edo = _pickChromaticTest edo x
 -- | builds and picks Tests from a list of chords.
 pickTestFromChordList :: Edo -> [[Float]] -> IO Test
 pickTestFromChordList edo chords = do
-  transpose <- pick [0..11]
+  transpose :: Float <- fmap fi $ pick [0..3*edo]
   freqs <- pick chords
-  let playSound = playFreqs $ fmap (edoValToFreq edo 220)
+  let playSound = playFreqs $ fmap (edoValToFreq edo 80)
                   $ fmap ((+) transpose) freqs :: IO ()
       showFreqs = putStrLn $ "  transpose: " ++ show transpose
                            ++ "\n  chord: " ++ show freqs

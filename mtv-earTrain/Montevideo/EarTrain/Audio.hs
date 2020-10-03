@@ -13,7 +13,7 @@ import Montevideo.EarTrain.Types
 
 playFreqs :: (Real a, Floating a) => [a] -> IO ()
 playFreqs freqs = do
-  let msg a = (toI a :: I "freq", 0.1 :: I "amp")
+  let msg a = (toI a :: I "freq", 0.015 :: I "amp")
   synths <- mapM (synth boopPulse . msg) freqs
   wait (2 :: Int)
   mapM_ free synths
