@@ -5,6 +5,7 @@ module Montevideo.JI.Lib where
 
 import           Control.Lens
 import qualified Data.List as L
+import qualified Data.Set as S
 import           Data.Ratio
 import           Data.Ord (comparing)
 
@@ -12,14 +13,42 @@ import Montevideo.JI.Util
 import Montevideo.JI.Harmonics
 
 
+type Cents = Float
+
+-- | 'nearOctaveMultiples 50 $ cents (7/4)` returns pairs in which
+-- the first member is a power of 7/4 (a muliple of 'cents 7/4')
+-- that's close to a power of 2.
+-- BUG: If the multiple is just shy of 1200 cents, it should be included.
+-- Instead it only counts when it is just over 1200.
+nearOctaveMultiples :: Cents -> Cents -> [(Int, Cents)]
+nearOctaveMultiples tolerance generator =
+  filter ((< tolerance) . snd) $
+  take 150 $
+  zip [0..] $
+  map (fromIntegral . flip mod 1200 . round) $
+  [0, generator ..]
+
+-- | List all the 13-odd-limit JI chords not involving unity.
+-- Kind of silly -- reading the output it becomes obvious how to
+-- recreate this list in your head.
+jiChords :: [[Int]]
+jiChords = do
+  let rs = [3,5..13] -- [1,3/2,5/4,9/8,11/8,13/8]
+  a <- rs
+  b <- rs
+  c <- rs
+  S.toList . S.fromList . filter ((> 2) . length)
+    $ [ L.sort . S.toList . S.fromList
+        $ [a,b,c]]
+
 minNotes, maxNotes :: Integer
 minNotes = 12
-maxNotes = 60
+maxNotes = 100
 
 tols :: [Integer]
 tols = -- This list can have any length.
   -- It describes the maximum error for the first harmonics.
-  (*10) <$> [5,7,9]
+  (*10) <$> [20,20,1]
 --    example:
 --    [ 20 -- approx 3/2 to within 2 cents
 --    , 40 -- 5/4 to within 4 cents
