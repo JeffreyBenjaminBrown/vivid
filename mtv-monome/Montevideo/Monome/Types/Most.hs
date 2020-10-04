@@ -16,7 +16,7 @@ module Montevideo.Monome.Types.Most (
   , St(..), stApp, stWindowLayers, stToMonomes, stVoices
     , stPending_Monome, stPending_Vivid, stPending_String
     , stZotDefaults, stZotRanges
-  , ChordBank(..), chords, chordsPlaying
+  , ChordBank(..), chords, chordPlaying
   , EdoApp(..), edoConfig, edoKeyboards, edoLit
     , edoSustaineded, edoParamGroup, edoChordBank
   , Keyboard(..), kbdFingers, kbdShift
@@ -43,7 +43,7 @@ data MonomeId = Monome_256 | Monome_128 | Monome_old
 
 data WindowId = ChangeWindow
               | ChordBankWindow
-              | ChordFunction
+              | ChordFunctionWindow
               | KeyboardWindow
               | ParamGroupWindow
               | ParamVal_Window
@@ -157,7 +157,7 @@ data St app = St {
 
 data ChordBank = ChordBank {
     _chords :: Map (X,Y) [Pitch EdoApp]
-  , _chordsPlaying :: [VoiceId] }
+  , _chordPlaying :: [VoiceId] }
   deriving (Show, Eq, Ord)
 
 data EdoApp = EdoApp

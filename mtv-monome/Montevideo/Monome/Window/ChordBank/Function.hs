@@ -11,7 +11,7 @@ buttonStore :: (X,Y)
 buttonStore = (0,0)
 
 label :: WindowId
-label = ChordFunction
+label = ChordFunctionWindow
 
 chordFunctionWindow :: Window app
 chordFunctionWindow =  Window {

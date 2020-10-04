@@ -76,9 +76,9 @@ handler st (mi, (xy, False)) =
     silence :: [ScAction VoiceId] =
       [ ScAction_Free { _actionSynthDefEnum = Zot
                       , _actionSynthName = v }
-      | v :: VoiceId <- st ^. stApp . edoChordBank . chordsPlaying ]
+      | v :: VoiceId <- st ^. stApp . edoChordBank . chordPlaying ]
     in Right $ st
-       & stApp . edoChordBank . chordsPlaying .~ []
+       & stApp . edoChordBank . chordPlaying .~ []
        & stPending_Monome %~ (++ darken)
        & stPending_Vivid %~ (++ silence)
 

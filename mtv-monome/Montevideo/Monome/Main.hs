@@ -106,7 +106,7 @@ edoMonome edoCfg = do
         , _edoParamGroup = PG_FM
         , _edoChordBank = ChordBank
           { _chords = M.singleton (0,0) [100, 120, 140]
-          , _chordsPlaying = mempty }
+          , _chordPlaying = mempty }
         }
     }
 
