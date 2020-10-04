@@ -241,19 +241,17 @@ handleSwitch :: forall app.
 
 handleSwitch st0 mi press@ (btn,sw) =
   fmap (mapLeft ("Monome.Main.handleSwitch: " ++)) $ do
-  let
-    go :: [((X,Y), Window app)] -> IO (Either String (St app))
-    go ws = case L.find (\(topLeft, w) -> windowContains w $ pairSubtract btn topLeft) ws of
-      Nothing -> return $ Left $ "Switch " ++ show press ++
-                 " claimed by no Window."
-      Just (topLeft, w) ->
-        case windowHandler w st0 (mi, (pairSubtract btn topLeft, sw)) of
-          Left s    -> return $ Left s
-          Right st1 -> handlePending st1
-
   case M.lookup mi $ _stWindowLayers st0 of
     Nothing -> return $ Left $ "WIndows for " ++ show mi ++ " not found."
-    Just ws -> go ws
+    Just (ws :: [((X,Y), Window app)]) ->
+      case L.find ( \(topLeft, w) -> windowContains w $
+                                     pairSubtract btn topLeft ) ws
+      of Nothing -> return $ Left $ "Switch " ++ show press ++
+                 " claimed by no Window."
+      Just (topLeft, w) ->
+           case windowHandler w st0 (mi, (pairSubtract btn topLeft, sw))
+           of Left s    -> return $ Left s
+          Right st1 -> handlePending st1
 
 -- | Change a default parameter value, and
 -- notify SC to change all sounding voices.
