@@ -11,7 +11,6 @@ import           Data.Map (Map)
 import qualified Data.Map as M
 import           Data.Maybe
 
-import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Util
 import           Montevideo.Synth

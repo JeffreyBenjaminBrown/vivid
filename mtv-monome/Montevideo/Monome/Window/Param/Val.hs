@@ -14,7 +14,6 @@ module Montevideo.Monome.Window.Param.Val (
 import           Control.Lens
 import           Data.Map as M
 
-import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.Types
 import qualified Montevideo.Monome.Window.Param.Group as PG
 import           Montevideo.Synth

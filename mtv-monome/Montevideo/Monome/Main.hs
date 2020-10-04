@@ -38,7 +38,6 @@ import           GHC.Float
 import Vivid
 import Vivid.OSC
 
-import           Montevideo.Dispatch.Types
 import           Montevideo.Monome.Config.Monome
 import qualified Montevideo.Monome.Config.Mtv as Config
 import           Montevideo.Monome.Network.Util

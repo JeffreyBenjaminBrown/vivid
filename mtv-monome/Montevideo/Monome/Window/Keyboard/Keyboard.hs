@@ -18,7 +18,6 @@ import           Data.Map (Map)
 import qualified Data.Set as S
 import           Data.Set (Set)
 
-import           Montevideo.Dispatch.Types.Many
 import qualified Montevideo.Monome.EdoMath as EM
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Util

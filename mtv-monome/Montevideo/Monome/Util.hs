@@ -17,7 +17,6 @@ import qualified Data.Map as M
 import           Data.Maybe
 import qualified Data.Set as S
 
-import           Montevideo.Dispatch.Types
 import qualified Montevideo.Monome.Config.Mtv as Config
 import qualified Montevideo.Monome.EdoMath as EM
 import           Montevideo.Monome.EdoMath

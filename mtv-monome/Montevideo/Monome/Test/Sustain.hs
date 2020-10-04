@@ -9,7 +9,6 @@ import           Data.Map (Map)
 import qualified Data.Set as S
 import           Data.Set (Set)
 
-import Montevideo.Dispatch.Types.Many
 import Montevideo.Monome.EdoMath
 import Montevideo.Monome.Test.Data
 import Montevideo.Monome.Types.Most

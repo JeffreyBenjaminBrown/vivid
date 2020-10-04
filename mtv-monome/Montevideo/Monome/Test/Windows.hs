@@ -7,7 +7,6 @@ import           Data.Either.Combinators
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import           Montevideo.Dispatch.Types.Many
 import qualified Montevideo.Monome.Config.Mtv as Config
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Test.Data

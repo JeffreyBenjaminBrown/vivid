@@ -34,7 +34,6 @@ import qualified Data.Map as M
 import           Data.Set (Set)
 import qualified Data.Set as S
 
-import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Util
