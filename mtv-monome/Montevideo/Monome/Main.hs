@@ -255,6 +255,19 @@ handleSwitch st0 mi press@ (btn,sw) =
     Nothing -> return $ Left $ "WIndows for " ++ show mi ++ " not found."
     Just ws -> go ws
 
+-- | Change a default parameter value, and
+-- notify SC to change all sounding voices.
+chDefault :: MVar (St EdoApp) -> ZotParam -> Float -> IO ()
+chDefault mst p f = do
+  st0 <- takeMVar mst
+  let st1 = st0
+        & stPending_Vivid %~ flip (++) (paramToAllVoices st0 p f)
+        & stZotDefaults   %~ M.insert                        p f
+  est <- handlePending st1
+  case est :: Either String (St EdoApp) of
+    Left  s   -> putStrLn s >> putMVar mst st1
+    Right st2 ->               putMVar mst st2
+
 -- | `handlePending st` does two things:
 --   (1) Act on the pending messages in `_stPending_Monome`,
 --       `_stPending_Vivid` and `_stPending_String`.
@@ -345,19 +358,6 @@ darkAllMonomes st =
   where
     off socket name = send socket $ allLedOsc name False
     receiver monomeId = (M.!) (_stToMonomes st) monomeId
-
--- | Change a default parameter value, and
--- notify SC to change all sounding voices.
-chDefault :: MVar (St EdoApp) -> ZotParam -> Float -> IO ()
-chDefault mst p f = do
-  st0 <- takeMVar mst
-  let st1 = st0
-        & stPending_Vivid %~ flip (++) (paramToAllVoices st0 p f)
-        & stZotDefaults   %~ M.insert                        p f
-  est <- handlePending st1
-  case est :: Either String (St EdoApp) of
-    Left  s   -> putStrLn s >> putMVar mst st1
-    Right st2 ->               putMVar mst st2
 
 -- | This leaves the lights on. That's useful,
 -- because using the command requires using the keyboard,
