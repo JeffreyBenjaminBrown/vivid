@@ -76,12 +76,10 @@ visible :: forall app.
      [((X,Y), Window app)] -- ^ All Windows, in order, with top-left corners.
   ->  ((X,Y), Window app)  -- ^ The Window onto which we might draw.
   -> LedFilter
-visible allWindows (wtl, w) = f where
-  f :: (X,Y) -> Bool
-  f led = not (obscured led) && windowContains w led
+visible allWindows (wtl, w) = let
   obscured :: (X,Y) -- the Led, relative to w
            -> Bool
-  obscured led = or $ map (obscures led) higherWindows
+  obscured led = let
   obscures :: (X,Y) -- the Led, relative to w
            -> ((X,Y), Window app) -- a Window that might block the Led
            -> Bool
@@ -89,5 +87,7 @@ visible allWindows (wtl, w) = f where
     absolute = pairAdd wRelative wtl
     w'Relative = pairSubtract absolute wtl' -- the Led, relative to w'
     in windowContains w' w'Relative
-  higherWindows :: [((X,Y), Window app)] = -- Windows that might block the Led
+    higherWindows :: [((X,Y), Window app)] = -- they might block the Led
     takeWhile ((/= w) . snd) allWindows
+    in or $ map (obscures led) higherWindows
+  in \led -> windowContains w led && not (obscured led)
