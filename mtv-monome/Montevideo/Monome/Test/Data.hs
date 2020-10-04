@@ -61,6 +61,8 @@ st0 = St {
                     , _edoLit = mempty
                     , _edoSustaineded = mempty
                     , _edoParamGroup = PG_FM
+                    , _edoChordBank = ChordBank { _chords = mempty
+                                                , _chordPlaying = mempty }
                     }
   , _stWindowLayers = mempty
   , _stToMonomes = mempty
