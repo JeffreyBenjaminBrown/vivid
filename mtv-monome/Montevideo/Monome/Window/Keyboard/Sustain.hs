@@ -37,7 +37,7 @@ import qualified Data.Set as S
 import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types.Most
-import           Montevideo.Monome.Window.Common
+import           Montevideo.Monome.Util
 import qualified Montevideo.Monome.Window.Keyboard.Keyboard as Kbd
 
 

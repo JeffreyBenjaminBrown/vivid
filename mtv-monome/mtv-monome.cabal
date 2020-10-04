@@ -44,7 +44,6 @@ library
     , Montevideo.Monome.Window.Change
     , Montevideo.Monome.Window.ChordBank.Bank
     , Montevideo.Monome.Window.ChordBank.Function
-    , Montevideo.Monome.Window.Common
     , Montevideo.Monome.Window.JI
     , Montevideo.Monome.Window.Keyboard.Keyboard
     , Montevideo.Monome.Window.Keyboard.Shift

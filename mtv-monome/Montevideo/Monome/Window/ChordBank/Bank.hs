@@ -14,7 +14,6 @@ import           Data.Maybe
 import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Util
-import           Montevideo.Monome.Window.Common
 import           Montevideo.Synth
 import           Montevideo.Util
 

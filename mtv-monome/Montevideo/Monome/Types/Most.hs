@@ -140,7 +140,7 @@ data St app = St {
     -- TODO : Updates to this are too scattered.
     -- Some come from Monome.Main.doScAction,
     -- some from Monome.(JI | Window.Keyboard).handler,
-    -- and some from Monome.Window.Common.updateVoiceParams.
+    -- and some from Monome.Util.updateVoiceParams.
 
   -- | The purpose of `_stPending_Monome` and `_stPending_Vivid`
   -- is to isolate side-effects to a small portion of the code. Elsewhere,
