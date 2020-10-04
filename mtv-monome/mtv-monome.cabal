@@ -39,6 +39,7 @@ library
     , Montevideo.Monome.Types.Instances
     , Montevideo.Monome.Types.Most
     , Montevideo.Monome.Types.Params
+    , Montevideo.Monome.Util
     , Montevideo.Monome.Util.OSC
     , Montevideo.Monome.Window.Change
     , Montevideo.Monome.Window.ChordBank.Bank

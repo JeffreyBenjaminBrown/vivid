@@ -55,24 +55,20 @@ data ScMsg' sdArgs where
 
 -- | A SuperCollider action: create a voice, destroy (free)  a voice,
 -- or change a voice's parameters.
--- The `SynthDefEnum` gives the kind of synth.
--- (The options are at Montevideo/Synth/*.hs.)
--- The `SynthDefEnum` says what kind of synth,
--- while the `labelType` names the relevant instance of that kind of synth.
 data ScAction labelType
   = ScAction_New  -- ^ create it
-    { _actionSynthDefEnum :: SynthDefEnum
-    , _actionSynthName    :: labelType
-    , _actionScMsg        :: ScMsg -- ^ This can be the empty map.
+    { _actionSynthDefEnum :: SynthDefEnum -- ^ The kind of synth.
+    , _actionSynthName    :: labelType -- ^ Which instance of the synth.
+    , _actionScMsg        :: ScMsg -- ^ Can be the empty map.
       -- In fact, in mtv-lang (Montevideo.Dispatch), it always is,
       -- because voices are created in advance of being used.
     }
   | ScAction_Free -- ^ destroy it
-    { _actionSynthDefEnum :: SynthDefEnum
-    , _actionSynthName    :: labelType }
+    { _actionSynthDefEnum :: SynthDefEnum -- ^ The kind of synth.
+    , _actionSynthName    :: labelType } -- ^ Which instance of the synth.
   | ScAction_Send
-    { _actionSynthDefEnum :: SynthDefEnum
-    , _actionSynthName    :: labelType
+    { _actionSynthDefEnum :: SynthDefEnum -- ^ The kind of synth.
+    , _actionSynthName    :: labelType -- ^ Which instance of the synth.
     , _actionScMsg        :: ScMsg } -- ^ This should not be the empty map.
   deriving (Show, Eq, Ord)
 makePrisms ''ScAction

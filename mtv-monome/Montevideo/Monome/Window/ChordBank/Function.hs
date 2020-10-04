@@ -3,11 +3,8 @@ module Montevideo.Monome.Window.ChordBank.Function (
   ) where
 
 import           Prelude hiding (pred)
-import           Control.Lens hiding (Choice)
-import qualified Data.List as L
 
 import           Montevideo.Monome.Types.Most
-import           Montevideo.Util
 
 
 buttonStore :: (X,Y)
