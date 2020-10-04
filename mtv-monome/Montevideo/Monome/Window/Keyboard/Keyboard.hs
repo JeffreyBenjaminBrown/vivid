@@ -22,10 +22,11 @@ import           Montevideo.Dispatch.Types.Many
 import qualified Montevideo.Monome.Config.Mtv as Config
 import qualified Montevideo.Monome.EdoMath as EM
 import           Montevideo.Monome.Types.Most
+import           Montevideo.Monome.Util
 import           Montevideo.Monome.Window.Common
+import           Montevideo.Monome.Window.Util
 import           Montevideo.Synth
 import           Montevideo.Util
-import           Montevideo.Monome.Window.Util
 
 
 label :: WindowId
@@ -141,13 +142,6 @@ edoKey_ScAction st mi vid (xy, sw) = do
                   -- but it is possible on key releases.
 
     else if sw -- sw <=> the key was pressed, rather than released
-         then [ ScAction_New
-                { _actionSynthDefEnum = Zot
-                , _actionSynthName = vid
-                , _actionScMsg =
-                  M.mapKeys show -- show :: ZotParam -> String
-                  $ M.union -- in fonclict, the first arg takes priority
-                  ( M.fromList [ (Zot_freq, Config.freq *
-                                            EM.edoToFreq ec pitch) ] )
-                  $ _stZotDefaults st } ]
+         then [ monome_scActionNew
+                ec vid (_stZotDefaults st) pitch ]
          else [silenceMsg vid]

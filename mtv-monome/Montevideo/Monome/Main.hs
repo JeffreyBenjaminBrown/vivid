@@ -45,6 +45,7 @@ import           Montevideo.Monome.Network.Util
 import           Montevideo.Monome.Types
 import           Montevideo.Monome.Util.OSC
 import           Montevideo.Monome.Window.Change
+import           Montevideo.Monome.Window.ChordBank.Bank
 import           Montevideo.Monome.Window.JI
 import           Montevideo.Monome.Window.Keyboard.Keyboard
 import           Montevideo.Monome.Window.Keyboard.Shift
@@ -75,10 +76,9 @@ edoMonome edoCfg = do
             , ((0,0), keyboardWindow) ] )
         , ( Monome_128
           , [ ((0,6), changeWindow
-                 [ [ ((0,0), paramGroupWindow)
-                   , ((3,0), paramValWindow) ]
-                 , [ ((0,0), paramGroupWindow)
-                   , ((3,2), paramValWindow) ] ] )
+                      [ [ ((0,0), paramGroupWindow)
+                        , ((3,0), paramValWindow) ]
+                      , [ ((8,0), chordBankWindow ) ] ] )
             , ((0,0), paramGroupWindow)
             , ((3,0), paramValWindow) ] )
         , ( Monome_old
@@ -92,7 +92,6 @@ edoMonome edoCfg = do
     , _stPending_String = []
     , _stZotDefaults = mempty
     , _stZotRanges = zotDefaultRanges
-    , _stStoredChords = mempty
 
     , _stApp = EdoApp
         { _edoConfig = edoCfg
@@ -105,6 +104,9 @@ edoMonome edoCfg = do
           -- M.singleton (2 :: PitchClass) $ S.singleton LedBecauseAnchor
         , _edoSustaineded = mempty
         , _edoParamGroup = PG_FM
+        , _edoChordBank = ChordBank
+          { _chords = M.singleton (0,0) [100, 120, 140]
+          , _chordsPlaying = mempty }
         }
     }
 
@@ -156,7 +158,6 @@ jiMonome scale shifts = do
     , _stPending_String = []
     , _stZotDefaults = mempty
     , _stZotRanges = mempty
-    , _stStoredChords = mempty
 
     , _stApp = JiApp { _jiGenerator = scale
                      , _jiShifts = shifts

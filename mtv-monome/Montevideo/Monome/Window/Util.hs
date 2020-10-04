@@ -2,7 +2,6 @@
 
 module Montevideo.Monome.Window.Util (
     LedRelay, LedFilter
-  , nextVoice     -- ^ M.Map VoiceId a -> VoiceId
   , relayToWindow -- ^ St app -> MonomeId -> WindowId
                   -- -> Either String LedRelay
 
@@ -26,12 +25,6 @@ import Montevideo.Util
 -- | Forward a message to the monome if appropriate.
 type LedRelay  = LedMsg -> IO ()
 type LedFilter = (X,Y) -> Bool
-
-nextVoice :: St a -> VoiceId
-nextVoice st =
-  case M.lookupMax $ _stVoices st of
-    Nothing             -> VoiceId 0
-    Just (VoiceId i, _) -> VoiceId $ i+1
 
 relayToWindow :: forall app.
   St app -> MonomeId -> WindowId -> Either String LedRelay

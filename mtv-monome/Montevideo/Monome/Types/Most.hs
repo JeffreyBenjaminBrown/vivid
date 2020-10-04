@@ -1,4 +1,5 @@
 {-# LANGUAGE TypeFamilies,
+GeneralizedNewtypeDeriving,
 TemplateHaskell #-}
 
 module Montevideo.Monome.Types.Most (
@@ -15,8 +16,9 @@ module Montevideo.Monome.Types.Most (
   , St(..), stApp, stWindowLayers, stToMonomes, stVoices
     , stPending_Monome, stPending_Vivid, stPending_String
     , stZotDefaults, stZotRanges
+  , ChordBank(..), chords, chordsPlaying
   , EdoApp(..), edoConfig, edoKeyboards, edoLit
-    , edoSustaineded, edoParamGroup
+    , edoSustaineded, edoParamGroup, edoChordBank
   , Keyboard(..), kbdFingers, kbdShift
   , JiApp(..), jiGenerator, jiShifts, jiFingers
   ) where
@@ -40,7 +42,7 @@ data MonomeId = Monome_256 | Monome_128 | Monome_old
   deriving (Show, Eq, Ord)
 
 data WindowId = ChangeWindow
-              | ChordBank
+              | ChordBankWindow
               | ChordFunction
               | KeyboardWindow
               | ParamGroupWindow
@@ -50,7 +52,8 @@ data WindowId = ChangeWindow
   deriving (Show, Eq, Ord)
 
 newtype VoiceId = VoiceId Int
-  deriving (Show, Eq, Ord)
+  deriving (Show, Eq, Ord,
+            Enum) -- ^ allows the creation of lists like `[VoiceId 1 ..]`
 
 -- | In the Equal Tempered app, Pitch is isomorphic to the integers, and
 -- PitchClass is isomorphic to the integers modulo the edo (e.g. 31).
@@ -150,8 +153,12 @@ data St app = St {
   , _stZotDefaults :: Map ZotParam Float -- ^ Initially empty.
     -- Used to override the defaults defined in `zot` itself.
   , _stZotRanges  :: Map ZotParam (NumScale, Rational, Rational)
-  , _stStoredChords :: Map (X,Y) [Pitch app]
   }
+
+data ChordBank = ChordBank {
+    _chords :: Map (X,Y) [Pitch EdoApp]
+  , _chordsPlaying :: [VoiceId] }
+  deriving (Show, Eq, Ord)
 
 data EdoApp = EdoApp
   { _edoConfig :: EdoConfig
@@ -166,6 +173,7 @@ data EdoApp = EdoApp
     -- but it's represented as a voice,
     -- identified by the key that originally launched it.
   , _edoParamGroup :: ParamGroup
+  , _edoChordBank :: ChordBank
   } deriving (Show, Eq)
 
 -- | A "keyboard" is a window. There is at most one per monome.
@@ -191,6 +199,7 @@ data JiApp = JiApp
 
 makeLenses ''Voice
 makeLenses ''St
+makeLenses ''ChordBank
 makeLenses ''EdoApp
 makeLenses ''Keyboard
 makeLenses ''JiApp

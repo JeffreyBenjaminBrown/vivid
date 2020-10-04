@@ -9,6 +9,7 @@ import Test.HUnit
 
 import Montevideo.Monome.Test.Data
 import Montevideo.Monome.Types.Most
+import Montevideo.Monome.Util
 import Montevideo.Monome.Window.Common
 import Montevideo.Monome.Window.Util
 
