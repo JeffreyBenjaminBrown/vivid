@@ -80,14 +80,14 @@ visible allWindows (wtl, w) = let
   obscured :: (X,Y) -- the Led, relative to w
            -> Bool
   obscured led = let
-  obscures :: (X,Y) -- the Led, relative to w
-           -> ((X,Y), Window app) -- a Window that might block the Led
-           -> Bool
-  obscures wRelative (wtl', w') = let
-    absolute = pairAdd wRelative wtl
-    w'Relative = pairSubtract absolute wtl' -- the Led, relative to w'
-    in windowContains w' w'Relative
+    obscures :: (X,Y) -- the Led, relative to w
+             -> ((X,Y), Window app) -- a Window that might block the Led
+             -> Bool
+    obscures wRelative (wtl', w') = let
+      absolute = pairAdd wRelative wtl
+      w'Relative = pairSubtract absolute wtl' -- the Led, relative to w'
+      in windowContains w' w'Relative
     higherWindows :: [((X,Y), Window app)] = -- they might block the Led
-    takeWhile ((/= w) . snd) allWindows
+      takeWhile ((/= w) . snd) allWindows
     in or $ map (obscures led) higherWindows
   in \led -> windowContains w led && not (obscured led)
