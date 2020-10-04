@@ -19,6 +19,7 @@ import qualified Data.Set as S
 import qualified Data.Vector as V
 
 import Montevideo.Dispatch.Types
+import Montevideo.Synth.Msg
 
 
 -- | Reverse a `Museq`

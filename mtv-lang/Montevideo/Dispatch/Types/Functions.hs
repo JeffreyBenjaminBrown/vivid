@@ -38,9 +38,10 @@ import Control.Lens hiding (anon)
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
-import Montevideo.Util
-import Montevideo.Synth
 import Montevideo.Dispatch.Types.Many
+import Montevideo.Synth
+import Montevideo.Synth.Msg
+import Montevideo.Util
 
 
 -- | * Names

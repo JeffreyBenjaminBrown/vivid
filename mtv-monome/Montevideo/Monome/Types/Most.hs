@@ -33,6 +33,7 @@ import Montevideo.Monome.Types.EdoConfig
 import Montevideo.Monome.Types.Monome
 import Montevideo.Monome.Types.Params
 import Montevideo.Synth
+import Montevideo.Synth.Msg
 import Montevideo.Util
 
 

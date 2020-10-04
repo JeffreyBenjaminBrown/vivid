@@ -23,6 +23,7 @@ import qualified Data.Vector as V
 
 import Montevideo.Dispatch.Config (frameDuration)
 import Montevideo.Dispatch.Types
+import Montevideo.Synth.Msg
 import Montevideo.Util
 
 

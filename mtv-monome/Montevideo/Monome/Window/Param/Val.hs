@@ -18,6 +18,7 @@ import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.Types
 import qualified Montevideo.Monome.Window.Param.Group as PG
 import           Montevideo.Synth
+import           Montevideo.Synth.Msg
 import           Montevideo.Util
 
 

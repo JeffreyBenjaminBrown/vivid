@@ -16,6 +16,7 @@ import Montevideo.Monome.Types.Most
 import Montevideo.Monome.Window.Keyboard.Keyboard as K
 import Montevideo.Monome.Window.Keyboard.Sustain  as Su
 import Montevideo.Synth
+import Montevideo.Synth.Msg
 
 
 tests :: Test

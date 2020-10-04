@@ -15,6 +15,7 @@ import           Montevideo.Dispatch.Types.Many
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Util
 import           Montevideo.Synth
+import           Montevideo.Synth.Msg
 import           Montevideo.Util
 
 

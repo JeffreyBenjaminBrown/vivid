@@ -13,6 +13,7 @@ import           Montevideo.Monome.Types
 import           Montevideo.Util
 import           Montevideo.Monome.Window.JI
 import           Montevideo.Synth
+import           Montevideo.Synth.Msg
 
 
 tests :: Test

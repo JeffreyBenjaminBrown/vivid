@@ -16,6 +16,7 @@ import           Montevideo.Monome.Util
 import           Montevideo.Monome.Window.Keyboard.Keyboard as K
 import           Montevideo.Monome.Window.Keyboard.Shift    as Sh
 import           Montevideo.Synth
+import           Montevideo.Synth.Msg
 import           Montevideo.Util
 
 

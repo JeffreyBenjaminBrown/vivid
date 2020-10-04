@@ -39,6 +39,7 @@ import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Util
 import qualified Montevideo.Monome.Window.Keyboard.Keyboard as Kbd
+import           Montevideo.Synth.Msg
 
 
 -- ** Data

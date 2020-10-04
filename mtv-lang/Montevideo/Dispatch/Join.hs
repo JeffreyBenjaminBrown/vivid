@@ -54,6 +54,7 @@ import Montevideo.Dispatch.Museq
 import Montevideo.Dispatch.Time
 import Montevideo.Dispatch.Transform
 import Montevideo.Dispatch.Types
+import Montevideo.Synth.Msg
 import Montevideo.Util
 
 

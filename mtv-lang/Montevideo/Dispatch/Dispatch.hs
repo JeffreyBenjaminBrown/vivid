@@ -26,6 +26,7 @@ import Montevideo.Dispatch.Museq
 import Montevideo.Dispatch.Types
 import Montevideo.Dispatch.Time
 import Montevideo.Synth
+import Montevideo.Synth.Msg
 import Montevideo.Synth.Samples
 
 

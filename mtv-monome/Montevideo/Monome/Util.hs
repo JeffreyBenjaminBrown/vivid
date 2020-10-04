@@ -23,7 +23,7 @@ import qualified Montevideo.Monome.EdoMath as EM
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types
 import           Montevideo.Synth
-
+import           Montevideo.Synth.Msg
 
 nextVoice :: St a -> VoiceId
 nextVoice st =

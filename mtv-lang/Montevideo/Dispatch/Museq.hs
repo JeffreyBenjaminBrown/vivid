@@ -39,6 +39,7 @@ import Data.Vector.Algorithms.Intro (sortBy)
 
 import Montevideo.Dispatch.Types
 import Montevideo.Synth
+import Montevideo.Synth.Msg
 import Montevideo.Util
 
 

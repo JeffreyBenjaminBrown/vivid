@@ -49,6 +49,7 @@ import Montevideo.Dispatch.Museq.Mk
 import Montevideo.Dispatch.Transform
 import Montevideo.Dispatch.Types
 import Montevideo.Synth
+import Montevideo.Synth.Msg
 import Montevideo.Synth.Samples
 
 

@@ -22,6 +22,7 @@ import           Montevideo.Dispatch.Types.Many
 import qualified Montevideo.Monome.EdoMath as EM
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Monome.Util
+import           Montevideo.Synth.Msg
 import           Montevideo.Util
 
 

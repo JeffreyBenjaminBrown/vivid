@@ -33,6 +33,7 @@ import qualified Data.Vector as V
 import Montevideo.Dispatch.Types
 import Montevideo.Util
 import Montevideo.Synth
+import Montevideo.Synth.Msg
 import Montevideo.Synth.Samples
 import Montevideo.Dispatch.Museq
 

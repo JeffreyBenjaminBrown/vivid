@@ -1,7 +1,11 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds
+, TemplateHaskell
+, GADTs #-}
 
 module Montevideo.Synth.Msg (
     set' -- ^ V.VividAction m => V.Synth params -> ScParams' params -> m ()
+  , ParamName, ScParams, ScParams'(..)
+  , ScAction(..), _ScAction_New, _ScAction_Send, _ScAction_Free
   , boopScParams    -- ^ ScParams -> [ScParams' BoopParams]
   , moopScParams    -- ^ ScParams -> [ScParams' BoopParams]
   , samplerScParams -- ^ ScParams -> [ScParams' SamplerParams]
@@ -11,13 +15,50 @@ module Montevideo.Synth.Msg (
   )
 where
 
+import           Control.Lens (makeLenses, makePrisms)
+import           Data.Map (Map)
 import qualified Data.Map as M
 import qualified Vivid as V
 
 import Vivid
 import Montevideo.Synth
-import Montevideo.Dispatch.Types
+-- import Montevideo.Dispatch.Types
 
+
+type ParamName = String
+
+-- | A message for SuperCollider unaware of Vivid's type shenanigans..
+type ScParams = Map ParamName Float
+
+-- | A `ScParams'`, unlike a `Msg`, is typed for a particular kind of synth,
+-- and to send it anywhere else is a type error.
+-- (This innovation is Vivid's, not my own --
+-- in fact I circumvent it with the `Msg` type.)
+data ScParams' sdArgs where
+  ScParams' :: forall params sdArgs.
+          ( Vivid.VarList params
+          , Vivid.Subset (Vivid.InnerVars params) sdArgs)
+       => params -> ScParams' sdArgs
+
+-- | A SuperCollider action: create a voice, destroy (free)  a voice,
+-- or change a voice's parameters.
+data ScAction labelType
+  = ScAction_New  -- ^ create it
+    { _actionSynthDefEnum :: SynthDefEnum -- ^ The kind of synth.
+    , _actionSynthName    :: labelType -- ^ Which instance of the synth.
+    , _actionScParams     :: ScParams -- ^ Can be the empty map.
+      -- In fact, in mtv-lang (Montevideo.Dispatch), it always is,
+      -- because voices are created in advance of being used.
+    }
+  | ScAction_Free -- ^ destroy it
+    { _actionSynthDefEnum :: SynthDefEnum -- ^ The kind of synth.
+    , _actionSynthName    :: labelType } -- ^ Which instance of the synth.
+  | ScAction_Send
+    { _actionSynthDefEnum :: SynthDefEnum -- ^ The kind of synth.
+    , _actionSynthName    :: labelType -- ^ Which instance of the synth.
+    , _actionScParams     :: ScParams } -- ^ This should not be the empty map.
+  deriving (Show, Eq, Ord)
+makePrisms ''ScAction
 
 set' :: V.VividAction m => V.Synth params -> ScParams' params -> m ()
 set' _synth (ScParams' m) = V.set _synth m
