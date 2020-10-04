@@ -6,10 +6,10 @@ module Montevideo.Dispatch.Transform (
   , fast,slow,dense,sparse -- ^ Rational   -> Museq l a -> Museq l a
   , rotate, rep            -- ^ Rational   -> Museq l a -> Museq l a
 
-  , overParams   -- ^ [(ParamName, Float -> Float)] -> Museq l ScMsg -> Museq l ScMsg
-  , switchParams -- ^ [(ParamName, ParamName)]      -> Museq l ScMsg -> Museq l ScMsg
-  , keepParams   -- ^ [ParamName]                   -> Museq l ScMsg -> Museq l ScMsg
-  , dropParams   -- ^ [ParamName]                   -> Museq l ScMsg -> Museq l ScMsg
+  , overParams   -- ^ [(ParamName, Float -> Float)] -> Museq l ScParams -> Museq l ScParams
+  , switchParams -- ^ [(ParamName, ParamName)]      -> Museq l ScParams -> Museq l ScParams
+  , keepParams   -- ^ [ParamName]                   -> Museq l ScParams -> Museq l ScParams
+  , dropParams   -- ^ [ParamName]                   -> Museq l ScParams -> Museq l ScParams
   ) where
 
 import Control.Lens
@@ -98,11 +98,12 @@ rotate t = fast t . sparse t
 rep n = slow n . dense n
 
 
--- | = (something) -> Museq ScMsg -> Museq ScMsg
-overParams :: [(ParamName, Float -> Float)] -> Museq l ScMsg -> Museq l ScMsg
+-- | = (something) -> Museq ScParams -> Museq ScParams
+overParams :: [(ParamName, Float -> Float)] -> Museq l ScParams
+                                            -> Museq l ScParams
 overParams fs = fmap $ M.mapWithKey g
-  -- todo ? speed: This appears to look up each of each ScMsg's parameters.
-  -- If the ScMsg is smaller than the argument to overParams, that'll work.
+  -- todo ? speed: This appears to look up each of each ScParams's parameters.
+  -- If the ScParams is smaller than the argument to overParams, that'll work.
   -- But if it's bigger, that's inefficient.
   where g :: ParamName -> Float -> Float
         -- For each parameter found, apply the function to it;
@@ -110,19 +111,20 @@ overParams fs = fmap $ M.mapWithKey g
         g k v = maybe v ($v) $ M.lookup k $ M.fromList fs
 
 -- | `switchParams [(a,b)]` will replace each instance of `a`
--- as a parameter name in every input `ScMsg` to `b`.
-switchParams :: [(ParamName, ParamName)] -> Museq l ScMsg -> Museq l ScMsg
+-- as a parameter name in every input `ScParams` to `b`.
+switchParams :: [(ParamName, ParamName)] -> Museq l ScParams
+                                         -> Museq l ScParams
 switchParams fs = fmap $ M.mapKeys g where
-  -- todo ? speed: This appears to look up each of each ScMsg's parameters.
-  -- If the ScMsg is smaller than the argument to overParams, that'll work.
+  -- todo ? speed: This appears to look up each of each ScParams's parameters.
+  -- If the ScParams is smaller than the argument to overParams, that'll work.
   -- But if it's bigger, that's inefficient.
   g :: ParamName -> ParamName
   g k = maybe k id $ M.lookup k $ M.fromList fs
 
-keepParams :: [ParamName] -> Museq l ScMsg -> Museq l ScMsg
+keepParams :: [ParamName] -> Museq l ScParams -> Museq l ScParams
 keepParams ps = over vec $ V.filter (not . null . view evData)
                  . (V.map $ over evData $ flip M.restrictKeys $ S.fromList ps)
 
-dropParams :: [ParamName] -> Museq l ScMsg -> Museq l ScMsg
+dropParams :: [ParamName] -> Museq l ScParams -> Museq l ScParams
 dropParams ps = over vec $ V.filter (not . null . view evData)
                  . (V.map $ over evData $ flip M.withoutKeys $ S.fromList ps)

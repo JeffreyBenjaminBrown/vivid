@@ -178,5 +178,5 @@ museq_NotesToScActions mqs = let
     d = ev ^. evData
     act = ScAction_Send (d^.noteSd)
           (ev^.evLabel) -- TODO ? awkward : Ev label is repeated in ScAction
-          (d^.noteScMsg)
+          (d^.noteScParams)
   in M.map (vec %~ V.map f) mqs

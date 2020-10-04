@@ -76,7 +76,7 @@ jiKey_ScAction ja vid (xy,switch) = let
       then [ ScAction_New
              { _actionSynthDefEnum = Zot
              , _actionSynthName = vid
-             , _actionScMsg = M.fromList
+             , _actionScParams = M.fromList
                [ ("freq", Config.freq * Config.jiTranspose * fr freq)
                , ("amp", Config.amp) ] } ]
       else [silenceMsg vid]

@@ -1,4 +1,4 @@
--- | = Act on a ScMsg
+-- | = Act on a ScParams
 --
 -- `Dispatch.replaceAll` is what uses these.
 -- `New`s are sent immediately; schedule time is disregarded.
@@ -45,7 +45,7 @@ dispatchConsumeScAction reg _ a@(ScAction_New _ _ _)  =
 -- | PITFALL: Sets no parameters.
 -- In this sense it does not consume everything that might be present.
 -- That's because sequences in mtv-lang create voices silently,
--- before they are used, and therefore the `_actionScMsg` field of the input
+-- before they are used, and therefore the `_actionScParams` field of the input
 -- `ScAction` is always the empty map.
 --
 -- `dispatchConsumeScAction_New reg (ScAction_New Boop name)`,
@@ -125,7 +125,7 @@ dispatchConsumeScAction_Free reg when (ScAction_Free Boop name) =
     return id
   Just s -> do
     V.doScheduledAt (timestamp when)
-      $ set' s $ ScMsg' (0 :: V.I "amp")
+      $ set' s $ ScParams' (0 :: V.I "amp")
     V.doScheduledAt (timestamp $ when + frameDuration / 2)
       $ V.free s
     return $ boops %~ M.delete name
@@ -137,7 +137,7 @@ dispatchConsumeScAction_Free reg when (ScAction_Free (Sampler _) name) =
     return id
   Just s -> do
     V.doScheduledAt (timestamp when)
-      $ set' s $ ScMsg' (0 :: V.I "amp")
+      $ set' s $ ScParams' (0 :: V.I "amp")
     V.doScheduledAt (timestamp $ when + frameDuration / 2)
       $ V.free s
     return $ samplers %~ M.delete name
@@ -149,7 +149,7 @@ dispatchConsumeScAction_Free reg when (ScAction_Free Sqfm name) =
     return id
   Just s -> do
     V.doScheduledAt (timestamp when)
-      $ set' s $ ScMsg' (0 :: V.I "amp")
+      $ set' s $ ScParams' (0 :: V.I "amp")
     V.doScheduledAt (timestamp $ when + frameDuration / 2)
       $ V.free s
     return $ sqfms %~ M.delete name
@@ -161,7 +161,7 @@ dispatchConsumeScAction_Free reg when (ScAction_Free Vap name) =
     return id
   Just s -> do
     V.doScheduledAt (timestamp when)
-      $ set' s $ ScMsg' (0 :: V.I "amp")
+      $ set' s $ ScParams' (0 :: V.I "amp")
     V.doScheduledAt ( timestamp $ when + frameDuration / 2)
       $ V.free s
     return $ vaps %~ M.delete name
@@ -173,7 +173,7 @@ dispatchConsumeScAction_Free reg when (ScAction_Free Zot name) =
     return id
   Just s -> do
     V.doScheduledAt (timestamp when)
-      $ set' s $ ScMsg' (0 :: V.I "amp")
+      $ set' s $ ScParams' (0 :: V.I "amp")
     V.doScheduledAt (timestamp $ when + frameDuration / 2)
       $ V.free s
     return $ zots %~ M.delete name
@@ -197,14 +197,14 @@ dispatchConsumeScAction_Send reg when (ScAction_Send Boop name msg) =
       writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just (s :: V.Synth BoopParams) ->
       V.doScheduledAt (timestamp when)
-      $ mapM_ (set' s) $ boopScMsg msg
+      $ mapM_ (set' s) $ boopScParams msg
 
 dispatchConsumeScAction_Send reg when (ScAction_Send (Sampler _) name msg) =
   case M.lookup name $ _samplers reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just (s :: V.Synth SamplerParams) -> do
       V.doScheduledAt (timestamp when)
-        $ mapM_ (set' s) $ samplerScMsg msg
+        $ mapM_ (set' s) $ samplerScParams msg
       case M.lookup "trigger" msg of
         Nothing -> return ()
         Just x -> if x <= 0 -- If it's an off message,
@@ -212,28 +212,28 @@ dispatchConsumeScAction_Send reg when (ScAction_Send (Sampler _) name msg) =
           else -- Otherwise schedule an off message for the very near future.
           -- (The lag can be shorter than the sample without truncating it.)
           V.doScheduledAt (timestamp $ when + retriggerLag)
-          $ set' s $ ScMsg' (V.toI (-1 :: Int) :: V.I "trigger")
+          $ set' s $ ScParams' (V.toI (-1 :: Int) :: V.I "trigger")
 
 dispatchConsumeScAction_Send reg when (ScAction_Send Sqfm name msg) =
   case M.lookup name $ _sqfms reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just (s :: V.Synth SqfmParams) ->
       V.doScheduledAt (timestamp when)
-      $ mapM_ (set' s) $ sqfmScMsg msg
+      $ mapM_ (set' s) $ sqfmScParams msg
 
 dispatchConsumeScAction_Send reg when (ScAction_Send Vap name msg) =
   case M.lookup name $ _vaps reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just (s :: V.Synth VapParams) ->
       V.doScheduledAt (timestamp when)
-      $ mapM_ (set' s) $ vapScMsg msg
+      $ mapM_ (set' s) $ vapScParams msg
 
 dispatchConsumeScAction_Send reg when (ScAction_Send Zot name msg) =
   case M.lookup name $ _zots reg of
     Nothing -> writeTimeAndError $ " The name " ++ name ++ " is not in use.\n"
     Just (s :: V.Synth ZotParams) ->
       V.doScheduledAt (timestamp when)
-      $ mapM_ (set' s) $ zotScMsg msg
+      $ mapM_ (set' s) $ zotScParams msg
 
 dispatchConsumeScAction_Send _ _ (ScAction_Free _ _) =
   error "dispatchConsumeScAction_Send received a ScAction_Free."

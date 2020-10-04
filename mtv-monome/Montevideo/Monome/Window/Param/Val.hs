@@ -65,5 +65,5 @@ paramToAllVoices :: St EdoApp -> ZotParam -> Float -> [ScAction VoiceId]
 paramToAllVoices st zp f =
   [ ScAction_Send { _actionSynthDefEnum = Zot
                   , _actionSynthName = v :: VoiceId
-                  , _actionScMsg = M.singleton (show zp) f }
+                  , _actionScParams = M.singleton (show zp) f }
   | v <- M.keys $ _stVoices st ]

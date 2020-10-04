@@ -4,17 +4,17 @@ p1 = stack2 a b & dur .~ 4 where
   b = mmho 2 $ pre2 "b" [(0, m1 "on" 0)
                         ,(1, m1 "freq" 4)]
 
-run :: Int -> Museq String ScMsg = \n ->
+run :: Int -> Museq String ScParams = \n ->
   mmho (fromIntegral n) $ pre2 "a" $
   zip (map RTime [0..]) $
   map (M.singleton "freq" . (+) 0) $
   map fromIntegral [0..n-1]
 
-chord :: [Float] -> Museq String ScMsg =
+chord :: [Float] -> Museq String ScParams =
   mmho 1 . pre2 "a" .
   map (\f -> (0,M.singleton "freq" f))
 
-ampSeq :: Float -> Museq String ScMsg = \f ->
+ampSeq :: Float -> Museq String ScParams = \f ->
   mmho 1 [("a",0,m1 "amp" f)]
 
 go = nBoop . toHz . rootScale rs where

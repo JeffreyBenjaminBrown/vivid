@@ -285,7 +285,7 @@ doScAction    st        sca =
   mapLeft ("doScAction: " ++) $
   let setVivid :: Synth ZotParams -> (ParamName, Float) -> IO ()
       setVivid s (param, f) =
-        mapM_ (set' s) $ zotScMsg $ M.singleton param f
+        mapM_ (set' s) $ zotScParams $ M.singleton param f
   in
   case sca of
 
@@ -295,7 +295,7 @@ doScAction    st        sca =
         maybe (Left $ "VoiceId " ++ show vid ++ " has no assigned synth.")
         Right $ (_stVoices st M.! vid) ^. voiceSynth
       let ios :: [IO ()] = -- Send each (key,val) from `sca` separately.
-            map (setVivid s) $ M.toList $ _actionScMsg sca
+            map (setVivid s) $ M.toList $ _actionScParams sca
       Right $ mapM_ id ios >> return id
 
     ScAction_New _ _ _ -> do
@@ -305,7 +305,7 @@ doScAction    st        sca =
            Right $ M.lookup vid $ _stVoices st
       Right $ do
         s <- synth zot () -- TODO change zot to `_actionSynthDefEnum sca`
-        let ios :: [IO ()] = map (setVivid s) $ M.toList $ _actionScMsg sca
+        let ios :: [IO ()] = map (setVivid s) $ M.toList $ _actionScParams sca
         mapM_ id ios
         return $ stVoices . at vid . _Just . voiceSynth .~ Just s
 

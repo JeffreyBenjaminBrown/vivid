@@ -37,7 +37,7 @@ monome_scActionNew
 monome_scActionNew ec vi timbre pitch = ScAction_New
   { _actionSynthDefEnum = Zot
   , _actionSynthName = vi
-  , _actionScMsg =
+  , _actionScParams =
       M.mapKeys show -- show :: ZotParam -> String
       $ M.union -- in fonclict, the first arg takes priority
       ( M.fromList [ (Zot_freq, Config.freq *
@@ -84,7 +84,7 @@ updateVoiceParams sca =
         (stVoices    . at (_actionSynthName sca) . _Just) .
         (voiceParams . at p                      . _Just) .~ f
   in foldr (.) id $ map go $
-     M.toList $ _actionScMsg sca
+     M.toList $ _actionScParams sca
 
 vid_to_pitchClass :: St EdoApp -> VoiceId
                   ->  Either String EdoPitchClass

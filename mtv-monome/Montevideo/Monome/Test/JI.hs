@@ -36,7 +36,7 @@ test_jiKeySound = TestCase $ do
           == [ ScAction_New
                { _actionSynthDefEnum = Zot
                , _actionSynthName = VoiceId 3
-               , _actionScMsg = M.fromList
+               , _actionScParams = M.fromList
                  [ ("freq", Config.freq * Config.jiTranspose * fr freq)
                  , ("amp", Config.amp) ] } ]
         assertBool "sound off" $ jiKey_ScAction ja (VoiceId 4) (xy,False)

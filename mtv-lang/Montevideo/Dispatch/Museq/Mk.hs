@@ -6,21 +6,21 @@ module Montevideo.Dispatch.Museq.Mk (
   -- | = Make a Museq
     mkMuseqFromEvs   -- ^ RDuration -> [Ev l a]            -> Museq l a
   , mkMuseq          -- ^ RDuration -> [(l,RTime,RTime,a)] -> Museq l a
-  , mkMuseqOneScMsg -- ^          ScMsg                   -> Museq String ScMsg
+  , mkMuseqOneScParams -- ^ ScParams  -> Museq String ScParams
   , mkMuseqH  -- ^ forall a l. Ord l
               -- => RDuration -> [(l,RDuration,a)]    -> Museq l a
   , mkMuseqHm -- ^ forall a l. Ord l =>
               -- RDuration -> [(l, RTime, Maybe a)] -> Museq l a
   , mkMuseqHo -- ^ forall a l. Ord l
-              -- => RDuration -> [(l,RDuration,ScMsg)]  -> Museq l ScMsg
+              -- => RDuration -> [(l,RDuration,ScParams)]  -> Museq l ScParams
   , mkMuseqTrig -- ^ forall l. (Ord l, Show l)
-    -- => RDuration -> [(l,RTime,Sample,ScMsg)]         -> Museq String Note
+    -- => RDuration -> [(l,RTime,Sample,ScParams)]      -> Museq String Note
   , mkMuseqTrig1 -- ^ RDuration -> [(RTime,Sample)]     -> Museq String Note
 
   -- | Utilities used by the Museq-making functions
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
-  , insertOffs -- ^ Museq l ScMsg                       -> Museq l ScMsg
-  , insertOns  -- ^ Museq l ScMsg                       -> Museq l ScMsg
+  , insertOffs -- ^ Museq l ScParams                    -> Museq l ScParams
+  , insertOns  -- ^ Museq l ScParams                    -> Museq l ScParams
   ) where
 
 import Prelude hiding (cycle)
@@ -47,8 +47,8 @@ mkMuseq :: RDuration -> [(l,RTime,RTime,a)] -> Museq l a
 mkMuseq d = mkMuseqFromEvs d . map f where
   f (l,start,end,a) = Event l (start,end) a
 
-mkMuseqOneScMsg :: ScMsg -> Museq String ScMsg
-mkMuseqOneScMsg m = mkMuseqH 1 [("a", RTime 0, m)]
+mkMuseqOneScParams :: ScParams -> Museq String ScParams
+mkMuseqOneScParams m = mkMuseqH 1 [("a", RTime 0, m)]
 
 mkMuseq_seqProc :: forall a b l. Ord l
   => ([(RDuration,a)] -> [((RDuration,RDuration),b)])
@@ -87,37 +87,37 @@ mkMuseqHm d = f . mkMuseqH d where
     unwrap = fmap $ maybe (error "impossible") id
 
 -- | Like `mkMuseqH`, but inserts `on = 1` in `Event`s that do not
--- mention the `on` parameter. Specialized to `ScMsg` payloads.
+-- mention the `on` parameter. Specialized to `ScParams` payloads.
 mkMuseqHo :: forall l. Ord l
-          => RDuration -> [(l,RDuration,ScMsg)] -> Museq l ScMsg
+          => RDuration -> [(l,RDuration,ScParams)] -> Museq l ScParams
 mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
 
 -- | Make a Museq with sample trigger messages.
--- `mkMuseqTrig` sends any two `ScMsg` values to different synths, unless
+-- `mkMuseqTrig` sends any two `ScParams` values to different synths, unless
 -- they share the same label *and* the same `Sample`.
 -- This is guaranteed by computing new labels `show l ++ show Sample`.
 
 mkMuseqTrig :: forall l. (Ord l, Show l) =>
-  RDuration -> [(l,RTime,Sample,ScMsg)] -> Museq String Note
+  RDuration -> [(l,RTime,Sample,ScParams)] -> Museq String Note
 mkMuseqTrig sup0 evs0 = let
   -- Rather than group by l and then Sample,
   -- maybe group by l' = show l ++ show Sample?
   evs1 :: [ ( (l, Sample)
-            , (RTime,ScMsg) ) ] =
+            , (RTime,ScParams) ) ] =
     map (\(l,t,n,m) -> ((l,n),(t,m))) evs0
   evs2 :: [( (l, Sample)
-           , [(RTime,ScMsg)] )] =
+           , [(RTime,ScParams)] )] =
     multiPartition evs1
   evs3 :: [( (l, Sample)
-           , [((RTime, RTime) ,ScMsg)] )] =
+           , [((RTime, RTime) ,ScParams)] )] =
     map (_2 . traversed . _1 %~ (\t -> (t,t)) ) evs2
   evs4 :: [( (l,Sample),
              [((RTime,RTime), Note)] )] =
     map f evs3
-    where f :: ( (l,Sample), [((RTime,RTime), ScMsg )] )
+    where f :: ( (l,Sample), [((RTime,RTime), ScParams )] )
             -> ( (l,Sample), [((RTime,RTime), Note)] )
-          f ((l,s),rtimeScMsgPairs) =
-            ((l,s), map (_2 %~ Note (Sampler s)) rtimeScMsgPairs)
+          f ((l,s),rtimeScParamsPairs) =
+            ((l,s), map (_2 %~ Note (Sampler s)) rtimeScParamsPairs)
 
   evs5 :: [( String, [((RTime,RTime), Note)] )] =
     map (_1 %~ \(l,s) -> show l ++ show s) evs4
@@ -159,7 +159,7 @@ hold sup0 tas = _hold tas where
 
 -- | `insertOffs` turns every message off,
 -- whether it was on or off before.
-insertOffs :: Museq l ScMsg -> Museq l ScMsg
+insertOffs :: Museq l ScParams -> Museq l ScParams
 insertOffs = vec %~ V.map go where
   go :: Ev l (M.Map String Float)
      -> Ev l (M.Map String Float)
@@ -167,7 +167,7 @@ insertOffs = vec %~ V.map go where
 
 -- | `insertOns` does not change any extant `on` messages,
 -- but where they are missing, it inserts `on = 1`.
-insertOns :: Museq l ScMsg -> Museq l ScMsg
+insertOns :: Museq l ScParams -> Museq l ScParams
 insertOns = vec %~ V.map go where
   go :: Ev l (M.Map String Float)
      -> Ev l (M.Map String Float)

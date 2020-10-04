@@ -49,7 +49,7 @@ test_edoKey_ScAction = TestCase $ do
     Right [ ScAction_New
             { _actionSynthDefEnum = Zot
             , _actionSynthName = newVoice
-            , _actionScMsg = M.singleton "freq" $
+            , _actionScParams = M.singleton "freq" $
                              Config.freq *
                              edoToFreq (st ^. stApp . edoConfig) newPitch
             } ]

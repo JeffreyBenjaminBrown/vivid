@@ -5,14 +5,14 @@
 
 module Montevideo.Dispatch.Types.Many (
     SynthName, ParamName, MuseqName
-  , ScMsg, ScMsg'(..)
+  , ScParams, ScParams'(..)
   , NamedWith
   , ScAction(..), _ScAction_New, _ScAction_Send, _ScAction_Free
   , Event(..), evArc, evLabel, evData
   , Ev
   , Museq(..), dur, sup, vec
   , SynthRegister(..), boops, samplers, samples, sqfms, vaps, zots
-  , Note(..), noteSd, noteScMsg
+  , Note(..), noteSd, noteScParams
   , Dispatch(..)
   ) where
 
@@ -38,20 +38,20 @@ type MuseqName = String
 
 -- | = (synth) Messages and (synth) ScActions
 
--- | A message type that knows nothing about Vivid's type-fussiness.
-type ScMsg = Map ParamName Float
+-- | A message for SuperCollider unaware of Vivid's type shenanigans..
+type ScParams = Map ParamName Float
 
 type NamedWith name a = (name, a)
 
--- | A `ScMsg'`, unlike a `Msg`, is typed for a particular kind of synth,
+-- | A `ScParams'`, unlike a `Msg`, is typed for a particular kind of synth,
 -- and to send it anywhere else is a type error.
 -- (This innovation is Vivid's, not my own --
 -- in fact I circumvent it with the `Msg` type.)
-data ScMsg' sdArgs where
-  ScMsg' :: forall params sdArgs.
+data ScParams' sdArgs where
+  ScParams' :: forall params sdArgs.
           ( Vivid.VarList params
           , Vivid.Subset (Vivid.InnerVars params) sdArgs)
-       => params -> ScMsg' sdArgs
+       => params -> ScParams' sdArgs
 
 -- | A SuperCollider action: create a voice, destroy (free)  a voice,
 -- or change a voice's parameters.
@@ -59,7 +59,7 @@ data ScAction labelType
   = ScAction_New  -- ^ create it
     { _actionSynthDefEnum :: SynthDefEnum -- ^ The kind of synth.
     , _actionSynthName    :: labelType -- ^ Which instance of the synth.
-    , _actionScMsg        :: ScMsg -- ^ Can be the empty map.
+    , _actionScParams     :: ScParams -- ^ Can be the empty map.
       -- In fact, in mtv-lang (Montevideo.Dispatch), it always is,
       -- because voices are created in advance of being used.
     }
@@ -69,7 +69,7 @@ data ScAction labelType
   | ScAction_Send
     { _actionSynthDefEnum :: SynthDefEnum -- ^ The kind of synth.
     , _actionSynthName    :: labelType -- ^ Which instance of the synth.
-    , _actionScMsg        :: ScMsg } -- ^ This should not be the empty map.
+    , _actionScParams     :: ScParams } -- ^ This should not be the empty map.
   deriving (Show, Eq, Ord)
 makePrisms ''ScAction
 
@@ -122,7 +122,8 @@ makeLenses ''SynthRegister
 
 data Note = Note
   { _noteSd :: SynthDefEnum
-  , _noteScMsg :: ScMsg } deriving (Show, Eq)
+  , _noteScParams :: ScParams }
+  deriving (Show, Eq)
 makeLenses ''Note
 
 data Dispatch = Dispatch {
