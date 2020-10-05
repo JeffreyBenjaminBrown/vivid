@@ -28,7 +28,6 @@ import           Data.Map
 import           Data.Set
 import           Vivid hiding (Param)
 
-import Montevideo.Dispatch.Types.Many
 import Montevideo.Monome.Types.EdoConfig
 import Montevideo.Monome.Types.Monome
 import Montevideo.Monome.Types.Params
@@ -110,7 +109,8 @@ data Window app = Window {
     -- ^ Some windows begin with some LEDs lit.
   , windowHandler :: -- ^ Acts on messages from the monome.
       St app
-      -> (MonomeId, ((X,Y), Switch)) -- ^ the incoming button press|release
+      -> (MonomeId, ((X,Y), Switch)) -- ^ incoming button press|release,
+                                     -- relative to Window's top-left corner.
       -> Either String (St app)
   }
 

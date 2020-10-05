@@ -5,7 +5,6 @@ module Montevideo.Monome.Window.ChordBank.Function (
 import           Prelude hiding (pred)
 
 import           Montevideo.Monome.Types.Most
-import           Montevideo.Synth.Msg
 
 
 buttonStore :: (X,Y)

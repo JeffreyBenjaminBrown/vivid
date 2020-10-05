@@ -15,7 +15,7 @@ module Montevideo.Synth.Msg (
   )
 where
 
-import           Control.Lens (makeLenses, makePrisms)
+import           Control.Lens (makePrisms)
 import           Data.Map (Map)
 import qualified Data.Map as M
 import qualified Vivid as V

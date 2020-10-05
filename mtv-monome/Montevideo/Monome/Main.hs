@@ -343,6 +343,7 @@ doScAction    st        sca =
           $ free s
         return $ stVoices . at vid .~ Nothing
 
+-- | PITFALL: The (X,Y) in the LedMsg is relative to the window `w`.
 doLedMessage :: St app -> LedMsg -> Either String (IO ())
 doLedMessage st lm@((mi, wi), _) =
   mapLeft ("doLedMessage: " ++) $
