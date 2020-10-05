@@ -71,6 +71,24 @@ my22 = EdoConfig
   , _gridVectors = Nothing
   }
 
+my19 :: EdoConfig
+my19 = EdoConfig
+  { _edo = 19
+  , _skip = 1
+  , _spacing = 5
+  , _octaveStretchInCents = 0
+  , _gridVectors = Nothing
+  }
+
+my12 :: EdoConfig
+my12 = EdoConfig
+  { _edo = 12
+  , _skip = 1
+  , _spacing = 5
+  , _octaveStretchInCents = 0
+  , _gridVectors = Nothing
+  }
+
 
 -- | * Configure the synth
 
