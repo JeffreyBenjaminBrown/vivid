@@ -66,7 +66,7 @@ my22 :: EdoConfig
 my22 = EdoConfig
   { _edo = 22
   , _skip = 1
-  , _spacing = 5
+  , _spacing = 7
   , _octaveStretchInCents =
     -1.1    -- 11-limit optimal
     -- -1.8 -- 7-limit optimal
@@ -77,10 +77,20 @@ my19 :: EdoConfig
 my19 = EdoConfig
   { _edo = 19
   , _skip = 1
-  , _spacing = 5
+  , _spacing = 6
   , _octaveStretchInCents =
       2.58    -- 5-limit optimal
       -- 3.85 -- 7-limit optimal
+  , _gridVectors = Nothing
+  }
+
+my16 :: EdoConfig
+my16 = EdoConfig
+  { _edo = 16
+  , _skip = 1
+  , _spacing = 5
+  , _octaveStretchInCents =
+      7.3    -- 5-limit optimal
   , _gridVectors = Nothing
   }
 
