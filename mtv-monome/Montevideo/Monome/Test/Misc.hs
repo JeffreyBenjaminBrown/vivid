@@ -68,7 +68,12 @@ test_visible = TestCase $ do
       not $ visible ws (orig, w2) (1,2)
 
   -- For these tests the top left corners of the windows differ.
-  let ws = [ ((3,0), w1)
-           , ((0,0), w2) ]
-      in assertBool "would fall in w1 if w1 were at (0,0), but it's not." $
-         visible ws ((0,0),w2) (2,0)
+  assertBool "Since 5 > 0, if w1 were anchored at (0,0) it would obscure xy = (5,0) (both relatively and absolutely) in w2. But w1 is anchored at (10,0), and xy relative to that anchor is at (-5,0), so w1 should not block it." $ let
+    ws = [ ((10,0), w1)
+         , ((0,0), w2) ]
+    in visible ws ((0,0),w2) (5,0)
+  assertBool "Since 1 < 3, if w1 were anchored at (0,0), it would not obscure xy = (1,3) (both relatively and absolutely) in w2. But w1 is anchored at (0,3), and xy relative to that anchor is at (1,0), and since 1 > 0, w1 should block it from reaching w2." $ let
+    ws = [ ((0,3), w1)
+         , ((0,0), w2) ]
+    in not $ visible ws ((0,0),w2) (1,3)
+
