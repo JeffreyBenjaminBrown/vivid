@@ -53,12 +53,12 @@ relayToWindow st mi wl =
 -- PITFALL: `allWindows` should include literally all of them, even `w`.
 
 relayIfHere :: Socket
-  -> [((X,Y), Window app)] -- ^ All windows, in order, with top-left corners.
-  -> ((X,Y), Window app)   -- ^ The Window onto which we might draw, and its top-left corner.
+  -> [((X,Y), Window app)] -- ^ `_stWindowLayers st`: all Windows, in order.
+  -> ((X,Y), Window app)   -- ^ The Window onto which we might draw.
   -> LedRelay
 relayIfHere dest allWindows w = f where
   f :: ((MonomeId, WindowId), ((X,Y), Led)) -> IO ()
-  f ((mi,_), (xy,led)) = -- the WindowId is no longer needed, given w
+  f ((mi,_), (xy,led)) = -- The WindowId is no longer needed, given w.
     if visible allWindows w xy
     then do _ <- send dest $ ledOsc mi
                  ( pairAdd xy $ fst w -- absolute monome coordinates
