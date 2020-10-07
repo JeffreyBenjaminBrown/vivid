@@ -45,24 +45,17 @@ test_visible = TestCase $ do
   let w1 = Window
            { windowLabel = KeyboardWindow
            , windowContains = (\(x,y) -> x > y)
-           , windowInitLeds = \_ _ -> Right []
-           , windowHandler = \st _ -> Right st
            }
       w2 = Window
            { windowLabel = ShiftWindow
            , windowContains = (\(x,_) -> x > 4)
-           , windowInitLeds = \_ _ -> Right []
-           , windowHandler = \st _ -> Right st
            }
       w3 = Window
            { windowLabel = SustainWindow
            , windowContains = \(_,_) -> True
-           , windowInitLeds = \_ _ -> Right []
-           , windowHandler = \st _ -> Right st
            }
 
-  -- For these assertions every window is anchored at the origin, (0,0).
-  let orig = (0,0)
+  let orig = (0,0) -- Every window is anchored at the origin, (0,0).
       ws = map (orig,) [w1,w2,w3]
     in do
     assertBool "caught by w1 before reaching w3" $
