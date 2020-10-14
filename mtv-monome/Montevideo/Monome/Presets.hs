@@ -18,10 +18,10 @@ storePreset st = let
        ++ map (\p -> "  , " ++ p) (tail pairs)
        ++ ["  ]"]
   in appendFile
-     "/home/jeff/mtv/mtv-monome/Montevideo/Monome/Presets.hs"
+     "mtv-monome/Montevideo/Monome/Presets.hs"
      $ unlines ss
 
-pr1, pr2, pr3, pr4, pr5 :: M.Map ZotParam Float
+pr1, pr2, pr3, pr4, pr5, pr6 :: M.Map ZotParam Float
 
 -- | smooth mellow buzz
 -- The AM_F causes a lot of noise if pulse is > 0.
@@ -124,4 +124,19 @@ pr5 = M.fromList
   , (Zot_am, 0.75)
   , (Zot_am_b, 0.9166667)
   , (Zot_am_f, 0.25)
+  ]
+
+-- | deep clean bass
+pr6 = M.fromList
+  [ (Zot_amp, 4.6946548e-2)
+  , (Zot_att, 9.999999e-4)
+  , (Zot_pulse, 0.0)
+  , (Zot_fm_m, 1.0)
+  , (Zot_pm_m, 0.6666667)
+  , (Zot_pm_f, 6.2007853e-3)
+  , (Zot_pm_b, 0.6666667)
+  , (Zot_wm_m, 0.33333334)
+  , (Zot_wm_f, 0.25)
+  , (Zot_wm_b, -1.0)
+  , (Zot_w, 0.125)
   ]
