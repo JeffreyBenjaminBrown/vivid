@@ -43,12 +43,12 @@ jiChords = do
 
 minNotes, maxNotes :: Integer
 minNotes = 12
-maxNotes = 100
+maxNotes = 130
 
 tols :: [Integer]
 tols = -- This list can have any length.
   -- It describes the maximum error for the first harmonics.
-  (*10) <$> [20,20,1]
+  (*10) <$> [5,6,6]
 --    example:
 --    [ 20 -- approx 3/2 to within 2 cents
 --    , 40 -- 5/4 to within 4 cents

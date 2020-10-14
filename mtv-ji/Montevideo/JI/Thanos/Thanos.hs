@@ -65,24 +65,36 @@ instance Show IntervalReport where
 
 -- ** Search
 
+-- | All tunings that satisfy the search parameters.
+tunings :: [Int]
+tunings = [ a
+          | a <- [minEdo .. maxEdo]
+          , not $ null $ go a ]
+
 -- | Edit his function (and the parameters like "maxEdo" above)
 -- to suit your search priorities.
-go :: [ThanosReport]
-go = id
+--
+-- Pr.pPrint $ reverse $ go 130
+go :: Int -> [ThanosReport]
+go a = id
   $ sortBy   (comparing                    tReport_fretSpan_lim13)
   $ sortBy   (comparing $ (*(-1))        . tReport_spacing)
   $ sortBy   (comparing                    tReport_fretSpan_lim7)
   $ sortBy   (comparing                    tReport_fretSpan_lim5)
-  $ filter ( (>= minFretsPerOctave)      . tReport_fpo)
-  $ filter ( (<= maxFretsPerOctave)      . tReport_fpo)
+
   $ filter ( (<= max12edoFretSpan_lim13) . tReport_fretSpan_lim13)
-  $ filter ( (<= max12edoFretSpan_lim7)  . tReport_fretSpan_lim7)
-  $ filter ( (<= max12edoFretSpan_lim5)  . tReport_fretSpan_lim5)
   $ filter ( (>= minSpacingIn12edo)      . tReport_spacing12 )
-  $ filter ( (<= 2 * bestFifth 12)       . bestFifth
-                                         . tReport_edo )
-  $ filter ((< 0.2) . edoError           . tReport_edo)
-  $ concatMap edoThanosReports [minEdo .. maxEdo]
+
+--  $ filter ( (>= minFretsPerOctave)      . tReport_fpo)
+--  $ filter ( (<= maxFretsPerOctave)      . tReport_fpo)
+--  $ filter ( (<= max12edoFretSpan_lim7)  . tReport_fretSpan_lim7)
+--  $ filter ( (<= max12edoFretSpan_lim5)  . tReport_fretSpan_lim5)
+--  $ filter ( (<= 2 * bestFifth 12)       . bestFifth
+--                                         . tReport_edo )
+--  $ filter ((< 0.2) . edoError           . tReport_edo)
+  $ concatMap edoThanosReports
+  [a]
+  -- [minEdo .. maxEdo]
 
 -- | PITFALL: This looks like it generates an impossibly big amount of data.
 -- Fortunately, laziness upstream means most reports are dropped
@@ -232,7 +244,9 @@ shortWaysToReach modulus spacing edoStep = let
 -- the modulus is 2, and the spacing is 13.
 feasibleSpacing :: Modulus -> Spacing -> Bool
 feasibleSpacing modulus spacing =
-  elem 1 $ fmap (flip mod modulus . (*) spacing) [1..modulus]
+  modulus == 1 ||
+  elem 1 ( fmap (flip mod modulus . (*) spacing)
+           [1..modulus] )
 
 -- | How to play the primes in a given edo.
 primeIntervals :: Edo
@@ -252,11 +266,11 @@ primesOctave1 = map snd primes
 primes :: [(Int, Rational)]
 primes =
   [ (2,  2/1)
-  , (3,  3%2)
-  , (5,  5/4)
   , (7,  7/4)
-  , (11, 11/8)
   , (13, 13/8)
+  , (3,  3%2)
+  , (11, 11/8)
+  , (5,  5/4)
   ]
 
 badness :: Int -> Edo -> Float
