@@ -241,6 +241,10 @@ handleSwitch :: forall app.
 
 handleSwitch st0 mi press@ (btn,sw) =
   fmap (mapLeft ("Monome.Main.handleSwitch: " ++)) $ do
+  -- handy for debugging
+  -- do now <- getTime
+  --    putStrLn $ show now ++ " " ++ show mi ++ " " ++
+  --      show btn ++ " " ++ show sw
   case M.lookup mi $ _stWindowLayers st0 of
     Nothing -> return $ Left $ "WIndows for " ++ show mi ++ " not found."
     Just (ws :: [((X,Y), Window app)]) ->
