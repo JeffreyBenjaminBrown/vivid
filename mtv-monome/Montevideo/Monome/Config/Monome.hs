@@ -8,6 +8,7 @@ import Montevideo.Monome.Types
 type Port = Int
 
 monomePort :: MonomeId -> Port
-monomePort Monome_256 = 15226
-monomePort Monome_128 = 14336
-monomePort Monome_old = 14718
+
+monomePort Monome_256 = 17800
+monomePort Monome_128 = 17742
+monomePort Monome_old = 19245

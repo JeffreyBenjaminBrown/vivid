@@ -204,6 +204,44 @@ my87 = EdoConfig
       }
   }
 
+-- | Consistent through the 19-limit,
+-- and very accurate even through the 31-limit (the highest I checked).
+-- The maximum possible error for a note is 7.5 cents.
+-- Note positions:
+-- 07 steps = 17 % 16: string 1 fret -3
+-- 20 steps = 19 % 16: string 2 fret -3
+-- 26 steps = 5 % 4: string 2 fret 0
+-- 37 steps = 11 % 8: string 3 fret -1
+-- 42 steps = 23 % 16: string 2 fret 8
+-- 47 steps = 3 % 2: string 3 fret 4
+-- 56 steps = 13 % 8: string 4 fret 2
+-- 65 steps = 7 % 4: string 5 fret 0
+-- 69 steps = 29 % 16: string 5 fret 2
+-- 76 steps = 31 % 16: string 6 fret -1
+-- 80 steps = 2 % 1: string 6 fret 1
+--Prime accuracy:
+-- (3 % 2,(47,7050,30.4499913461259))
+-- (5 % 4,(26,3900,36.862861351651645))
+-- (7 % 4,(65,9750,61.74093530875143))
+-- (11 % 8,(37,5550,36.82057635243291))
+-- (13 % 8,(56,8400,-5.276617693105436))
+-- (17 % 16,(7,1050,0.4459049959270942))
+-- (19 % 16,(20,3000,24.869838676973814))
+-- (23 % 16,(42,6300,17.256527315844323))
+-- (29 % 16,(69,10350,54.22805846913434))
+-- (31 % 16,(76,11400,-50.35572464250254))
+my80 :: EdoConfig
+my80 = EdoConfig
+  { _edo = 80
+  , _skip = 2
+  , _spacing = 13
+  , _octaveStretchInCents = 0
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-2,13)
+      , _gridHorizontalVector = (6,1)
+      }
+  }
+
 my46 :: EdoConfig
 my46 = EdoConfig
   { _edo = 46

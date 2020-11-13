@@ -146,7 +146,8 @@ sum_errs d = sum $ abs . err_of_best <$> bests d
 
 bests :: Integer -> [(Rational, (Integer, Integer, Double))]
 bests d = (\r -> (r, best d r))
-          <$> [3%2,5%4,7%4,11%8,13%8,17%16]
+          <$> [ 3%2,5%4,7%4,11%8,13%8,
+                17%16,19%16,23%16,29%16,31%16 ]
 
 best :: Integer -> Rational -> (Integer, Integer, Double)
 best d r = L.minimumBy (comparing $ abs . (^. _3))
