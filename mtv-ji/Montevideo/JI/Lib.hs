@@ -137,17 +137,28 @@ just_intervals = let
   pair n = (cents $ fromRational n, n)
   in map (pair . f) $ L.sort $ lim_15
 
+errSearch :: [Integer] -> [(Integer,Double)]
+errSearch edos =
+  zip edos $
+  map (sum_errs $ map (\x -> 1/x**(3/2)) [2..]) edos
+
 -- | `sum_errs d` gives the sum of the absolute values of the errors
 -- of `d`-edo in approximating the harmonics of interest.
-sum_errs :: Integer -> Double
-sum_errs d = sum $ abs . err_of_best <$> bests d
+sum_errs
+  :: [Double] -- ^ How to weight the harmonics.
+  -> Integer
+  -> Double
+sum_errs weights d = sum $ map square $ zipWith (*) weights $
+                     abs . err_of_best <$> bests d
   where
+    square x = x*x
     err_of_best (_,(_,_,e)) = e
 
 bests :: Integer -> [(Rational, (Integer, Integer, Double))]
 bests d = (\r -> (r, best d r))
           <$> [ 3%2,5%4,7%4,11%8,13%8,
-                17%16,19%16,23%16,29%16,31%16 ]
+                17%16,19%16,23%16,29%16,31%16,
+                33%32 ]
 
 best :: Integer -> Rational -> (Integer, Integer, Double)
 best d r = L.minimumBy (comparing $ abs . (^. _3))

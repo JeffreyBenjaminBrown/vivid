@@ -51,7 +51,7 @@ data ThanosReport = ThanosReport
   deriving (Eq, Ord, Show)
 
 data IntervalReport = IntervalReport
-  { ir_Edo  :: Interval -- ^ This ...
+  { ir_Edo    :: Interval -- ^ This ...
   , ir_Ratio  :: Rational -- ^ and this represent the same note
   , ir_GuitarString :: GuitarString   -- ^ This ...
   , ir_Fret   :: Fret }   -- ^ and this represent where it lies closest.
@@ -156,7 +156,9 @@ thanosReport edo modulus spacing = let
      , tReport_fretSpan12_lim7 = reportSpan_in12Edo edo modulus fd7
      , tReport_fretSpan_lim13 = fd13
      , tReport_fretSpan12_lim13 = reportSpan_in12Edo edo modulus fd13
-     , tReport_intervalReports = map mkIntervalReport pairPairs }
+     , tReport_intervalReports =
+       sortBy (comparing ir_Edo) $
+       map mkIntervalReport pairPairs }
 
 reportSpan_in12Edo :: Edo -> Modulus -> FretDistance -> Float
 reportSpan_in12Edo e m d =
@@ -184,10 +186,10 @@ thanosReport' edo modulus spacing = let
     in maximum frets - minimum frets
   theChoice = minimumBy (comparing $ maxFretDiff 6) cs
   formatted = zip notes theChoice
-  in (maxFretDiff 3 theChoice,
-      maxFretDiff 4 theChoice,
-      maxFretDiff 6 theChoice,
-      formatted)
+  in ( maxFretDiff 3 theChoice,
+       maxFretDiff 4 theChoice,
+       maxFretDiff 6 theChoice,
+       formatted )
 
 -- | Each inner list of `choices ll` is a different way of selecting one
 -- element from each of the inner lists of `ll`.
@@ -266,13 +268,13 @@ primesOctave1 = map snd primes
 primes :: [(Int, Rational)]
 primes =
   [ (2,  2/1)
-  , (7,  7/4)
-  , (13, 13/8)
   , (3,  3%2)
-  , (11, 11/8)
   , (5,  5/4)
-  , (19, 19/16)
+  , (7,  7/4)
+  , (11, 11/8)
+  , (13, 13/8)
   , (17, 17/16)
+  , (19, 19/16)
   , (23, 23/16)
   , (29, 29/16)
   , (31, 31/16)
