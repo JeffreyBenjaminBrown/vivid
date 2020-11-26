@@ -8,16 +8,14 @@ import Vivid (Timestamp(..))
 
 -- | = Time
 
--- | I think these are meant to be absolute times.
+-- | Absolute times, in seconds.
 newtype Time   = Time { _unTime :: Rational}
   deriving (Show, Eq, Ord)
 type Start     = Time
 type End       = Time
 type Duration  = Time
 
--- | TODO ? Maybe `RTime` means "relative time" --
--- relative to something, e.g. the global cycle duration.
--- Or maybe (I hope not) it means "wrapped time"?
+-- | Time relative to something, e.g. the global cycle duration.
 newtype RTime  = RTime {_unRTime :: Rational}
   deriving (Show, Ord, Eq)
 type RStart    = RTime

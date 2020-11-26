@@ -56,9 +56,10 @@ replace_inDisp disp newName newMuseq = do
 -- This computes the next thing to play in parallel, rather than
 -- halting SuperCollider communication until the next thing is computed.
 
-replaceAll_inDisp :: Dispatch -- ^ What plays stuff.
-           -> M.Map MuseqName (Museq String Note) -- ^ What to play next.
-           -> IO ()
+replaceAll_inDisp
+  :: Dispatch -- ^ What plays stuff.
+  -> M.Map MuseqName (Museq String Note) -- ^ What to play next.
+  -> IO ()
 replaceAll_inDisp disp mqsNew = do
   time0  <- readMVar $ mTime0  disp
   mqsOld <- readMVar $ mMuseqs disp

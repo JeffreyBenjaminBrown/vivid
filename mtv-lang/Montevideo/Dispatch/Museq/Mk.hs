@@ -71,12 +71,14 @@ mkMuseq_seqProc seqProc d evs0 = let
 
 -- | Makes a `Museq` using `hold`,
 -- so that each event lasts until the next.
+-- PITFALL: This changes arcs but not the 'on' parameter;
+-- to change both, use `mkMuseqHo`.
 mkMuseqH :: forall a l. Ord l
           => RDuration -> [(l,RDuration,a)] -> Museq l a
 mkMuseqH d = mkMuseq_seqProc (hold d) d
 
 -- | Makes a `Museq` using `hold`, holding each `Just` value
--- until the next `Maybe`, then discarding any `Nothing`s.
+-- until the next `Nothing`, then discarding any `Nothing`s.
 mkMuseqHm :: forall a l. Ord l
           => RDuration -> [(l, RTime, Maybe a)] -> Museq l a
 mkMuseqHm d = f . mkMuseqH d where
