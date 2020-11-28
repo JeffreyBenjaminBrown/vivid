@@ -44,14 +44,14 @@ dispatchConsumeScAction reg _ a@(ScAction_New _ _ _)  =
 
 -- | PITFALL: Sets no parameters.
 -- In this sense it does not consume everything that might be present.
--- That's because sequences in mtv-lang create voices silently,
--- before they are used, and therefore the `_actionScParams` field of the input
--- `ScAction` is always the empty map.
+-- That's because sequences in mtv-lang create voices well before they sound,
+-- and therefore the `_actionScParams` field of the input
+-- `ScAction` is always the empty map when they are first created.
 --
 -- `dispatchConsumeScAction_New reg (ScAction_New Boop name)`,
 -- if it finds `name`, logs an error and returns the identity.
 -- Otherwise, it creates the synth (immediately -- no scheduling),
---   and returns how to insert it into synth reg.
+--   and returns how to insert it into the synth register.
 --   The reg has a separate field for each different kind of synth.
 -- In the special case of a sampler, it also looks up the buffer.
 --   If found, it uses the buffer as an argument to the sampler synth created.
@@ -59,6 +59,7 @@ dispatchConsumeScAction reg _ a@(ScAction_New _ _ _)  =
 dispatchConsumeScAction_New ::
   SynthRegister -> ScAction SynthName ->
   IO (SynthRegister -> SynthRegister)
+
 dispatchConsumeScAction_New reg (ScAction_New Boop name _) =
   case M.lookup name $ _boops reg of
     Nothing -> do s <- V.synth boop ()
@@ -113,11 +114,13 @@ dispatchConsumeScAction_New _ (ScAction_Free _ _)   =
 --   schedules an amp=0 message for its "when" argument,
 --   schedules a free message for shortly thereafter,
 --   and returns a way to delete the synth.
+
 dispatchConsumeScAction_Free
   :: SynthRegister
   -> Time
   -> ScAction SynthName
   -> IO (SynthRegister -> SynthRegister)
+
 dispatchConsumeScAction_Free reg when (ScAction_Free Boop name) =
   case M.lookup name $ _boops reg of
   Nothing -> do

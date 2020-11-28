@@ -97,9 +97,11 @@ tr = toRational
 -- | = error IO
 
 writeTimeAndError :: String -> IO ()
-writeTimeAndError msg = do now <- getTime
-                           appendFile "errors.txt"
-                             $ show now ++ ": " ++ msg
+writeTimeAndError msg = do
+  now <- getTime
+  let msg' = show now ++ ": " ++ msg
+  putStrLn msg'
+  appendFile "errors.txt" msg'
 
 
 -- | = Randomness

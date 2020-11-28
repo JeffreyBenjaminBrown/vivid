@@ -48,9 +48,6 @@ mkMuseq :: RDuration -> [(l,RTime,RTime,a)] -> Museq l a
 mkMuseq d = mkMuseqFromEvs d . map f where
   f (l,start,end,a) = Event l (start,end) a
 
-mkMuseqOneScParams :: ScParams -> Museq String ScParams
-mkMuseqOneScParams m = mkMuseqH 1 [("a", RTime 0, m)]
-
 mkMuseq_seqProc :: forall a b l. Ord l
   => ([(RDuration,a)] -> [((RDuration,RDuration),b)])
   -> RDuration -> [(l,RDuration,a)] -> Museq l b
@@ -76,6 +73,9 @@ mkMuseq_seqProc seqProc d evs0 = let
 mkMuseqH :: forall a l. Ord l
           => RDuration -> [(l,RDuration,a)] -> Museq l a
 mkMuseqH d = mkMuseq_seqProc (hold d) d
+
+mkMuseqOneScParams :: ScParams -> Museq String ScParams
+mkMuseqOneScParams m = mkMuseqH 1 [("a", RTime 0, m)]
 
 -- | Makes a `Museq` using `hold`, holding each `Just` value
 -- until the next `Nothing`, then discarding any `Nothing`s.

@@ -44,8 +44,8 @@ data ScParams' sdArgs where
 -- or change a voice's parameters.
 data ScAction labelType
   = ScAction_New  -- ^ create it
-    { _actionSynthDefEnum :: SynthDefEnum -- ^ The kind of synth.
-    , _actionSynthName    :: labelType -- ^ Which instance of the synth.
+    { _actionSynthDefEnum :: SynthDefEnum -- ^ Kind of synth.
+    , _actionSynthName    :: labelType -- ^ Instance of that kind of synth.
     , _actionScParams     :: ScParams -- ^ Can be the empty map.
       -- In fact, in mtv-lang (Montevideo.Dispatch), it always is,
       -- because voices are created in advance of being used.
