@@ -23,8 +23,8 @@ scalePat = slow 4 $ -- This gives the `Museq` a duration of 16 instead of 2.
 
 render =
   (<$>) (Note Boop) -- Send it to the Boop synth.
-  . hsToHz 300 -- Convert each "freq" value from halfsteps to Hz, such that
-               -- 0 halfsteps -> 300 Hz, 12 halfsteps -> 600 Hz, etc.
+  . stepsToHz 12 300 -- Convert each "freq" value from 12-edo halfsteps to Hz,
+            -- such that 0 halfsteps -> 300 Hz, 12 halfsteps -> 600 Hz, etc.
   . scale 12 scalePat -- Convert each scale 12 step value to halfsteps.
 
 chAll $   -- Change all voices at once -- i.e. play this, and only this.

@@ -9,7 +9,7 @@ module Montevideo.Dispatch.Abbrevs (
   , m1  -- ^ M.singleton
   , mfl -- ^ M.fromList
 
-  , hsToHz          -- ^ Float            -> Museq l ScParams -> Museq l ScParams
+  , stepsToHz       -- ^ Edo -> Float     -> Museq l ScParams -> Museq l ScParams
   , amp, freq       -- ^ (Float -> Float) -> Museq String ScParams -> Museq String ScParams
   , ampTo, freqTo   -- ^ Float            -> Museq String ScParams -> Museq String ScParams
   , nAmp, nFreq     -- ^ (Float -> Float) -> Museq String Note -> Museq String Note
@@ -51,6 +51,7 @@ import Montevideo.Dispatch.Types
 import Montevideo.Synth
 import Montevideo.Synth.Msg
 import Montevideo.Synth.Samples
+import Montevideo.Util
 
 
 viewDurs :: Museq l a -> Museq l a
@@ -71,9 +72,9 @@ m1 = M.singleton
 mfl :: Ord k => [(k, a)] -> M.Map k a
 mfl = M.fromList
 
-hsToHz :: Float -> Museq l ScParams -> Museq l ScParams
-hsToHz anchorInHz =
-  freq $ (*) anchorInHz . (\p -> 2**(p/12))
+stepsToHz :: Edo -> Float -> Museq l ScParams -> Museq l ScParams
+stepsToHz edo anchorInHz =
+  freq $ (*) anchorInHz . (\p -> 2**(p/fi edo))
 
 amp, freq :: (Float -> Float) -> Museq l ScParams -> Museq l ScParams
 amp g = fmap $ M.adjust g "amp"
