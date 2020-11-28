@@ -20,7 +20,7 @@ rootScalePat = slow 4 $
 render = (<$>) (Note Boop)
   . ops [( "freq"
          , (*) 300 . \p -> 2**(p/12) )]
-  . rootScale rootScalePat
+  . rootScale 12 rootScalePat
 
 chAll $ mfl
   [ ( "1"

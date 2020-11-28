@@ -13,7 +13,7 @@ patPitch k = mmho 2 $ pre2 "a" $
 patKs  = mmt1 2 $ seq SampleKm SampleSm_peb SampleSl_blip
 patHat = mmt1 2 $ seq SampleHl_et  SampleHl_tfc SampleHl_tfc
 
-go = nZot . toHz . rootScale rs where
+go = nZot . toHz . rootScale 12 rs where
   toHz = ops [("freq", (*) 200 . \p -> 2**(p/12))]
   rs = slow 8 $ mmh 3 $ pre2 "a" $ [ (0, (0, phr3))
                                    , (1, (4, lyd))

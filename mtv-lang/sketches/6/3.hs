@@ -17,7 +17,7 @@ chord :: [Float] -> Museq String ScParams =
 ampSeq :: Float -> Museq String ScParams = \f ->
   mmho 1 [("a",0,m1 "amp" f)]
 
-go = nBoop . toHz . rootScale rs where
+go = nBoop . toHz . rootScale 12 rs where
   toHz = ops [("freq", (*) 200 . \p -> 2**(p/12))]
   rs = slow 12 $ mmh 3 $ pre2 "a" $ [ (0, (0, phr3))
                                     , (1, (4, lyd))

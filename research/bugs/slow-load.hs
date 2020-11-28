@@ -13,7 +13,7 @@ p2 :: Int -> Museq String Msg = \n ->
   map (M.singleton "freq" . (+) 0) $
   map fromIntegral [0..n-1]
 
-go = nBoop . toHz . rootScale rs where
+go = nBoop . toHz . rootScale 12 rs where
   toHz = ops [("freq", (*) 200 . \p -> 2**(p/12))]
   rs = slow 12 $ mmh 3 $ pre2 "a" $ [ (0, (0, phr3))
                                     , (1, (4, lyd))

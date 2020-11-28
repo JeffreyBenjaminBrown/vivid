@@ -7,7 +7,7 @@ p1 = stack2 a b where
 p2 = mmho 6 $ pre2 "a" $ zip (map RTime [0..])
      $ map (m1 "freq" . (-) 0) [0..5]
 
-go = nBoop . toHz . rootScale rs where
+go = nBoop . toHz . rootScale 12 rs where
   toHz = ops [("freq", (*) 200 . \p -> 2**(p/12))]
   rs = slow 12 $ mmh 2 $ pre2 "a" $ [ (0, (0, phr3))
                                     , (1, (4, lyd))

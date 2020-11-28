@@ -24,7 +24,7 @@ scalePat = slow 3 $ mmh 8 $ pre2 "d"
 
 toScale = nZot
           . ops [("freq", (*) 200 . \p -> 2**(p/12))]
-          . rootScale scalePat
+          . rootScale 12 scalePat
 
 chAll $ mfl
   [ ("1", stack

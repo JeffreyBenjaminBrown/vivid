@@ -34,7 +34,9 @@ module Montevideo.Dispatch.Join (
   , scale     -- ^ forall l m. (Show l, Show m)
               -- => Museq l [Float] -> Museq m ScParams -> Museq String ScParams
   , rootScale -- ^ forall l m. (Show l, Show m)
-              -- => Museq l (Float,[Float]) -> Museq m ScParams -> Museq String ScParams
+              -- => Edo -> Museq l (Float,[Float])
+                     -- -> Museq m ScParams
+                     -- -> Museq String ScParams
   , meta      -- ^ forall a b c l m. (Show l, Show m)
               -- => Museq l      (Museq String a -> Museq String b)
               -- -> Museq m      a
@@ -393,7 +395,8 @@ root mr = meta $ f <$> mr where
   f n = overParams [("freq", (+) n)]
 
 rootScale :: forall l m. (Show l, Show m)
-      => Museq l (Float,[Float]) -> Museq m ScParams -> Museq String ScParams
-rootScale mrs = let roots  = fst <$> mrs
-                    scales = snd <$> mrs
-  in root roots . scale 12 scales
+      => Edo -> Museq l (Float,[Float]) -> Museq m ScParams -> Museq String ScParams
+rootScale edo mrs = let
+  roots  = fst <$> mrs
+  scales = snd <$> mrs
+  in root roots . scale edo scales
