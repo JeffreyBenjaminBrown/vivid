@@ -168,7 +168,7 @@ stack' x y =
 -- but never decrease, the amount of silence in a pattern.
 --
 -- When merging parameters, you'll probably usually want to use * or +,
--- on a per-parameter basis. For instance, you might want merging
+-- maybe on a per-parameter basis. For instance, you might want merging
 -- frequencies 2 and 440 to produce a (multiplied) frequency of 880, but
 -- merging amplitudes 1 and 2 to give an (added) amplitude of 3.
 --
@@ -202,9 +202,10 @@ merge op a b = _merge (labelsToStrings a) (labelsToStrings b) where
 
 
 -- | Some ways to merge `Museq ScParams`s.
--- So named because in math, the additive identity is 0,
--- the mutliplicative identity = 1, and "amp" starts with an "a".
--- The 'n' prefix indicates that the second arg is a Note, not a ScParams.
+-- 0 means "additive" (because 0 is the additive identity).
+-- 1 means "multiplicative" (because 1 is the multiplicative identity).
+-- c means "const".
+-- n means the second argument is a Note.
 
 nMerge  :: forall l m. (Show l, Show m)
   => (ScParams -> ScParams -> ScParams)
@@ -263,7 +264,6 @@ nMerge0fa m n =
   where f "freq" = (+) -- ^ add frequencies
         f "amp" = (+)  -- ^ add amplitudes
         f _      = (*) -- ^ multiply others
-
 
 root :: (Show l, Show m)
      => Museq l Float -> Museq m ScParams -> Museq String ScParams
