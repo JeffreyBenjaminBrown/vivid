@@ -20,7 +20,6 @@ import Montevideo.JI.Thanos.SearchParams
 
 -- * Types
 
-type Edo = Int -- ^ e.g. 31
 type Modulus = Int -- ^ The Thanos tuning will keep every nth note, where n is the modulus. For instance, in Kite's tuning the modulus is 2 (and the Edo is 41).
 type Interval = Int -- ^ A value from an Edo system. For instance,
                     -- the perfect fifth in Edo 31 is Interval 18.

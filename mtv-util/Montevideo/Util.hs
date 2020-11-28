@@ -1,7 +1,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Montevideo.Util (
-    Filename, FileSubPath
+    module Montevideo.Util.Edo
+
+  , Filename, FileSubPath
   , NumScale(..)
 
   -- | = shorthand
@@ -66,6 +68,8 @@ import qualified Data.Vector as V
 import Data.Vector.Algorithms.Search
   (binarySearchLBy, binarySearchRBy, Comparison)
 import Vivid (getTime, pick, MonadRandom)
+
+import Montevideo.Util.Edo
 
 
 type Filename = String

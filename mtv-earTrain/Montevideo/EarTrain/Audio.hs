@@ -6,7 +6,7 @@ module Montevideo.EarTrain.Audio where
 
 import Vivid
 import Montevideo.Synth
-import Montevideo.EarTrain.Types
+import Montevideo.Util
 
 
 -- | = Making sounds

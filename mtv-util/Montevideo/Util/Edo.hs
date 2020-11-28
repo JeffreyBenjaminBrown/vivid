@@ -4,6 +4,8 @@ import Data.Fixed
 import Data.Ratio
 
 
+type Edo = Int -- ^ e.g. 12 for "normal" music, 31 for even better music ...
+
 cents :: Floating a => Rational -> a
 cents r = octavesToDents $ log (fromRational r) / log 2
 
