@@ -160,6 +160,7 @@ bests d = (\r -> (r, best d r))
                 17%16,19%16,23%16,29%16,31%16,
                 33%32 ]
 
+-- | TODO ? This could be more efficient, ala Thanos.best'.
 best :: Integer -> Rational -> (Integer, Integer, Double)
 best d r = L.minimumBy (comparing $ abs . (^. _3))
            $ errs d r

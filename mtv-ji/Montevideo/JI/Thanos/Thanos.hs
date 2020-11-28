@@ -254,7 +254,7 @@ primeIntervals :: Edo
            -> [ ( Interval
                 , Rational)] -- ^ The ratio the Interval represents.
 primeIntervals edo = let
-  edoValues = map (best edo) primesOctave1
+  edoValues = map (best' edo) primesOctave1
   in zip edoValues primesOctave1
 
 primesOctave1 :: [Rational]
@@ -293,10 +293,10 @@ bestFifth edo = abs $ bestError edo $ 3/2
 -- | PITFALL: This is the signed error.
 -- Take its absolute value, or square it, or etc. before minimizing it.
 bestError :: Edo -> Rational -> Float
-bestError e r = fi (best e r) / fi e - log (fr r) / log 2
+bestError e r = fi (best' e r) / fi e - log (fr r) / log 2
 
 -- | Best approximation to a ratio in an edo.
 -- For instance, best 12 (3/2) = 7
-best :: Edo -> Rational -> Interval
-best e r =
+best' :: Edo -> Rational -> Interval
+best' e r =
   round $ fi e * log (fr r) / log 2

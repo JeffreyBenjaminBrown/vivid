@@ -11,7 +11,7 @@ import Montevideo.JI.Thanos.Thanos
 
 tests :: Test
 tests = TestList [
-    TestLabel "test_best" test_best
+    TestLabel "test_best'" test_best'
   , TestLabel "test_primes" test_primes
   , TestLabel "test_primeIntervals" test_primeIntervals
   , TestLabel "test_feasibleSpacing" test_feasibleSpacing
@@ -71,11 +71,11 @@ test_feasibleSpacing = TestCase $ do
 
 test_primeIntervals :: Test
 test_primeIntervals = TestCase $ do
-  assertBool "" $ primeIntervals 31 ==
-    [ (31,2 % 1)
-    , (18,3 % 2)
-    , (10,5 % 4)
-    , (25,7 % 4)
+  assertBool "" $ take 6 (primeIntervals 31) ==
+    [ (31, 2 % 1)
+    , (18, 3 % 2)
+    , (10, 5 % 4)
+    , (25, 7 % 4)
     , (14,11 % 8)
     , (22,13 % 8) ]
 
@@ -83,8 +83,8 @@ test_primes :: Test
 test_primes = TestCase $ do
   assertBool "" $ elem 2 $ map fst primes
 
-test_best :: Test
-test_best = TestCase $ do
-  assertBool "" $ best 12 (3/2) == 7
-  assertBool "" $ best 12 (5/4) == 4
-  assertBool "" $ best 31 (3/2) == 18
+test_best' :: Test
+test_best' = TestCase $ do
+  assertBool "" $ best' 12 (3/2) == 7
+  assertBool "" $ best' 12 (5/4) == 4
+  assertBool "" $ best' 31 (3/2) == 18
