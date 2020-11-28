@@ -22,7 +22,7 @@ module Montevideo.Dispatch.Museq (
 
   -- | = misc
   , sortMuseq    -- ^ Museq l a -> Museq l a
-  , museq_NotesToScActions -- ^ M.Map String (Museq String Note) ->
+  , museq_NotesToScSends -- ^ M.Map String (Museq String Note) ->
                          --   M.Map String (Museq String ScAction)
   ) where
 
@@ -170,10 +170,10 @@ sortMuseq = vec %~
                    sortBy (compare `on` view evArc) v'
                    V.freeze v'
 
-museq_NotesToScActions ::
+museq_NotesToScSends ::
   M.Map String (Museq String Note) ->
   M.Map String (Museq String (ScAction String))
-museq_NotesToScActions mqs = let
+museq_NotesToScSends mqs = let
   f :: Ev String Note -> Ev String (ScAction String)
   f ev = evData .~ act $ ev where
     d = ev ^. evData

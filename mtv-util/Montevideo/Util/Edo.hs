@@ -1,8 +1,5 @@
 module Montevideo.Util.Edo where
 
-import Data.Fixed
-import Data.Ratio
-
 
 type Edo = Int -- ^ e.g. 12 for "normal" music, 31 for even better music ...
 
