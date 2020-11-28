@@ -172,7 +172,7 @@ errs :: Floating a
           , a)]     -- ^ error of that step
 errs n r =
   [ ( i
-    , round $ stretch $ fromIntegral i / fromIntegral n
+    , round $ octavesToDents $ fromIntegral i / fromIntegral n
     , err r           $ fromIntegral i / fromIntegral n )
   | i <- [0..n-1 :: Integer] ]
 
@@ -181,4 +181,4 @@ err :: Floating a
   -> a        -- ^ the EDO approximating it
   -> a        -- ^ a step of that EDO
 err true_frac approx_edo =
-  stretch approx_edo - cents true_frac
+  octavesToDents approx_edo - cents true_frac
