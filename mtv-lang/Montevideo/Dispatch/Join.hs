@@ -269,13 +269,13 @@ nMerge0fa m n =
 
 -- | Twelve tone scales (e.g. [0,2,4,5,7,9,11] = major).
 scale :: forall l m. (Show l, Show m)
-      => Museq l [Float] -> Museq m ScParams -> Museq String ScParams
-scale l0 m0 = merge h (labelsToStrings l0) (labelsToStrings m0) where
-  f :: [Float] -> Int -> Float -- lookup a pitch in a scale
+      => Edo -> Museq l [Float] -> Museq m ScParams -> Museq String ScParams
+scale edo l0 m0 = merge h (labelsToStrings l0) (labelsToStrings m0) where
+  f :: [Float] -> Int -> Float -- lookup a pitch in a scale 12
   f scale0 n0 = let octave n = n `div` length scale0
-                in (scale0 !!! n0) + fromIntegral (12 * octave n0)
+                in (scale0 !!! n0) + fromIntegral (edo * octave n0)
 
-  g :: [Float] -> Float -> Float -- linear morphing between scale tones
+  g :: [Float] -> Float -> Float -- linear morphing between scale 12 tones
   g scale0 k = let fl :: Int   = floor k
                    ce :: Int   = ceiling k
                    md :: Float = mod' k 1
@@ -390,4 +390,4 @@ rootScale :: forall l m. (Show l, Show m)
       => Museq l (Float,[Float]) -> Museq m ScParams -> Museq String ScParams
 rootScale mrs = let roots  = fst <$> mrs
                     scales = snd <$> mrs
-  in root roots . scale scales
+  in root roots . scale 12 scales

@@ -37,7 +37,7 @@ s1 = mmh 3 $ pre2 "a"
 
 toScale = nBoop .
           ops [("freq", (*) 200 . \p -> 2**(p/12))] .
-          scale (slow 2 s1) . root (slow 4 r1) .
+          scale 12 (slow 2 s1) . root (slow 4 r1) .
           merge0 p0
 
 --chAll $ mfl [

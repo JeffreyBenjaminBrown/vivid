@@ -23,7 +23,7 @@ halfDur f = slow (d/2) $ mmh 2 $ pre2 "a"
 toScale = nBoop
           . meta (slow 4 $ halfDur $ ops [("freq",(*) (4/3))])
           . ops [("freq", (*) 200 . \p -> 2**(p/12))]
-          . scale scalePat
+          . scale 12 scalePat
 
 chAll $ mfl [
   ("1", toScale $ ops [("amp",const 0.1)] $

@@ -25,7 +25,7 @@ render =
   (<$>) (Note Boop) -- Send it to the Boop synth.
   . hsToHz 300 -- Convert each "freq" value from halfsteps to Hz, such that
                -- 0 halfsteps -> 300 Hz, 12 halfsteps -> 600 Hz, etc.
-  . scale scalePat -- Convert each scale step value to halfsteps.
+  . scale 12 scalePat -- Convert each scale 12 step value to halfsteps.
 
 chAll $   -- Change all voices at once -- i.e. play this, and only this.
   mfl     -- Shorthand for Data.Map.fromList.

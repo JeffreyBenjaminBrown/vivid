@@ -17,7 +17,7 @@ scalePat = mmh 24 $ pre2 "a"
 
 toScale = nBoop
           . ops [("freq", (*) 300 . \p -> 2**(p/12))]
-          . scale scalePat
+          . scale 12 scalePat
 
 chAll $ mfl [
     ("1", toScale $ ops [("freq",((-) 12))] $ pat)

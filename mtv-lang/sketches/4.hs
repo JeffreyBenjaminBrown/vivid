@@ -28,7 +28,7 @@ scalePat = slow 4 $ cat [dense 2 s1, dense 2 s2] where
 toScale = nBoop
           . ops [("freq", (*) 200 . \p -> 2**(p/12))]
           . root (slow 8 rootPat)
-          . scale (fast 2 scalePat)
+          . scale 12 (fast 2 scalePat)
 
 chAll $ mfl [
   ("1", toScale $ cat [p1,p3] )
