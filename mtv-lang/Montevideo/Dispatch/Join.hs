@@ -206,6 +206,8 @@ merge op a b = _merge (labelsToStrings a) (labelsToStrings b) where
 -- 1 means "multiplicative" (because 1 is the multiplicative identity).
 -- c means "const".
 -- n means the second argument is a Note.
+-- a means amplitude is treated differently, added,
+--   whereas other params are multiplied.
 
 nMerge  :: forall l m. (Show l, Show m)
   => (ScParams -> ScParams -> ScParams)
@@ -265,11 +267,6 @@ nMerge0fa m n =
         f "amp" = (+)  -- ^ add amplitudes
         f _      = (*) -- ^ multiply others
 
-root :: (Show l, Show m)
-     => Museq l Float -> Museq m ScParams -> Museq String ScParams
-root mr = meta $ f <$> mr where
-  f n = overParams [("freq", (+) n)]
-
 -- | Twelve tone scales (e.g. [0,2,4,5,7,9,11] = major).
 scale :: forall l m. (Show l, Show m)
       => Museq l [Float] -> Museq m ScParams -> Museq String ScParams
@@ -288,12 +285,6 @@ scale l0 m0 = merge h (labelsToStrings l0) (labelsToStrings m0) where
   h scale0 m = maybe m k $ M.lookup "freq" m where
     k :: Float -> ScParams
     k freq = M.insert "freq" (g scale0 freq) m
-
-rootScale :: forall l m. (Show l, Show m)
-      => Museq l (Float,[Float]) -> Museq m ScParams -> Museq String ScParams
-rootScale mrs = let roots  = fst <$> mrs
-                    scales = snd <$> mrs
-  in root roots . scale scales
 
 meta :: forall l m x y. (Show l, Show m)
   => Museq l      (Museq String x -> Museq String y)
@@ -389,3 +380,14 @@ meta'' ff0 x0 = _meta (labelsToStrings ff0) (labelsToStrings x0) where
                       b = Time $ tr $ ff ^. evEnd
                       f = snd $ _evData ff
         in arc 0 1 a b $ f x2
+
+root :: (Show l, Show m)
+     => Museq l Float -> Museq m ScParams -> Museq String ScParams
+root mr = meta $ f <$> mr where
+  f n = overParams [("freq", (+) n)]
+
+rootScale :: forall l m. (Show l, Show m)
+      => Museq l (Float,[Float]) -> Museq m ScParams -> Museq String ScParams
+rootScale mrs = let roots  = fst <$> mrs
+                    scales = snd <$> mrs
+  in root roots . scale scales
