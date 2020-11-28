@@ -38,62 +38,10 @@ import Montevideo.Synth.Samples
 import Montevideo.Dispatch.Museq
 
 
-mkMuseqFromEvs :: RDuration -> [Ev l a] -> Museq l a
-mkMuseqFromEvs d evs =
-  sortMuseq $ Museq { _dur = d
-                    , _sup = d
-                    , _vec = V.fromList $ evs }
-
-mkMuseq :: RDuration -> [(l,RTime,RTime,a)] -> Museq l a
-mkMuseq d = mkMuseqFromEvs d . map f where
-  f (l,start,end,a) = Event l (start,end) a
-
-mkMuseq_seqProc :: forall a b l. Ord l
-  => ([(RDuration,a)] -> [((RDuration,RDuration),b)])
-  -> RDuration -> [(l,RDuration,a)] -> Museq l b
-mkMuseq_seqProc seqProc d evs0 = let
-  evs1 :: [(l,(RDuration,a))] =
-    map (\(l,t,a) -> (l,(t,a))) evs0
-  evs2 :: [(l,[(RDuration,a)])] =
-    multiPartition evs1
-  evs3 :: [(l,[((RDuration,RDuration),b)])] =
-    map (_2 %~ seqProc) evs2
-  evs4 :: [Ev l b] = concatMap f evs3 where
-    f (l,ttas) = map g ttas where
-      g :: ((RDuration,RDuration),b) -> Ev l b
-      g ((t,s),a) = Event { _evLabel = l
-                          , _evArc = (t,s)
-                          , _evData = a }
-  in mkMuseqFromEvs d evs4
-
--- | Makes a `Museq` using `hold`,
--- so that each event lasts until the next.
--- PITFALL: This changes arcs but not the 'on' parameter;
--- to change both, use `mkMuseqHo`.
-mkMuseqH :: forall a l. Ord l
-          => RDuration -> [(l,RDuration,a)] -> Museq l a
-mkMuseqH d = mkMuseq_seqProc (hold d) d
-
-mkMuseqOneScParams :: ScParams -> Museq String ScParams
-mkMuseqOneScParams m = mkMuseqH 1 [("a", RTime 0, m)]
-
--- | Makes a `Museq` using `hold`, holding each `Just` value
--- until the next `Nothing`, then discarding any `Nothing`s.
-mkMuseqHm :: forall a l. Ord l
-          => RDuration -> [(l, RTime, Maybe a)] -> Museq l a
-mkMuseqHm d = f . mkMuseqH d where
-  f :: Museq l (Maybe a) -> Museq l a
-  f = vec %~ ( V.map unwrap . V.filter test ) where
-    test :: Event RTime l (Maybe a) -> Bool
-    test = isJust . _evData
-    unwrap :: Event RTime l (Maybe a) -> Event RTime l a
-    unwrap = fmap $ maybe (error "impossible") id
-
--- | Like `mkMuseqH`, but inserts `on = 1` in `Event`s that do not
--- mention the `on` parameter. Specialized to `ScParams` payloads.
-mkMuseqHo :: forall l. Ord l
-          => RDuration -> [(l,RDuration,ScParams)] -> Museq l ScParams
-mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
+-- | Like `mkMuseqTrig`, but assuming all messages are trigger=1 messages.
+mkMuseqTrig1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
+mkMuseqTrig1 sup0 = mkMuseqTrig sup0 . map f where
+  f (t,s) = ("a",t,s, M.singleton "trigger" 1)
 
 -- | Make a Museq with sample trigger messages.
 -- `mkMuseqTrig` sends any two `ScParams` values to different synths, unless
@@ -103,19 +51,19 @@ mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
 mkMuseqTrig :: forall l. (Ord l, Show l) =>
   RDuration -> [(l,RTime,Sample,ScParams)] -> Museq String Note
 mkMuseqTrig sup0 evs0 = let
-  -- Rather than group by l and then Sample,
+  -- todo ? Rather than group by l and then Sample,
   -- maybe group by l' = show l ++ show Sample?
   evs1 :: [ ( (l, Sample)
-            , (RTime,ScParams) ) ] =
+            , (RTime, ScParams) ) ] =
     map (\(l,t,n,m) -> ((l,n),(t,m))) evs0
-  evs2 :: [( (l, Sample)
-           , [(RTime,ScParams)] )] =
+  evs2 :: [ ( (l, Sample)
+            , [(RTime, ScParams)] )] =
     multiPartition evs1
   evs3 :: [( (l, Sample)
            , [((RTime, RTime) ,ScParams)] )] =
     map (_2 . traversed . _1 %~ (\t -> (t,t)) ) evs2
-  evs4 :: [( (l,Sample),
-             [((RTime,RTime), Note)] )] =
+  evs4 :: [( (l, Sample),
+             [( (RTime, RTime), Note )] )] =
     map f evs3
     where f :: ( (l,Sample), [((RTime,RTime), ScParams )] )
             -> ( (l,Sample), [((RTime,RTime), Note)] )
@@ -138,10 +86,62 @@ mkMuseqTrig sup0 evs0 = let
     -- "trigger=0" messages to the Museq. Now the Dispatch handles that;
     -- the user never needs to see those messages.
 
--- | Like `mkMuseqTrig`, but assuming all messages are trigger=1 messages.
-mkMuseqTrig1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
-mkMuseqTrig1 sup0 = mkMuseqTrig sup0 . map f where
-  f (t,s) = ("a",t,s, M.singleton "trigger" 1)
+mkMuseq :: RDuration -> [(l,RTime,RTime,a)] -> Museq l a
+mkMuseq d = mkMuseqFromEvs d . map f where
+  f (l,start,end,a) = Event l (start,end) a
+
+mkMuseqOneScParams :: ScParams -> Museq String ScParams
+mkMuseqOneScParams m = mkMuseqH 1 [("a", RTime 0, m)]
+
+-- | Makes a `Museq` using `hold`, holding each `Just` value
+-- until the next `Nothing`, then discarding any `Nothing`s.
+mkMuseqHm :: forall a l. Ord l
+          => RDuration -> [(l, RTime, Maybe a)] -> Museq l a
+mkMuseqHm d = f . mkMuseqH d where
+  f :: Museq l (Maybe a) -> Museq l a
+  f = vec %~ ( V.map unwrap . V.filter test ) where
+    test :: Event RTime l (Maybe a) -> Bool
+    test = isJust . _evData
+    unwrap :: Event RTime l (Maybe a) -> Event RTime l a
+    unwrap = fmap $ maybe (error "impossible") id
+
+-- | Like `mkMuseqH`, but inserts `on = 1` in `Event`s that do not
+-- mention the `on` parameter. Specialized to `ScParams` payloads.
+mkMuseqHo :: forall l. Ord l
+          => RDuration -> [(l,RDuration,ScParams)] -> Museq l ScParams
+mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
+
+-- | Makes a `Museq` using `hold`,
+-- so that each event lasts until the next.
+-- PITFALL: This changes arcs but not the 'on' parameter;
+-- to change both, use `mkMuseqHo`.
+mkMuseqH :: forall a l. Ord l
+          => RDuration -> [(l,RDuration,a)] -> Museq l a
+mkMuseqH d = mkMuseq_seqProc (hold d) d
+
+mkMuseq_seqProc :: forall a b l. Ord l
+  => ([(RDuration,a)] -> [((RDuration,RDuration),b)])
+  -> RDuration -> [(l,RDuration,a)] -> Museq l b
+mkMuseq_seqProc seqProc d evs0 = let
+  evs1 :: [(l,(RDuration,a))] =
+    map (\(l,t,a) -> (l,(t,a))) evs0
+  evs2 :: [(l,[(RDuration,a)])] =
+    multiPartition evs1
+  evs3 :: [(l,[((RDuration,RDuration),b)])] =
+    map (_2 %~ seqProc) evs2
+  evs4 :: [Ev l b] = concatMap f evs3 where
+    f (l,ttas) = map g ttas where
+      g :: ((RDuration,RDuration),b) -> Ev l b
+      g ((t,s),a) = Event { _evLabel = l
+                          , _evArc = (t,s)
+                          , _evData = a }
+  in mkMuseqFromEvs d evs4
+
+mkMuseqFromEvs :: RDuration -> [Ev l a] -> Museq l a
+mkMuseqFromEvs d evs =
+  sortMuseq $ Museq { _dur = d
+                    , _sup = d
+                    , _vec = V.fromList $ evs }
 
 
 -- | Utilities used by the Museq-making functions
