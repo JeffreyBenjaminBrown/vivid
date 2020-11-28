@@ -208,6 +208,8 @@ merge op a b = _merge (labelsToStrings a) (labelsToStrings b) where
 -- n means the second argument is a Note.
 -- a means amplitude is treated differently, added,
 --   whereas other params are multiplied.
+-- f means frequency is treated differently, added,
+--   whereas other params are multiplied.
 
 nMerge  :: forall l m. (Show l, Show m)
   => (ScParams -> ScParams -> ScParams)
@@ -267,7 +269,8 @@ nMerge0fa m n =
         f "amp" = (+)  -- ^ add amplitudes
         f _      = (*) -- ^ multiply others
 
--- | Twelve tone scales (e.g. [0,2,4,5,7,9,11] = major).
+  -- | For example, "scale 12 lists params" let you apply "lists" as
+-- twelve to scales (e.g. [0,2,4,5,7,9,11] = major) to "params".
 scale :: forall l m. (Show l, Show m)
       => Edo -> Museq l [Float] -> Museq m ScParams -> Museq String ScParams
 scale edo l0 m0 = merge h (labelsToStrings l0) (labelsToStrings m0) where
@@ -381,6 +384,9 @@ meta'' ff0 x0 = _meta (labelsToStrings ff0) (labelsToStrings x0) where
                       f = snd $ _evData ff
         in arc 0 1 a b $ f x2
 
+-- | Transposes the frequency of a pattern, if "freq" means steps
+-- of a scale. Once "freq" has been translated into Hz values,
+-- this stops being transpose and starts being inharmonic frequency shift.
 root :: (Show l, Show m)
      => Museq l Float -> Museq m ScParams -> Museq String ScParams
 root mr = meta $ f <$> mr where
