@@ -135,10 +135,12 @@ chTempoPeriod disp newTempoPeriod = do
 -- | = The Dispatch loop
 startDispatchLoop :: Dispatch -> IO ThreadId
 startDispatchLoop disp = do
-  -- set `mTime0 disp`
-  _ <- tryTakeMVar $ mTime0 disp -- empty it, just in case
+  -- Empty `mTime0 disp`, just in case.
+  _ <- tryTakeMVar $ mTime0 disp
+
+  -- Then fill it.
   (-) (0.8 * frameDuration) . unTimestamp <$> getTime
-    -- subtract nearly an entire frameDuration so it starts soon
+    -- Subtract nearly an entire frameDuration so it starts soon
     >>= putMVar (mTime0 disp)
 
   -- set `mTempoPeriod disp` to 1 if it's unset

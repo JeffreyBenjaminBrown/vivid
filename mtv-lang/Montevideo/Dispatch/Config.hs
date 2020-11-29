@@ -3,7 +3,10 @@ module Montevideo.Dispatch.Config where
 import Montevideo.Dispatch.Types
 
 
--- | Half a frame after a synth is silenced, it is deleted.
+-- | Arcs are computed one frame at a time.
+-- Frame duration also determines how long it takes to delete a synth:
+-- half a frame after a synth is silenced, it is deleted
+-- (by dispatchConsumeScAction_Free).
 frameDuration :: Time
 frameDuration = 0.1
 

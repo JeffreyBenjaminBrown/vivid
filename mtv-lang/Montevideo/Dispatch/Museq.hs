@@ -66,6 +66,7 @@ museqMaybeNamesAreValid m = and $ map goodGroup nameGroups where
                        (bumpArc (_sup m) $ head evs ^. evArc)
   goodGroup g = not $ adjacentOverlap g || wrappedOverlap g
 
+-- | `nameAnonEvents m` replaces each Nothing with a unique label.
 nameAnonEvents :: forall a.
                    Museq (Maybe String) a
                 -> Museq        String  a
@@ -123,9 +124,9 @@ _intNameEvents sup0 ev1 ongoing (ev : more) =
 -- PITFALL: Both resulting lists are ordered on the first element,
 -- likely differing from either of the input maps.
 museqSynthsDiff :: M.Map MuseqName (Museq String Note) -- ^ old
-           -> M.Map MuseqName (Museq String Note) -- ^ new
-           -> ( [(SynthDefEnum, SynthName)],  -- ^ create these
-                [(SynthDefEnum, SynthName)] ) -- ^ destroy these
+                -> M.Map MuseqName (Museq String Note) -- ^ new
+                -> ( [(SynthDefEnum, SynthName)],      -- ^ create these
+                     [(SynthDefEnum, SynthName)] )     -- ^ destroy these
 museqSynthsDiff old new = (toFree,toCreate) where
   oldMuseqs = M.elems old :: [Museq String Note]
   newMuseqs = M.elems new :: [Museq String Note]
@@ -148,7 +149,7 @@ museqSynths m = map f evs where
 -- TODO ? I'm not sure the end-time sort helps.
 -- PITFALL : The end times can be greater than _sup.
 -- That's important, as you might want events from one cycle
--- to reach into the next.
+-- to sustain into the next.
 museqIsValid :: (Eq a, Eq l) => Museq l a -> Bool
 museqIsValid mu = and [a,b,c,d,e] where
   v = _vec mu

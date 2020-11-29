@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds, ExtendedDefaultRules #-}
 
+module Montevideo.Synth.Distortion where
+
 import Vivid
 
 
@@ -29,11 +31,11 @@ main = do
    -- what order synths get processed. When we do, input comes before output:
    in1 <- synthBefore fx origin ( toI busNum :: I "out"
                                 , 1000 / 3 :: I "freq" )
-   wait 0.25
+   wait 1
    in2 <- synthBefore fx origin ( toI busNum :: I "out"
                                 , 1250 / 3 :: I "freq" )
    in3 <- synthBefore fx origin ( toI busNum :: I "out"
                                 , 1500 / 3 :: I "freq" )
-   wait 3
+   wait 2
    free fx
    -- mapM_ free [in1,in2,in3]

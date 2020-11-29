@@ -28,7 +28,7 @@ import Montevideo.Util
 
 
 museqFrame :: forall a.
-     Time     -- ^ time0, historical reference point
+     Time     -- ^ time0, a historical reference point
   -> Duration -- ^ tempo period
   -> Time     -- ^ when to start rendering
   -> Museq String (ScAction a) -- ^ what to pluck events from
@@ -47,7 +47,7 @@ museqFrame time0 tempoPeriod start m = let
 -- with future renderings of itself.
 arc :: forall l a.
     Time       -- ^ a reference point in the past
-  -> Duration  -- ^ tempo period ("bar length")
+  -> Duration  -- ^ tempo period
   -> Time      -- ^ start here (inclusive)
   -> Time      -- ^ end here (not inclusive)
   -> Museq l a -- ^ pluck Events from here
@@ -170,9 +170,11 @@ nextPhase0 time0 period now =
   in time0 + period * ( fi wholeElapsedCycles +
                         if onBoundary then 0 else 1 )
 
--- | PITFALL ? if lastPhase0 or nextPhase0 was called precisely at phase0,
--- both would yield the same result. Since time is measured in microseconds
--- there is exactly a one in a million chance of that.
+-- | PITFALL ? if `lastPhase0` or `nextPhase0`
+-- was called precisely at `phase0`,
+-- both would yield the same result, namely `phase0`.
+-- Time is measured in microseconds,
+-- so there is a one in a million chance of that.
 prevPhase0 :: RealFrac a => a -> a -> a -> a
 prevPhase0 time0 period now =
   fromIntegral x * period + time0
@@ -180,6 +182,11 @@ prevPhase0 time0 period now =
 
 
 -- | = Timing a Museq
+
+-- | `longestDur m` is the duration of the longest event in `m`.
+longestDur :: Museq l a -> RDuration
+longestDur m = let eventDur ev = (ev ^. evEnd) - (ev ^. evStart)
+               in V.maximum $ V.map eventDur $ _vec m
 
 -- | = Figuring out when a Museq will repeat.
 -- There are two senses in which a Museq can repeat. One is that
@@ -207,10 +214,6 @@ supsToAppearToFinish m = timeToAppearToFinish m / _sup m
 dursToAppearToFinish :: Museq l a -> RTime
 dursToAppearToFinish m = timeToAppearToFinish m / _dur m
 
-longestDur :: Museq l a -> RDuration
-longestDur m = let eventDur ev = (ev ^. evEnd) - (ev ^. evStart)
-               in V.maximum $ V.map eventDur $ _vec m
-
 supsToFinish :: Museq l a -> RTime
 supsToFinish m = timeToFinish m / (_sup m)
 
@@ -220,13 +223,14 @@ dursToFinish m = timeToFinish m / (_dur m)
 -- | After `timeToAppearToFinish`, the `Museq` *sounds* like it's repeating.
 -- That doesn't mean it's played all the way through, though.
 timeToAppearToFinish :: Museq l a -> RTime
-timeToAppearToFinish m = let tp = timeToFinish m
+timeToAppearToFinish m =
+  let tp = timeToFinish m
                  in if tp == _dur m -- implies `_dur m > _sup m`
                     then _sup m else tp
 
--- | A `Museq` has "played through" when it has played for a time
+-- | A `Museq` has "finished" when it has played for a time
 -- that is an integer multiple of both _dur and _sup.
 -- Remember, if it is concatenated to another pattern,
--- the clock is paused, so to speak, while the other pattern plays.
+-- it is not treated as playing when the other one sounds.
 timeToFinish :: Museq l a -> RTime
 timeToFinish m = RTime $ lcmRatios (tr $ _sup m) (tr $ _dur m)
