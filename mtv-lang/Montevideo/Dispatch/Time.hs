@@ -225,8 +225,8 @@ dursToFinish m = timeToFinish m / (_dur m)
 timeToAppearToFinish :: Museq l a -> RTime
 timeToAppearToFinish m =
   let tp = timeToFinish m
-                 in if tp == _dur m -- implies `_dur m > _sup m`
-                    then _sup m else tp
+  in if tp == _dur m -- implies `_dur m > _sup m`
+     then _sup m else tp
 
 -- | A `Museq` has "finished" when it has played for a time
 -- that is an integer multiple of both _dur and _sup.

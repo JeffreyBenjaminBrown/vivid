@@ -8,7 +8,7 @@
 module Montevideo.Dispatch.Types.Functions (
   -- | * Names
     mNamed -- ^ n -> a -> NamedWith (Maybe n) a
-  , anon -- ^ a -> NamedWith (Maybe n) a
+  , anon   -- ^      a -> NamedWith (Maybe n) a
 
   -- | * ScActions
   , actionToSynth -- ^ ScAction -> (SynthDefEnum, SynthName)
