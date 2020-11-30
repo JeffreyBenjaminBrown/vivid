@@ -9,7 +9,7 @@ import qualified Data.Set as S
 import           Data.Ratio
 import           Data.Ord (comparing)
 
-import Montevideo.JI.Util
+import Montevideo.Util.Edo
 import Montevideo.JI.Harmonics
 
 
