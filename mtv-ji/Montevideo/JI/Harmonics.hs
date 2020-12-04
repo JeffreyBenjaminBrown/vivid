@@ -132,13 +132,21 @@ lim_11_no_7 = [3/2,4/3,5/4,5/3,6/5,8/5
               ,18/11,20/11
               ]
 
--- | The 11-odd-limit intervals.
-lim_7 :: Fractional a => [a]
-lim_7 = [3/2,4/3
+-- | The 9-odd-limit intervals.
+lim_9 :: Fractional a => [a]
+lim_9 = [3/2,4/3
         ,5/4,5/3,6/5
         ,7/6,7/5,7/4,8/7,8/5
         ,9/8,9/7,9/5,10/9,10/7
         ,12/7,14/9,16/9
+        ]
+
+-- | The 7-odd-limit intervals.
+lim_7 :: Fractional a => [a]
+lim_7 = [3/2,4/3
+        ,5/4,5/3,6/5
+        ,7/6,7/5,7/4,8/7,8/5
+        ,10/7,12/7
         ]
 
 harmonics_2 :: (Ord a, Fractional a) => Int -> [a]

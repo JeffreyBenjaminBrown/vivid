@@ -22,7 +22,6 @@ import           Control.Lens hiding (from,to)
 import qualified Data.Map as M
 import           Data.Either.Combinators
 
-import           Montevideo.Util.Edo (fromCents)
 import           Montevideo.Monome.Types.Most
 import           Montevideo.Util
 

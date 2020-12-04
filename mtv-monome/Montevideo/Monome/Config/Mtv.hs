@@ -75,6 +75,43 @@ import Montevideo.Monome.Types.EdoConfig
 --        , 33 steps = 11 % 8: string 3 fret 0
 --        , 23 steps = 5 % 4: string 1 fret 4
 
+-- | 58 edo: Looks goofy but the errors cancel.
+-- With a Kite-ish tuning it's pretty familiar,
+-- gaining some things and losing only the easy-to-reach 11%8.
+-- *** just low (through 13) or easy primes
+-- 19 steps = 5 % 4   : str 1 fret 3
+-- 27 steps = 11 % 8  : str 3 fret -6 | str 1 fret 7
+-- 30 steps = 23 % 16 : str 2 fret 2
+-- 34 steps = 3 % 2   : str 2 fret 4
+-- 41 steps = 13 % 8  : str 3 fret 1
+-- 47 steps = 7 % 4   : str 3 fret 4
+-- 50 steps = 29 % 16 : str 4 fret -1
+-- 58 steps = 2 % 1   : str 4 fret 3
+-- *** all the primes
+--  5 steps = 17 % 16 : str 1 fret -4 | str -1 fret 9
+-- 14 steps = 19 % 16 : str 2 fret -6 | str 0 fret 7
+-- 19 steps = 5 % 4   : str 1 fret 3
+-- 27 steps = 11 % 8  : str 3 fret -6 | str 1 fret 7
+-- 30 steps = 23 % 16 : str 2 fret 2
+-- 34 steps = 3 % 2   : str 2 fret 4
+-- 41 steps = 13 % 8  : str 3 fret 1
+-- 47 steps = 7 % 4   : str 3 fret 4
+-- 50 steps = 29 % 16 : str 4 fret -1
+-- 55 steps = 31 % 16 : str 5 fret -5 | str 3 fret 8
+-- 58 steps = 2 % 1   : str 4 fret 3
+my58 :: EdoConfig
+my58 = EdoConfig
+  { _edo = 58
+  , _skip = 2
+  , _spacing = 13
+  , _octaveStretchInCents = -1.694
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-2,13)
+      , _gridHorizontalVector = (4,3)
+      }
+  }
+
+
 -- | 63-edo, mod 1 space 9
 -- PITFALL: inconsistent: 16/9 ~ 29/16 ~ 53\63, whereas
 --          (3/2) * (6/5) ~ 54\63.
