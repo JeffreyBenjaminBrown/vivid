@@ -140,3 +140,36 @@ pr6 = M.fromList
   , (Zot_wm_b, -1.0)
   , (Zot_w, 0.125)
   ]
+
+-- | like a harmonica in mid-high registers
+pr7 = M.fromList
+  [ (Zot_amp, 2.2039779e-2)
+  , (Zot_att, 6.299605e-2)
+  , (Zot_rel, 0.1709976)
+  , (Zot_pulse, 0.33333334)
+  , (Zot_fm_m, 1.6666666)
+  , (Zot_fm_f, 1.0)
+  , (Zot_fm_b, 2.0)
+  ]
+
+-- | buzzy stringlike bass/mid, fairydust highs
+pr8 = M.fromList
+  [ (Zot_amp, 2.2039779e-2)
+  , (Zot_att, 2.817269e-3)
+  , (Zot_rel, 0.1709976)
+  , (Zot_pulse, 0.33333334)
+  , (Zot_fm_m, 0.5)
+  , (Zot_fm_f, 1.0)
+  , (Zot_fm_b, 2.0)
+  , (Zot_pm_m, 0.0)
+  , (Zot_pm_f, 1.0)
+  , (Zot_pm_b, 2.0)
+  , (Zot_wm_m, 0.0)
+  , (Zot_wm_f, 3.9372534e-2)
+  , (Zot_am, 8.3333336e-2)
+  , (Zot_am_f, 2.4803141e-2)
+  , (Zot_rm, 0.0)
+  , (Zot_rm_f, 9.9212565e-2)
+  , (Zot_lpf, 5.656854)
+  , (Zot_lpf_m, 0.0)
+  ]

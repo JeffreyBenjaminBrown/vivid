@@ -99,8 +99,8 @@ import Montevideo.Monome.Types.EdoConfig
 -- 50 steps = 29 % 16 : str 4 fret -1
 -- 55 steps = 31 % 16 : str 5 fret -5 | str 3 fret 8
 -- 58 steps = 2 % 1   : str 4 fret 3
-my58 :: EdoConfig
-my58 = EdoConfig
+my58_thanos :: EdoConfig
+my58_thanos = EdoConfig
   { _edo = 58
   , _skip = 2
   , _spacing = 13
@@ -108,6 +108,32 @@ my58 = EdoConfig
   , _gridVectors = Just $ GridVectorPair
       { _gridVerticalVector = (-2,13)
       , _gridHorizontalVector = (4,3)
+      }
+  }
+
+
+-- | 58 edo with 8 steps between "strings":
+--  5 steps = 17 % 16 : str 1 fret -3 | str 0 fret 5
+-- 14 steps = 19 % 16 : str 2 fret -2 | str 1 fret 6
+-- 19 steps = 5 % 4   : str 2 fret 3
+-- 27 steps = 11 % 8  : str 3 fret 3
+-- 30 steps = 23 % 16 : str 4 fret -2 | str 3 fret 6
+-- 34 steps = 3 % 2   : str 4 fret 2
+-- 41 steps = 13 % 8  : str 5 fret 1
+-- 47 steps = 7 % 4   : str 6 fret -1
+-- 50 steps = 29 % 16 : str 6 fret 2
+-- 55 steps = 31 % 16 : str 7 fret -1
+-- 58 steps = 2 % 1   : str 7 fret 2
+
+my58 :: EdoConfig
+my58 = EdoConfig
+  { _edo = 58
+  , _skip = 1
+  , _spacing = 8
+  , _octaveStretchInCents = -1.694
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-1,8)
+      , _gridHorizontalVector = (7,2)
       }
   }
 
@@ -390,18 +416,21 @@ my80_1_10 = EdoConfig
       }
   }
 
--- |
--- 7 steps = 17 % 16: str 1 fret -4 | str 0 fret 7
--- 20 steps = 19 % 16: str 2 fret -2
--- 26 steps = 5 % 4:   str 2 fret  4
--- 37 steps = 11 % 8:  str 3 fret  4
--- 42 steps = 23 % 16: str 4 fret -2
--- 47 steps = 3 % 2:   str 4 fret  3
--- 56 steps = 13 % 8:  str 5 fret  1
--- 65 steps = 7 % 4:   str 6 fret -1
--- 69 steps = 29 % 16: str 6 fret  3
--- 76 steps = 31 % 16: str 7 fret -1
--- 80 steps = 2 % 1:   str 7 fret  3
+-- | 80 edo, single-spaced, octave at (7,3)
+--  7 steps = 17 % 16 : str 1 fret -4 | str 0 fret 7
+-- 20 steps = 19 % 16 : str 2 fret -2
+-- 26 steps = 5 % 4   : str 2 fret 4
+-- 37 steps = 11 % 8  : str 3 fret 4
+-- 42 steps = 23 % 16 : str 4 fret -2
+-- 47 steps = 3 % 2   : str 4 fret 3
+-- 56 steps = 13 % 8  : str 5 fret 1
+-- 65 steps = 7 % 4   : str 6 fret -1
+-- 69 steps = 29 % 16 : str 6 fret 3
+-- 76 steps = 31 % 16 : str 7 fret -1
+-- 80 steps = 2 % 1   : str 7 fret 3
+
+my80 :: EdoConfig
+my80 = my80_1_11
 
 my80_1_11 :: EdoConfig
 my80_1_11 = EdoConfig
@@ -414,6 +443,7 @@ my80_1_11 = EdoConfig
       , _gridHorizontalVector = (7,3)
       }
   }
+
 -- |
 -- 7 steps = 17 % 16: str 1 fret -2
 --20 steps = 19 % 16: str 2 fret  2
@@ -451,8 +481,8 @@ my80_1_9 = EdoConfig
 -- 69 steps = 29 % 16 : string 7 fret  3  (1035, 5.42)
 -- 76 steps = 31 % 16 : string 8 fret  2  (1140,-5.03)
 -- 80 steps = 2 % 1   : string 8 fret  4
-my80' :: EdoConfig
-my80' = EdoConfig
+my80_thanos :: EdoConfig
+my80_thanos = EdoConfig
   { _edo = 80
   , _skip = 2
   , _spacing = 9
