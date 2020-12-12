@@ -13,25 +13,26 @@ import Control.Concurrent.MVar
 import Control.Lens hiding (set)
 
 import qualified Data.ByteString.Char8 as Char8
-import qualified Data.Bimap as B
+import qualified Data.Bimap            as B
 import           Data.Either
 import           Data.Either.Combinators
 import           Data.Fixed
-import qualified Data.List          as L
-import qualified Data.Map           as M
+import qualified Data.List             as L
+import qualified Data.Map              as M
 import           Data.Map (Map)
 import           Data.Maybe
 import           Data.Ord
 import           Data.Ratio
-import qualified Data.Set           as S
+import qualified Data.Set              as S
 import           Data.Set (Set)
-import qualified Data.Vector        as V
-import qualified Text.Pretty.Simple as Pr
+import qualified Data.Vector           as V
+import qualified Text.Pretty.Simple    as Pr
 import           Text.Pretty.Simple (pPrint)
 
-import Montevideo.Monome.Window.Shift    as Sh
-import Montevideo.Monome.Window.Keyboard as Kb
-import Montevideo.Monome.Window.Sustain  as Su
+import qualified Montevideo.Monome.Window.Keyboard.Shift    as Sh
+import qualified Montevideo.Monome.Window.Keyboard.Keyboard as Kb
+import qualified Montevideo.Monome.Window.Keyboard.Sustain  as Su
+import qualified Montevideo.Monome.Config.Mtv               as CfgMonome
 
 import Vivid
 -- import Vivid.Actions
