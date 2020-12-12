@@ -71,7 +71,7 @@ looking :: [(Integer, [Integer])]
 looking = let
   f (_, _errs) =
     ( and $ zipWith (>=) tols $ map abs _errs )
-  in filter f matrix
+  in filter f matrix -- & map (_2 %~ take 5)
 
 matrix :: [(Integer, [Integer])]
 matrix =
