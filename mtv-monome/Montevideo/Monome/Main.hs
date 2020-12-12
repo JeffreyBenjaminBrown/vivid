@@ -69,18 +69,20 @@ edoMonome edoCfg = do
 
   mst :: MVar (St EdoApp) <- newMVar $ St {
       _stWindowLayers = M.fromList
-        [ ( Monome_256
-          , [ ((0,14), sustainWindow)
-            , ((13,14), shiftWindow)
-            , ((0,0), keyboardWindow) ] )
-        , ( Monome_128
-          , [ ((0,6), changeWindow
-                      [ [ ((0,0), paramGroupWindow)
-                        , ((3,0), paramValWindow) ]
-                      , [ ((8,0), chordBankWindow ) ] ] )
-            , ((0,0), paramGroupWindow)
-            , ((3,0), paramValWindow) ] )
-        , ( Monome_old
+        [
+--          ( Monome_256
+--          , [ ((0,14), sustainWindow)
+--            , ((13,14), shiftWindow)
+--            , ((0,0), keyboardWindow) ] )
+--        , ( Monome_128
+--          , [ ((0,6), changeWindow
+--                      [ [ ((0,0), paramGroupWindow)
+--                        , ((3,0), paramValWindow) ]
+--                      , [ ((8,0), chordBankWindow ) ] ] )
+--            , ((0,0), paramGroupWindow)
+--            , ((3,0), paramValWindow) ] )
+--        ,
+          ( Monome_old
           , [ ((0,14), sustainWindow)
             , ((13,14), shiftWindow)
             , ((0,0), keyboardWindow) ] ) ]
@@ -97,8 +99,8 @@ edoMonome edoCfg = do
         , _edoKeyboards = let
             k = Keyboard { _kbdFingers = mempty
                          , _kbdShift = (0,0) }
-            in M.fromList [ (Monome_256, k)
-                          , (Monome_old, k) ]
+            in M.fromList [ -- (Monome_256, k)
+                            (Monome_old, k) ]
         , _edoLit = mempty
           -- M.singleton (2 :: PitchClass) $ S.singleton LedBecauseAnchor
         , _edoSustaineded = mempty
