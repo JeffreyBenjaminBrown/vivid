@@ -19,7 +19,6 @@ module Montevideo.Dispatch.Museq.Mk (
 
   -- | Utilities used by the Museq-making functions
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
-  , insertOffs -- ^ Museq l ScParams                    -> Museq l ScParams
   , insertOns  -- ^ Museq l ScParams                    -> Museq l ScParams
   ) where
 
@@ -159,14 +158,6 @@ hold sup0 tas = _hold tas where
     [((t,endTime),a)]
   _hold ((t0,a0):(t1,a1):rest) =
     ((t0,t1),a0) : _hold ((t1,a1):rest)
-
--- | `insertOffs` turns every message off,
--- whether it was on or off before.
-insertOffs :: Museq l ScParams -> Museq l ScParams
-insertOffs = vec %~ V.map go where
-  go :: Ev l (M.Map String Float)
-     -> Ev l (M.Map String Float)
-  go = evData %~ M.insert "on" 0
 
 -- | `insertOns` does not change any extant `on` messages,
 -- but where they are missing, it inserts `on = 1`.
