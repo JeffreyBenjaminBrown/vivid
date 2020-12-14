@@ -92,6 +92,8 @@ boopOneScParams :: (ParamName, Float) -> ScParams' BoopParams
 boopOneScParams ("on",n)    = ScParams' (toI n :: I "on")
 boopOneScParams ("freq",n)  = ScParams' (toI n :: I "freq")
 boopOneScParams ("amp",n)   = ScParams' (toI n :: I "amp")
+boopOneScParams ("att",n)   = ScParams' (toI n :: I "att")
+boopOneScParams ("rel",n)   = ScParams' (toI n :: I "rel")
 boopOneScParams (param,val) = error $
   "boopOneScParams: unexpected message: " ++ show param ++ "=" ++ show val
 

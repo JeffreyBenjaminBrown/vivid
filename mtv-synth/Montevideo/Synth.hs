@@ -51,6 +51,7 @@ import Vivid
 
 import qualified Montevideo.Monome.Config.Mtv as Config
 import           Montevideo.Synth.Config
+import           Montevideo.Synth.Envelope
 import           Montevideo.Synth.Samples
 import           Montevideo.Synth.Vap
 import           Montevideo.Synth.Zot
@@ -70,22 +71,28 @@ data SynthDefEnum = -- PITFALL ! keep these alphabetically ordered
 
 -- | = Boop
 
-type BoopParams = '["freq", "amp", "on"]
+type BoopParams = '["freq", "amp", "on","att","rel"]
 
 boop :: SynthDef BoopParams
 boop = sd ( 0          :: I "freq"
           , toI maxAmp :: I "amp"
           , 0          :: I "on"
+          , 0          :: I "att"
+          , 0          :: I "rel"
           ) $ do
    s1 <- (V::V "amp") ~* sinOsc (freq_ (V::V "freq"))
-   s2 <- s1 ~* lag ( in_ (V::V "on")
-                   , lagSecs_ 0.01 )
+   s2 <- s1
+         ~* lag ( in_ (V::V "on")
+                , lagSecs_ 0.01 )
+         ~* onOffEnvelope
    out 0 [s2, s2]
 
 boopSaw :: SynthDef BoopParams
 boopSaw = sd ( 0          :: I "freq"
              , toI maxAmp :: I "amp"
              , 1          :: I "on" -- TODO : use
+             , 0          :: I "att"
+             , 0          :: I "rel"
              ) $ do
    s1 <- (V::V "amp") ~* saw (freq_ (V::V "freq"))
    out 0 [s1, s1]
@@ -94,6 +101,8 @@ boopPulse :: SynthDef BoopParams
 boopPulse = sd ( 0          :: I "freq"
                , toI maxAmp :: I "amp"
                , 1          :: I "on" -- TODO : use
+               , 0          :: I "att"
+               , 0          :: I "rel"
                ) $ do
    s1 <- (V::V "amp") ~* pulse (freq_ (V::V "freq"))
    out 0 [s1, s1]
