@@ -343,7 +343,7 @@ doScAction    st        sca =
         Right $ _voiceSynth v
       Right $ do
         Timestamp now <- getTime
-        set s (1 :: I "off")
+        set s (0 :: I "on")
         doScheduledAt ( Timestamp $ now +
                         float2Double Config.freeDelay )
           $ free s

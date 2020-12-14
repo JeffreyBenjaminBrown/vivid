@@ -22,14 +22,15 @@ import qualified Data.Map as M
 import qualified Data.Bimap as B
 import Vivid hiding (Log)
 
-import Montevideo.Vivid.LongVarLists ()
 import Montevideo.Synth.Config
+import Montevideo.Synth.Envelope
 import Montevideo.Util
+import Montevideo.Vivid.LongVarLists ()
 
 
 -- | See the definition of `ZotParams` (plural) for what each means.
 data ZotParam
-  = Zot_off
+  = Zot_on
   | Zot_freq
   | Zot_amp
   | Zot_att
@@ -81,7 +82,7 @@ instance Show ZotParam where
 
 strings :: B.Bimap ZotParam String
 strings = B.fromList
-  [ (Zot_off   , "off")
+  [ (Zot_on    , "on")
   , (Zot_freq  , "freq")
 
   , (Zot_amp   , "amp")
@@ -130,7 +131,7 @@ strings = B.fromList
 
 zotConstructors :: B.Bimap ZotParam String
 zotConstructors = B.fromList
-  [ (Zot_off   , "Zot_off")
+  [ (Zot_on    , "Zot_on")
   , (Zot_freq  , "Zot_freq")
   , (Zot_amp   , "Zot_amp")
   , (Zot_att   , "Zot_att")
@@ -188,7 +189,7 @@ zotDefaultRanges = M.map snd _zotDefaultInfo
 _zotDefaultInfo :: M.Map ZotParam ( Float
                                  , (NumScale, Rational, Rational))
 _zotDefaultInfo = M.fromList
-  [ (Zot_off   , (0, (Lin, 0, 1)))     -- Monome ignores.
+  [ (Zot_on     , (1, (Lin, 0, 1)))
   , (Zot_freq  , (0, (Log, 40, 20e3))) -- Monome determines via Keyboard
                                        -- rather than ParamVal window.
   , (Zot_amp   , ( maxAmp / 4
@@ -238,7 +239,7 @@ type ZotParams = '[
   -- The originating waveform.
   -- FM applies to both, PM to the sinewave only, WM (width mod)
   -- to the pulse wave only. Width=0.5 => square wave.
-   "off"
+   "on"
   ,"freq"                   -- baseline freq
   ,"amp"                    -- amplitude
   ,"att"                    -- attack time in seconds
@@ -268,7 +269,7 @@ type ZotParams = '[
   ]
 
 zot :: SynthDef ZotParams
-zot = sd ( toI $ zotDefaultValues M.! "off" :: I "off"
+zot = sd ( toI $ zotDefaultValues M.! "on" :: I "on"
          , toI $ zotDefaultValues M.! "freq" :: I "freq"
          , toI $ zotDefaultValues M.! "amp" :: I "amp"
          , toI $ zotDefaultValues M.! "att" :: I "att"
@@ -359,16 +360,7 @@ zot = sd ( toI $ zotDefaultValues M.! "off" :: I "off"
   aPulse <- pulse  (freq_ (V :: V "freq"), width_ wm)
   source <- (          (V :: V "pulse" ) ~* aPulse
               ~+ (1 ~- (V :: V "pulse")) ~* aSin )
-            ~* ( envGen_wGate
-                 1 -- The gate "signal" starts at 1 and never changes.
-                 (V::V "att")
-                 (env 0 [(1,1)] Curve_Lin)
-                 DoNothing )
-            ~* ( envGen_wGate
-                 (V::V "off")
-                 (V::V "rel")
-                 (env 1 [(0,1)] Curve_Lin)
-                 DoNothing )
+            ~* onOffEnvelope
 
   -- This next section runs `source` through AM,
   -- and then runs the output of that through FM

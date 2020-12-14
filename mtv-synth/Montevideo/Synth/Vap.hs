@@ -16,7 +16,8 @@ type VapParams = '[ "freq",      "amp"
                   , "delay-freq", "delay-amp"
                   , "fm-freq",  "fm-amp"
                   , "fm2-freq", "fm2-amp"
-                  , "nz-lpf"] -- nz-amp would be collinear with fm2-amp
+                  , "nz-lpf" -- nz-amp would be collinear with fm2-amp
+                  , "on" ]   -- A crude gate. Zot does it better.
 
 vap :: SynthDef VapParams
 vap = sd ( 0   :: I "freq"
@@ -29,6 +30,7 @@ vap = sd ( 0   :: I "freq"
          , 0   :: I "fm2-freq"
          , 0   :: I "fm2-amp"
          , 0   :: I "nz-lpf"
+         , 0   :: I "on"
          ) $ do
   nz <- lpf (in_ whiteNoise, freq_ (V::V "nz-lpf"))
   fm <- (V::V "fm-amp") ~* (sinOsc $ freq_ (V::V "fm-freq"))

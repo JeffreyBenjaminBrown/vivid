@@ -130,12 +130,12 @@ vapOneScParams ("fm-amp",n)     = ScParams' (toI n :: I "fm-amp")
 vapOneScParams ("fm2-freq",n)   = ScParams' (toI n :: I "fm2-freq")
 vapOneScParams ("fm2-amp",n)    = ScParams' (toI n :: I "fm2-amp")
 vapOneScParams ("nz-lpf",n)     = ScParams' (toI n :: I "nz-lpf")
+vapOneScParams ("on",n)         = ScParams' (toI n :: I "on")
 vapOneScParams (param,val)      = error $
   "vapOneScParams: unexpected message: " ++ show param ++ "=" ++ show val
 
 zotOneScParams :: (ParamName, Float) -> ScParams' ZotParams
-zotOneScParams ("on",_)    = ScParams' () -- unused by Zot
-zotOneScParams ("off",n)   = ScParams' (toI n :: I "off")
+zotOneScParams ("on",n)    = ScParams' (toI n :: I "on")
 zotOneScParams ("freq",n)  = ScParams' (toI n :: I "freq")
 zotOneScParams ("amp",n)   = ScParams' (toI n :: I "amp")
 zotOneScParams ("att",n)   = ScParams' (toI n :: I "att")
