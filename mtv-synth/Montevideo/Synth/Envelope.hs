@@ -6,6 +6,8 @@ import Vivid
 
 
 -- | PITFALL: "on" should only take on the values 0 or 1.
+-- | PITFALL: "on" is a little misleading, as when it switches from 1 to 0,
+-- the envelope does not immediately end; rather, it begins to ramp down to 0.
 -- When "on" becommes 1, the envelope swells from 0 to 1.
 -- When it becomes 0, the envelope falls from 1 to 0.
 -- The signals "att" and "rel" give the attack and release times.
