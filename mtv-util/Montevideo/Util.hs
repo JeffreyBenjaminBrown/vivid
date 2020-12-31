@@ -292,9 +292,11 @@ lcmRatios x y = let (a,b) = (numerator x, denominator x)
 bumpArc :: Num a => a -> (a,a) -> (a,a)
 bumpArc b (s,t) = (s + b, t + b)
 
--- | ASSUMES both inputs are well-formed intervals, s.t. start <= end.
+-- | PITFALL: ASSUMES both inputs are well-formed intervals,
+--   such that start <= end.
 -- PITFALL: If either event has zero duration,
--- then they must strictly not overlap. Otherwise their endpoints can meet.
+--   they will be said to "overlap" even if the overlap has measure 0.
+--   Otherwise, measure-0 overlap is considered non-overlap.
 overlap :: (Num a, Ord a) => (a,a) -> (a,a) -> Bool
 overlap (a,b) (c,d) | a == b =
                       b >= c && b <= d

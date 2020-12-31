@@ -1,4 +1,7 @@
-(mst, quit) <- edoMonome CfgMonome.my46 -- Start the synth.
+(mst, quit) <- edoMonome CfgMonome.my41 -- Start the synth.
+  -- my41_2_11
+  -- myKite
+  -- my34_thanos
 sh aLens = (^. aLens) <$> readMVar mst                       -- show things
 ch aLens aFunc = modifyMVar_ mst $ return . (aLens %~ aFunc) -- change things
 d :: ZotParam -> Float -> IO () = chDefault mst -- change a parameter

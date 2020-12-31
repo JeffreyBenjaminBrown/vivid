@@ -33,7 +33,7 @@ module Montevideo.Dispatch.Abbrevs (
 
   -- | = To write names only once
   , prefixPair, pre2   -- ^ a -> [(b,c)] -> [(a,b,c)]
-  , prefixTriple, pre3 -- ^ a -> [(b,c,d)] -> [(a,b,c,d)]
+  , prefixTriples, pre3 -- ^ a -> [(b,c,d)] -> [(a,b,c,d)]
   , pair               -- ^ a -> b -> (a,b)
   , trip               -- ^ a -> b -> c -> (a,b,c)
   , ev4                -- ^ l -> t -> t -> a -> Event t l a
@@ -135,9 +135,9 @@ prefixPair, pre2 :: a -> [(b,c)] -> [(a,b,c)]
 prefixPair a bcs = map (\(b,c) -> (a,b,c)) bcs
 pre2 = prefixPair
 
-prefixTriple, pre3 :: a -> [(b,c,d)] -> [(a,b,c,d)]
-prefixTriple a x = map (\(b,c,d) -> (a,b,c,d)) x
-pre3 = prefixTriple
+prefixTriples, pre3 :: a -> [(b,c,d)] -> [(a,b,c,d)]
+prefixTriples a x = map (\(b,c,d) -> (a,b,c,d)) x
+pre3 = prefixTriples
 
 pair :: a -> b -> (a,b)
 pair = (,)

@@ -1,4 +1,4 @@
--- | PITFALL: A few of the messages deserve explanation.
+-- | PITFALL: The meanings recorded here of these messages are surely stale.
 --
 -- "on" permits, in non-Sampler synths,
 --   separate amplitude and existence control.

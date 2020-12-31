@@ -112,8 +112,6 @@ mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
 
 -- | Makes a `Museq` using `hold`,
 -- so that each event lasts until the next.
--- PITFALL: This changes arcs but not the 'on' parameter;
--- to change both, use `mkMuseqHo`.
 mkMuseqH :: forall a l. Ord l
           => RDuration -> [(l,RDuration,a)] -> Museq l a
 mkMuseqH d = mkMuseq_seqProc (hold d) d

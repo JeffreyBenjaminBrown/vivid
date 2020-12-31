@@ -1,10 +1,10 @@
 seq d e f = [ (0, d)
             , (1, e)
             , (1.5, f) ]
-metaPat = slow 12 $ mmh 2 $ pre2 "a" $
-          seq id (early (1/2) . rev) (slow 2)
-patPitch k = mmho 2 $ pre2 "a" $
-             map (_2 %~ m1 "freq") $ seq 0 k $ 2*k
+metaPat = ( slow 12 $ mmh 2 $ pre2 "a" $
+            seq id (early (1/2) . rev) (slow 2) )
+patPitch k = ( mmho 2 $ pre2 "a" $
+               map (_2 %~ m1 "freq") $ seq 0 k $ 2*k )
 patKs = mmt1 2 $ seq SampleSm_peb SampleKm SampleKm
 patHat = mmt1 2 $ seq SampleHl_dc SampleHl_tfc SampleHl_tfc
 

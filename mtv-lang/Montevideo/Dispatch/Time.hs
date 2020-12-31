@@ -27,6 +27,7 @@ import Montevideo.Synth.Msg
 import Montevideo.Util
 
 
+-- | Renders events from now to (now + frameDuration)
 museqFrame :: forall a.
      Time     -- ^ time0, a historical reference point
   -> Duration -- ^ tempo period
@@ -41,10 +42,12 @@ museqFrame time0 tempoPeriod start m = let
 
 -- | `arc time0 period from to m`
 -- finds the events of `m` in the half-open interval `[from,to)`.
--- PITFALL: Although this goes to great painns to consider events from
--- earlier cycles, I'm not sure it makes sense to have an event with a
--- duration longer than the Museq's period, because then it will overlap
+-- PITFALL: Although this goes to great lengths to consider events from
+-- earlier cycles, it makes no sense for an event's duration to be
+-- longer than the Museq's period, because then it will overlap
 -- with future renderings of itself.
+-- (That does not invalidate those great lengths,
+-- it reduces the number of situations in which they can arise.)
 arc :: forall l a.
     Time       -- ^ a reference point in the past
   -> Duration  -- ^ tempo period
