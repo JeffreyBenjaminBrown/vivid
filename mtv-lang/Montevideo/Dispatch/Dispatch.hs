@@ -167,7 +167,7 @@ dispatchLoop disp = do
   let
     start :: Time = nextPhase0 time0 frameDuration now
     actions :: M.Map String (Museq String (ScAction SynthName)) =
-      museq_NotesToScSends notes
+      M.map museq_NotesToScSends notes
     evs0 :: [(Time, ScAction SynthName)] =
       concatMap (museqFrame time0 tempoPeriod start)
       $ M.elems actions
