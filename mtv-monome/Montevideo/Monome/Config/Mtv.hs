@@ -75,6 +75,49 @@ import Montevideo.Monome.Types.EdoConfig
 --        , 33 steps = 11 % 8: string 3 fret 0
 --        , 23 steps = 5 % 4: string 1 fret 4
 
+-- |
+--   13 steps = 19 % 16   : string 1 fret 1
+--   17 steps = 5 % 4     : string 1 fret 3
+--   24 steps = 11 % 8    : string 2 fret 1 -- -7.9c error
+--   31 steps = 3 % 2     : string 3 fret -1
+--   37 steps = 13 % 8    : string 3 fret 2
+--   51 steps = 31 % 16   : string 5 fret -2 -- +10c error
+--   53 steps = 2 % 1     : string 5 fret -1 -- +5.7c error
+-- harder to reach:
+--   5 steps = 17 % 16    : string 1 fret -3 -- +8.2c error
+--   28 steps = 23 % 16   : string 2 fret 3
+--   43 steps = 7 % 4     : string 3 fret 5 -- +4.7 cents error
+--   45 steps = 29 % 16   : string 3 fret 6 -- -11 cents error
+
+my53_2_11 :: EdoConfig
+my53_2_11 = EdoConfig
+  { _edo = 53
+  , _skip = 2
+  , _spacing = 11
+  , _octaveStretchInCents = 0.74 -- optimal for the  2 3 5 11 13 19 subgroup,
+  -- which happen to be all the easiest-reached notes.
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-1,8)
+      , _gridHorizontalVector = (7,2)
+      }
+  }
+
+-- | Beautiful 5-limit layout.
+-- Take 2nd-best primes 7 and 11, and it's identical to 34 2 9.
+
+my53_3_14 :: EdoConfig
+my53_3_14 = EdoConfig
+  { _edo = 53
+  , _skip = 3
+  , _spacing = 14
+  , _octaveStretchInCents = 0.74 -- optimal for the  2 3 5 11 13 19 subgroup,
+  -- which happen to be all the easiest-reached notes.
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-3,14)
+      , _gridHorizontalVector = (4,-1)
+      }
+  }
+
 -- | 58 edo: Looks goofy but the errors cancel.
 -- With a Kite-ish tuning it's pretty familiar,
 -- gaining some things and losing only the easy-to-reach 11%8.
@@ -137,7 +180,6 @@ my58 = EdoConfig
       }
   }
 
-
 -- | 63-edo, mod 1 space 9
 -- PITFALL: inconsistent: 16/9 ~ 29/16 ~ 53\63, whereas
 --          (3/2) * (6/5) ~ 54\63.
@@ -163,6 +205,40 @@ my63 = EdoConfig
   , _gridVectors = Just $ GridVectorPair
       { _gridVerticalVector = (-1,9)
       , _gridHorizontalVector = (7,0)
+      }
+  }
+
+-- | This might be guitar-feasible.
+-- The layout is miraculous.
+--   All primes but 19 lay on frets [0,7].
+--   6 steps = 17 % 16 : str 0 fr 2
+--  17 steps = 19 % 16 : str 2 fr -3 -- ignore; the rest are a miracle
+--  22 steps = 5  % 4  : str 1 fr 3
+--  31 steps = 11 % 8  : str 1 fr 6
+--  35 steps = 23 % 16 : str 2 fr 3
+--  39 steps = 3  % 2  : str 3 fr 0
+--  47 steps = 13 % 8  : str 2 fr 7
+--  54 steps = 7  % 4  : str 3 fr 5
+--  57 steps = 29 % 16 : str 3 fr 6
+--  64 steps = 31 % 16 : str 4 fr 4
+--  67 steps = 2  % 1  : str 4 fr 5
+-- HOWEVER: It's nonetheless difficult, because
+--  6/5 : str 2 fr -3
+--  9/8 : str 2 fr -5
+--  10/9: str -2 fr 8
+-- It sounds incredible.
+--   Primes 5, 19 and 29 have an absolute error in [6.9, 8.7] cents.
+--   All others have it less than 4c.
+
+my67 :: EdoConfig
+my67 = EdoConfig
+  { _edo = 67
+  , _skip = 3
+  , _spacing = 13
+  , _octaveStretchInCents = 0
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-3,13)
+      , _gridHorizontalVector = (4,5)
       }
   }
 
@@ -517,15 +593,27 @@ my46' = EdoConfig
 --   24 steps = 3 % 2  : string 2 fret -1
 --   19 steps = 11 % 8 : string 1 fret 3
 --   13 steps = 5 % 4  : string 1 fret 0
-kiteGuitar :: EdoConfig
-kiteGuitar = EdoConfig
+myKite :: EdoConfig
+myKite = EdoConfig
   { _edo = 41
   , _skip = 2
   , _spacing = 13
   , _octaveStretchInCents = 0
-  , _gridVectors = Just $ GridVectorPair
+  , _gridVectors =  Just $ GridVectorPair
       { _gridVerticalVector = ( -2, 13 )
       , _gridHorizontalVector = (3,1)
+      }
+  }
+
+my41_2_11 :: EdoConfig
+my41_2_11 = EdoConfig
+  { _edo = 41
+  , _skip = 2
+  , _spacing = 11
+  , _octaveStretchInCents = 0
+  , _gridVectors =  Just $ GridVectorPair
+      { _gridVerticalVector = ( -2, 11 )
+      , _gridHorizontalVector = (3,4)
       }
   }
 
@@ -538,6 +626,43 @@ my41 = EdoConfig
   , _gridVectors = Nothing
   }
 
+my34 :: EdoConfig
+my34 = EdoConfig
+  { _edo = 34
+  , _skip = 1
+  , _spacing = 8
+  , _octaveStretchInCents = -1.1 -- 5-limit optimal.
+    -- 13-limit optimal is -2.64, but uses the 34d mapping.
+    -- 7-limit optimal, patent val, is +0.58.
+  , _gridVectors = Nothing
+  }
+
+-- | 3 steps = 17 % 16 : string -1 fret 6
+--   8 steps = 19 % 16 : string 0 fret 4
+--  11 steps = 5  % 4  : string 1 fret 1
+--  16 steps = 11 % 8  : string 2 fret -1
+--  18 steps = 23 % 16 : string 2 fret 0
+--  20 steps = 3  % 2  : string 2 fret 1
+--  24 steps = 13 % 8  : string 2 fret 3
+--  27 steps = 7  % 4  : string 3 fret 0
+--  29 steps = 29 % 16 : string 3 fret 1
+--  32 steps = 31 % 16 : string 4 fret -2
+--  34 steps = 2  % 1  : string 4 fret -1
+
+my34_thanos :: EdoConfig
+my34_thanos = EdoConfig
+  { _edo = 34
+  , _skip = 2
+  , _spacing = 9
+  , _octaveStretchInCents = -1.1 -- 5-limit optimal.
+    -- 13-limit optimal is -2.64, but uses the 34d mapping.
+    -- 7-limit optimal, patent val, is +0.58.
+  , _gridVectors =  Just $ GridVectorPair
+      { _gridVerticalVector = (-2, 9)
+      , _gridHorizontalVector = (4,-1)
+      }
+  }
+
 my31 :: EdoConfig
 my31 = EdoConfig
   { _edo = 31
@@ -547,13 +672,45 @@ my31 = EdoConfig
   , _gridVectors = Nothing
   }
 
+my31_thanos :: EdoConfig
+my31_thanos = EdoConfig
+  { _edo = 31
+  , _skip = 2
+  , _spacing = 9
+  , _octaveStretchInCents = 0.5
+  , _gridVectors =  Just $ GridVectorPair
+      { _gridVerticalVector = (-2, 9)
+      , _gridHorizontalVector = (3, 2)
+      }
+  }
+
+my27 :: EdoConfig
+my27 = EdoConfig
+  { _edo = 27
+  , _skip = 1
+  , _spacing = 8
+  , _octaveStretchInCents = -4.5 -- 11-limit optimal
+                         -- -3.9 -- 13-limit optimal
+  , _gridVectors = Nothing
+  }
+
+my26 :: EdoConfig
+my26 = EdoConfig
+  { _edo = 26
+  , _skip = 1
+  , _spacing = 8
+  , _octaveStretchInCents = 0 -- 2.5 -- both 11- and 13-limit optimal
+                              -- 7-limit optimal is 3.3c
+  , _gridVectors = Nothing
+  }
+
 my22 :: EdoConfig
 my22 = EdoConfig
   { _edo = 22
   , _skip = 1
   , _spacing = 7
-  , _octaveStretchInCents = 0
-    -- -1.1    -- 11-limit optimal
+  , _octaveStretchInCents = -1.1
+    -- -1.1 -- 11-limit optimal
     -- -1.8 -- 7-limit optimal
   , _gridVectors = Nothing
   }
@@ -566,6 +723,16 @@ my19 = EdoConfig
   , _octaveStretchInCents =
       2.58    -- 5-limit optimal
       -- 3.85 -- 7-limit optimal
+  , _gridVectors = Nothing
+  }
+
+my17 :: EdoConfig
+my17 = EdoConfig
+  { _edo = 17
+  , _skip = 1
+  , _spacing = 5
+  , _octaveStretchInCents = -- Optimal for 2.3.11.13 is -2 cents.
+    -2.5                    -- If you include harmonic 7, it's -3 cents.
   , _gridVectors = Nothing
   }
 
