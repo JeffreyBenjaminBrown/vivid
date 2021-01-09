@@ -672,8 +672,8 @@ my31 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my31_thanos :: EdoConfig
-my31_thanos = EdoConfig
+my31_2_9 :: EdoConfig
+my31_2_9 = EdoConfig
   { _edo = 31
   , _skip = 2
   , _spacing = 9
@@ -681,6 +681,18 @@ my31_thanos = EdoConfig
   , _gridVectors =  Just $ GridVectorPair
       { _gridVerticalVector = (-2, 9)
       , _gridHorizontalVector = (3, 2)
+      }
+  }
+
+my31_2_11 :: EdoConfig
+my31_2_11 = EdoConfig
+  { _edo = 31
+  , _skip = 2
+  , _spacing = 11
+  , _octaveStretchInCents = 0.5
+  , _gridVectors =  Just $ GridVectorPair
+      { _gridVerticalVector = (-2, 11)
+      , _gridHorizontalVector = (3, -1)
       }
   }
 

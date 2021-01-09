@@ -22,11 +22,13 @@ sin_right = sd ( 100 :: I "kHz"
                , 0.05 :: I "att"
                , 0.05 :: I "rel"
                ) $ do
+  amp <- biOp Max 0.8
+         $ uOp Abs (V :: V "amp")
   kHz <- -- It might be cpu-wasteful that this is an audio-rate signal.
     (V :: V "kHz") ~* 1000
   signal <- (V :: V "amp")
          ~* sinOsc (freq_ kHz)
-         ~* onOffEnvelope
+         ~* onOffEnvelope -- important to avoid clicks
   silence <- 0 ~* signal
   out 0 [silence, signal]
 
