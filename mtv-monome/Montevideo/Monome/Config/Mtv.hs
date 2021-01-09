@@ -720,8 +720,8 @@ my19 = EdoConfig
   { _edo = 19
   , _skip = 1
   , _spacing = 6
-  , _octaveStretchInCents =
-      2.58    -- 5-limit optimal
+  , _octaveStretchInCents = 2.58
+      -- 2.58 -- 5-limit optimal
       -- 3.85 -- 7-limit optimal
   , _gridVectors = Nothing
   }
