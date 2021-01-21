@@ -545,7 +545,7 @@ my80_1_9 = EdoConfig
       }
   }
 
--- | Horizontally wider, ertically narrower.
+-- | Horizontally wider, vertically narrower.
 -- 07 steps = 17 % 16 : string 1 fret -1   (105,  .04)
 -- 20 steps = 19 % 16 : string 2 fret  1   (300, 2.48)
 -- 26 steps = 5 % 4   : string 2 fret  4   (390, 3.68)
