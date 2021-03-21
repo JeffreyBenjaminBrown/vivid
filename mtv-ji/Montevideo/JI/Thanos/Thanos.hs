@@ -156,7 +156,7 @@ thanosReport edo modulus spacing = let
      , tReport_fretSpan_lim13 = fd13
      , tReport_fretSpan12_lim13 = reportSpan_in12Edo edo modulus fd13
      , tReport_intervalReports =
-       sortBy (comparing ir_Edo) $
+       sortBy (comparing $ Data.Ratio.numerator . ir_Ratio) $
        map mkIntervalReport pairPairs }
 
 reportSpan_in12Edo :: Edo -> Modulus -> FretDistance -> Float
