@@ -578,11 +578,35 @@ my46 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my46' :: EdoConfig
-my46' = EdoConfig
+my46_1_7 :: EdoConfig
+my46_1_7 = EdoConfig
   { _edo = 46
   , _skip = 1
   , _spacing = 7
+  , _octaveStretchInCents = 0
+  , _gridVectors = Nothing
+  }
+
+
+-- | 4 \ 46 = 17 % 16 : str 0 fret 2
+--  11 \ 46 = 19 % 16 : str 1 fret -2
+--  15 \ 46 = 5 % 4   : str 1 fret 0
+--  21 \ 46 = 11 % 8  : str 1 fret 3
+--  24 \ 46 = 23 % 16 : str 2 fret -3
+--  27 \ 46 = 3 % 2   : str 1 fret 6
+--                      str 3 fret -9
+--  32 \ 46 = 13 % 8  : str 2 fret 1
+--  37 \ 46 = 7 % 4   : str 3 fret -4
+--                      str 1 fret 11
+--  39 \ 46 = 29 % 16 : str 3 fret -3
+--  44 \ 46 = 31 % 16 : str 2 fret 7
+--  46 \ 46 = 2 % 1   : str 4 fret -7
+--                      str 2 fret 8
+my46_2_15 :: EdoConfig
+my46_2_15 = EdoConfig
+  { _edo = 46
+  , _skip = 2
+  , _spacing = 15
   , _octaveStretchInCents = 0
   , _gridVectors = Nothing
   }
@@ -626,11 +650,20 @@ my41 = EdoConfig
   , _gridVectors = Nothing
   }
 
+my37 :: EdoConfig
+my37 = EdoConfig
+  { _edo = 37
+  , _skip = 1
+  , _spacing = 8
+  , _octaveStretchInCents = 0 -- haven't checked
+  , _gridVectors = Nothing
+  }
+
 my34 :: EdoConfig
 my34 = EdoConfig
   { _edo = 34
   , _skip = 1
-  , _spacing = 8
+  , _spacing = 7
   , _octaveStretchInCents = -1.1 -- 5-limit optimal.
     -- 13-limit optimal is -2.64, but uses the 34d mapping.
     -- 7-limit optimal, patent val, is +0.58.
@@ -711,8 +744,23 @@ my26 = EdoConfig
   { _edo = 26
   , _skip = 1
   , _spacing = 8
-  , _octaveStretchInCents = 0 -- 2.5 -- both 11- and 13-limit optimal
-                              -- 7-limit optimal is 3.3c
+  , _octaveStretchInCents = 2
+    -- 1.5 is 13-limit optimal skipping 5
+    -- 2.5 -- both 11- and 13-limit optimal
+    -- 7-limit optimal is 3.3c
+  , _gridVectors = Nothing
+  }
+
+my23 :: EdoConfig
+my23 = EdoConfig
+  { _edo = 23
+  , _skip = 1
+  , _spacing = 7
+  , _octaveStretchInCents = 7.5
+    -- 9 cents is 13-limit optimal for 23-deff,
+    -- which plays each of harmonics 7,11 and 13 1 step flat.
+    -- 7.5 cents is 13-limit optimal for 23-de.
+    -- 8 cents is 5-limit optimal for 23.
   , _gridVectors = Nothing
   }
 
@@ -727,12 +775,22 @@ my22 = EdoConfig
   , _gridVectors = Nothing
   }
 
+my20 :: EdoConfig
+my20 = EdoConfig
+  { _edo = 20
+  , _skip = 1
+  , _spacing = 6
+  , _octaveStretchInCents = -10 --optimal for 11-limit without 7.
+      -- 11-limit and 13-limit are similar but a little bigger.
+  , _gridVectors = Nothing
+  }
+
 my19 :: EdoConfig
 my19 = EdoConfig
   { _edo = 19
   , _skip = 1
   , _spacing = 6
-  , _octaveStretchInCents = 2.58
+  , _octaveStretchInCents = 3
       -- 2.58 -- 5-limit optimal
       -- 3.85 -- 7-limit optimal
   , _gridVectors = Nothing
@@ -755,6 +813,25 @@ my16 = EdoConfig
   , _spacing = 5
   , _octaveStretchInCents =
       7.3    -- 5-limit optimal
+  , _gridVectors = Nothing
+  }
+
+my15 :: EdoConfig
+my15 = EdoConfig
+  { _edo = 15
+  , _skip = 1
+  , _spacing = 5
+  , _octaveStretchInCents = -5
+    -- -20 -- 13-limit optimal, but *so* flat
+  , _gridVectors = Nothing
+  }
+
+my13 :: EdoConfig
+my13 = EdoConfig
+  { _edo = 13
+  , _skip = 1
+  , _spacing = 4
+  , _octaveStretchInCents = 0
   , _gridVectors = Nothing
   }
 
