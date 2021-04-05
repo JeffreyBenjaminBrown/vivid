@@ -112,7 +112,7 @@ truth :: Floating c => Int -> [(c,Rational)]
 truth p = f <$> harmonics p
   where f h = (dents h, h)
 
-type Report = (Integer, Rational, Integer, Integer, Integer)
+type Report = (Integer, Rational, Interval, Double, Integer)
 
 -- | `intervals d` shows how the notes of
 -- `d`-edo approximate `just_intervals`.
@@ -131,7 +131,7 @@ whatIsThis :: Integer -> [Report]
 whatIsThis d = map f just_intervals where
   less x = round $ x / 10
   f (c,r) = let
-    (note, cNote, errNote) = best d r
+    (note, cNote, errNote) = best (fi d) r
     in (less c, r, note, cNote, less errNote)
 
 just_intervals :: [(Double, Rational)]
@@ -157,35 +157,22 @@ sum_errs weights d = sum $ map square $ zipWith (*) weights $
     square x = x*x
     err_of_best (_,(_,_,e)) = e
 
-bests :: Integer -> [(Rational, (Integer, Integer, Double))]
-bests d = (\r -> (r, best d r))
+bests :: Integer -> [(Rational, (Int, Double, Double))]
+bests d = (\r -> (r, best (fi d) r))
           <$> [ 3%2,5%4,7%4,11%8,13%8,
                 17%16,19%16,23%16,29%16,31%16,
                 33%32 ]
 
--- | TODO ? This could be more efficient, ala Thanos.best'.
-best :: Integer -> Rational -> (Integer, Integer, Double)
-best d r = L.minimumBy (comparing $ abs . (^. _3))
-           $ errs d r
-
-errs :: Floating a
-     => Integer -- ^ the edo
-     -> Rational -- ^ what to approximate
-     -> [ ( Integer -- ^ a step of the edo
-          , Integer -- ^ that step in cents
-          , a ) ]   -- ^ error of that step
-errs n r =
-  [ ( i
-    , round $ octavesToDents $ fromIntegral i / fromIntegral n
-    , err (fromIntegral i / fromIntegral n) r )
-  | i <- [0..n-1 :: Integer] ]
-
-err :: Floating a
-  => a        -- ^ the EDO approximating it
-  -> Rational -- ^ what to approximate
-  -> a        -- ^ a step of that EDO
-err edo true_frac =
-  octavesToDents edo - dents true_frac
+best :: Edo -> Rational
+     -> ( Interval -- ^ a step of the edo
+        , Double   -- ^ that step in dents
+        , Double ) -- ^ error of that step
+best e r =
+  let b = best' e r
+      d = octavesToDents $ fi b / fi e
+  in ( b,
+       d,
+       d - dents r )
 
 -- | Best approximation to a ratio in an edo.
 -- For instance, best 12 (3/2) = 7

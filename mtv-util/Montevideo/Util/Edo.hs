@@ -16,5 +16,5 @@ dentsToOctaves :: Fractional a => a -> a
 dentsToOctaves x = x / 12000
 
 -- | A "dent" is a tenth of a cent. Not sure why I did that.
-octavesToDents :: Fractional a => a -> a
+octavesToDents :: Num a => a -> a
 octavesToDents = (*) 12000
