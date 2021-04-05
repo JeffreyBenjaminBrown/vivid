@@ -13,8 +13,8 @@ dents r = octavesToDents $ log (fromRational r) / log 2
 
 -- | A "dent" is a tenth of a cent. Not sure why I did that.
 dentsToOctaves :: Fractional a => a -> a
-dentsToOctaves x = x / (10000 * 6 / 5)
+dentsToOctaves x = x / 12000
 
 -- | A "dent" is a tenth of a cent. Not sure why I did that.
 octavesToDents :: Fractional a => a -> a
-octavesToDents = (*) (10000 * 6 / 5)
+octavesToDents = (*) 12000

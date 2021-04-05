@@ -170,16 +170,16 @@ errs :: Floating a
      -> Rational -- ^ what to approximate
      -> [ ( Integer -- ^ a step of the edo
           , Integer -- ^ that step in cents
-          , a)]     -- ^ error of that step
+          , a ) ]   -- ^ error of that step
 errs n r =
   [ ( i
     , round $ octavesToDents $ fromIntegral i / fromIntegral n
-    , err r           $ fromIntegral i / fromIntegral n )
+    , err (fromIntegral i / fromIntegral n) r )
   | i <- [0..n-1 :: Integer] ]
 
 err :: Floating a
-  => Rational -- ^ what to approximate
-  -> a        -- ^ the EDO approximating it
+  => a        -- ^ the EDO approximating it
+  -> Rational -- ^ what to approximate
   -> a        -- ^ a step of that EDO
-err true_frac approx_edo =
-  octavesToDents approx_edo - dents true_frac
+err edo true_frac =
+  octavesToDents edo - dents true_frac
