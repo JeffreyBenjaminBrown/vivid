@@ -107,7 +107,7 @@ errorSum weights =
 
 truth :: Floating c => Int -> [(c,Rational)]
 truth p = f <$> harmonics p
-  where f h = (cents h, h)
+  where f h = (dents h, h)
 
 type Report = (Integer, Rational, Integer, Integer, Integer)
 
@@ -134,7 +134,7 @@ whatIsThis d = map f just_intervals where
 just_intervals :: [(Double, Rational)]
 just_intervals = let
   f x = if x >= 2 then x/2 else x
-  pair n = (cents $ fromRational n, n)
+  pair n = (dents $ fromRational n, n)
   in map (pair . f) $ L.sort $ lim_15
 
 errSearch :: [Integer] -> [(Integer,Double)]
@@ -182,4 +182,4 @@ err :: Floating a
   -> a        -- ^ the EDO approximating it
   -> a        -- ^ a step of that EDO
 err true_frac approx_edo =
-  octavesToDents approx_edo - cents true_frac
+  octavesToDents approx_edo - dents true_frac

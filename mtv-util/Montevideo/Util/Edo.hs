@@ -8,8 +8,8 @@ fromCents :: Double -> Double
 fromCents _cents = exp $ log 2 * dentsToOctaves _cents
 
 -- | Really this manipulates dents (see below), not cents.
-cents :: Floating a => Rational -> a
-cents r = octavesToDents $ log (fromRational r) / log 2
+dents :: Floating a => Rational -> a
+dents r = octavesToDents $ log (fromRational r) / log 2
 
 -- | A "dent" is a tenth of a cent. Not sure why I did that.
 dentsToOctaves :: Fractional a => a -> a
