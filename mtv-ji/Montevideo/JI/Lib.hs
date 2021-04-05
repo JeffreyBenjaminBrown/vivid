@@ -9,11 +9,14 @@ import qualified Data.Set as S
 import           Data.Ratio
 import           Data.Ord (comparing)
 
+import Montevideo.Util hiding (tr)
 import Montevideo.Util.Edo
 import Montevideo.JI.Harmonics
 
 
 type Cents = Float
+type Interval = Int -- ^ A value from an Edo system. For instance,
+                    -- the perfect fifth in Edo 31 is Interval 18.
 
 -- | 'nearOctaveMultiples 50 $ cents (7/4)` returns pairs in which
 -- the first member is a power of 7/4 (a muliple of 'cents 7/4')
@@ -183,3 +186,9 @@ err :: Floating a
   -> a        -- ^ a step of that EDO
 err edo true_frac =
   octavesToDents edo - dents true_frac
+
+-- | Best approximation to a ratio in an edo.
+-- For instance, best 12 (3/2) = 7
+best' :: Edo -> Rational -> Interval
+best' e r =
+  round $ fi e * log (fr r) / log 2

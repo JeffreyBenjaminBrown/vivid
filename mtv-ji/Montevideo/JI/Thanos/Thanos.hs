@@ -16,13 +16,12 @@ import           Data.Ratio
 
 import Montevideo.Util hiding (tr)
 import Montevideo.JI.Thanos.SearchParams
+import Montevideo.JI.Lib
 
 
 -- * Types
 
 type Modulus = Int -- ^ The Thanos tuning will keep every nth note, where n is the modulus. For instance, in Kite's tuning the modulus is 2 (and the Edo is 41).
-type Interval = Int -- ^ A value from an Edo system. For instance,
-                    -- the perfect fifth in Edo 31 is Interval 18.
 
 -- | Also a value from the Edo system, with the particular interpretation
 -- that it rerpresents the space between adjacent strings.
@@ -294,9 +293,3 @@ bestFifth edo = abs $ bestError edo $ 3/2
 -- Take its absolute value, or square it, or etc. before minimizing it.
 bestError :: Edo -> Rational -> Float
 bestError e r = fi (best' e r) / fi e - log (fr r) / log 2
-
--- | Best approximation to a ratio in an edo.
--- For instance, best 12 (3/2) = 7
-best' :: Edo -> Rational -> Interval
-best' e r =
-  round $ fi e * log (fr r) / log 2
