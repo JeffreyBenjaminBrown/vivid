@@ -156,17 +156,17 @@ my58_thanos = EdoConfig
 
 
 -- | 58 edo with 8 steps between "strings":
+-- 58 steps = 02 % 1   : str 7 fret 2
+-- 34 steps = 03 % 2   : str 4 fret 2
+-- 19 steps = 05 % 4   : str 2 fret 3
+-- 47 steps = 07 % 4   : str 6 fret -1
+-- 27 steps = 11 % 8  : str 3 fret 3
+-- 41 steps = 13 % 8  : str 5 fret 1
 --  5 steps = 17 % 16 : str 1 fret -3 | str 0 fret 5
 -- 14 steps = 19 % 16 : str 2 fret -2 | str 1 fret 6
--- 19 steps = 5 % 4   : str 2 fret 3
--- 27 steps = 11 % 8  : str 3 fret 3
 -- 30 steps = 23 % 16 : str 4 fret -2 | str 3 fret 6
--- 34 steps = 3 % 2   : str 4 fret 2
--- 41 steps = 13 % 8  : str 5 fret 1
--- 47 steps = 7 % 4   : str 6 fret -1
 -- 50 steps = 29 % 16 : str 6 fret 2
 -- 55 steps = 31 % 16 : str 7 fret -1
--- 58 steps = 2 % 1   : str 7 fret 2
 
 my58 :: EdoConfig
 my58 = EdoConfig
@@ -748,6 +748,15 @@ my26 = EdoConfig
     -- 1.5 is 13-limit optimal skipping 5
     -- 2.5 -- both 11- and 13-limit optimal
     -- 7-limit optimal is 3.3c
+  , _gridVectors = Nothing
+  }
+
+my24 :: EdoConfig
+my24 = EdoConfig
+  { _edo = 24
+  , _skip = 1
+  , _spacing = 7
+  , _octaveStretchInCents = 0
   , _gridVectors = Nothing
   }
 

@@ -112,7 +112,7 @@ truth :: Floating c => Int -> [(c,Rational)]
 truth p = f <$> harmonics p
   where f h = (dents h, h)
 
-type Report = (Integer, Rational, Interval, Double, Integer)
+type Report = (Integer, Rational, Interval, Int, Integer)
 
 -- | `intervals d` shows how the notes of
 -- `d`-edo approximate `just_intervals`.
@@ -157,7 +157,7 @@ sum_errs weights d = sum $ map square $ zipWith (*) weights $
     square x = x*x
     err_of_best (_,(_,_,e)) = e
 
-bests :: Integer -> [(Rational, (Int, Double, Double))]
+bests :: Integer -> [(Rational, (Int, Int, Double))]
 bests d = (\r -> (r, best (fi d) r))
           <$> [ 3%2,5%4,7%4,11%8,13%8,
                 17%16,19%16,23%16,29%16,31%16,
@@ -165,13 +165,13 @@ bests d = (\r -> (r, best (fi d) r))
 
 best :: Edo -> Rational
      -> ( Interval -- ^ a step of the edo
-        , Double   -- ^ that step in dents
+        , Int      -- ^ that step in dents
         , Double ) -- ^ error of that step
 best e r =
   let b = best' e r
       d = octavesToDents $ fi b / fi e
   in ( b,
-       d,
+       round d,
        d - dents r )
 
 -- | Best approximation to a ratio in an edo.
