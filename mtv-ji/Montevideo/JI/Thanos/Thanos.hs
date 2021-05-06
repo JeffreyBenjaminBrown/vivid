@@ -125,10 +125,10 @@ edoError e = let
   component (prime, r) = let
     lr :: Float = log (fromRational r) / log 2
     in (fi (round $ fi e * lr) / fi e - lr)**2 -- Approximation error.
-       / log (fi prime) -- So that lower primes weigh more.
+       / log (fi prime) -- So simpler intervals weigh more.
        * (fi e)**2 -- Measures the error (I think) in terms of edo steps,
                    -- putting big and small edos on roughly equal footings.
-  in sum $ map component primes
+  in sum $ map component primesAnd1
 
 
 -- * Generate a report
@@ -177,7 +177,7 @@ thanosReport' edo modulus spacing = let
     -- Most of them will probably be length 1.
     map (shortWaysToReach modulus spacing . fst) notes
   cs :: [[(GuitarString,Fret)]] = choices layout
-  maxFretDiff :: Int --how many primes to use: 4 (7-limit) or 6 (13-limit)
+  maxFretDiff :: Int --how many primesAnd1 to use: 4 (7-limit) or 6 (13-limit)
               -> [(GuitarString,Fret)] -> FretDistance
   maxFretDiff n choice = let
     frets = 0 : map snd (take n choice)
@@ -248,7 +248,7 @@ feasibleSpacing modulus spacing =
   elem 1 ( fmap (flip mod modulus . (*) spacing)
            [1..modulus] )
 
--- | How to play the primes in a given edo.
+-- | How to play the primesAnd1 in a given edo.
 primeIntervals :: Edo
            -> [ ( Interval
                 , Rational)] -- ^ The ratio the Interval represents.
@@ -257,14 +257,14 @@ primeIntervals edo = let
   in zip edoValues primesOctave1
 
 primesOctave1 :: [Rational]
-primesOctave1 = map snd primes
+primesOctave1 = map snd primesAnd1
 
--- * These are the primes I care about.
+-- * These are the intervals I care about.
 -- 2 should be included because if you can't easily reach the octave,
 -- it's not much help to be able to reach the other notes,
 -- unless you never plan on inverting your chords.
-primes :: [(Int, Rational)]
-primes =
+primesAnd1 :: [(Int, Rational)]
+primesAnd1 =
   [ ( 1,  1/1)
   , ( 2,  2/1)
   , ( 3,  3%2)
@@ -282,7 +282,7 @@ primes =
 
 badness :: Int -> Edo -> Float
 badness nPrimes e = let
-  primesHere :: [(Int, Rational)] = take nPrimes primes
+  primesHere :: [(Int, Rational)] = take nPrimes primesAnd1
   in sum $ map (abs . bestError e) $
      [ fi n / fi d
      | d <- [1 .. maximum $ map fst primesHere]

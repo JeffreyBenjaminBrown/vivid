@@ -72,17 +72,18 @@ test_feasibleSpacing = TestCase $ do
 
 test_primeIntervals :: Test
 test_primeIntervals = TestCase $ do
-  assertBool "" $ take 6 (primeIntervals 31) ==
-    [ (31, 2 % 1)
+  assertBool "" $ take 7 (primeIntervals 31) ==
+    [ ( 0, 1 % 1)
+    , (31, 2 % 1)
     , (18, 3 % 2)
     , (10, 5 % 4)
     , (25, 7 % 4)
-    , (14,11 % 8)
-    , (22,13 % 8) ]
+    , ( 5, 9 % 8)
+    , (14,11 % 8) ]
 
 test_primes :: Test
 test_primes = TestCase $ do
-  assertBool "" $ elem 2 $ map fst primes
+  assertBool "" $ elem 2 $ map fst primesAnd1
 
 test_best' :: Test
 test_best' = TestCase $ do
