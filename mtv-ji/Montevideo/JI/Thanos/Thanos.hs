@@ -265,10 +265,12 @@ primesOctave1 = map snd primes
 -- unless you never plan on inverting your chords.
 primes :: [(Int, Rational)]
 primes =
-  [ (2,  2/1)
-  , (3,  3%2)
-  , (5,  5/4)
-  , (7,  7/4)
+  [ ( 1,  1/1)
+  , ( 2,  2/1)
+  , ( 3,  3%2)
+  , ( 5,  5/4)
+  , ( 7,  7/4)
+  , ( 9,  9/8)
   , (11, 11/8)
   , (13, 13/8)
   , (17, 17/16)
