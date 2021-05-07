@@ -128,7 +128,7 @@ edoError e = let
        / log (fi prime) -- So simpler intervals weigh more.
        * (fi e)**2 -- Measures the error (I think) in terms of edo steps,
                    -- putting big and small edos on roughly equal footings.
-  in sum $ map component primesAnd1
+  in sum $ map component $ primesAnd1 31
 
 
 -- * Generate a report
@@ -170,7 +170,7 @@ thanosReport'
      , [((Interval, Rational), (GuitarString, Fret))])
 thanosReport' edo modulus spacing = let
   notes :: [(Interval, Rational)] =
-    primeIntervals edo
+    primeIntervals 31 edo
   layout :: [[(GuitarString, Fret)]] =
     -- The outer list has length 6.
     -- Each inner list represents the closest places a given prime lies.
@@ -239,6 +239,16 @@ shortWaysToReach modulus spacing edoStep = let
                   (3 * fewestFrets) alwaysConsiderAtLeastThisManyFrets
   in map (_2 %~ flip div modulus) fewFrets
 
+-- | Gives the (string, fret) position of an interval.
+-- PITFALL: Fails (head of []) if the gaps are not relatively prime.
+guitarSpot :: Integral a => a -> a -> a -> (a, a)
+guitarSpot stringGap fretGap interval =
+  head [ (string, fret) |
+         fret <- [0..],
+         let evenMultiple = interval - fret*fretGap
+             string = div evenMultiple stringGap,
+         mod evenMultiple stringGap == 0 ]
+
 -- | PITFALL: This is BAD for big numbers.
 -- But I doubt it matters for my purposes.
 -- todo ? speed
@@ -251,39 +261,33 @@ relativelyPrime modulus spacing =
 
 -- | How to play the primesAnd1 in a given edo.
 primeIntervals :: Edo
-           -> [ ( Interval
-                , Rational)] -- ^ The ratio the Interval represents.
-primeIntervals edo = let
-  edoValues = map (best' edo) primesOctave1
-  in zip edoValues primesOctave1
+               -> Int
+               -> [ ( Interval
+                    , Rational)] -- ^ The ratio the Interval represents.
+primeIntervals edo oddLimit = let
+  edoValues = map (best' edo) $ primesOctave1 oddLimit
+  in zip edoValues $ primesOctave1 oddLimit
 
-primesOctave1 :: [Rational]
-primesOctave1 = map snd primesAnd1
+primesOctave1 :: Int -> [Rational]
+primesOctave1 = map snd . primesAnd1
 
 -- * These are the intervals I care about.
 -- 2 should be included because if you can't easily reach the octave,
 -- it's not much help to be able to reach the other notes,
 -- unless you never plan on inverting your chords.
-primesAnd1 :: [(Int, Rational)]
-primesAnd1 =
-  [ ( 1,  1/1)
-  , ( 2,  2/1)
-  , ( 3,  3%2)
-  , ( 5,  5/4)
-  , ( 7,  7/4)
-  , ( 9,  9/8)
-  , (11, 11/8)
-  , (13, 13/8)
-  , (17, 17/16)
-  , (19, 19/16)
-  , (23, 23/16)
-  , (29, 29/16)
-  , (31, 31/16)
-  ]
+--
+-- TODO These aren't primes. Rename this and upstream callers accordingly.
+primesAnd1 :: Int -> [(Int, Rational)]
+primesAnd1 oddLimit =
+  takeWhile ( (<= oddLimit) . fst ) $
+  [ (1, 1%1),
+    (2, 2%1) ] ++
+  [ (i, fi i % fi (2 ^ floor (log (fi i) / log 2) ) ) |
+    i <- [3,5..] ]
 
-badness :: Int -> Edo -> Float
-badness nPrimes e = let
-  primesHere :: [(Int, Rational)] = take nPrimes primesAnd1
+badness :: Int -> Int -> Edo -> Float
+badness oddLimit nPrimes e = let
+  primesHere :: [(Int, Rational)] = take nPrimes $ primesAnd1 oddLimit
   in sum $ map (abs . bestError e) $
      [ fi n / fi d
      | d <- [1 .. maximum $ map fst primesHere]

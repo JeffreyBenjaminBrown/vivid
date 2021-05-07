@@ -19,7 +19,15 @@ tests = TestList [
   , TestLabel "test_shortWaysToReach" test_shortWaysToReach
   , TestLabel "test_choices" test_choices
   , TestLabel "test_bestError" test_bestError
+  , TestLabel "test_guitarSpot" test_guitarSpot
   ]
+
+test_guitarSpot :: Test
+test_guitarSpot = TestCase $ do
+  assertBool "" $ guitarSpot 5 2 10 == (2,0)
+  assertBool "" $ guitarSpot 7 2 1 == (-1,4)
+  assertBool "" $ guitarSpot 5 3 1 == (-1,2)
+  assertBool "" $ guitarSpot 5 3 2 == (-2,4)
 
 test_bestError :: Test
 test_bestError = TestCase $ do
@@ -74,7 +82,7 @@ test_relativelyPrime = TestCase $ do
 
 test_primeIntervals :: Test
 test_primeIntervals = TestCase $ do
-  assertBool "" $ take 7 (primeIntervals 31) ==
+  assertBool "" $ take 7 (primeIntervals 31 100) ==
     [ ( 0, 1 % 1)
     , (31, 2 % 1)
     , (18, 3 % 2)
@@ -85,7 +93,7 @@ test_primeIntervals = TestCase $ do
 
 test_primes :: Test
 test_primes = TestCase $ do
-  assertBool "" $ elem 2 $ map fst primesAnd1
+  assertBool "" $ elem 2 $ map fst $ primesAnd1 31
 
 test_best' :: Test
 test_best' = TestCase $ do
