@@ -11,7 +11,7 @@ module Montevideo.Monome.Util.OSC (
 
   -- * OSC
   , readOSC_asSwitch -- ^ OSC -> Either String ( MonomeId, ((X,Y), Switch))
-  , ledOsc           -- ^ MonomeId -> ((X,Y), Led) -> ByteString  
+  , ledOsc           -- ^ MonomeId -> ((X,Y), Led) -> ByteString
   , allLedOsc        -- ^ MonomeId -> Led -> ByteString
 
   -- * Monome-related conversions for `String`, `Int`, `Bool`, `MonomeId`
@@ -31,9 +31,9 @@ import Montevideo.Util
 
 
 allMonomeIds :: [MonomeId]
-allMonomeIds = -- [ Monome_128
-               -- , Monome_256
-               [ Monome_old ]
+allMonomeIds = [ Monome_128
+               , Monome_256
+               , Monome_old ]
 
 -- * OSC
 
