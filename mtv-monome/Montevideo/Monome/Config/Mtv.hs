@@ -11,6 +11,19 @@ import Montevideo.Monome.Types.EdoConfig
 -- An `EdoConfig` is one of the arguments to `Monome.Main.edoMonome`.
 -- Below are my favorites.
 
+
+my50_3_10 :: EdoConfig
+my50_3_10 = EdoConfig
+  { _edo = 50
+  , _skip = 3
+  , _spacing = 10
+  , _octaveStretchInCents = 0
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-3,10)
+      , _gridHorizontalVector = (5,0)
+      }
+  }
+
 --    , tReport_modulus = 11
 --    , tReport_spacing = 15
 --        [ 56 steps = 2 % 1: string 3 fret 1
@@ -118,6 +131,31 @@ my53_3_14 = EdoConfig
       }
   }
 
+-- | 58 steps = 2 % 1   : string 5 fret 1
+--   34 steps = 3 % 2   : string 2 fret 4
+--   19 steps = 5 % 4   : string 2 fret - 1
+--   47 steps = 7 % 4   : string 4 fret 1
+--   27 steps = 11 % 8  : string 3 fret - 2
+--   41 steps = 13 % 8  : string 4 fret - 1
+--   5 steps = 17 % 16  : string 1 fret - 2
+--   14 steps = 19 % 16 : string 1 fret 1
+--   30 steps = 23 % 16 : string 3 fret - 1
+--   50 steps = 29 % 16 : string 4 fret 2
+--   55 steps = 31 % 16 : string 5 fret 0
+
+my58_3_11 :: EdoConfig
+my58_3_11 = EdoConfig
+  { _edo = 58
+  , _skip = 3
+  , _spacing = 11
+  , _octaveStretchInCents = -1.694
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-3,11)
+      , _gridHorizontalVector = (5,1)
+      }
+  }
+
+
 -- | 58 edo: Looks goofy but the errors cancel.
 -- With a Kite-ish tuning it's pretty familiar,
 -- gaining some things and losing only the easy-to-reach 11%8.
@@ -142,8 +180,8 @@ my53_3_14 = EdoConfig
 -- 50 steps = 29 % 16 : str 4 fret -1
 -- 55 steps = 31 % 16 : str 5 fret -5 | str 3 fret 8
 -- 58 steps = 2 % 1   : str 4 fret 3
-my58_thanos :: EdoConfig
-my58_thanos = EdoConfig
+my58_2_13 :: EdoConfig
+my58_2_13 = EdoConfig
   { _edo = 58
   , _skip = 2
   , _spacing = 13
@@ -567,6 +605,31 @@ my80_thanos = EdoConfig
       { _gridVerticalVector = (-2,9)
       , _gridHorizontalVector = (8,4)
       }
+  }
+
+-- | Unfortunately, in 48-edo the second-best 5:4
+-- plays better with 7:4 and 13:8,
+-- and it's located at  string 2 fret -3
+--
+-- 48 steps = 2 % 1   : string 4 fret 2
+-- 28 steps = 3 % 2   : string 2 fret 3
+-- 15 steps = 5 % 4   : string 1 fret 2
+-- 39 steps = 7 % 4   : string 3 fret 3
+-- 22 steps = 11 % 8  : string 2 fret 0
+-- 34 steps = 13 % 8  : string 2 fret 6
+-- 4 steps = 17 % 16  : string 0 fret 2
+-- 12 steps = 19 % 16 : string 0 fret 6
+-- 25 steps = 23 % 16 : string 1 fret 7
+-- 41 steps = 29 % 16 : string 3 fret 4
+-- 46 steps = 31 % 16 : string 4 fret 1
+
+my48 :: EdoConfig
+my48 = EdoConfig
+  { _edo = 48
+  , _skip = 1
+  , _spacing = 11
+  , _octaveStretchInCents = 0
+  , _gridVectors = Nothing
   }
 
 my46 :: EdoConfig
