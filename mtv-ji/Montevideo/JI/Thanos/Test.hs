@@ -15,7 +15,7 @@ tests = TestList [
     TestLabel "test_best'" test_best'
   , TestLabel "test_primes" test_primes
   , TestLabel "test_primeIntervals" test_primeIntervals
-  , TestLabel "test_feasibleSpacing" test_feasibleSpacing
+  , TestLabel "test_relativelyPrime" test_relativelyPrime
   , TestLabel "test_shortWaysToReach" test_shortWaysToReach
   , TestLabel "test_choices" test_choices
   , TestLabel "test_bestError" test_bestError
@@ -63,12 +63,14 @@ test_shortWaysToReach = TestCase $ do
   assertBool "Two nearly equally good choices." $
     shortWaysToReach 2 13 36 == [(2,5),(4,-8)]
 
-test_feasibleSpacing :: Test
-test_feasibleSpacing = TestCase $ do
-  assertBool "" $       feasibleSpacing 2 3
-  assertBool "" $ not $ feasibleSpacing 2 4
-  assertBool "" $       feasibleSpacing 6 7
-  assertBool "" $ not $ feasibleSpacing 6 9
+test_relativelyPrime :: Test
+test_relativelyPrime = TestCase $ do
+  assertBool "" $       relativelyPrime 1 3
+  assertBool "" $       relativelyPrime 2 1
+  assertBool "" $       relativelyPrime 2 3
+  assertBool "" $ not $ relativelyPrime 2 4
+  assertBool "" $       relativelyPrime 6 7
+  assertBool "" $ not $ relativelyPrime 6 9
 
 test_primeIntervals :: Test
 test_primeIntervals = TestCase $ do

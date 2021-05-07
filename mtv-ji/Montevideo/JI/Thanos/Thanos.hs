@@ -104,7 +104,7 @@ edoThanosReports edo =
   , spacing <- [1 .. div edo 2]
     -- The top of this range restricts spacings to ones that are
     -- no greater than a tritone apart.
-  , feasibleSpacing modulus spacing ]
+  , relativelyPrime modulus spacing ]
 
 -- | To find the five best (in terms of MSE) EDOs below 100:
 -- > myPrint $ take 5 $ L.sortBy (comparing snd) $ edoErrors 100
@@ -239,14 +239,15 @@ shortWaysToReach modulus spacing edoStep = let
                   (3 * fewestFrets) alwaysConsiderAtLeastThisManyFrets
   in map (_2 %~ flip div modulus) fewFrets
 
--- | A modulus-spacing pair is feasible iff they are relatively prime.
--- For instance, in the Kite tuning (which is of course feasible),
--- the modulus is 2, and the spacing is 13.
-feasibleSpacing :: Modulus -> Spacing -> Bool
-feasibleSpacing modulus spacing =
-  modulus == 1 ||
-  elem 1 ( fmap (flip mod modulus . (*) spacing)
-           [1..modulus] )
+-- | PITFALL: This is BAD for big numbers.
+-- But I doubt it matters for my purposes.
+-- todo ? speed
+relativelyPrime :: Modulus -> Spacing -> Bool
+relativelyPrime modulus spacing =
+  elem 1 [modulus, spacing]
+  || elem 1 ( fmap
+              (flip mod modulus . (*) spacing)
+              [1..modulus] )
 
 -- | How to play the primesAnd1 in a given edo.
 primeIntervals :: Edo
