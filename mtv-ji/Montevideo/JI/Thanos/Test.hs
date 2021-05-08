@@ -21,7 +21,14 @@ tests = TestList [
   , TestLabel "test_choices" test_choices
   , TestLabel "test_bestError" test_bestError
   , TestLabel "test_guitarSpot" test_guitarSpot
+  , TestLabel "test_guitarSpots" test_guitarSpots
+  , TestLabel "test_descendingFrets" test_descendingFrets
   ]
+
+test_descendingFrets :: Test
+test_descendingFrets = TestCase $ do
+  let gSpots = guitarSpots 31 6 1 $ primesOctave1 13
+  assertBool "" $ descendingFrets gSpots == [5,4,2,1]
 
 test_guitarSpots :: Test
 test_guitarSpots = TestCase $ do

@@ -4,7 +4,8 @@ module Montevideo.JI.Thanos.Thanos2 where
 
 import Prelude hiding (span)
 
-import Control.Lens
+import           Control.Lens
+import qualified Data.Set as S
 import           Data.List hiding (span)
 import           Data.Ord
 import           Data.Ratio
@@ -26,9 +27,16 @@ guitarSpot stringGap fretGap interval =
          mod evenMultiple stringGap == 0 ]
 
 guitarSpots :: Int -> Int -> Int -> [Rational]
-            -> [(Interval, Interval, Interval)]
+            -> [(Int, Int, Int)]
 guitarSpots edo stringGap fretGap ratios =
   [ (edoStep, string, fret) |
     r <- ratios,
     let edoStep = best edo r ^. _1
         (string, fret) = guitarSpot stringGap fretGap edoStep ]
+
+descendingFrets :: [(Int,Int,Int)] -> [Int]
+descendingFrets gSpots =
+  reverse
+  $ S.toList . S.fromList -- uniquifies, and sorts low to high
+  $ filter (> 0)
+  $ map (^. _3) gSpots
