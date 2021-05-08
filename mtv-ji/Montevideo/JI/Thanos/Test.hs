@@ -23,6 +23,18 @@ tests = TestList [
   , TestLabel "test_guitarSpot" test_guitarSpot
   ]
 
+test_guitarSpots :: Test
+test_guitarSpots = TestCase $ do
+  assertBool "" $ guitarSpots 31 6 1 (primesOctave1 13)
+    == [ (0,0,0)
+       , (31,5,1)
+       , (18,3,0)
+       , (10,1,4) -- One might expect 10,2,-2, but this is right -- it's finding not the closest, but rather the first with a positive fret value.
+       , (25,4,1)
+       , (5,0,5)
+       , (14,2,2)
+       , (22,3,4) ]
+
 test_guitarSpot :: Test
 test_guitarSpot = TestCase $ do
   assertBool "" $ guitarSpot 5 2 10 == (2,0)
