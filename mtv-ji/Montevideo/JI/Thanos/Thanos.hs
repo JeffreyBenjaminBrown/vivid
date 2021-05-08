@@ -64,10 +64,10 @@ instance Show IntervalReport where
 -- ** Search
 
 -- | All tunings that satisfy the search parameters.
-tunings :: [Int]
-tunings = [ a
-          | a <- [minEdo .. maxEdo]
-          , not $ null $ go a ]
+validTunings :: [Int]
+validTunings = [ a
+               | a <- [minEdo .. maxEdo]
+               , not $ null $ go a ]
 
 -- | Edit his function (and the parameters like "maxEdo" above)
 -- to suit your search priorities.
