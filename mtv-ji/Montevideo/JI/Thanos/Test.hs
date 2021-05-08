@@ -21,18 +21,31 @@ tests = TestList [
   , TestLabel "test_choices" test_choices
   , TestLabel "test_bestError" test_bestError
   , TestLabel "test_guitarSpot" test_guitarSpot
-  , TestLabel "test_guitarSpots" test_guitarSpots
+  , TestLabel "test_baseLayout" test_baseLayout
   , TestLabel "test_descendingFrets" test_descendingFrets
+  , TestLabel "test_bestLayout" test_bestLayout
   ]
+
+test_bestLayout :: Test
+test_bestLayout = TestCase $ do
+  assertBool "5-limit Kite guitar" $
+    6 == -- spanning strings [0,3] and frets [-1,1]
+    fst (bestLayout (41,13,2) $ primesOctave1 5)
+  assertBool "5-limit Kite guitar" $
+    12 == -- spanning strings [0,3] and frets [-3,1]
+    fst (bestLayout (41,13,2) $ primesOctave1 7)
+  assertBool "5-limit Kite guitar" $
+    24 == -- spanning strings [0,3] and frets [-5,3]
+    fst (bestLayout (41,13,2) $ primesOctave1 13)
 
 test_descendingFrets :: Test
 test_descendingFrets = TestCase $ do
-  let gSpots = guitarSpots 31 6 1 $ primesOctave1 13
+  let gSpots = baseLayout (31, 6, 1) $ primesOctave1 13
   assertBool "" $ descendingFrets gSpots == [5,4,2,1]
 
-test_guitarSpots :: Test
-test_guitarSpots = TestCase $ do
-  assertBool "" $ guitarSpots 31 6 1 (primesOctave1 13)
+test_baseLayout :: Test
+test_baseLayout = TestCase $ do
+  assertBool "" $ baseLayout (31, 6, 1) (primesOctave1 13)
     == [ (0,0,0)
        , (31,5,1)
        , (18,3,0)
