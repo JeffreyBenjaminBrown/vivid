@@ -239,16 +239,6 @@ shortWaysToReach modulus spacing edoStep = let
                   (3 * fewestFrets) alwaysConsiderAtLeastThisManyFrets
   in map (_2 %~ flip div modulus) fewFrets
 
--- | Gives the (string, fret) position of an interval.
--- PITFALL: Fails (head of []) if the gaps are not relatively prime.
-guitarSpot :: Integral a => a -> a -> a -> (a, a)
-guitarSpot stringGap fretGap interval =
-  head [ (string, fret) |
-         fret <- [0..],
-         let evenMultiple = interval - fret*fretGap
-             string = div evenMultiple stringGap,
-         mod evenMultiple stringGap == 0 ]
-
 -- | PITFALL: This is BAD for big numbers.
 -- But I doubt it matters for my purposes.
 -- todo ? speed

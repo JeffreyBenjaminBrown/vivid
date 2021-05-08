@@ -8,6 +8,7 @@ import Test.HUnit
 import Montevideo.JI.Lib
 import Montevideo.JI.Thanos.SearchParams
 import Montevideo.JI.Thanos.Thanos
+import Montevideo.JI.Thanos.Thanos2
 
 
 tests :: Test

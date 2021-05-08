@@ -30,6 +30,7 @@ library
     , Montevideo.JI.Thanos.SearchParams
     , Montevideo.JI.Thanos.Test
     , Montevideo.JI.Thanos.Thanos
+    , Montevideo.JI.Thanos.Thanos2
   other-modules:
       Paths_ji
   build-depends:
