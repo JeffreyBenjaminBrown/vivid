@@ -73,48 +73,51 @@ bestLayout tuning @ (edo, stringGap, fretGap) ratios =
       area l = let
         strings = map (^. _3) l
         frets = map (^. _4) l
-        in (maximum strings - minimum strings)
+        in (2 + maximum strings - minimum strings)
+        -- PITFALL: Hard-coded parameter.
+        -- Adding something (I like adding 2) to the string width penalizes wide frets more than wide strings. Relevant for guitar, not for keyboard.
            * (maximum frets - minimum frets)
       l = L.minimumBy (comparing area) ls
   in (area l, l)
 
--- | PITFALL: Hard-coded parameters.
+-- | PITFALL: Hard-coded parameters,
+-- and commented-out guitar optimization.
 tunings :: Edo -> [Tuning]
 tunings edo = let e = fi edo in
   [ ( edo, stringGap, fretGap ) |
     fretGap <- [ 1 .. round (e * (5/12) ) ],
     stringGap <- [ round (e / 6) .. round (e * (5/12) ) ],
-    relativelyPrime fretGap stringGap,
+    fretGap < stringGap,
+    relativelyPrime fretGap stringGap
     -- The rest of this is to keep it guitar-friendly
-    let fretsPerOctave = fi edo / fi fretGap,
-    fretsPerOctave >= 8,
-    fretsPerOctave <= 27 ]
+    --let fretsPerOctave = fi edo / fi fretGap,
+    --fretsPerOctave >= 8,
+    --fretsPerOctave <= 27
+  ]
 
-tuningsAndLayouts :: Edo -> [Rational]
+tuningAreaLayouts :: Edo -> [Rational]
                   -> [(Tuning, Area, Layout)]
-tuningsAndLayouts edo ratios =
+tuningAreaLayouts edo ratios =
   let ts :: [Tuning] = tunings edo
-      f t = let (area, layout) = bestLayout t ratios
-            in (t, area, layout)
-  in L.sortOn (^. _2) $ map f ts
+      bestAreaLayout t = let
+        (area,layout) = bestLayout t ratios
+        in (t, area, layout)
+  in map bestAreaLayout ts
 
-bestTuningsAndLayout :: Edo -> [Rational]
-                     -> (Tuning, Area, Layout)
-bestTuningsAndLayout e rs = head $ tuningsAndLayouts e rs
+edoTuningAreaLayouts :: [Rational] -> [Edo]
+                     -> [(Edo, Tuning, Area, Layout)]
+edoTuningAreaLayouts rs edos = let
+  etal :: Edo -> [(Edo, Tuning, Area, Layout)]
+  etal edo = let
+    f (tuning, area, layout) =
+      (edo, tuning, area, layout)
+    in map f $ tuningAreaLayouts edo rs
+  in L.sortOn (^. _3) $ concatMap etal edos
 
-edosTuningsAndLayouts :: [Rational] -> [Edo]
-                      -> [(Edo, Tuning, Area, Layout)]
-edosTuningsAndLayouts rs edos = let
-  etal edo = let (tuning, area, layout) =
-                   bestTuningsAndLayout edo rs
-             in (edo, tuning, area, layout)
-  in L.sortOn (^. _3) $ map etal edos
-
--- | PITFALL: Hard-coded parameters.
-bestEdoLayouts :: [EdoTuningReport]
-bestEdoLayouts = let
+bestEdoLayouts :: [Rational] -> [Edo] -> [EdoTuningReport]
+bestEdoLayouts rs es  = let
   etals :: [(Edo, Tuning, Area, Layout)]
-    = edosTuningsAndLayouts (primesOctave1 15) [41..99]
+    = edoTuningAreaLayouts rs es
   in map mkEdoTuningReport etals
 
 data EdoTuningReport = EdoTuningReport {
@@ -139,6 +142,7 @@ instance Show Tuning' where
     "Edo "         ++ show e ++
     "; StringGap " ++ show sg ++
     "; FretGap "   ++ show fg
+unTuning (Tuning' t) = t
 
 data LayoutRow' = LayoutRow' LayoutRow
   deriving (Eq, Ord)
@@ -147,3 +151,4 @@ instance Show LayoutRow' where
     show i ++ " steps; " ++ show r ++
     "; string " ++ show s ++
     "; fret " ++ show f
+unLayoutRow' (LayoutRow' r) = r

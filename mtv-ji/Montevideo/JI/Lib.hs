@@ -63,9 +63,6 @@ tols = -- This list can have any length.
 --          n = numerator
 --          e = edo frac
 
-compareScales :: IO ()
-compareScales = myPrint looking
-
 myPrint :: forall a t. (Foldable t, Show a)
   => t a -> IO ()
 myPrint = mapM_ $ putStrLn . show
