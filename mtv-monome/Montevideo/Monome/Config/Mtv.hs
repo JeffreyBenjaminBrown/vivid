@@ -381,6 +381,21 @@ my105 = EdoConfig
       }
   }
 
+
+my109 :: EdoConfig
+my109 = EdoConfig
+  { _edo = 109
+  , _skip = 7
+  , _spacing = 19
+  , _octaveStretchInCents = 0
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-7,19)
+      , _gridHorizontalVector = (5,2)
+      }
+  }
+
+
+
 -- | 118 steps = 2 % 1  : string 6t fret 1
 --   95 steps  = 7 % 4  : string 5 fret 0
 --   83 steps  = 13 % 8 : string 5 fret -3
