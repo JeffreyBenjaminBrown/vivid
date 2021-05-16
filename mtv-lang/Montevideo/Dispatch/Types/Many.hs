@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveFunctor
 , TemplateHaskell
+, KindSignatures
 , GADTs
 #-}
 
@@ -12,6 +13,8 @@ module Montevideo.Dispatch.Types.Many (
   , SynthRegister(..), boops, samplers, samples, sqfms, vaps, zots
   , Note(..), noteSd, noteScParams
   , Dispatch(..)
+  , Recording(..), recordingStart, recordingEnd, recordingData
+  , Observation(..), observationTime, observationData
   ) where
 
 import Control.Concurrent.MVar
@@ -34,7 +37,7 @@ type MuseqName = String
 
 -- | == Instructions
 
--- | = (synth) Messages and (synth) ScActions
+-- | = (synth) Messages and (synth) `ScAction`s
 
 type NamedWith name a = (name, a)
 
@@ -98,3 +101,15 @@ data Dispatch = Dispatch {
   , mTime0       :: MVar Time -- ^ a past moment of reference
   , mTempoPeriod :: MVar Duration
   }
+
+data Observation a = Observation
+  { _observationTime :: Time
+  , _observationData :: a }
+makeLenses ''Observation
+
+-- | `Recording`s are for transforming into `Museq`s.
+data Recording (a :: * -> *) label = Recording
+  { _recordingStart :: Time
+  , _recordingEnd :: Maybe Time
+  , _recordingData :: [ Observation (a label) ] }
+makeLenses ''Recording
