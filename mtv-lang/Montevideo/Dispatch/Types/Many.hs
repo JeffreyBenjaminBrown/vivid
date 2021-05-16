@@ -57,7 +57,7 @@ type Ev = Event RTime
 -- | All times in a Museq are relative to the Dispatch's tempo period.
 data Museq label a = Museq {
     _dur :: RDuration -- ^ the play duration of the sequence (usually a loop)
-  , _sup :: RDuration -- ^ supremum of the possible RTime values in `_vec`.
+  , _sup :: RDuration -- ^ supremum of possible start `RTime`s in `_vec`.
     -- The events in `_vec` can start at any time in the half-open
     -- interval [0,_sup).
     -- If this is greater than `dur`, the `Museq`will rotate

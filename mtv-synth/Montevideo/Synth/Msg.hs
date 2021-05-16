@@ -40,7 +40,7 @@ data ScParams' sdArgs where
           , Vivid.Subset (Vivid.InnerVars params) sdArgs)
        => params -> ScParams' sdArgs
 
--- | A SuperCollider action: create a voice, destroy (free)  a voice,
+-- | A SuperCollider action: create a voice, destroy (free) a voice,
 -- or change a voice's parameters.
 data ScAction labelType
   = ScAction_New  -- ^ create it
