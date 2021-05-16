@@ -218,6 +218,35 @@ my58 = EdoConfig
       }
   }
 
+-- | 62 steps; 2  % 1 ;  string 4 ; fret 2
+--   36 steps; 3  % 2 ;  string 3 ; fret -2
+--   20 steps; 5  % 4 ;  string 1 ; fret 2
+--   50 steps; 7  % 4 ;  string 4 ; fret -2
+--   11 steps; 9  % 8 ;  string 1 ; fret -1
+--   28 steps; 11 % 8 ;  string 2 ; fret 0
+--   43 steps; 13 % 8 ;  string 2 ; fret 5
+--   56 steps; 15 % 8 ;  string 4 ; fret 0
+--    5 steps; 17 % 16 ; string 1 ; fret -3
+--   15 steps; 19 % 16 ; string 0 ; fret 5
+--   24 steps; 21 % 16 ; string 0 ; fret 8
+--   32 steps; 23 % 16 ; string 1 ; fret 6
+--   40 steps; 25 % 16 ; string 2 ; fret 4
+--   47 steps; 27 % 16 ; string 4 ; fret -3
+--   53 steps; 29 % 16 ; string 4 ; fret -1
+--   59 steps; 31 % 16 ; string 4 ; fret 1
+
+my62 :: EdoConfig
+my62 = EdoConfig
+  { _edo = 62
+  , _skip = 3
+  , _spacing = 14
+  , _octaveStretchInCents = 1.4 -- optimal for the 31-limit
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-3,14)
+      , _gridHorizontalVector = (4,2)
+      }
+  }
+
 -- | 63-edo, mod 1 space 9
 -- PITFALL: inconsistent: 16/9 ~ 29/16 ~ 53\63, whereas
 --          (3/2) * (6/5) ~ 54\63.
@@ -243,6 +272,66 @@ my63 = EdoConfig
   , _gridVectors = Just $ GridVectorPair
       { _gridVerticalVector = (-1,9)
       , _gridHorizontalVector = (7,0)
+      }
+  }
+
+-- | 0  steps; 1  % 1 ;  string 0 ; fret 0
+--   63 steps; 2  % 1 ;  string 6 ; fret 1
+--   37 steps; 3  % 2 ;  string 4 ; fret -1
+--   20 steps; 5  % 4 ;  string 2 ; fret 0
+--   51 steps; 7  % 4 ;  string 6 ; fret -3
+--   11 steps; 9  % 8 ;  string 2 ; fret -3
+--   29 steps; 11 % 8 ;  string 2 ; fret 3
+--   44 steps; 13 % 8 ;  string 5 ; fret -2
+--   57 steps; 15 % 8 ;  string 6 ; fret -1
+--   6  steps; 17 % 16 ; string 0 ; fret 2
+--   16 steps; 19 % 16 ; string 1 ; fret 2
+--   25 steps; 21 % 16 ; string 4 ; fret -5
+--   33 steps; 23 % 16 ; string 3 ; fret 1
+--   41 steps; 25 % 16 ; string 5 ; fret -3
+--   48 steps; 27 % 16 ; string 6 ; fret -4
+--   54 steps; 29 % 16 ; string 6 ; fret -2
+--   60 steps; 31 % 16 ; string 6 ; fret 0
+
+my63_3_10 :: EdoConfig
+my63_3_10 = EdoConfig
+  { _edo = 63
+  , _skip = 3
+  , _spacing = 10
+  , _octaveStretchInCents = 0
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-3,10)
+      , _gridHorizontalVector = (6,1)
+      }
+  }
+
+-- | 0  steps; 1  % 1 ;  string 0 ; fret 0
+--   63 steps; 2  % 1 ;  string 3 ; fret 4
+--   37 steps; 3  % 2 ;  string 1 ; fret 4
+--   20 steps; 5  % 4 ;  string 2 ; fret - 1
+--   51 steps; 7  % 4 ;  string 3 ; fret 2
+--   11 steps; 9  % 8 ;  string - 1 ; fret 4
+--   29 steps; 11 % 8 ;  string - 1 ; fret 7
+--   44 steps; 13 % 8 ;  string 2 ; fret 3
+--   57 steps; 15 % 8 ;  string 3 ; fret 3
+--   6  steps; 17 % 16 ; string 0 ; fret 1
+--   16 steps; 19 % 16 ; string - 2 ; fret 7
+--   25 steps; 21 % 16 ; string 1 ; fret 2
+--   33 steps; 23 % 16 ; string 3 ; fret - 1
+--   41 steps; 25 % 16 ; string - 1 ; fret 9
+--   48 steps; 27 % 16 ; string 0 ; fret 8
+--   54 steps; 29 % 16 ; string 0 ; fret 9
+--   60 steps; 31 % 16 ; string 0 ; fret 10
+
+my63_6_13 :: EdoConfig
+my63_6_13 = EdoConfig
+  { _edo = 63
+  , _skip = 6
+  , _spacing = 13
+  , _octaveStretchInCents = 0
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-6,13)
+      , _gridHorizontalVector = (3,4)
       }
   }
 
@@ -363,6 +452,37 @@ my90 = EdoConfig
       }
   }
 
+-- | 94 steps; 2  % 1 ;  string 5 ; fret 2
+--   55 steps; 3  % 2 ;  string 3 ; fret 1
+--   30 steps; 5  % 4 ;  string 1 ; fret 2
+--   76 steps; 7  % 4 ;  string 3 ; fret 4
+--   16 steps; 9  % 8 ;  string 1 ; fret 0
+--   43 steps; 11 % 8 ;  string 4 ; fret - 3
+--   66 steps; 13 % 8 ;  string 5 ; fret - 2
+--   85 steps; 15 % 8 ;  string 4 ; fret 3
+--   8  steps; 17 % 16 ; string 4 ; fret - 8
+     -- 2nd best 9\94    string 1 fret 1, 13 cents sharp
+--   23 steps; 19 % 16 ; string 1 ; fret 1
+--   37 steps; 21 % 16 ; string 1 ; fret 3
+--   49 steps; 23 % 16 ; string 0 ; fret 7
+     -- 3rd best 51\94   string 3 fret 0, 23 cents sharp
+--   61 steps; 25 % 16 ; string 6 ; fret - 5
+--   71 steps; 27 % 16 ; string 4 ; fret 1
+--   81 steps; 29 % 16 ; string 2 ; fret 7
+--   90 steps; 31 % 16 ; string 3 ; fret 6
+
+my94 :: EdoConfig
+my94 = EdoConfig
+  { _edo = 94
+  , _skip = 7
+  , _spacing = 16
+  , _octaveStretchInCents = 0
+  , _gridVectors = Just $ GridVectorPair
+      { _gridVerticalVector = (-7,16)
+      , _gridHorizontalVector = (5,2)
+      }
+  }
+
 -- | 105 steps = 2 % 1  : string 5 fret 2
 --   85 steps  = 7 % 4  : string 5 fret 0
 --   74 steps  = 13 % 8 : string 2 fret 4
@@ -381,7 +501,6 @@ my105 = EdoConfig
       }
   }
 
-
 my109 :: EdoConfig
 my109 = EdoConfig
   { _edo = 109
@@ -393,8 +512,6 @@ my109 = EdoConfig
       , _gridHorizontalVector = (5,2)
       }
   }
-
-
 
 -- | 118 steps = 2 % 1  : string 6t fret 1
 --   95 steps  = 7 % 4  : string 5 fret 0
