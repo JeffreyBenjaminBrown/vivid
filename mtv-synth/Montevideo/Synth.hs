@@ -62,7 +62,7 @@ import           Montevideo.Synth.Zot
 data SynthDefEnum = -- PITFALL ! keep these alphabetically ordered
     Boop            -- so that the derived Ord instance is predictable
   | Moop
-  | Sampler Sample -- ^ Sample = what sample it's playing
+  | Sampler Sample -- ^ Sample = the sound file it plays
   | Sqfm
   | Vap
   | Zot

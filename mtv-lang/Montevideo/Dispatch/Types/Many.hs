@@ -57,7 +57,7 @@ type Ev = Event RTime
 
 -- | = a `Museq` is a sequence of `Event`s
 
--- | All times in a Museq are relative to the Dispatch's tempo period.
+-- | All times in a `Museq` are relative to the `Dispatch`'s tempo period.
 data Museq label a = Museq {
     _dur :: RDuration -- ^ the play duration of the sequence (usually a loop)
   , _sup :: RDuration -- ^ supremum of possible start `RTime`s in `_vec`.

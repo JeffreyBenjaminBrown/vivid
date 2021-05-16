@@ -27,13 +27,14 @@ import Montevideo.Synth
 
 type ParamName = String
 
--- | A message for SuperCollider unaware of Vivid's type shenanigans..
+-- | A message for SuperCollider, unaware of Vivid's type shenanigans..
 type ScParams = Map ParamName Float
 
--- | A `ScParams'`, unlike a `Msg`, is typed for a particular kind of synth,
+-- | A `ScParams'`, unlike a `ScParams`,
+-- is typed for a particular kind of synth,
 -- and to send it anywhere else is a type error.
--- (This innovation is Vivid's, not my own --
--- in fact I circumvent it with the `Msg` type.)
+-- (Those errors are an innovation of Vivid's,
+-- which I use the `ScParams` type to circumvent.)
 data ScParams' sdArgs where
   ScParams' :: forall params sdArgs.
           ( Vivid.VarList params
