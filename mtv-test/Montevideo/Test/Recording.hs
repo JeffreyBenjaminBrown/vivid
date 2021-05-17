@@ -21,7 +21,9 @@ tests = TestList [
     TestLabel "test_monomeRecording_toMuseq" test_monomeRecording_toMuseq
     ]
 
-r =  Recording
+test_monomeRecording_toMuseq :: Test
+test_monomeRecording_toMuseq = TestCase $ do
+  let r = Recording
         { _recordingStart = 100
         , _recordingEnd = Just 200
         , _recordingData = map (uncurry Observation)
@@ -31,10 +33,11 @@ r =  Recording
             , ( Time 100,
                 ScAction_New { _actionSynthDefEnum = Zot
                              , _actionSynthName = "a"
-                             , _actionScParams = M.singleton "amp" 3 } )
+                             , _actionScParams = M.singleton "freq" 333 } )
             ] }
 
-hope =    ( Right $ Museq
+  assertBool "" $ monomeRecording_toMuseq r ==
+    ( Right $ Museq
       { _dur = 1
       , _sup = 1
       , _vec = V.fromList
@@ -42,11 +45,5 @@ hope =    ( Right $ Museq
                        , _evArc = (0, 1/2)
                        , _evData = Note
                                    { _noteSd = Zot
-                                   , _noteScParams = M.singleton "amp" 3
+                                   , _noteScParams = M.singleton "freq" 333
                                    } } ] } )
-
-test_monomeRecording_toMuseq :: Test
-test_monomeRecording_toMuseq = TestCase $ do
-  assertBool "" $
-     monomeRecording_toMuseq r
-     == hope
