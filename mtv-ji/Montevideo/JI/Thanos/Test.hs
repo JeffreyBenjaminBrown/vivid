@@ -28,15 +28,17 @@ tests = TestList [
 
 test_bestLayout :: Test
 test_bestLayout = TestCase $ do
+  let trip :: (a,b,c,d) -> (b,c,d)
+      trip (_,b,c,d) = (b,c,d)
   assertBool "5-limit Kite guitar" $
-    (6,3,2,1) == -- spanning strings [0,3] and frets [-1,1]
-    fst (bestLayout (41,13,2) $ primesOctave1 5)
+    (3,2,1) == -- spanning strings [0,3] and frets [-1,1]
+    trip ( fst $ bestLayout (41,13,2) $ primesOctave1 5)
   assertBool "7-limit Kite guitar" $
-    (12,3,4,1) == -- spanning strings [0,3] and frets [-3,1]
-    fst (bestLayout (41,13,2) $ primesOctave1 7)
+    (3,4,1) == -- spanning strings [0,3] and frets [-3,1]
+    trip (fst $ bestLayout (41,13,2) $ primesOctave1 7)
   assertBool "13-limit Kite guitar" $
-    (24,3,8,3/4) == -- spanning strings [0,3] and frets [-5,3]
-    fst (bestLayout (41,13,2) $ primesOctave1 13)
+    (3,8,3/4) == -- spanning strings [0,3] and frets [-5,3]
+    trip (fst $ bestLayout (41,13,2) $ primesOctave1 13)
 
 test_descendingFrets :: Test
 test_descendingFrets = TestCase $ do
