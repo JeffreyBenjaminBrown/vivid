@@ -27,7 +27,7 @@ data ToMuseq label = ToMuseq
     -- (Actually if there are ends that correspond to no start,
     -- when the algorithm finishes it will still contain those
     -- ends. That doesn't trigger an error.)
-  , _tmEvents :: [ Ev label Note ] }
+  , _tmEvents :: [ Ev label ScParams ] }
     -- ^ Result: Pairs of starts and ends. Begins empty.
   deriving (Show, Eq, Ord)
 makeLenses ''ToMuseq
@@ -47,7 +47,7 @@ makeLenses ''ToMuseq
 -- it will be available in the map.
 
 monomeRecording_toMuseq :: forall l . Ord l =>
-  Recording ScAction l -> Either String (Museq l Note)
+  Recording ScAction l -> Either String (Museq l ScParams)
 monomeRecording_toMuseq r =
   mapLeft ("monomeRecording_toMuseq: " ++) $ do
 
@@ -62,8 +62,10 @@ monomeRecording_toMuseq r =
         (_observationTime o - _recordingStart r)
         / (endTime - _recordingStart r)
 
-      freeAtEnd = Observation { _observationTime = 1
-                              , _observationData = undefined }
+      freeAtEnd = Observation
+        { _observationData = undefined -- Unneeded, because `pairToEvent`
+          -- gets its `_observationData` from the start, not the end.
+        , _observationTime = 1 }
 
       newToFree :: ScAction l -> ScAction l
       newToFree sca = ScAction_Free
@@ -71,17 +73,15 @@ monomeRecording_toMuseq r =
         , _actionSynthName = _actionSynthName sca }
 
       pairToEvent :: Observation (ScAction l) -> Observation  (ScAction l)
-                  -> Ev l Note
+                  -> Ev l ScParams
       pairToEvent start end = Event
         -- Not enforced: `start` and `end` should be equal in label, synthdef.
         { _evLabel = _actionSynthName $ _observationData start
         , _evArc = ( obsToRTime start
                    , obsToRTime end )
-        , _evData = Note
-          { _noteSd =   _actionSynthDefEnum $ _observationData start
-          , _noteScParams = _actionScParams $ _observationData start } }
+        , _evData = _actionScParams $ _observationData start }
 
-      pairsToEvents :: ToMuseq l -> [ Ev l Note ]
+      pairsToEvents :: ToMuseq l -> [ Ev l ScParams ]
       pairsToEvents tm = case tm ^. tmObservations of
         [] -> tm ^. tmEvents
           -- `_tmUnpairedEnds` might still not be empty,
@@ -114,7 +114,7 @@ monomeRecording_toMuseq r =
                  -- (mostly default) synth state.
                  pairsToEvents $ tm { _tmObservations = os }
 
-      events :: [ Ev l Note ] = pairsToEvents $ ToMuseq
+      events :: [ Ev l ScParams ] = pairsToEvents $ ToMuseq
         { _tmObservations = r ^. recordingData
         , _tmUnpairedEnds = mempty
         , _tmEvents = mempty }

@@ -43,7 +43,5 @@ test_monomeRecording_toMuseq = TestCase $ do
       , _vec = V.fromList
                [ Event { _evLabel = "a"
                        , _evArc = (0, 1/2)
-                       , _evData = Note
-                                   { _noteSd = Zot
-                                   , _noteScParams = M.singleton "freq" 333
-                                   } } ] } )
+                       , _evData = M.singleton "freq" 333
+                       } ] } )
