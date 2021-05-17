@@ -109,6 +109,7 @@ data Observation a = Observation
 makeLenses ''Observation
 
 -- | `Recording`s are for transforming into `Museq`s.
+-- PITFALL: The last thing recorded is first in the data.
 data Recording (a :: * -> *) label = Recording
   { _recordingStart :: Time
   , _recordingEnd :: Maybe Time

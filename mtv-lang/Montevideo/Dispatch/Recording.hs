@@ -36,7 +36,7 @@ makeLenses ''ToMuseq
 -- | The monome only ever sends New and Free messages.
 -- When converting a recording of such messages to a Museq,
 -- it is natural to join those corresponding pairs into a single Event.
-
+--
 -- Algorithm:
 -- Start with an empty map from labels to `ScAction_New`s,
 -- and an empty list of events.

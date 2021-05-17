@@ -334,8 +334,8 @@ zot = sd ( toI $ zotDefaultValues M.! "on" :: I "on"
              (V::V"freq") ~*
              sinOsc (freq_ $ (V::V"freq") ~* (V::V"fm-f") ) )
 
-  -- Phase modulation for aSin. PITFALL: When pulse=1,
-  -- this has no effect, because we hear only aPulse, not aSin.
+  -- Phase modulation for aSin. PITFALL: When pulse=1, this
+  -- has no effect, because only aPulse is audible, not aSin.
   -- `pm-f` controls the frequency of the wobble, scaled by the fundamental.
   -- `pm-a` controls its amplitude.
   -- `pm-b` is magical feedback.
