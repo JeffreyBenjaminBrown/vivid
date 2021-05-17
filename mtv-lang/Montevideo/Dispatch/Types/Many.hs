@@ -92,7 +92,7 @@ makeLenses ''SynthRegister
 data Note = Note
   { _noteSd :: SynthDefEnum
   , _noteScParams :: ScParams }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord)
 makeLenses ''Note
 
 data Dispatch = Dispatch {
@@ -105,6 +105,7 @@ data Dispatch = Dispatch {
 data Observation a = Observation
   { _observationTime :: Time
   , _observationData :: a }
+  deriving (Show, Eq, Ord)
 makeLenses ''Observation
 
 -- | `Recording`s are for transforming into `Museq`s.
@@ -112,4 +113,5 @@ data Recording (a :: * -> *) label = Recording
   { _recordingStart :: Time
   , _recordingEnd :: Maybe Time
   , _recordingData :: [ Observation (a label) ] }
+  deriving (Show, Eq, Ord)
 makeLenses ''Recording
