@@ -26,6 +26,7 @@ library
   exposed-modules:
       Montevideo.Test
     , Montevideo.Test.Dispatch
+    , Montevideo.Test.Recording
     , Montevideo.Test.Util
   other-modules:
       Paths_montevideo
