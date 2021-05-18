@@ -10,7 +10,7 @@ module Montevideo.Dispatch.Join.Internal (
   , partitionAndGroupEventsAtBoundaries -- ^ forall a l t v. Real t
      -- => [t] -> [Event t l a] -> [Event t l a]
   , partitionArcAtTimes -- ^ Real a => [a] -> (a,a) -> [(a,a)]
-  , alignAndJoin,joinEvents -- ^ forall a b c t. Real t
+  , alignAndJoin,joinAlignedEvents -- ^ forall a b c t. Real t
      --                       => (a -> b -> c)
      --                       -> [Event t String a]
      --                       -> [Event t String b]
@@ -92,7 +92,7 @@ partitionAndGroupEventsAtBoundaries bs evs =
   in L.sortOn _evArc $ concatMap partitionEv evs
 
 -- | ASSUMES list of times is sorted, uniqe, and includes endpoints of `arc`.
--- (If the times come from `boundaries`, they will include those.)
+-- (If the times come from `boundaries`, those endpoints are included.)
 partitionArcAtTimes :: Real a
                     => [a]   -- ^ the times to partition at
                     -> (a,a) -- ^ the arc to partition
@@ -104,17 +104,24 @@ partitionArcAtTimes (a:b:ts) (c,d)
 partitionArcAtTimes _ _ =
   error "partitionArcAtTimes: uncaught input pattern."
 
-
--- | = `alignAndJoin`  and `joinEvents` are mutually recursive.
--- `alignAndJoin` checks whether events are aligned.
--- If so, it hands work off to `joinEvents`.
--- `joinEvents` finds events in the second input aligned with first event
--- in first input, joins them, passes remaining work back to `joinEvents`.
+-- | = PITFALL: `alignAndJoin`  and `joinAlignedEvents`
+-- are mutually recursive.
 --
--- In the Museq version, Event labels from an output event's
+-- Events are `aligned` iff they start and end at the same time.
+-- To `join` two events is not defined here;
+-- it just means applying some user-provided operator to them.
+--
+-- `alignAndJoin` checks whether events are aligned.
+-- If so, it hands work off to `joinAlignedEvents`.
+-- If not, it discards data until they are.
+--
+-- `joinAlignedEvents` finds events in the second input aligned with first event
+-- in first input, joins them, passes remaining work back to `alignAndJoin`.
+--
+-- In the `Museq` version, Event labels from an output event's
 -- two inputs are concatenated, which prevents interference.
 -- TODO ? A version that permits interference.
-alignAndJoin,joinEvents :: forall a b c t. Real t
+alignAndJoin,joinAlignedEvents :: forall a b c t. Real t
   => (a -> b -> c) -- ^ how to join them
   -> [Event t String a]
   -> [Event t String b]
@@ -125,13 +132,15 @@ alignAndJoin _ _ [] = []
 alignAndJoin op as bs
   | _evArc (head as) <   _evArc (head bs) = alignAndJoin op (tail as) bs
   | _evArc (head as) >   _evArc (head bs) = alignAndJoin op as (tail bs)
-  | _evArc (head as) ==  _evArc (head bs) = joinEvents op as bs
+  | _evArc (head as) ==  _evArc (head bs) = joinAlignedEvents op as bs
 alignAndJoin _ _ _ = error "alignAndJoin: uncaught input pattern."
 
-joinEvents op (a:as) bs = joined ++ alignAndJoin op as bs where
+joinAlignedEvents op (a:as) bs =
+  joined ++ alignAndJoin op as bs where
   bsMatch = takeWhile ((== _evArc a) . _evArc) bs
   joined = over evData (op $ _evData a)
          . over evLabel -- concatenate event labels
            (deleteShowQuotes . ((++) $ _evLabel a))
          <$> bsMatch
-joinEvents _ _ _ = error "joinEvents: uncaught input pattern."
+joinAlignedEvents _ _ _ =
+  error "joinAlignedEvents: uncaught input pattern."
