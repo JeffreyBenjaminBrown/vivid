@@ -51,7 +51,22 @@ tests = TestList [
   , TestLabel "testMultiPartition" testMultiPartition
   , TestLabel "testHold" testHold
   , TestLabel "test_timeToFinish" test_timeToFinish
+  , TestLabel "test_separateVoices" test_separateVoices
   ]
+
+quads @ [a,b,c,d] = [ ( "a", RTime 0, RTime 1, "a1" )
+                    , ( "b", RTime 0, RTime 2, "b1" )
+                    , ( "a", RTime 2, RTime 3, "a2" )
+                    , ( "b", RTime 4, RTime 6, "b2" ) ]
+m = mkMuseq 10 quads
+
+test_separateVoices :: Test
+test_separateVoices = TestCase $ do
+  assertBool "" $ separateVoices m ==
+    M.fromList [ ( "a", [ Event "a" (0,1) "a1"
+                        , Event "a" (2,3) "a2" ] )
+               , ( "b", [ Event "b" (0,2) "b1"
+                        , Event "b" (4,6) "b2" ] ) ]
 
 test_timeToFinish :: Test
 test_timeToFinish = TestCase $ do

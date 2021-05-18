@@ -20,14 +20,17 @@ module Montevideo.Dispatch.Museq.Mk (
   -- | Utilities used by the Museq-making functions
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
   , insertOns  -- ^ Museq l ScParams                    -> Museq l ScParams
+  , separateVoices -- ^ Museq l a -> Map l [Event RTime l a]
   ) where
 
 import Prelude hiding (cycle)
 
-import Control.Lens hiding (to,from)
-import Data.Maybe
+import           Control.Lens hiding (to,from)
 import qualified Data.Map as M
+import           Data.Map (Map)
+import           Data.Maybe
 import qualified Data.Vector as V
+import           Data.Vector (Vector)
 
 import Montevideo.Dispatch.Types
 import Montevideo.Util
@@ -164,3 +167,15 @@ insertOns = vec %~ V.map go where
   go :: Ev l (M.Map String Float)
      -> Ev l (M.Map String Float)
   go = evData %~ M.insertWith (flip const) "on" 1
+
+separateVoices :: forall l a. Ord l
+               => Museq l a -> Map l [Event RTime l a]
+separateVoices m = let
+  f :: Map l [Event RTime l a]
+    ->        Event RTime l a
+    -> Map l [Event RTime l a]
+  f m e = case M.lookup     (_evLabel e)     m of
+    Nothing -> M.insert     (_evLabel e) [e] m
+    Just l -> M.adjust (e:) (_evLabel e)     m
+  in V.foldl f mempty $ V.reverse $ _vec m
+
