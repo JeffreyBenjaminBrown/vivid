@@ -399,14 +399,14 @@ testBoundaries = TestCase $ do
 
 testPartitionArcAtTimes :: Test
 testPartitionArcAtTimes = TestCase $ do
-  assertBool "partitionArcAtTimes" $ partitionArcAtTimes [0,2,2,5,10::Int]
-    (0,5)
+  assertBool "partitionArcAtTimes" $
+    partitionArcAtTimes [0,2,2,5,10::Int] (0,5)
     == [(0,2),(2,2),(2,5)]
 
 testPartitionAndGroupEventsAtBoundaries :: Test
 testPartitionAndGroupEventsAtBoundaries = TestCase $ do
   let a   = ev4 () 0 1 'a'
-      b   = ev4 () 0 1 'b'
+      b   = ev4 () 1 2 'b'
       c   = ev4 () 0 2 'c'
       c01 = ev4 () 0 1 'c'
       c12 = ev4 () 1 2 'c'
@@ -414,7 +414,7 @@ testPartitionAndGroupEventsAtBoundaries = TestCase $ do
   assertBool "partitionAndGroupEventsAtBoundaries" $
     partitionAndGroupEventsAtBoundaries
     (boundaries $ map _evArc es) es
-    == [a,b,c01,c12]
+    == [a,c01,b,c12]
 
 testMerge :: Test
 testMerge = TestCase $ do
