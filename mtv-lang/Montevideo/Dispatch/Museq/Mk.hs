@@ -179,3 +179,38 @@ separateVoices m = let
     Just l -> M.adjust (e:) (_evLabel e)     m
   in V.foldl f mempty $ V.reverse $ _vec m
 
+-- | `insertOffs` adds new events with a single `on=0` message,
+-- for every stretch in which a voice is inactive.
+insertOffs :: forall a l. Ord l
+                 => Museq l a -> Museq l a
+insertOffs m = let
+  voices :: [[Ev l a]] =
+    M.elems $ separateVoices m
+
+  -- TODO ? maybe use these function
+  -- `boundaries`
+  -- `partitionAndGroupEventsAtBoundaries`
+  -- `partitionArcAtTimes`
+
+  doVoice :: [Ev l m] -> [Ev l m]
+  doVoice es = undefined
+
+  in undefined
+
+-- *** Basic algorithm.
+--     Suppose the events are ordered by (start,end).
+--     Let (si,ei) denote the ith event.
+--     If s2 =< e1, replace e1 with the greater of e1 and e2.
+--     Otherwise s2 > e1, and (e1,s2) represents a gap.
+--     Add it to the list of gaps, and resume at (s2,e2).
+-- *** Monkey Wrench: Initial silence and beyond-sup sustain.
+--     Keep special track of s1.
+--     Let (sk,ek) be the event with the greatest end.
+--     (Note that sk is necessarily less than _sup.)
+--     If ek < _sup, then (0,s1) and (ek,_sup) are gaps.
+--     If ek >= _sup and ek - _sup < s1,
+--     then (ek - _sup, s1) is a gap.
+--     Otherwise there are no gaps on either end.
+findGaps :: forall a. (Eq a, Ord a)
+         => [(a,a)] -> [(a,a)]
+findGaps = undefined
