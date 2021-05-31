@@ -45,10 +45,10 @@ type NamedWith name a = (name, a)
 
 -- | dn `Event time label a` indicates that `a` should happen to
 -- the voice called `label` at time `time`.
-data Event time label a =
-  Event { _evLabel :: label
-        , _evArc :: (time,time) -- ^ start time, end time
-        , _evData :: a } -- ^ the thing that happens
+data Event time label a = Event
+  { _evLabel :: label
+  , _evArc :: (time,time) -- ^ start time, end time
+  , _evData :: a } -- ^ the thing that happens
   deriving (Show, Eq, Ord, Functor)
 makeLenses ''Event
 
@@ -74,12 +74,11 @@ makeLenses ''Museq
 
 -- | The global state
 
-data SynthRegister =
+data SynthRegister = SynthRegister
   -- | You might not have any `Zot`s, for instance, but you still need a
   -- `_zots` field, since you might use a `Zot` synth later.
   -- I believe this per-synth boilerplate is unavoidable,
   -- because Vivid types each synth by the arguments it accepts.
-  SynthRegister
   { _boops    :: Map SynthName (Synth BoopParams)
   , _vaps     :: Map SynthName (Synth VapParams)
   , _samplers :: Map SynthName (Synth SamplerParams)
