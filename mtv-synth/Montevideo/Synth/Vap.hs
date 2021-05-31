@@ -20,17 +20,17 @@ type VapParams = '[ "freq",      "amp"
                   , "on" ]   -- A crude gate. Zot does it better.
 
 vap :: SynthDef VapParams
-vap = sd ( 0   :: I "freq"
+vap = sd ( 0          :: I "freq"
          , toI maxAmp :: I "amp"
-         , 0   :: I "saw"
-         , 0   :: I "delay-freq"
-         , 0   :: I "delay-amp"
-         , 0   :: I "fm-freq"
-         , 0   :: I "fm-amp"
-         , 0   :: I "fm2-freq"
-         , 0   :: I "fm2-amp"
-         , 0   :: I "nz-lpf"
-         , 0   :: I "on"
+         , 0          :: I "saw"
+         , 0          :: I "delay-freq"
+         , 0          :: I "delay-amp"
+         , 0          :: I "fm-freq"
+         , 0          :: I "fm-amp"
+         , 0          :: I "fm2-freq"
+         , 0          :: I "fm2-amp"
+         , 0          :: I "nz-lpf"
+         , 0          :: I "on"
          ) $ do
   nz <- lpf (in_ whiteNoise, freq_ (V::V "nz-lpf"))
   fm <- (V::V "fm-amp") ~* (sinOsc $ freq_ (V::V "fm-freq"))

@@ -64,7 +64,8 @@ dispatchConsumeScAction_New reg (ScAction_New Boop name _) =
   case M.lookup name $ _boops reg of
     Nothing -> do s <- V.synth boop ()
                   return $ boops %~ M.insert name s
-    _ -> do writeTimeAndError $ "There is already a Boop named " ++ name
+    _ -> do writeTimeAndError $
+              "There is already a Boop named " ++ name ++ "\n"
             return id
 
 dispatchConsumeScAction_New reg (ScAction_New (Sampler sample) name _) =
@@ -78,28 +79,32 @@ dispatchConsumeScAction_New reg (ScAction_New (Sampler sample) name _) =
         Just buf -> do
           s <- V.synth sampler (V.b2i buf :: V.I "buffer")
           return $ samplers %~ M.insert name s
-    _ -> do writeTimeAndError $ "There is already a Sampler named " ++ name
+    _ -> do writeTimeAndError $
+              "There is already a Sampler named " ++ name ++ "\n"
             return id
 
 dispatchConsumeScAction_New reg (ScAction_New Sqfm name _) =
   case M.lookup name $ _sqfms reg of
     Nothing -> do s <- V.synth sqfm ()
                   return $ sqfms %~ M.insert name s
-    _ -> do writeTimeAndError $ "There is already a Sqfm named " ++ name
+    _ -> do writeTimeAndError $
+              "There is already a Sqfm named " ++ name ++ "\n"
             return id
 
 dispatchConsumeScAction_New reg (ScAction_New Vap name _) =
   case M.lookup name $ _vaps reg of
     Nothing -> do s <- V.synth vap ()
                   return $ vaps %~ M.insert name s
-    _ -> do writeTimeAndError $ "There is already a Vap named " ++ name
+    _ -> do writeTimeAndError $
+              "There is already a Vap named " ++ name ++ "\n"
             return id
 
 dispatchConsumeScAction_New reg (ScAction_New Zot name _) =
   case M.lookup name $ _zots reg of
     Nothing -> do s <- V.synth zot ()
                   return $ zots %~ M.insert name s
-    _ -> do writeTimeAndError $ "There is already a Zot named " ++ name
+    _ -> do writeTimeAndError $
+              "There is already a Zot named " ++ name ++ "\n"
             return id
 
 dispatchConsumeScAction_New _ (ScAction_Send _ _ _) =
@@ -124,7 +129,7 @@ dispatchConsumeScAction_Free
 dispatchConsumeScAction_Free reg when (ScAction_Free Boop name) =
   case M.lookup name $ _boops reg of
   Nothing -> do
-    writeTimeAndError $ "There is no Boop named " ++ name ++ "to free."
+    writeTimeAndError $ "There is no Boop named " ++ name ++ " to free.\n"
     return id
   Just s -> do
     V.doScheduledAt (timestamp when)
@@ -136,7 +141,7 @@ dispatchConsumeScAction_Free reg when (ScAction_Free Boop name) =
 dispatchConsumeScAction_Free reg when (ScAction_Free (Sampler _) name) =
   case M.lookup name $ _samplers reg of
   Nothing -> do
-    writeTimeAndError $ "There is no Sampler named " ++ name ++ "to free."
+    writeTimeAndError $ "There is no Sampler named " ++ name ++ " to free.\n"
     return id
   Just s -> do
     V.doScheduledAt (timestamp when)
@@ -148,7 +153,7 @@ dispatchConsumeScAction_Free reg when (ScAction_Free (Sampler _) name) =
 dispatchConsumeScAction_Free reg when (ScAction_Free Sqfm name) =
   case M.lookup name $ _sqfms reg of
   Nothing -> do
-    writeTimeAndError $ "There is no Sqfm named " ++ name ++ "to free."
+    writeTimeAndError $ "There is no Sqfm named " ++ name ++ " to free.\n"
     return id
   Just s -> do
     V.doScheduledAt (timestamp when)
@@ -160,7 +165,7 @@ dispatchConsumeScAction_Free reg when (ScAction_Free Sqfm name) =
 dispatchConsumeScAction_Free reg when (ScAction_Free Vap name) =
   case M.lookup name $ _vaps reg of
   Nothing -> do
-    writeTimeAndError $ "There is no Vap named " ++ name ++ "to free."
+    writeTimeAndError $ "There is no Vap named " ++ name ++ " to free.\n"
     return id
   Just s -> do
     V.doScheduledAt (timestamp when)
@@ -172,7 +177,7 @@ dispatchConsumeScAction_Free reg when (ScAction_Free Vap name) =
 dispatchConsumeScAction_Free reg when (ScAction_Free Zot name) =
   case M.lookup name $ _zots reg of
   Nothing -> do
-    writeTimeAndError $ "There is no Zot named " ++ name ++ "to free."
+    writeTimeAndError $ "There is no Zot named " ++ name ++ " to free.\n"
     return id
   Just s -> do
     V.doScheduledAt (timestamp when)
