@@ -81,8 +81,8 @@ edoMonome edoCfg = do
             , ((0,0), paramGroupWindow)
             , ((3,0), paramValWindow) ] )
         , ( Monome_old
-          , [ ((0,14), sustainWindow)
-            , ((13,14), shiftWindow)
+          , [ ((0,14), shiftWindow)
+            , ((14,14), sustainWindow)
             , ((0,0), keyboardWindow) ] ) ]
     , _stToMonomes = toMonomes
     , _stVoices = mempty
