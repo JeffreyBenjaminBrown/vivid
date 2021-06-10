@@ -1,4 +1,4 @@
--- Hangs not forever, but for a long time --
+-- Takes 30 secodns to load,
 -- unless I use the edit described at the end.
 
 p1 = let

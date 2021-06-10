@@ -12,9 +12,9 @@ mRyt = mmh 7 [ trip "a" 0 $ fast 2
 chAll $ mfl [
     ("1", nBoop $ pat 125 (5/4) (3/2))
   , ("2", nBoop
-      (mergea
+      (merge0a
        (pat 250 (5/4) (3/2))
-       (stacks
+       (stack
         [ slow 2 $              pat 1 (10/8) (10/7)
         , early 2 $ fast 2 $ pat 3 (9/8) (9/6)
         , meta (slow 2 $ mRyt) $ fast 4 $ pat (5/2) (5/4) (9/6)

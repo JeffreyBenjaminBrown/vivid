@@ -28,14 +28,14 @@ chAll $ mfl
                  modPat (fast 2) (late 1)) $
           append patKs $ dense 2 patKs)
   , ("2", meta ( slow 8 $
-                 modPat (early $ 1/4) (early $ 1/2)) $ 
+                 modPat (early $ 1/4) (early $ 1/2)) $
           meta ( slow 4 $
                  modPat (fast 4 . early 1) (fast 2))
           patHat)
   , ("4", toScale $
           stack2 patPitch $ stack
-          ( merge0 (mm1 $ m1 "freq" 6) $ fast 2 $ rev patPitch )
-          ( merge0 (mm1 $ m1 "freq" 12) $ fast 6 $ rev patPitch ) )
+          [ ( merge0 (mm1 $ m1 "freq" 6) $ fast 2 $ rev patPitch )
+          , ( merge0 (mm1 $ m1 "freq" 12) $ fast 6 $ rev patPitch ) ] )
 --  , ("4.1", toScale $ stack -- this takes advantage of a bug
 --          [ patPitch
 --          , merge0 (mm1 $ m1 "freq" 6) $ fast 2 $ rev patPitch

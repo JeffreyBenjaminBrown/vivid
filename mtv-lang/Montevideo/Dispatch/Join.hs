@@ -23,7 +23,7 @@ module Montevideo.Dispatch.Join (
   , nMerge -- ^ forall l m. (Show l, Show m)
            -- =>        (ScParams ->         ScParams ->          ScParams)
            -- -> Museq l ScParams -> Museq m Note -> Museq String Note
-  , mergec, merge0, merge1, merge0a, merge0f, merge0fa
+  ,  mergec,  merge0,  merge1,  merge0a,  merge0f,  merge0fa
       -- ^ forall l m. (Show l, Show m) =>
       -- Museq l ScParams -> Museq m ScParams -> Museq String ScParams
   , nMergec, nMerge0, nMerge1, nMerge0a, nMerge0f, nMerge0fa
