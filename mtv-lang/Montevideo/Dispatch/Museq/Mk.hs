@@ -22,12 +22,15 @@ module Montevideo.Dispatch.Museq.Mk (
   , insertOns  -- ^ Museq l ScParams                    -> Museq l ScParams
   , separateVoices -- ^ Museq l a -> Map l [Event RTime l a]
 
-  , endGaps -- ^ Museq l a -> [(RTime,RTime)]
+  , gaps         -- ^ Museq l a -> [(RTime, RTime)]
+  , interiorGaps -- ^ Museq l a -> [(RTime, RTime)]
+  , exteriorGaps -- ^ Museq l a -> [(RTime, RTime)]
   ) where
 
 import Prelude hiding (cycle)
 
 import           Control.Lens hiding (to,from)
+import qualified Data.List as L
 import qualified Data.Map as M
 import           Data.Map (Map)
 import           Data.Maybe
@@ -199,17 +202,39 @@ insertOffs m = let
 
   in undefined
 
+gaps :: forall l a. (Eq a, Ord a)
+     => Museq l a -> [(RTime, RTime)]
+gaps m = L.sort $ interiorGaps m ++ exteriorGaps m
 
 -- *** Algorithm:
 --     Suppose the events are ordered by (start,end).
 --     Let (si,ei) denote the ith event.
+--     Begin with the "latest interval" equal to (s1,e1).
 --     If s2 =< e1, replace e1 with the greater of e1 and e2.
 --     Otherwise s2 > e1, and (e1,s2) represents a gap.
---     Add it to the list of gaps, and resume at (s2,e2).
+--     Add it to the list of gaps,
+--     and redefine "latest interval" as (s2,e2).
+--     Repeat.
 
-midGaps :: forall a. (Eq a, Ord a)
-         => [(a,a)] -> [(a,a)]
-midGaps = undefined
+data GapCalc = GapCalc -- ^ No need to export this.
+  { _latestInterval :: (RTime,RTime)
+  , _gaps :: [ (RTime,RTime) ] }
+
+interiorGaps :: forall l a. (Eq a, Ord a)
+             => Museq l a -> [(RTime, RTime)]
+interiorGaps m =
+  let ((s1,e1) : is) :: [(RTime, RTime)] =
+        map _evArc $ V.toList $ _vec m
+      go :: GapCalc -> (RTime,RTime) -> GapCalc
+      go gc (sk,ek) = let
+        (sl,el) = _latestInterval gc
+        in if sk > el
+           then GapCalc { _latestInterval = (sk,ek)
+                        , _gaps = (el,sk) : _gaps gc }
+           else gc { _latestInterval = (sl, max el ek) }
+      gc1 = GapCalc { _latestInterval = (s1,e1)
+                    , _gaps = [] }
+  in reverse $ _gaps $ foldl go gc1 is
 
 -- *** Algorithm
 --     Suppose the events are ordered by (start,end).
@@ -222,9 +247,9 @@ midGaps = undefined
 --     then (ek - _sup, s1) is a gap.
 --     Otherwise there are no gaps on either end.
 
-endGaps :: forall l a. (Eq a, Ord a)
+exteriorGaps :: forall l a. (Eq a, Ord a)
         => Museq l a -> [(RTime, RTime)]
-endGaps m =
+exteriorGaps m =
   let is @ ((s1,_) : _) :: [(RTime, RTime)] =
         map _evArc $ V.toList $ _vec m
       ek :: RTime = maximum $ map snd is

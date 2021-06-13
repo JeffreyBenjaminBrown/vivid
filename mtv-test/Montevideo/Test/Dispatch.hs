@@ -52,29 +52,36 @@ tests = TestList [
   , TestLabel "testHold" testHold
   , TestLabel "test_timeToFinish" test_timeToFinish
   , TestLabel "test_separateVoices" test_separateVoices
-  , TestLabel "test_endGaps" test_endGaps
+  , TestLabel "test_gaps" test_gaps
   ]
 
 
-test_endGaps :: Test
-test_endGaps = TestCase $ do
+test_gaps :: Test
+test_gaps = TestCase $ do
   let m = Museq { _dur = 10,
                   _sup = 10,
                   _vec = V.fromList [ Event () (2,5) ()
                                     , Event () (6,8) () ] }
-    in assertBool "" $ [(0,2), (8,10)] == endGaps m
+    in do
+    assertBool "" $ [(0,2), (8,10)] == exteriorGaps m
+    assertBool "" $ [(5,6)]         == interiorGaps m
 
   let m = Museq { _dur = 10,
                   _sup = 10,
-                  _vec = V.fromList [ Event () (2,5) ()
+                  _vec = V.fromList [ Event () (2,3) ()
+                                    , Event () (4,5) ()
                                     , Event () (6,11) () ] }
-    in assertBool "" $ [(1,2)] == endGaps m
+    in do
+    assertBool "" $ [(1,2)]        == exteriorGaps m
+    assertBool "" $ [(3,4), (5,6)] == interiorGaps m
 
   let m = Museq { _dur = 10,
                   _sup = 10,
-                  _vec = V.fromList [ Event () (2,5) ()
+                  _vec = V.fromList [ Event () (2,7) ()
                                     , Event () (6,13) () ] }
-    in assertBool "" $ [] == endGaps m
+    in do
+    assertBool "" $ [] == exteriorGaps m
+    assertBool "" $ [] == interiorGaps m
 
 test_separateVoices :: Test
 test_separateVoices = TestCase $ do
