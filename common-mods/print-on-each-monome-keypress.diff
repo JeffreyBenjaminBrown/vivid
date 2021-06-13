@@ -1,0 +1,51 @@
+diff --git a/mtv-monome/Montevideo/Monome/Main.hs b/mtv-monome/Montevideo/Monome/Main.hs
+index 95fdead..777d3e2 100644
+--- a/mtv-monome/Montevideo/Monome/Main.hs
++++ b/mtv-monome/Montevideo/Monome/Main.hs
+@@ -300,8 +300,9 @@ doScAction    st        sca =
+   let setVivid :: Synth ZotParams -> (ParamName, Float) -> IO ()
+       setVivid s (param, f) =
+         mapM_ (set' s) $ zotScParams $ M.singleton param f
+-  in
+-  case sca of
++      tempShow = return () -- putStrLn $ show sca
++
++  in case sca of
+ 
+     ScAction_Send _ _ _ -> do
+       let vid :: VoiceId = _actionSynthName sca
+@@ -310,7 +311,7 @@ doScAction    st        sca =
+         Right $ (_stVoices st M.! vid) ^. voiceSynth
+       let ios :: [IO ()] = -- Send each (key,val) from `sca` separately.
+             map (setVivid s) $ M.toList $ _actionScParams sca
+-      Right $ mapM_ id ios >> return id
++      Right $ tempShow >> mapM_ id ios >> return id
+ 
+     ScAction_New _ _ _ -> do
+       let vid :: VoiceId = _actionSynthName sca
+@@ -318,14 +319,15 @@ doScAction    st        sca =
+                   ++ " (but not yet with a synth) in _stVoices.")
+            Right $ M.lookup vid $ _stVoices st
+       Right $ do
++        tempShow
+         s <- synth zot () -- TODO change zot to `_actionSynthDefEnum sca`
+         let ios :: [IO ()] = map (setVivid s) $ M.toList $ _actionScParams sca
+         mapM_ id ios
+         return $ stVoices . at vid . _Just . voiceSynth .~ Just s
+ 
+     -- PITFALL: If a voice is deleted right away,
+-    -- there's usually an audible pop.
+-    -- (It depends on how far the waveform is displaced from 0.)
++    -- there's an audible pop
++    -- (unless the waveform is barely displaced from 0).
+     -- To avoid that, this first sends an `amp=0` message,
+     -- and then waits for a duration defined in Monome.Config.
+     -- That smooths the click because amp messages are responded to
+@@ -340,6 +342,7 @@ doScAction    st        sca =
+         (Left $ "Voice " ++ show vid ++ " has no assigned synth.")
+         Right $ _voiceSynth v
+       Right $ do
++        tempShow
+         Timestamp now <- getTime
+         set s (0 :: I "on")
+         doScheduledAt ( Timestamp $ now +

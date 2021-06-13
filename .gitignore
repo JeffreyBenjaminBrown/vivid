@@ -1,9 +1,9 @@
-.stack-work/
-Vivid/Jbb/stale/
 *~
-temp*
-t.hs
-git-comment
 .emacs.desktop*
+Reaktor_Spark_Manual_English.pdf
 TAGS
+git-comment
 stack.yaml.lock
+temp*
+
+.stack-work/
