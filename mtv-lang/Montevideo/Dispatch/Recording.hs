@@ -1,6 +1,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Montevideo.Dispatch.Recording
+module Montevideo.Dispatch.Recording (
+  monomeRecording_toMuseq
+    -- ^ Recording ScAction l -> Either String (Museq l ScParams)
+  )
 where
 
 import           Control.Lens
