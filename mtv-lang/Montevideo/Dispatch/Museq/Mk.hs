@@ -173,6 +173,19 @@ insertOns = vec %~ V.map go where
      -> Ev l (M.Map String Float)
   go = evData %~ M.insertWith (flip const) "on" 1
 
+-- | `insertOffs` adds new events with a single `on=0` message,
+-- for every stretch in which a voice is inactive.
+insertOffs :: forall l. Ord l
+           => Museq l ScParams -> Museq l ScParams
+insertOffs m = let
+  voices :: [[Ev l ScParams]] =
+    M.elems $ separateVoices m
+
+  doVoice :: [Ev l ScParams] -> [Ev l ScParams]
+  doVoice es = undefined
+
+  in undefined
+
 separateVoices :: forall l a. Ord l
                => Museq l a -> Map l [Event RTime l a]
 separateVoices m = let
@@ -183,24 +196,6 @@ separateVoices m = let
     Nothing -> M.insert     (_evLabel e) [e] m
     Just l -> M.adjust (e:) (_evLabel e)     m
   in V.foldl f mempty $ V.reverse $ _vec m
-
--- | `insertOffs` adds new events with a single `on=0` message,
--- for every stretch in which a voice is inactive.
-insertOffs :: forall a l. Ord l
-                 => Museq l a -> Museq l a
-insertOffs m = let
-  voices :: [[Ev l a]] =
-    M.elems $ separateVoices m
-
-  -- TODO ? maybe use these function
-  -- `boundaries`
-  -- `partitionAndGroupEventsAtBoundaries`
-  -- `partitionArcAtTimes`
-
-  doVoice :: [Ev l m] -> [Ev l m]
-  doVoice es = undefined
-
-  in undefined
 
 gaps :: forall l a. (Eq a, Ord a)
      => Museq l a -> [(RTime, RTime)]
