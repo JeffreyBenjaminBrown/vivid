@@ -192,9 +192,9 @@ separateVoices m = let
   f :: Map l [Event RTime l a]
     ->        Event RTime l a
     -> Map l [Event RTime l a]
-  f m e = case M.lookup     (_evLabel e)     m of
-    Nothing -> M.insert     (_evLabel e) [e] m
-    Just l -> M.adjust (e:) (_evLabel e)     m
+  f m e = case M.lookup      (_evLabel e)     m of
+    Nothing -> M.insert      (_evLabel e) [e] m
+    Just l  -> M.adjust (e:) (_evLabel e)     m
   in V.foldl f mempty $ V.reverse $ _vec m
 
 gaps :: forall l a. (Eq a, Ord a)
