@@ -58,30 +58,34 @@ tests = TestList [
 
 test_gaps :: Test
 test_gaps = TestCase $ do
-  let m = Museq { _dur = 10,
-                  _sup = 10,
+  let arcs :: Museq l a -> [(RTime,RTime)]
+      arcs = map _evArc . V.toList . _vec
+      sup0 = 10
+
+  let m = Museq { _dur = sup0,
+                  _sup = sup0,
                   _vec = V.fromList [ Event () (2,5) ()
                                     , Event () (6,8) () ] }
     in do
-    assertBool "" $ [(0,2), (8,10)] == exteriorGaps m
-    assertBool "" $ [(5,6)]         == interiorGaps m
+    assertBool "" $ [(0,2), (8,sup0)] == exteriorGaps sup0 (arcs m)
+    assertBool "" $ [(5,6)]           == interiorGaps      (arcs m)
 
-  let m = Museq { _dur = 10,
-                  _sup = 10,
+  let m = Museq { _dur = sup0,
+                  _sup = sup0,
                   _vec = V.fromList [ Event () (2,3) ()
                                     , Event () (4,5) ()
                                     , Event () (6,11) () ] }
     in do
-    assertBool "" $ [(1,2)]        == exteriorGaps m
-    assertBool "" $ [(3,4), (5,6)] == interiorGaps m
+    assertBool "" $ [(1,2)]        == exteriorGaps sup0 (arcs m)
+    assertBool "" $ [(3,4), (5,6)] == interiorGaps      (arcs m)
 
-  let m = Museq { _dur = 10,
-                  _sup = 10,
+  let m = Museq { _dur = sup0,
+                  _sup = sup0,
                   _vec = V.fromList [ Event () (2,7) ()
                                     , Event () (6,13) () ] }
     in do
-    assertBool "" $ [] == exteriorGaps m
-    assertBool "" $ [] == interiorGaps m
+    assertBool "" $ [] == exteriorGaps sup0 (arcs m)
+    assertBool "" $ [] == interiorGaps      (arcs m)
 
 test_separateVoices :: Test
 test_separateVoices = TestCase $ do

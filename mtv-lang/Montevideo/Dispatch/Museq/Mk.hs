@@ -22,9 +22,9 @@ module Montevideo.Dispatch.Museq.Mk (
   , insertOns  -- ^ Museq l ScParams                    -> Museq l ScParams
   , separateVoices -- ^ Museq l a -> Map l [Event RTime l a]
 
-  , gaps         -- ^ Museq l a -> [(RTime, RTime)]
-  , interiorGaps -- ^ Museq l a -> [(RTime, RTime)]
-  , exteriorGaps -- ^ Museq l a -> [(RTime, RTime)]
+  , gaps         -- ^ RTime -> [(RTime, RTime)] -> [(RTime, RTime)]
+  , interiorGaps -- ^          [(RTime, RTime)] -> [(RTime, RTime)]
+  , exteriorGaps -- ^ RTime -> [(RTime, RTime)] -> [(RTime, RTime)]
   ) where
 
 import Prelude hiding (cycle)
@@ -197,9 +197,8 @@ separateVoices m = let
     Just l  -> M.adjust (e:) (_evLabel e)     m
   in V.foldl f mempty $ V.reverse $ _vec m
 
-gaps :: forall l a. (Eq a, Ord a)
-     => Museq l a -> [(RTime, RTime)]
-gaps m = L.sort $ interiorGaps m ++ exteriorGaps m
+gaps :: RTime -> [(RTime, RTime)] -> [(RTime, RTime)]
+gaps sup0 m = L.sort $ interiorGaps m ++ exteriorGaps sup0 m
 
 -- *** Algorithm:
 --     Suppose the events are ordered by (start,end).
@@ -215,12 +214,9 @@ data GapCalc = GapCalc -- ^ No need to export this.
   { _latestInterval :: (RTime,RTime)
   , _gaps :: [ (RTime,RTime) ] }
 
-interiorGaps :: forall l a. (Eq a, Ord a)
-             => Museq l a -> [(RTime, RTime)]
-interiorGaps m =
-  let ((s1,e1) : is) :: [(RTime, RTime)] =
-        map _evArc $ V.toList $ _vec m
-      go :: GapCalc -> (RTime,RTime) -> GapCalc
+interiorGaps :: [(RTime, RTime)] -> [(RTime, RTime)]
+interiorGaps ((s1,e1) : is) =
+  let go :: GapCalc -> (RTime,RTime) -> GapCalc
       go gc (sk,ek) = let
         (sl,el) = _latestInterval gc
         in if sk > el
@@ -242,15 +238,11 @@ interiorGaps m =
 --     then (ek - _sup, s1) is a gap.
 --     Otherwise there are no gaps on either end.
 
-exteriorGaps :: forall l a. (Eq a, Ord a)
-        => Museq l a -> [(RTime, RTime)]
-exteriorGaps m =
-  let is @ ((s1,_) : _) :: [(RTime, RTime)] =
-        map _evArc $ V.toList $ _vec m
-      ek :: RTime = maximum $ map snd is
-      end = _sup m
-  in if ek < end
-     then [(0,s1), (ek,end)]
-     else if ek - end < s1
-          then [(ek - end, s1)]
+exteriorGaps :: RTime -> [(RTime, RTime)] -> [(RTime, RTime)]
+exteriorGaps sup0 is @ ((s1,_) : _) =
+  let ek :: RTime = maximum $ map snd is
+  in if ek < sup0
+     then [(0,s1), (ek,sup0)]
+     else if ek - sup0 < s1
+          then [(ek - sup0, s1)]
           else []
