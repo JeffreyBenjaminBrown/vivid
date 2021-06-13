@@ -203,27 +203,27 @@ gaps sup0 m = L.sort $ interiorGaps m ++ exteriorGaps sup0 m
 -- *** Algorithm:
 --     Suppose the events are ordered by (start,end).
 --     Let (si,ei) denote the ith event.
---     Begin with the "latest interval" equal to (s1,e1).
+--     Begin with the "latest arc" equal to (s1,e1).
 --     If s2 =< e1, replace e1 with the greater of e1 and e2.
 --     Otherwise s2 > e1, and (e1,s2) represents a gap.
 --     Add it to the list of gaps,
---     and redefine "latest interval" as (s2,e2).
+--     and redefine "latest arc" as (s2,e2).
 --     Repeat.
 
 data GapCalc = GapCalc -- ^ No need to export this.
-  { _latestInterval :: (RTime,RTime)
+  { _latestArc :: (RTime,RTime)
   , _gaps :: [ (RTime,RTime) ] }
 
 interiorGaps :: [(RTime, RTime)] -> [(RTime, RTime)]
 interiorGaps ((s1,e1) : is) =
   let go :: GapCalc -> (RTime,RTime) -> GapCalc
       go gc (sk,ek) = let
-        (sl,el) = _latestInterval gc
+        (sl,el) = _latestArc gc
         in if sk > el
-           then GapCalc { _latestInterval = (sk,ek)
+           then GapCalc { _latestArc = (sk,ek)
                         , _gaps = (el,sk) : _gaps gc }
-           else gc { _latestInterval = (sl, max el ek) }
-      gc1 = GapCalc { _latestInterval = (s1,e1)
+           else gc { _latestArc = (sl, max el ek) }
+      gc1 = GapCalc { _latestArc = (s1,e1)
                     , _gaps = [] }
   in reverse $ _gaps $ foldl go gc1 is
 
