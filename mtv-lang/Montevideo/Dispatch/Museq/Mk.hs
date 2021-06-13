@@ -21,6 +21,8 @@ module Montevideo.Dispatch.Museq.Mk (
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
   , insertOns  -- ^ Museq l ScParams                    -> Museq l ScParams
   , separateVoices -- ^ Museq l a -> Map l [Event RTime l a]
+
+  , endGaps -- ^ Museq l a -> [(RTime,RTime)]
   ) where
 
 import Prelude hiding (cycle)
@@ -197,13 +199,21 @@ insertOffs m = let
 
   in undefined
 
--- *** Basic algorithm.
+
+-- *** Algorithm:
 --     Suppose the events are ordered by (start,end).
 --     Let (si,ei) denote the ith event.
 --     If s2 =< e1, replace e1 with the greater of e1 and e2.
 --     Otherwise s2 > e1, and (e1,s2) represents a gap.
 --     Add it to the list of gaps, and resume at (s2,e2).
--- *** Monkey Wrench: Initial silence and beyond-sup sustain.
+
+midGaps :: forall a. (Eq a, Ord a)
+         => [(a,a)] -> [(a,a)]
+midGaps = undefined
+
+-- *** Algorithm
+--     Suppose the events are ordered by (start,end).
+--     Let (si,ei) denote the ith event.
 --     Keep special track of s1.
 --     Let (sk,ek) be the event with the greatest end.
 --     (Note that sk is necessarily less than _sup.)
@@ -211,6 +221,16 @@ insertOffs m = let
 --     If ek >= _sup and ek - _sup < s1,
 --     then (ek - _sup, s1) is a gap.
 --     Otherwise there are no gaps on either end.
-findGaps :: forall a. (Eq a, Ord a)
-         => [(a,a)] -> [(a,a)]
-findGaps = undefined
+
+endGaps :: forall l a. (Eq a, Ord a)
+        => Museq l a -> [(RTime, RTime)]
+endGaps m =
+  let is @ ((s1,_) : _) :: [(RTime, RTime)] =
+        map _evArc $ V.toList $ _vec m
+      ek :: RTime = maximum $ map snd is
+      end = _sup m
+  in if ek < end
+     then [(0,s1), (ek,end)]
+     else if ek - end < s1
+          then [(ek - end, s1)]
+          else []

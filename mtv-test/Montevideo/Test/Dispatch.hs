@@ -52,8 +52,29 @@ tests = TestList [
   , TestLabel "testHold" testHold
   , TestLabel "test_timeToFinish" test_timeToFinish
   , TestLabel "test_separateVoices" test_separateVoices
+  , TestLabel "test_endGaps" test_endGaps
   ]
 
+
+test_endGaps :: Test
+test_endGaps = TestCase $ do
+  let m = Museq { _dur = 10,
+                  _sup = 10,
+                  _vec = V.fromList [ Event () (2,5) ()
+                                    , Event () (6,8) () ] }
+    in assertBool "" $ [(0,2), (8,10)] == endGaps m
+
+  let m = Museq { _dur = 10,
+                  _sup = 10,
+                  _vec = V.fromList [ Event () (2,5) ()
+                                    , Event () (6,11) () ] }
+    in assertBool "" $ [(1,2)] == endGaps m
+
+  let m = Museq { _dur = 10,
+                  _sup = 10,
+                  _vec = V.fromList [ Event () (2,5) ()
+                                    , Event () (6,13) () ] }
+    in assertBool "" $ [] == endGaps m
 
 test_separateVoices :: Test
 test_separateVoices = TestCase $ do
