@@ -5,7 +5,9 @@ module Montevideo.Test.Dispatch where
 import Test.HUnit
 
 import           Control.Lens hiding (op)
+import qualified Data.List as L
 import qualified Data.Map as M
+import           Data.Ord (comparing)
 import           Data.Ratio
 import qualified Data.Vector as V
 
@@ -18,6 +20,7 @@ import Montevideo.Dispatch.Time
 import Montevideo.Dispatch.Transform
 import Montevideo.Dispatch.Types
 import Montevideo.Synth
+import Montevideo.Synth.Msg
 import Montevideo.Util
 
 
@@ -53,8 +56,41 @@ tests = TestList [
   , TestLabel "test_timeToFinish" test_timeToFinish
   , TestLabel "test_separateVoices" test_separateVoices
   , TestLabel "test_gaps" test_gaps
+  , TestLabel "test_insertOffs" test_insertOffs
   ]
 
+test_insertOffs :: Test
+test_insertOffs = TestCase $ do
+  let on = M.singleton "on" 1
+      off = M.singleton "on" 0
+      sup0 = 10
+      mq :: [Event RTime l a] -> Museq l a
+      mq l = Museq
+        { _dur = sup0
+        , _sup = sup0
+        , _vec = V.fromList $ L.sortBy (comparing _evArc) l }
+      filterMv :: Museq l a -> (a -> Bool) -> Museq l a
+      filterMv m pred =
+        m { _vec = V.filter (pred . _evData) $ _vec m }
+
+  let mOnOff, mOn, mOff :: Museq String ScParams
+      mOnOff = mq [ Event "a" (0,1)        off -- voice "a"
+                  , Event "a" (1,2)        on
+                  , Event "a" (2,3)        off
+                  , Event "a" (3,4)        on
+                  , Event "a" (4,sup0)     off
+                  , Event "b" (1,2)        off -- voice "b"
+                  , Event "b" (2,3)        on
+                  , Event "b" (3,4)        off
+                  , Event "b" (4,sup0 + 1) on ]
+      mOn  = filterMv mOnOff $ (== on)
+      mOff = filterMv mOnOff $ (== off)
+    in do
+    assertBool "first test this test, as it's complicated" $
+      V.length (_vec mOn) == 4
+    assertBool "first test this test, as it's complicated" $
+      V.length (_vec mOff) == 5
+    assertBool "" $ insertOffs mOn == mOnOff
 
 test_gaps :: Test
 test_gaps = TestCase $ do

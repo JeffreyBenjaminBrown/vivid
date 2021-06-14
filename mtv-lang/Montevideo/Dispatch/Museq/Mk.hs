@@ -19,7 +19,9 @@ module Montevideo.Dispatch.Museq.Mk (
 
   -- | Utilities used by the Museq-making functions
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
-  , insertOns  -- ^ Museq l ScParams                    -> Museq l ScParams
+  , insertOns  -- ^ Museq l ScParams -> Museq l ScParams
+  , insertOffs -- ^ Museq l ScParams -> Museq l ScParams
+
   , separateVoices -- ^ Museq l a -> Map l [Event RTime l a]
 
   , gaps         -- ^ RTime -> [(RTime, RTime)] -> [(RTime, RTime)]
@@ -34,6 +36,7 @@ import qualified Data.List as L
 import qualified Data.Map as M
 import           Data.Map (Map)
 import           Data.Maybe
+import           Data.Ord (comparing)
 import qualified Data.Vector as V
 import           Data.Vector (Vector)
 
@@ -178,13 +181,27 @@ insertOns = vec %~ V.map go where
 insertOffs :: forall l. Ord l
            => Museq l ScParams -> Museq l ScParams
 insertOffs m = let
-  voices :: [[Ev l ScParams]] =
-    M.elems $ separateVoices m
+  voices :: Map l [Ev l ScParams] =
+    -- TODO ? just keep the map elements (M.elems),
+    -- since the labels are already part of every Event.
+    separateVoices m
 
-  doVoice :: [Ev l ScParams] -> [Ev l ScParams]
-  doVoice es = undefined
+  -- PITFALL: The output of `addGapsToVoice` is unsorted.
+  addGapsToVoice :: l -> [Ev l ScParams] -> [Ev l ScParams]
+  addGapsToVoice l es =
+    let
+      voiceGapArcs :: [Ev l a] -> [(RTime,RTime)]
+      voiceGapArcs es = gaps (_sup m) $ map _evArc es
+      gapArc_toOff :: l -> (RTime,RTime) -> Ev l ScParams
+      gapArc_toOff l (s,e) = Event l (s,e) $ M.singleton "on" 0
+      offs :: [Ev l ScParams] =
+        map (gapArc_toOff l) $ voiceGapArcs es
+    in es ++ offs
 
-  in undefined
+  in m { _vec = V.fromList
+                $ L.sortBy (comparing _evArc)
+                $ concat $ M.elems
+                $ M.mapWithKey addGapsToVoice voices }
 
 separateVoices :: forall l a. Ord l
                => Museq l a -> Map l [Event RTime l a]
