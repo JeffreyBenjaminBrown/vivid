@@ -67,7 +67,7 @@ data Museq label a = Museq {
     -- through different sections of the `vec` each time it plays.
     -- If less than `dur`, the `Museq` will play the `vec` more than
     -- once (in general not a whole number of times) each time it plays.
-  , _vec :: Vector (Ev label a) }
+  , _vec :: Vector (Event RTime label a) }
   deriving (Show, Eq)
 makeLenses ''Museq
 
