@@ -45,7 +45,7 @@ jiChords = do
         $ [a,b,c]]
 
 minNotes, maxNotes :: Integer
-minNotes = 50
+minNotes = 12
 maxNotes = 140
 
 tols :: [Integer]
