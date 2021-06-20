@@ -23,6 +23,8 @@ module Montevideo.Dispatch.Abbrevs (
   , mm1   -- ^ ScParams -> Museq String ScParams
   , mmho  -- ^ forall l. Ord l =>
       -- RDuration -> [(l,RDuration,ScParams)] -> Museq l ScParams
+  , mkMuseq_holdOn -- ^ forall a l. Ord l
+              -- => RDuration -> [(l,RDuration,ScParams)]  -> Museq l ScParams
   , mmt  -- ^ forall l. (Ord l, Show l) =>
       -- RDuration -> [(l,RTime,Sample,ScParams)] -> Museq String Note
   , mmt1 -- ^ RDuration -> [(RTime,Sample)] -> Museq String Note
@@ -106,6 +108,13 @@ mm1 = mkMuseqOneScParams
 
 mmho :: forall l. Ord l => RDuration -> [(l,RDuration,ScParams)] -> Museq l ScParams
 mmho = mkMuseq_holdOn
+
+-- | DEPRECATED. Too simple to be worth learning.
+-- Like `mkMuseqHold`, but inserts `on = 1` in `Event`s that do not
+-- mention the `on` parameter. Specialized to `ScParams` payloads.
+mkMuseq_holdOn :: forall l. Ord l
+  => RDuration -> [(l,RDuration,ScParams)] -> Museq l ScParams
+mkMuseq_holdOn d evs0 = insertOns $ mkMuseqHold d evs0
 
 mmt :: forall l. (Ord l, Show l) =>
   RDuration -> [(l,RTime,Sample,ScParams)] -> Museq String Note

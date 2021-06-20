@@ -3,7 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Montevideo.Dispatch.Museq.Mk (
-  -- | = Make a Museq
+  -- | = Primitives for making a Museq
     mkMuseqFromEvs   -- ^ RDuration -> [Ev l a]            -> Museq l a
   , mkMuseq          -- ^ RDuration -> [(l,RTime,RTime,a)] -> Museq l a
   , mkMuseqOneScParams -- ^ ScParams  -> Museq String ScParams
@@ -11,19 +11,16 @@ module Montevideo.Dispatch.Museq.Mk (
               -- => RDuration -> [(l,RDuration,a)]    -> Museq l a
   , mkMuseq_holdMaybe -- ^ forall a l. Ord l =>
               -- RDuration -> [(l, RTime, Maybe a)] -> Museq l a
-  , mkMuseq_holdOn -- ^ forall a l. Ord l
-              -- => RDuration -> [(l,RDuration,ScParams)]  -> Museq l ScParams
   , mkMuseqTrigger -- ^ forall l. (Ord l, Show l)
     -- => RDuration -> [(l,RTime,Sample,ScParams)]      -> Museq String Note
   , mkMuseqTrigger1 -- ^ RDuration -> [(RTime,Sample)]     -> Museq String Note
-
-  -- | Utilities used by the Museq-making functions
-  , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
   , insertOns  -- ^ Museq l ScParams -> Museq l ScParams
   , insertOffs -- ^ Museq l ScParams -> Museq l ScParams
 
+  -- | = Utilities used by the above Museq-making functions.
+  -- Probably not worth learning as a user.
+  , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
   , separateVoices -- ^ Museq l a -> Map l [Event RTime l a]
-
   , gaps         -- ^ RTime -> [(RTime, RTime)] -> [(RTime, RTime)]
   , interiorGaps -- ^          [(RTime, RTime)] -> [(RTime, RTime)]
   , exteriorGaps -- ^ RTime -> [(RTime, RTime)] -> [(RTime, RTime)]
@@ -115,12 +112,6 @@ mkMuseq_holdMaybe d = f . mkMuseqHold d where
     test = isJust . _evData
     unwrap :: Event RTime l (Maybe a) -> Event RTime l a
     unwrap = fmap $ maybe (error "impossible") id
-
--- | Like `mkMuseqHold`, but inserts `on = 1` in `Event`s that do not
--- mention the `on` parameter. Specialized to `ScParams` payloads.
-mkMuseq_holdOn :: forall l. Ord l
-          => RDuration -> [(l,RDuration,ScParams)] -> Museq l ScParams
-mkMuseq_holdOn d evs0 = insertOns $ mkMuseqHold d evs0
 
 -- | Makes a `Museq` using `hold`,
 -- so that each event lasts until the next.
