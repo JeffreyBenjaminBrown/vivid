@@ -2,7 +2,7 @@
 
 -- This pattern is monophonic, because each note has the same label, "a".
 -- It plays four notes.
-melody = mkMuseqHo 4
+melody = mkMuseq_holdOn 4
   [ ("a", 0,   M.singleton "freq" 250)
   , ("a", 1,   M.singleton "freq" 300)
   , ("a", 2,   M.singleton "freq" 375)

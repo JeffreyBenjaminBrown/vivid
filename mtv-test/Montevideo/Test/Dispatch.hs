@@ -233,9 +233,9 @@ testMuseqIsValid = TestCase $ do
 
 testStack :: Test
 testStack = TestCase $ do
-  let a = mkMuseqH 1 [("a", RTime 0, "a")]
-      b = mkMuseqH 1 [("a", RTime 0, "b")]
-      c = mkMuseqH 1 [("a", RTime 0, "c")]
+  let a = mkMuseqHold 1 [("a", RTime 0, "a")]
+      b = mkMuseqHold 1 [("a", RTime 0, "b")]
+      c = mkMuseqHold 1 [("a", RTime 0, "c")]
   assertBool "1" $ stack [a,b,c] ==
     Museq {_dur = 1, _sup = 1, _vec = V.fromList
             [ Event "a"   (0, 1) "a"
@@ -378,9 +378,9 @@ testAppend = TestCase $ do
 
 testCat :: Test
 testCat = TestCase $ do
-  let a = mkMuseqH 1 [("a", RTime 0, "a")]
-      b = mkMuseqH 1 [("b", RTime 0, "b")]
-      c = mkMuseqH 1 [("c", RTime 0, "c")]
+  let a = mkMuseqHold 1 [("a", RTime 0, "a")]
+      b = mkMuseqHold 1 [("b", RTime 0, "b")]
+      c = mkMuseqHold 1 [("c", RTime 0, "c")]
   assertBool "1" $ cat [a,b,c] ==
     mkMuseq 3  [ ("a", RTime 0, RTime 1, "a")
                , ("b", RTime 1, RTime 2, "b")

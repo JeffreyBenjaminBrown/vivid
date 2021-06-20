@@ -95,24 +95,24 @@ mm :: RDuration -> [(l,RTime,RTime,a)] -> Museq l a
 mm = mkMuseq
 
 mmh :: forall a l. Ord l => RDuration -> [(l,RDuration,a)] -> Museq l a
-mmh = mkMuseqH
+mmh = mkMuseqHold
 
 mmhm :: forall a l. Ord l
      => RDuration -> [(l, RTime, Maybe a)] -> Museq l a
-mmhm = mkMuseqHm
+mmhm = mkMuseq_holdMaybe
 
 mm1 :: ScParams -> Museq String ScParams
 mm1 = mkMuseqOneScParams
 
 mmho :: forall l. Ord l => RDuration -> [(l,RDuration,ScParams)] -> Museq l ScParams
-mmho = mkMuseqHo
+mmho = mkMuseq_holdOn
 
 mmt :: forall l. (Ord l, Show l) =>
   RDuration -> [(l,RTime,Sample,ScParams)] -> Museq String Note
-mmt = mkMuseqTrig
+mmt = mkMuseqTrigger
 
 mmt1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
-mmt1 = mkMuseqTrig1
+mmt1 = mkMuseqTrigger1
 
 ons :: Museq l ScParams -> Museq l ScParams
 ons = insertOns

@@ -7,15 +7,15 @@ module Montevideo.Dispatch.Museq.Mk (
     mkMuseqFromEvs   -- ^ RDuration -> [Ev l a]            -> Museq l a
   , mkMuseq          -- ^ RDuration -> [(l,RTime,RTime,a)] -> Museq l a
   , mkMuseqOneScParams -- ^ ScParams  -> Museq String ScParams
-  , mkMuseqH  -- ^ forall a l. Ord l
+  , mkMuseqHold  -- ^ forall a l. Ord l
               -- => RDuration -> [(l,RDuration,a)]    -> Museq l a
-  , mkMuseqHm -- ^ forall a l. Ord l =>
+  , mkMuseq_holdMaybe -- ^ forall a l. Ord l =>
               -- RDuration -> [(l, RTime, Maybe a)] -> Museq l a
-  , mkMuseqHo -- ^ forall a l. Ord l
+  , mkMuseq_holdOn -- ^ forall a l. Ord l
               -- => RDuration -> [(l,RDuration,ScParams)]  -> Museq l ScParams
-  , mkMuseqTrig -- ^ forall l. (Ord l, Show l)
+  , mkMuseqTrigger -- ^ forall l. (Ord l, Show l)
     -- => RDuration -> [(l,RTime,Sample,ScParams)]      -> Museq String Note
-  , mkMuseqTrig1 -- ^ RDuration -> [(RTime,Sample)]     -> Museq String Note
+  , mkMuseqTrigger1 -- ^ RDuration -> [(RTime,Sample)]     -> Museq String Note
 
   -- | Utilities used by the Museq-making functions
   , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
@@ -48,19 +48,19 @@ import Montevideo.Synth.Samples
 import Montevideo.Dispatch.Museq
 
 
--- | Like `mkMuseqTrig`, but assuming all messages are trigger=1 messages.
-mkMuseqTrig1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
-mkMuseqTrig1 sup0 = mkMuseqTrig sup0 . map f where
+-- | Like `mkMuseqTrigger`, but assuming all messages are trigger=1 messages.
+mkMuseqTrigger1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
+mkMuseqTrigger1 sup0 = mkMuseqTrigger sup0 . map f where
   f (t,s) = ("a",t,s, M.singleton "trigger" 1)
 
 -- | Make a Museq with sample trigger messages.
--- `mkMuseqTrig` sends any two `ScParams` values to different synths, unless
+-- `mkMuseqTrigger` sends any two `ScParams` values to different synths, unless
 -- they share the same label *and* the same `Sample`.
 -- This is guaranteed by computing new labels `show l ++ show Sample`.
 
-mkMuseqTrig :: forall l. (Ord l, Show l) =>
+mkMuseqTrigger :: forall l. (Ord l, Show l) =>
   RDuration -> [(l,RTime,Sample,ScParams)] -> Museq String Note
-mkMuseqTrig sup0 evs0 = let
+mkMuseqTrigger sup0 evs0 = let
   -- todo ? Rather than group by l and then Sample,
   -- maybe group by l' = show l ++ show Sample?
   evs1 :: [ ( (l, Sample)
@@ -100,14 +100,15 @@ mkMuseq :: RDuration -> [(l,RTime,RTime,a)] -> Museq l a
 mkMuseq d = mkMuseqFromEvs d . map f where
   f (l,start,end,a) = Event l (start,end) a
 
+-- | A Museq with a single constant state.
 mkMuseqOneScParams :: ScParams -> Museq String ScParams
-mkMuseqOneScParams m = mkMuseqH 1 [("a", RTime 0, m)]
+mkMuseqOneScParams m = mkMuseqHold 1 [("a", RTime 0, m)]
 
 -- | Makes a `Museq` using `hold`, holding each `Just` value
 -- until the next `Nothing`, then discarding any `Nothing`s.
-mkMuseqHm :: forall a l. Ord l
+mkMuseq_holdMaybe :: forall a l. Ord l
           => RDuration -> [(l, RTime, Maybe a)] -> Museq l a
-mkMuseqHm d = f . mkMuseqH d where
+mkMuseq_holdMaybe d = f . mkMuseqHold d where
   f :: Museq l (Maybe a) -> Museq l a
   f = vec %~ ( V.map unwrap . V.filter test ) where
     test :: Event RTime l (Maybe a) -> Bool
@@ -115,17 +116,17 @@ mkMuseqHm d = f . mkMuseqH d where
     unwrap :: Event RTime l (Maybe a) -> Event RTime l a
     unwrap = fmap $ maybe (error "impossible") id
 
--- | Like `mkMuseqH`, but inserts `on = 1` in `Event`s that do not
+-- | Like `mkMuseqHold`, but inserts `on = 1` in `Event`s that do not
 -- mention the `on` parameter. Specialized to `ScParams` payloads.
-mkMuseqHo :: forall l. Ord l
+mkMuseq_holdOn :: forall l. Ord l
           => RDuration -> [(l,RDuration,ScParams)] -> Museq l ScParams
-mkMuseqHo d evs0 = insertOns $ mkMuseqH d evs0
+mkMuseq_holdOn d evs0 = insertOns $ mkMuseqHold d evs0
 
 -- | Makes a `Museq` using `hold`,
 -- so that each event lasts until the next.
-mkMuseqH :: forall a l. Ord l
+mkMuseqHold :: forall a l. Ord l
           => RDuration -> [(l,RDuration,a)] -> Museq l a
-mkMuseqH d = mkMuseq_seqProc (hold d) d
+mkMuseqHold d = mkMuseq_seqProc (hold d) d
 
 mkMuseq_seqProc :: forall a b l. Ord l
   => ([(RDuration,a)] -> [((RDuration,RDuration),b)])
