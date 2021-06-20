@@ -23,6 +23,7 @@ module Montevideo.Dispatch.Abbrevs (
   , mm1   -- ^ ScParams -> Museq String ScParams
   , mmho  -- ^ forall l. Ord l =>
       -- RDuration -> [(l,RDuration,ScParams)] -> Museq l ScParams
+  , ion, iof, ioio
   , mkMuseq_holdOn -- ^ forall a l. Ord l
               -- => RDuration -> [(l,RDuration,ScParams)]  -> Museq l ScParams
   , mmt  -- ^ forall l. (Ord l, Show l) =>
@@ -108,6 +109,13 @@ mm1 = mkMuseqOneScParams
 
 mmho :: forall l. Ord l => RDuration -> [(l,RDuration,ScParams)] -> Museq l ScParams
 mmho = mkMuseq_holdOn
+
+ion, iof, ioio :: Ord l => Museq l ScParams -> Museq l ScParams
+ion  = insertOns -- Doesn't really need the `Ord l` constraint, but meh.
+iof  = insertOffs
+ioio = insertOffs . insertOns -- This order is more efficient,
+  -- because `insertOns` does not have to look at the offs
+  -- and determine not to change them. Both orders work, though.
 
 -- | DEPRECATED. Too simple to be worth learning.
 -- Like `mkMuseqHold`, but inserts `on = 1` in `Event`s that do not

@@ -3,23 +3,25 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Montevideo.Dispatch.Museq.Mk (
-  -- | = Primitives for making a Museq
-    mkMuseqFromEvs   -- ^ RDuration -> [Ev l a]            -> Museq l a
-  , mkMuseq          -- ^ RDuration -> [(l,RTime,RTime,a)] -> Museq l a
-  , mkMuseqOneScParams -- ^ ScParams  -> Museq String ScParams
-  , mkMuseqHold  -- ^ forall a l. Ord l
-              -- => RDuration -> [(l,RDuration,a)]    -> Museq l a
-  , mkMuseq_holdMaybe -- ^ forall a l. Ord l =>
-              -- RDuration -> [(l, RTime, Maybe a)] -> Museq l a
-  , mkMuseqTrigger -- ^ forall l. (Ord l, Show l)
-    -- => RDuration -> [(l,RTime,Sample,ScParams)]      -> Museq String Note
-  , mkMuseqTrigger1 -- ^ RDuration -> [(RTime,Sample)]     -> Museq String Note
+  -- | == Primitives for making a Museq worth learning
+
+  -- | = These first five are tricky.
+  --     See mtv-lang/docs/mkMuseq.hs for a guide.
+    mkMuseq           -- ^ RDuration -> [(l, RTime, RTime,      a)] -> Museq l a
+  , mkMuseqHold       -- ^ RDuration -> [(l, RTime,             a)] -> Museq l a
+  , mkMuseq_holdMaybe -- ^ RDuration -> [(l, RTime,       Maybe a)] -> Museq l a
   , insertOns  -- ^ Museq l ScParams -> Museq l ScParams
   , insertOffs -- ^ Museq l ScParams -> Museq l ScParams
 
-  -- | = Utilities used by the above Museq-making functions.
+  -- | = These next three are much more obvious.
+  , mkMuseqOneScParams -- ^ ScParams  -> Museq String ScParams
+  , mkMuseqTrigger  -- ^ RDuration -> [(l,RTime,Sample,ScParams)] -> Museq String Note
+  , mkMuseqTrigger1 -- ^ RDuration -> [(  RTime,Sample         )] -> Museq String Note
+
+  -- | == Utilities used by the above Museq-making functions.
   -- Probably not worth learning as a user.
-  , hold       -- ^ Num t => t -> [(t,a)] -> [((t,t),a)]
+  , mkMuseqFromEvs   -- ^ RDuration -> [Ev l a] -> Museq l a
+  , hold       -- ^ t -> [(t,a)] -> [((t,t),a)]
   , separateVoices -- ^ Museq l a -> Map l [Event RTime l a]
   , gaps         -- ^ RTime -> [(RTime, RTime)] -> [(RTime, RTime)]
   , interiorGaps -- ^          [(RTime, RTime)] -> [(RTime, RTime)]
@@ -45,7 +47,8 @@ import Montevideo.Synth.Samples
 import Montevideo.Dispatch.Museq
 
 
--- | Like `mkMuseqTrigger`, but assuming all messages are trigger=1 messages.
+-- | Like `mkMuseqTrigger`, but where the only `ScParams` ever sent is "trigger=1",
+-- and every note is for the same voice.
 mkMuseqTrigger1 :: RDuration -> [(RTime,Sample)] -> Museq String Note
 mkMuseqTrigger1 sup0 = mkMuseqTrigger sup0 . map f where
   f (t,s) = ("a",t,s, M.singleton "trigger" 1)
@@ -116,7 +119,7 @@ mkMuseq_holdMaybe d = f . mkMuseqHold d where
 -- | Makes a `Museq` using `hold`,
 -- so that each event lasts until the next.
 mkMuseqHold :: forall a l. Ord l
-          => RDuration -> [(l,RDuration,a)] -> Museq l a
+          => RDuration -> [(l,RTime,a)] -> Museq l a
 mkMuseqHold d = mkMuseq_seqProc (hold d) d
 
 mkMuseq_seqProc :: forall a b l. Ord l
