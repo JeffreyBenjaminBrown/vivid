@@ -99,7 +99,7 @@ mkMuseq d = mkMuseqFromEvs d . map f where
 
 -- | A Museq with a single constant state.
 mkMuseqOneScParams :: ScParams -> Museq String ScParams
-mkMuseqOneScParams m = mkMuseqHold 1 [("a", RTime 0, m)]
+mkMuseqOneScParams m = mkMuseq 1 [("a", RTime 0, RTime 1, m)]
 
 -- | Makes a `Museq` using `hold`, holding each `Just` value
 -- until the next `Nothing`, then discarding any `Nothing`s.
