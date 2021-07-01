@@ -54,7 +54,7 @@ data WindowId = ChangeWindow
 
 newtype VoiceId = VoiceId Int
   deriving (Show, Eq, Ord,
-            Enum) -- ^ allows the creation of lists like `[VoiceId 1 ..]`
+            Enum) -- ^ to express lists like `[VoiceId 1 ..]`
 
 -- | In the Equal Tempered app, Pitch is isomorphic to the integers, and
 -- PitchClass is isomorphic to the integers modulo the edo (e.g. 31).
@@ -155,6 +155,10 @@ data St app = St {
   , _stZotDefaults :: Map ZotParam Float -- ^ Initially empty.
     -- Used to override the defaults defined in `zot` itself.
   , _stZotRanges  :: Map ZotParam (NumScale, Rational, Rational)
+  , _stRecording :: Recording (VoiceId, ScParams)
+    -- ^ PITFALL : Since each note is unique,
+    -- I'm guessing labels are not needed at this Recording stage.
+    -- Hence the () type. (Downstream, in a Museq, labels will be needed.)
   }
 
 data ChordBank = ChordBank {
