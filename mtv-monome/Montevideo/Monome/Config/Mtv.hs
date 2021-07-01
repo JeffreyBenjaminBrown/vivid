@@ -155,7 +155,6 @@ my58_3_11 = EdoConfig
       }
   }
 
-
 -- | 58 edo: Looks goofy but the errors cancel.
 -- With a Kite-ish tuning it's pretty familiar,
 -- gaining some things and losing only the easy-to-reach 11%8.
@@ -194,10 +193,10 @@ my58_2_13 = EdoConfig
 
 
 -- | 58 edo with 8 steps between "strings":
--- 58 steps = 02 % 1   : str 7 fret 2
--- 34 steps = 03 % 2   : str 4 fret 2
--- 19 steps = 05 % 4   : str 2 fret 3
--- 47 steps = 07 % 4   : str 6 fret -1
+-- 58 steps = 02 % 1  : str 7 fret 2
+-- 34 steps = 03 % 2  : str 4 fret 2
+-- 19 steps = 05 % 4  : str 2 fret 3
+-- 47 steps = 07 % 4  : str 6 fret -1
 -- 27 steps = 11 % 8  : str 3 fret 3
 -- 41 steps = 13 % 8  : str 5 fret 1
 --  5 steps = 17 % 16 : str 1 fret -3 | str 0 fret 5
@@ -896,6 +895,24 @@ my31 = EdoConfig
   { _edo = 31
   , _skip = 1
   , _spacing = 6
+  , _octaveStretchInCents = 0.5
+  , _gridVectors = Nothing
+  }
+
+my31_1_9 :: EdoConfig
+my31_1_9 = EdoConfig
+  { _edo = 31
+  , _skip = 1
+  , _spacing = 9
+  , _octaveStretchInCents = 0.5
+  , _gridVectors = Nothing
+  }
+
+my31_1_11 :: EdoConfig
+my31_1_11 = EdoConfig
+  { _edo = 31
+  , _skip = 1
+  , _spacing = 11
   , _octaveStretchInCents = 0.5
   , _gridVectors = Nothing
   }

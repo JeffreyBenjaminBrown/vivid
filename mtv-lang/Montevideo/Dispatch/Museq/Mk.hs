@@ -3,6 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Montevideo.Dispatch.Museq.Mk (
+
   -- | == Primitives for making a Museq worth learning
 
   -- | = These first five are tricky.
@@ -14,9 +15,9 @@ module Montevideo.Dispatch.Museq.Mk (
   , insertOffs -- ^ Museq l ScParams -> Museq l ScParams
 
   -- | = These next three are much more obvious.
-  , mkMuseqOneScParams -- ^ ScParams  -> Museq String ScParams
   , mkMuseqTrigger  -- ^ RDuration -> [(l,RTime,Sample,ScParams)] -> Museq String Note
   , mkMuseqTrigger1 -- ^ RDuration -> [(  RTime,Sample         )] -> Museq String Note
+  , mkMuseqOneScParams -- ^ ScParams  -> Museq String ScParams
 
   -- | == Utilities used by the above Museq-making functions.
   -- Probably not worth learning as a user.
