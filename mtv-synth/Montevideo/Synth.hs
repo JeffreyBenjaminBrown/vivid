@@ -37,6 +37,7 @@ module Montevideo.Synth (
   , SynthDefEnum(..)
   , BoopParams
   , boop
+  , dist
   , boopSaw
   , boopPulse
   , MoopParams
@@ -86,6 +87,20 @@ boop = sd ( 0          :: I "freq"
                 , lagSecs_ 0.01 )
          ~* onOffEnvelope
    out 0 [s2, s2]
+
+-- | I use this to test how bad, say,
+-- the fifths in an Edo with bad fifths sounds through distortion.
+dist :: SynthDef '["freq", "ratio", "amp, inner", "amp, outer"]
+dist = sd ( 300 :: I "freq"
+          , 3/2 :: I "ratio"
+          , 1 :: I "amp, inner"
+          , toI maxAmp / 2 :: I "amp, outer" ) $ do
+  s1 <- pulse (freq_ (V::V "freq"))
+  s2 <- pulse (freq_ $ (V::V "freq") ~* (V::V "ratio"))
+  sDist <- (V::V "amp, outer") ~*
+          tanh' ( (s1 ~+ s2) ~*
+                  (V::V "amp, inner"))
+  out 0 [sDist, sDist]
 
 boopSaw :: SynthDef BoopParams
 boopSaw = sd ( 0          :: I "freq"
