@@ -28,6 +28,7 @@ import           Data.Map
 import           Data.Set
 import           Vivid hiding (Param)
 
+import Montevideo.Dispatch.Types
 import Montevideo.Monome.Types.EdoConfig
 import Montevideo.Monome.Types.Monome
 import Montevideo.Monome.Types.Params

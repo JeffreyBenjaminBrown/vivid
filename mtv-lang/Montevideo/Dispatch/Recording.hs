@@ -49,7 +49,7 @@ makeLenses ''ToMuseq
 -- it will be available in the map.
 
 monomeRecording_toMuseq :: forall l . Ord l =>
-  Recording ScAction l -> Either String (Museq l ScParams)
+  Recording (ScAction l) -> Either String (Museq l ScParams)
 monomeRecording_toMuseq r =
   mapLeft ("monomeRecording_toMuseq: " ++) $ do
 
