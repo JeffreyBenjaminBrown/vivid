@@ -16,6 +16,35 @@ import Montevideo.JI.Thanos.Thanos
 import Montevideo.JI.Lib
 
 
+-- | = User-facing
+--
+-- For some handy code snippets, see the neighboring file
+--   mtv-ji/Montevideo/JI/Thanos/thanos2-handy.hs
+
+bestLayout' :: Edo -> Int -> Int -> (Area', [LayoutRow'])
+bestLayout' edo stringGap fretGap =
+  bestLayout (58, 13, 2) (primesOctave1 31)
+  & _2 %~ map LayoutRow'
+  & _1 %~ Area'
+
+-- | Every Edo has a Bosanquet layout,
+-- but for some the two basis vectors are not relatively prime.
+-- In that case the layout does not cover the entire space,
+-- and this function will not terminate.
+bosanquet :: Edo -> ((Interval, Interval),
+                      ((Int, Int, Int, Float),
+                        [LayoutRow']))
+bosanquet edo = let
+  (stringGap,_,_) = best edo $ (9/8)
+  (bestFourth,_,_) = best edo $ (4/3)
+  fretGap = bestFourth - 2*stringGap
+  in ( (fretGap, stringGap)
+     , bestLayout (edo,stringGap,fretGap)
+       (primesOctave1 31) & _2 %~ map LayoutRow' )
+
+
+-- | = Not user-facing
+
 type GString = Int -- ^ Guitar string
 type GFret = Int -- ^ Guitar fret
 type EdoInterval = Int
