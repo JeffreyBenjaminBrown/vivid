@@ -35,7 +35,7 @@ library
     , Montevideo.Monome.Synth.Zot
     , Montevideo.Monome.Types
     , Montevideo.Monome.Types.Device
-    , Montevideo.Monome.Types.EdoConfig
+    , Montevideo.Monome.Types.Edo
     , Montevideo.Monome.Types.Instances
     , Montevideo.Monome.Types.Most
     , Montevideo.Monome.Types.Params

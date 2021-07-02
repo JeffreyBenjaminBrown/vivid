@@ -12,8 +12,8 @@ import Montevideo.Monome.EdoMath
 import Montevideo.Monome.Types
 
 
-config31, config22_stretch :: EdoConfig
-config31 = EdoConfig
+config31, config22_stretch :: MonomeEdo
+config31 = MonomeEdo
   { _edo = 31
   , _spacing = 6
   , _skip = 1
@@ -21,7 +21,7 @@ config31 = EdoConfig
   , _gridVectors = Nothing
   }
 
-config22_stretch = EdoConfig
+config22_stretch = MonomeEdo
   { _edo = 22
   , _spacing = 5
   , _skip = 1

@@ -3,17 +3,17 @@
 
 module Montevideo.Monome.Config.Mtv where
 
-import Montevideo.Monome.Types.EdoConfig
+import Montevideo.Monome.Types.Edo
 
 
 -- | * Configure the tuning.
 --
--- An `EdoConfig` is one of the arguments to `Monome.Main.edoMonome`.
+-- An `MonomeEdo` is one of the arguments to `Monome.Main.edoMonome`.
 -- Below are my favorites.
 
 
-my50_3_10 :: EdoConfig
-my50_3_10 = EdoConfig
+my50_3_10 :: MonomeEdo
+my50_3_10 = MonomeEdo
   { _edo = 50
   , _skip = 3
   , _spacing = 10
@@ -102,8 +102,8 @@ my50_3_10 = EdoConfig
 --   43 steps = 7 % 4     : string 3 fret 5 -- +4.7 cents error
 --   45 steps = 29 % 16   : string 3 fret 6 -- -11 cents error
 
-my53_2_11 :: EdoConfig
-my53_2_11 = EdoConfig
+my53_2_11 :: MonomeEdo
+my53_2_11 = MonomeEdo
   { _edo = 53
   , _skip = 2
   , _spacing = 11
@@ -118,8 +118,8 @@ my53_2_11 = EdoConfig
 -- | Beautiful 5-limit layout.
 -- Take 2nd-best primes 7 and 11, and it's identical to 34 2 9.
 
-my53_3_14 :: EdoConfig
-my53_3_14 = EdoConfig
+my53_3_14 :: MonomeEdo
+my53_3_14 = MonomeEdo
   { _edo = 53
   , _skip = 3
   , _spacing = 14
@@ -143,8 +143,8 @@ my53_3_14 = EdoConfig
 --   50 steps = 29 % 16 : string 4 fret 2
 --   55 steps = 31 % 16 : string 5 fret 0
 
-my58_3_11 :: EdoConfig
-my58_3_11 = EdoConfig
+my58_3_11 :: MonomeEdo
+my58_3_11 = MonomeEdo
   { _edo = 58
   , _skip = 3
   , _spacing = 11
@@ -179,8 +179,8 @@ my58_3_11 = EdoConfig
 -- 50 steps = 29 % 16 : str 4 fret -1
 -- 55 steps = 31 % 16 : str 5 fret -5 | str 3 fret 8
 -- 58 steps = 2 % 1   : str 4 fret 3
-my58_2_13 :: EdoConfig
-my58_2_13 = EdoConfig
+my58_2_13 :: MonomeEdo
+my58_2_13 = MonomeEdo
   { _edo = 58
   , _skip = 2
   , _spacing = 13
@@ -205,8 +205,8 @@ my58_2_13 = EdoConfig
 -- 50 steps = 29 % 16 : str 6 fret 2
 -- 55 steps = 31 % 16 : str 7 fret -1
 
-my58 :: EdoConfig
-my58 = EdoConfig
+my58 :: MonomeEdo
+my58 = MonomeEdo
   { _edo = 58
   , _skip = 1
   , _spacing = 8
@@ -234,8 +234,8 @@ my58 = EdoConfig
 --   53 steps; 29 % 16 ; string 4 ; fret -1
 --   59 steps; 31 % 16 ; string 4 ; fret 1
 
-my62 :: EdoConfig
-my62 = EdoConfig
+my62 :: MonomeEdo
+my62 = MonomeEdo
   { _edo = 62
   , _skip = 3
   , _spacing = 14
@@ -262,8 +262,8 @@ my62 = EdoConfig
 -- 60 steps = 31 % 16: str 7 fret -3 | str 6 fret 6  (60,11429,-21.78)
 -- 63 steps = 2 % 1:   str 7 fret 0
 
-my63 :: EdoConfig
-my63 = EdoConfig
+my63 :: MonomeEdo
+my63 = MonomeEdo
   { _edo = 63
   , _skip = 1
   , _spacing = 9
@@ -292,8 +292,8 @@ my63 = EdoConfig
 --   54 steps; 29 % 16 ; string 6 ; fret -2
 --   60 steps; 31 % 16 ; string 6 ; fret 0
 
-my63_3_10 :: EdoConfig
-my63_3_10 = EdoConfig
+my63_3_10 :: MonomeEdo
+my63_3_10 = MonomeEdo
   { _edo = 63
   , _skip = 3
   , _spacing = 10
@@ -322,8 +322,8 @@ my63_3_10 = EdoConfig
 --   54 steps; 29 % 16 ; string 0 ; fret 9
 --   60 steps; 31 % 16 ; string 0 ; fret 10
 
-my63_6_13 :: EdoConfig
-my63_6_13 = EdoConfig
+my63_6_13 :: MonomeEdo
+my63_6_13 = MonomeEdo
   { _edo = 63
   , _skip = 6
   , _spacing = 13
@@ -356,8 +356,8 @@ my63_6_13 = EdoConfig
 --   Primes 5, 19 and 29 have an absolute error in [6.9, 8.7] cents.
 --   All others have it less than 4c.
 
-my67 :: EdoConfig
-my67 = EdoConfig
+my67 :: MonomeEdo
+my67 = MonomeEdo
   { _edo = 67
   , _skip = 3
   , _spacing = 13
@@ -375,8 +375,8 @@ my67 = EdoConfig
 --   35 steps = 11 % 8: string 2 fret 3
 --   25 steps = 5 % 4: string 1 fret 4
 
-my77_mod3 :: EdoConfig
-my77_mod3 = EdoConfig
+my77_mod3 :: MonomeEdo
+my77_mod3 = MonomeEdo
   { _edo = 77
   , _skip = 3
   , _spacing = 13
@@ -400,8 +400,8 @@ my77_mod3 = EdoConfig
 -- 66 steps = 29 % 16: string 6 fret  0                   (66,10286,-10.05)
 -- 73 steps = 31 % 16: string 7 fret -4 | string 6 fret 7 (73,11377,-73.73)
 -- 77 steps = 2 % 1:   string 7 fret  0
-my77 :: EdoConfig
-my77 = EdoConfig
+my77 :: MonomeEdo
+my77 = MonomeEdo
   { _edo = 77
   , _skip = 1
   , _spacing = 11
@@ -418,8 +418,8 @@ my77 = EdoConfig
 --   49 steps = 3 % 2  : string 4 fret -1
 --   39 steps = 11 % 8 : string 3 fret 0
 --   27 steps = 5 % 4  : string 3 fret -4
-my84' :: EdoConfig
-my84' = EdoConfig
+my84' :: MonomeEdo
+my84' = MonomeEdo
   { _edo = 84
   , _skip = 3
   , _spacing = 13
@@ -439,8 +439,8 @@ my84' = EdoConfig
 -- The difficulty with this tuning is that 9/8 is an enormous interval.
 -- Otherwise it's pretty nice.
 
-my90 :: EdoConfig
-my90 = EdoConfig
+my90 :: MonomeEdo
+my90 = MonomeEdo
   { _edo = 90
   , _skip = 5
   , _spacing = 17
@@ -470,8 +470,8 @@ my90 = EdoConfig
 --   81 steps; 29 % 16 ; string 2 ; fret 7
 --   90 steps; 31 % 16 ; string 3 ; fret 6
 
-my94 :: EdoConfig
-my94 = EdoConfig
+my94 :: MonomeEdo
+my94 = MonomeEdo
   { _edo = 94
   , _skip = 7
   , _spacing = 16
@@ -488,8 +488,8 @@ my94 = EdoConfig
 --   61 steps  = 3 % 2  : string 3 fret 1
 --   48 steps  = 11 % 8 : string 4 fret -2
 --   34 steps  = 5 % 4  : string 2 fret 0
-my105 :: EdoConfig
-my105 = EdoConfig
+my105 :: MonomeEdo
+my105 = MonomeEdo
   { _edo = 105
   , _skip = 10
   , _spacing = 17
@@ -500,8 +500,8 @@ my105 = EdoConfig
       }
   }
 
-my109 :: EdoConfig
-my109 = EdoConfig
+my109 :: MonomeEdo
+my109 = MonomeEdo
   { _edo = 109
   , _skip = 7
   , _spacing = 19
@@ -518,8 +518,8 @@ my109 = EdoConfig
 --   69 steps  = 3 % 2  : string 3 fret 3
 --   54 steps  = 11 % 8 : string 2 fret 4
 --   38 steps  = 5 % 4  : string 2 fret 0
-my118 :: EdoConfig
-my118 = EdoConfig
+my118 :: MonomeEdo
+my118 = MonomeEdo
   { _edo = 118
   , _skip = 4
   , _spacing = 19
@@ -536,8 +536,8 @@ my118 = EdoConfig
 --   69 steps  = 3 % 2  : string 3 fret 0
 --   54 steps  = 11 % 8 : string 2 fret 2
 --   38 steps  = 5 % 4  : string 2 fret -2
-my118_diagonal :: EdoConfig
-my118_diagonal = EdoConfig
+my118_diagonal :: MonomeEdo
+my118_diagonal = MonomeEdo
   { _edo = 118
   , _skip = 4
   , _spacing = 23
@@ -561,8 +561,8 @@ my118_diagonal = EdoConfig
 -- 101 steps = 29 % 16: string 10 fret  1 (101,10271,-24.58)
 -- 113 steps = 31 % 16: string 11 fret  3 (113,11492, 41.16)
 -- 118 steps = 2 % 1:   string 12 fret -2
-my118_by10 :: EdoConfig
-my118_by10 = EdoConfig
+my118_by10 :: MonomeEdo
+my118_by10 = MonomeEdo
   { _edo = 118
   , _skip = 1
   , _spacing = 10
@@ -573,8 +573,8 @@ my118_by10 = EdoConfig
       }
   }
 
-my87 :: EdoConfig
-my87 = EdoConfig
+my87 :: MonomeEdo
+my87 = MonomeEdo
   { _edo = 87
   , _skip = 2
   , _spacing = 17
@@ -597,8 +597,8 @@ my87 = EdoConfig
 -- 72 steps = 29 % 16: str 6 fret 0                    (72,10286,-10.05)
 -- 80 steps = 31 % 16: str 7 fret -4 | str 6 fret 8 (80,11429,-21.78)
 -- 84 steps = 2 % 1:   str 7 fret 0
-my84 :: EdoConfig
-my84 = EdoConfig
+my84 :: MonomeEdo
+my84 = MonomeEdo
   { _edo = 84
   , _skip = 1
   , _spacing = 12
@@ -625,8 +625,8 @@ my84 = EdoConfig
 -- 76 steps = 31 % 16: string 6 fret -1 (1140,-5.03)
 -- 80 steps = 2 % 1:   string 6 fret 1
 
-my80_2_13 :: EdoConfig
-my80_2_13 = EdoConfig
+my80_2_13 :: MonomeEdo
+my80_2_13 = MonomeEdo
   { _edo = 80
   , _skip = 2
   , _spacing = 13
@@ -649,8 +649,8 @@ my80_2_13 = EdoConfig
 -- 76 steps = 31 % 16: str 8 fret -5 | str 7 fret 6
 -- 80 steps = 2 % 1:   str 8 fret 0
 
-my80_1_10 :: EdoConfig
-my80_1_10 = EdoConfig
+my80_1_10 :: MonomeEdo
+my80_1_10 = MonomeEdo
   { _edo = 80
   , _skip = 1
   , _spacing = 10
@@ -674,11 +674,11 @@ my80_1_10 = EdoConfig
 -- 76 steps = 31 % 16 : str 7 fret -1
 -- 80 steps = 2 % 1   : str 7 fret 3
 
-my80 :: EdoConfig
+my80 :: MonomeEdo
 my80 = my80_1_11
 
-my80_1_11 :: EdoConfig
-my80_1_11 = EdoConfig
+my80_1_11 :: MonomeEdo
+my80_1_11 = MonomeEdo
   { _edo = 80
   , _skip = 1
   , _spacing = 11
@@ -702,8 +702,8 @@ my80_1_11 = EdoConfig
 --76 steps = 31 % 16: str 8 fret  4
 --80 steps = 2 % 1:   str 9 fret -1
 
-my80_1_9 :: EdoConfig
-my80_1_9 = EdoConfig
+my80_1_9 :: MonomeEdo
+my80_1_9 = MonomeEdo
   { _edo = 80
   , _skip = 1
   , _spacing = 9
@@ -726,8 +726,8 @@ my80_1_9 = EdoConfig
 -- 69 steps = 29 % 16 : string 7 fret  3  (1035, 5.42)
 -- 76 steps = 31 % 16 : string 8 fret  2  (1140,-5.03)
 -- 80 steps = 2 % 1   : string 8 fret  4
-my80_thanos :: EdoConfig
-my80_thanos = EdoConfig
+my80_thanos :: MonomeEdo
+my80_thanos = MonomeEdo
   { _edo = 80
   , _skip = 2
   , _spacing = 9
@@ -754,8 +754,8 @@ my80_thanos = EdoConfig
 -- 41 steps = 29 % 16 : string 3 fret 4
 -- 46 steps = 31 % 16 : string 4 fret 1
 
-my48 :: EdoConfig
-my48 = EdoConfig
+my48 :: MonomeEdo
+my48 = MonomeEdo
   { _edo = 48
   , _skip = 1
   , _spacing = 11
@@ -763,8 +763,8 @@ my48 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my46 :: EdoConfig
-my46 = EdoConfig
+my46 :: MonomeEdo
+my46 = MonomeEdo
   { _edo = 46
   , _skip = 1
   , _spacing = 9
@@ -772,8 +772,8 @@ my46 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my46_1_7 :: EdoConfig
-my46_1_7 = EdoConfig
+my46_1_7 :: MonomeEdo
+my46_1_7 = MonomeEdo
   { _edo = 46
   , _skip = 1
   , _spacing = 7
@@ -796,8 +796,8 @@ my46_1_7 = EdoConfig
 --  44 \ 46 = 31 % 16 : str 2 fret 7
 --  46 \ 46 = 2 % 1   : str 4 fret -7
 --                      str 2 fret 8
-my46_2_15 :: EdoConfig
-my46_2_15 = EdoConfig
+my46_2_15 :: MonomeEdo
+my46_2_15 = MonomeEdo
   { _edo = 46
   , _skip = 2
   , _spacing = 15
@@ -811,8 +811,8 @@ my46_2_15 = EdoConfig
 --   24 steps = 3 % 2  : string 2 fret -1
 --   19 steps = 11 % 8 : string 1 fret 3
 --   13 steps = 5 % 4  : string 1 fret 0
-myKite :: EdoConfig
-myKite = EdoConfig
+myKite :: MonomeEdo
+myKite = MonomeEdo
   { _edo = 41
   , _skip = 2
   , _spacing = 13
@@ -823,8 +823,8 @@ myKite = EdoConfig
       }
   }
 
-my41_2_11 :: EdoConfig
-my41_2_11 = EdoConfig
+my41_2_11 :: MonomeEdo
+my41_2_11 = MonomeEdo
   { _edo = 41
   , _skip = 2
   , _spacing = 11
@@ -835,8 +835,8 @@ my41_2_11 = EdoConfig
       }
   }
 
-my41 :: EdoConfig
-my41 = EdoConfig
+my41 :: MonomeEdo
+my41 = MonomeEdo
   { _edo = 41
   , _skip = 1
   , _spacing = 8
@@ -844,8 +844,8 @@ my41 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my37 :: EdoConfig
-my37 = EdoConfig
+my37 :: MonomeEdo
+my37 = MonomeEdo
   { _edo = 37
   , _skip = 1
   , _spacing = 8
@@ -853,8 +853,8 @@ my37 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my34 :: EdoConfig
-my34 = EdoConfig
+my34 :: MonomeEdo
+my34 = MonomeEdo
   { _edo = 34
   , _skip = 1
   , _spacing = 7
@@ -876,8 +876,8 @@ my34 = EdoConfig
 --  32 steps = 31 % 16 : string 4 fret -2
 --  34 steps = 2  % 1  : string 4 fret -1
 
-my34_thanos :: EdoConfig
-my34_thanos = EdoConfig
+my34_thanos :: MonomeEdo
+my34_thanos = MonomeEdo
   { _edo = 34
   , _skip = 2
   , _spacing = 9
@@ -890,8 +890,8 @@ my34_thanos = EdoConfig
       }
   }
 
-my31 :: EdoConfig
-my31 = EdoConfig
+my31 :: MonomeEdo
+my31 = MonomeEdo
   { _edo = 31
   , _skip = 1
   , _spacing = 6
@@ -899,8 +899,8 @@ my31 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my31_1_9 :: EdoConfig
-my31_1_9 = EdoConfig
+my31_1_9 :: MonomeEdo
+my31_1_9 = MonomeEdo
   { _edo = 31
   , _skip = 1
   , _spacing = 9
@@ -908,8 +908,8 @@ my31_1_9 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my31_1_11 :: EdoConfig
-my31_1_11 = EdoConfig
+my31_1_11 :: MonomeEdo
+my31_1_11 = MonomeEdo
   { _edo = 31
   , _skip = 1
   , _spacing = 11
@@ -917,8 +917,8 @@ my31_1_11 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my31_2_9 :: EdoConfig
-my31_2_9 = EdoConfig
+my31_2_9 :: MonomeEdo
+my31_2_9 = MonomeEdo
   { _edo = 31
   , _skip = 2
   , _spacing = 9
@@ -929,8 +929,8 @@ my31_2_9 = EdoConfig
       }
   }
 
-my31_2_11 :: EdoConfig
-my31_2_11 = EdoConfig
+my31_2_11 :: MonomeEdo
+my31_2_11 = MonomeEdo
   { _edo = 31
   , _skip = 2
   , _spacing = 11
@@ -941,8 +941,8 @@ my31_2_11 = EdoConfig
       }
   }
 
-my27 :: EdoConfig
-my27 = EdoConfig
+my27 :: MonomeEdo
+my27 = MonomeEdo
   { _edo = 27
   , _skip = 1
   , _spacing = 8
@@ -951,8 +951,8 @@ my27 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my26 :: EdoConfig
-my26 = EdoConfig
+my26 :: MonomeEdo
+my26 = MonomeEdo
   { _edo = 26
   , _skip = 1
   , _spacing = 8
@@ -963,8 +963,8 @@ my26 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my24 :: EdoConfig
-my24 = EdoConfig
+my24 :: MonomeEdo
+my24 = MonomeEdo
   { _edo = 24
   , _skip = 1
   , _spacing = 7
@@ -972,8 +972,8 @@ my24 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my23 :: EdoConfig
-my23 = EdoConfig
+my23 :: MonomeEdo
+my23 = MonomeEdo
   { _edo = 23
   , _skip = 1
   , _spacing = 7
@@ -985,8 +985,8 @@ my23 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my22 :: EdoConfig
-my22 = EdoConfig
+my22 :: MonomeEdo
+my22 = MonomeEdo
   { _edo = 22
   , _skip = 1
   , _spacing = 7
@@ -996,8 +996,8 @@ my22 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my20 :: EdoConfig
-my20 = EdoConfig
+my20 :: MonomeEdo
+my20 = MonomeEdo
   { _edo = 20
   , _skip = 1
   , _spacing = 6
@@ -1006,8 +1006,8 @@ my20 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my19 :: EdoConfig
-my19 = EdoConfig
+my19 :: MonomeEdo
+my19 = MonomeEdo
   { _edo = 19
   , _skip = 1
   , _spacing = 6
@@ -1017,8 +1017,8 @@ my19 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my17 :: EdoConfig
-my17 = EdoConfig
+my17 :: MonomeEdo
+my17 = MonomeEdo
   { _edo = 17
   , _skip = 1
   , _spacing = 5
@@ -1027,8 +1027,8 @@ my17 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my16 :: EdoConfig
-my16 = EdoConfig
+my16 :: MonomeEdo
+my16 = MonomeEdo
   { _edo = 16
   , _skip = 1
   , _spacing = 5
@@ -1037,8 +1037,8 @@ my16 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my15 :: EdoConfig
-my15 = EdoConfig
+my15 :: MonomeEdo
+my15 = MonomeEdo
   { _edo = 15
   , _skip = 1
   , _spacing = 5
@@ -1047,8 +1047,8 @@ my15 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my13 :: EdoConfig
-my13 = EdoConfig
+my13 :: MonomeEdo
+my13 = MonomeEdo
   { _edo = 13
   , _skip = 1
   , _spacing = 4
@@ -1056,8 +1056,8 @@ my13 = EdoConfig
   , _gridVectors = Nothing
   }
 
-my12 :: EdoConfig
-my12 = EdoConfig
+my12 :: MonomeEdo
+my12 = MonomeEdo
   { _edo = 12
   , _skip = 1
   , _spacing = 5

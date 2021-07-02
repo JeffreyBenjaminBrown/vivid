@@ -37,7 +37,7 @@ downOctave = (0,0)
 -- higher Y => lower (closer to you) on the monome.
 -- | PITFALL: There are multiple ways to represent an octave shift.
 -- Here I've chosen one arbitrarily.
-shift :: EdoConfig -> (X,Y) -> Either String (X,Y)
+shift :: MonomeEdo -> (X,Y) -> Either String (X,Y)
 shift ec = mapLeft ("shift: " ++) . f where
   f xy
     | xy == rightArrow = Right $ (-1, 0)

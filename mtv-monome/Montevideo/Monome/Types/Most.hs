@@ -3,7 +3,7 @@ GeneralizedNewtypeDeriving,
 TemplateHaskell #-}
 
 module Montevideo.Monome.Types.Most (
-    module Montevideo.Monome.Types.EdoConfig
+    module Montevideo.Monome.Types.Edo
   , module Montevideo.Monome.Types.Monome
   , Param, MonomeId(..), WindowId(..), VoiceId(..)
   , EdoPitch(..), EdoPitchClass(..)
@@ -29,7 +29,7 @@ import           Data.Set
 import           Vivid hiding (Param)
 
 import Montevideo.Dispatch.Types
-import Montevideo.Monome.Types.EdoConfig
+import Montevideo.Monome.Types.Edo
 import Montevideo.Monome.Types.Monome
 import Montevideo.Monome.Types.Params
 import Montevideo.Synth
@@ -167,7 +167,7 @@ data ChordBank = ChordBank {
   deriving (Show, Eq, Ord)
 
 data EdoApp = EdoApp
-  { _edoConfig :: EdoConfig
+  { _edoConfig :: MonomeEdo
   , _edoKeyboards :: Map MonomeId Keyboard
     -- ^ Not every monome needs to be associated with a keyboard.
     -- It would be silly if none of them were, though.

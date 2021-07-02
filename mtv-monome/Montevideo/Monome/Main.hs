@@ -60,7 +60,7 @@ import           Montevideo.Util
 -- ** The apps
 
 -- | For usage, see Montevideo.Monome.Interactive.hs
-edoMonome :: EdoConfig -> IO ( MVar (St EdoApp)
+edoMonome :: MonomeEdo -> IO ( MVar (St EdoApp)
                              , IO (St EdoApp) )
 edoMonome edoCfg = do
   toMonomes <- renameMonomes

@@ -1,6 +1,6 @@
 module Montevideo.Monome.Types
   ( module Montevideo.Monome.Types.Device
-  , module Montevideo.Monome.Types.EdoConfig
+  , module Montevideo.Monome.Types.Edo
 
   -- The instances defined in Montevideo.Monome.Types.Instances
   -- are all for types defined in Montevideo.Monome.Types.Most,
@@ -15,7 +15,7 @@ module Montevideo.Monome.Types
   ) where
 
 import Montevideo.Monome.Types.Device
-import Montevideo.Monome.Types.EdoConfig
+import Montevideo.Monome.Types.Edo
 import Montevideo.Monome.Types.Instances()
 import Montevideo.Monome.Types.Monome
 import Montevideo.Monome.Types.Most

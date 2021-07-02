@@ -2,7 +2,7 @@
 
 module Montevideo.Monome.Util (
     nextVoice     -- ^ M.Map VoiceId a -> VoiceId
-  , monome_scActionNew -- ^ EdoConfig -> VoiceId -> M.Map ZotParam Float
+  , monome_scActionNew -- ^ MonomeEdo -> VoiceId -> M.Map ZotParam Float
                        -- -> EdoPitch -> ScAction VoiceId
   , ledBecause_toPitchClass -- ^ LitPitches -> LedBecause -> Maybe PitchClass
   , silenceMsg              -- ^ (X,Y) -> ScAction VoiceId
@@ -31,7 +31,7 @@ nextVoice st =
     Just (VoiceId i, _) -> VoiceId $ i+1
 
 monome_scActionNew
-  :: EdoConfig -> VoiceId -> M.Map ZotParam Float -> EdoPitch
+  :: MonomeEdo -> VoiceId -> M.Map ZotParam Float -> EdoPitch
   -> ScAction VoiceId
 monome_scActionNew ec vi timbre pitch = ScAction_New
   { _actionSynthDefEnum = Zot

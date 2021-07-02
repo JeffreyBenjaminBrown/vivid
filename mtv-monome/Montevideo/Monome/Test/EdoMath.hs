@@ -28,7 +28,7 @@ test_xyChangeMonome = TestCase $ do
 
 test_pcToXys :: Test
 test_pcToXys = TestCase $ do
-  let ec = EdoConfig { _spacing = 6
+  let ec = MonomeEdo { _spacing = 6
                      , _edo = 31
                      , _skip = 1
                      , _gridVectors = Nothing
@@ -44,7 +44,7 @@ test_pcToXys = TestCase $ do
 
 test_pcToLowXY :: Test
 test_pcToLowXY = TestCase $ do
-  let ec = EdoConfig { _spacing = 6
+  let ec = MonomeEdo { _spacing = 6
                      , _skip = 1
                      , _edo = 31
                      , _gridVectors = Nothing }
