@@ -156,10 +156,10 @@ data St app = St {
   , _stZotDefaults :: Map ZotParam Float -- ^ Initially empty.
     -- Used to override the defaults defined in `zot` itself.
   , _stZotRanges  :: Map ZotParam (NumScale, Rational, Rational)
-  , _stRecording :: Recording (VoiceId, ScParams)
-    -- ^ PITFALL : Since each note is unique,
-    -- I'm guessing labels are not needed at this Recording stage.
-    -- Hence the () type. (Downstream, in a Museq, labels will be needed.)
+
+  , _stIsRecording :: Bool
+  , _stRecordings :: [Recording (ScAction VoiceId)]
+    -- ^ See monomeRecording_toMuseq for why (ScAction VoiceId).
   }
 
 data ChordBank = ChordBank {

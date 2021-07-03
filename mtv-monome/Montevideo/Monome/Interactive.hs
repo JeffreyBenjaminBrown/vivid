@@ -15,3 +15,15 @@ sp :: IO () = ( -- store a preset (at Presets.hs)
 lp :: Map ZotParam Float -> IO () = ( \m -> -- load a preset
   ch stZotDefaults $ const m )
 hey :: IO () = freeAllVoices mst
+record :: IO () = (
+  do
+    ch stIsRecording $ const True
+    nr <- newRecording
+    ch stRecordings $ (nr :)
+  )
+stopRecording :: IO () = (
+  do
+    ch stIsRecording $ const False
+    now <- unTimestamp <$> getTime
+    ch (stRecordings . _head . recordingEnd) $ const (Just now)
+  )

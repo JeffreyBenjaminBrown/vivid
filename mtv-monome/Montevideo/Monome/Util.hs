@@ -1,7 +1,8 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 
 module Montevideo.Monome.Util (
-    nextVoice     -- ^ M.Map VoiceId a -> VoiceId
+    recordScActions_ifRecording -- ^ ScAction VoiceId -> St app -> IO (St app)
+  , nextVoice -- ^ M.Map VoiceId a -> VoiceId
   , monome_scActionNew -- ^ MonomeEdo -> VoiceId -> M.Map ZotParam Float
                        -- -> EdoPitch -> ScAction VoiceId
   , ledBecause_toPitchClass -- ^ LitPitches -> LedBecause -> Maybe PitchClass
@@ -16,13 +17,30 @@ import           Data.Either.Combinators
 import qualified Data.Map as M
 import           Data.Maybe
 import qualified Data.Set as S
+import           Vivid hiding (pitch)
 
+import           Montevideo.Dispatch.Types
 import qualified Montevideo.Monome.Config.Mtv as Config
 import qualified Montevideo.Monome.EdoMath as EM
 import           Montevideo.Monome.EdoMath
 import           Montevideo.Monome.Types
 import           Montevideo.Synth
 import           Montevideo.Synth.Msg
+
+
+recordScActions_ifRecording ::
+  forall app. St app -> IO (St app)
+recordScActions_ifRecording st =
+  case _stIsRecording st of
+    False -> return st
+    True  -> do
+      now <- unTimestamp <$> getTime
+      let ob :: ScAction VoiceId -> Observation (ScAction VoiceId)
+          ob sca = Observation { _observationTime = now
+                               , _observationData = sca }
+          obs :: [Observation (ScAction VoiceId)]
+          obs = map ob $ _stPending_Vivid st
+      return $ st & stRecordings . _head . recordingData %~ (obs ++)
 
 nextVoice :: St a -> VoiceId
 nextVoice st =
@@ -52,8 +70,8 @@ monome_scActionNew ec vi timbre pitch = ScAction_New
 --
 -- TODO (#speed) Instead, keep a map from xy to pitchclass
 
-ledBecause_toPitchClass :: forall app.
-  LitPitches app
+ledBecause_toPitchClass :: forall app
+  .  LitPitches app
   -> LedBecause
   -> Maybe (PitchClass app)
 ledBecause_toPitchClass m lb =

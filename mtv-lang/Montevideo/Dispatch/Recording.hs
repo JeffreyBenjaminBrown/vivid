@@ -1,7 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Montevideo.Dispatch.Recording (
-  monomeRecording_toMuseq
+    newRecording -- ^ IO (Recording a)
+  , monomeRecording_toMuseq
     -- ^ Recording ScAction l -> Either String (Museq l ScParams)
   )
 where
@@ -11,11 +12,20 @@ import           Data.Either.Combinators
 import           Data.Map (Map)
 import qualified Data.Map as M
 import qualified Data.Vector as V
+import           Vivid
 
 import Montevideo.Dispatch.Types.Many
 import Montevideo.Dispatch.Types.Time
 import Montevideo.Synth.Msg
 
+
+newRecording :: IO (Recording a)
+newRecording = do
+  now <- unTimestamp <$> getTime
+  return Recording
+    { _recordingStart = now
+    , _recordingEnd   = Nothing
+    , _recordingData  = [] }
 
 -- | No need to export this.
 data ToMuseq label = ToMuseq

@@ -42,6 +42,7 @@ import           Montevideo.Monome.Config.Monome
 import qualified Montevideo.Monome.Config.Mtv as Config
 import           Montevideo.Monome.Network.Util
 import           Montevideo.Monome.Types
+import           Montevideo.Monome.Util
 import           Montevideo.Monome.Util.OSC
 import           Montevideo.Monome.Window.Change
 import           Montevideo.Monome.Window.ChordBank.Bank
@@ -275,11 +276,13 @@ chDefault mst p f = do
     Right st2 ->               putMVar mst st2
 
 -- | `handlePending st` does two things:
+--   (0) Change to the _stRecordings field, if needed.
 --   (1) Act on the pending messages in `_stPending_Monome`,
 --       `_stPending_Vivid` and `_stPending_String`.
 --   (2) Empty those fields in `st`.
 handlePending :: forall app. St app -> IO (Either String (St app))
-handlePending st1 = do
+handlePending st0 = do
+  st1 <- recordScActions_ifRecording st0
   mapM_ putStrLn $ _stPending_String st1
   mapM_ (either putStrLn id) $
     doLedMessage st1 <$> _stPending_Monome st1
@@ -294,9 +297,10 @@ handlePending st1 = do
         , _stPending_Vivid = []
         , _stPending_String = [] }
 
--- | `doScAction st sca` sends the instructions described by `sca` to Vivid,
--- and if necessary, returns how to update `st` to reflect the creation
--- or deletion of a voice.
+-- | `doScAction st sca` does this:
+-- (1) Send the instructions described by `sca` to Vivid.
+-- (2) Return how to update `st` to reflect
+--     the creation or deletion of voices, if necessary.
 doScAction :: St app -> ScAction VoiceId
            -> Either String (IO (St a -> St a))
 doScAction    st        sca =
