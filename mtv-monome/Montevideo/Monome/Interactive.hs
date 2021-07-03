@@ -1,4 +1,4 @@
-(mst, quit) <- edoMonome CfgMonome.my46 -- Start synth.
+(mst, quitMonome) <- edoMonome CfgMonome.my46 -- Start synth.
   -- my41_2_11
   -- myKite
   -- my34_thanos

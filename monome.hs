@@ -1,2 +1,1 @@
-:s .ghci
-:s mtv-monome/Montevideo/Monome/Interactive.hs
+mtv-monome/Montevideo/Monome/Interactive.hs

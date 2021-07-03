@@ -1,3 +1,11 @@
+-- This allows you to type `:. path-to-file-without-.hs-extension`
+-- to run the music in a file.
+-- For further brevity, it's useful to define symlinks from where you run GHCI
+-- to where your music is stored. This repo comes with one such symlink,
+-- called "m". Thus I can run the sketch at "mtv-lang/sketches/1/1"
+-- by calling ":. m/1/1".
+:def! . readHsAsGhci
+
 :set prompt "> "
 
 -- permits multi-line GHCI expressions without :{ :}
