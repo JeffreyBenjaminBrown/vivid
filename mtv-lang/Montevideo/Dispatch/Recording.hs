@@ -8,16 +8,13 @@ where
 
 import           Control.Lens
 import           Data.Either.Combinators
-import           Data.List.Lens
 import           Data.Map (Map)
 import qualified Data.Map as M
 import qualified Data.Vector as V
 
 import Montevideo.Dispatch.Types.Many
 import Montevideo.Dispatch.Types.Time
-import Montevideo.Synth
 import Montevideo.Synth.Msg
-import Montevideo.Synth.Samples
 
 
 -- | No need to export this.
@@ -68,11 +65,6 @@ monomeRecording_toMuseq r =
         { _observationData = undefined -- Unneeded, because `pairToEvent`
           -- gets its `_observationData` from the start, not the end.
         , _observationTime = 1 }
-
-      newToFree :: ScAction l -> ScAction l
-      newToFree sca = ScAction_Free
-        { _actionSynthDefEnum = _actionSynthDefEnum sca
-        , _actionSynthName = _actionSynthName sca }
 
       pairToEvent :: Observation (ScAction l) -> Observation  (ScAction l)
                   -> Ev l ScParams

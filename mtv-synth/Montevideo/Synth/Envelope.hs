@@ -34,7 +34,7 @@ onOffEnvelope = let
                          -- it stays there until it is triggered again.
                          -- In particular it is 0 even when onEnv triggers.
     ( envGen_wGate -- The "off envelope".
-      (1 ~- (V::V "on"))
+      ((1 :: Float) ~- (V::V "on"))
       (V::V "rel")
       (env 1 -- This initial 1 is not revisited on retriggering
         -- (which happens each time the gate becomes positive).

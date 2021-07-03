@@ -6,9 +6,7 @@ import Prelude hiding (span)
 
 import           Control.Lens
 import qualified Data.List as L
-import qualified Data.Map as M
 import           Data.Ord
-import           Data.Ratio
 import qualified Data.Set as S
 
 import Montevideo.Util hiding (tr)
@@ -21,9 +19,9 @@ import Montevideo.JI.Lib
 -- For some handy code snippets, see the neighboring file
 --   mtv-ji/Montevideo/JI/Thanos/thanos2-handy.hs
 
-bestLayout' :: Edo -> Int -> Int -> (Area', [LayoutRow'])
-bestLayout' edo stringGap fretGap =
-  bestLayout (58, 13, 2) (primesOctave1 31)
+bestLayout' :: Int -> Edo -> Int -> Int -> (Area', [LayoutRow'])
+bestLayout' oddLimit edo stringGap fretGap =
+  bestLayout (edo, stringGap, fretGap) (primesOctave1 oddLimit)
   & _2 %~ map LayoutRow'
   & _1 %~ Area'
 
@@ -60,7 +58,7 @@ type Layout = [LayoutRow]
 type Area = ( Int   -- ^ area
             , Int   -- ^ string width
             , Int   -- ^ fret width
-            , Float ) -- ^ freat where octave lies, as a %
+            , Float ) -- ^ fret where octave lies, as a %
 
 -- | For positive ratios, gives the nearest (string, fret)
 -- position of the ratio such that the fret is positive.
@@ -91,7 +89,7 @@ descendingFrets gSpots =
   $ map (^. _4) gSpots
 
 layouts :: Tuning  -> [Rational] -> [Layout]
-layouts tuning@(edo, stringGap, fretGap) ratios =
+layouts tuning@(_, stringGap, fretGap) ratios =
   let l = baseLayout tuning ratios
       frets = descendingFrets l
       bumpMaxFrets gSpots maxFret = let
@@ -103,10 +101,10 @@ layouts tuning@(edo, stringGap, fretGap) ratios =
   in scanl bumpMaxFrets l frets
 
 bestLayout :: Tuning -> [Rational] -> (Area, Layout)
-bestLayout tuning @ (edo, stringGap, fretGap) ratios =
+bestLayout tuning ratios =
   let ls = layouts tuning ratios
-      area :: Layout -> Area
-      area l = let
+      areaFunc :: Layout -> Area
+      areaFunc l = let
         strings = map (^. _3) l
         frets = map (^. _4) l
         stringWidth = maximum strings - minimum strings
@@ -119,15 +117,15 @@ bestLayout tuning @ (edo, stringGap, fretGap) ratios =
                   -- Adding something like 2 to the string width penalizes wide frets more than wide strings. Relevant for guitar, not for keyboard.
                   stringWidth) * fretWidth
         in (area, stringWidth, fretWidth, octaveFret)
-      l = L.minimumBy (comparing area) ls
-  in (area l, l)
+      l0 = L.minimumBy (comparing areaFunc) ls
+  in (areaFunc l0, l0)
 
 -- | PITFALL: Hard-coded parameters,
 -- and commented-out guitar optimization.
 tunings :: Edo -> [Tuning]
 tunings edo = let e = fi edo in
   [ ( edo, stringGap, fretGap ) |
-    fretGap <- [ 1 .. round (e * (5/12) ) ],
+    fretGap <- [ 1 .. round (e * (5/12) :: Float ) ],
     stringGap <- [ fretGap .. round (e * (5/12) ) ],
       -- sometimes I start it from `(round $ e / 6)`
       -- rather than `fretGap`
@@ -186,14 +184,16 @@ instance Show Tuning' where
     "Edo "         ++ show e ++
     "; StringGap " ++ show sg ++
     "; FretGap "   ++ show fg
+unTuning :: Tuning' -> Tuning
 unTuning (Tuning' t) = t
 
 data Area' = Area' Area
   deriving (Eq, Ord)
 instance Show Area' where
-  show (Area' (area, sw, fw, oct)) =
+  show (Area' (_, sw, fw, oct)) =
     "strings x frets: " ++ show sw ++ " x " ++ show fw ++
     ", octave fraction: " ++ show oct
+unArea :: Area' -> Area
 unArea (Area' a) = a
 
 data LayoutRow' = LayoutRow' LayoutRow
@@ -203,4 +203,5 @@ instance Show LayoutRow' where
     show i ++ " steps; " ++ show r ++
     "; string " ++ show s ++
     "; fret " ++ show f
+unLayoutRow' :: LayoutRow' -> LayoutRow
 unLayoutRow' (LayoutRow' r) = r

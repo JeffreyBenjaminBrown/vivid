@@ -16,6 +16,7 @@ module Montevideo.Monome.Types.Most (
   , St(..), stApp, stWindowLayers, stToMonomes, stVoices
     , stPending_Monome, stPending_Vivid, stPending_String
     , stZotDefaults, stZotRanges
+    , stIsRecording , stRecordings
   , ChordBank(..), chords, chordPlaying
   , EdoApp(..), edoConfig, edoKeyboards, edoLit
     , edoSustaineded, edoParamGroup, edoChordBank

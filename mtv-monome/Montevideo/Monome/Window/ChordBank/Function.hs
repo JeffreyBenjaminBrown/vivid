@@ -24,4 +24,3 @@ handler :: forall app.
            St app -> (MonomeId, ((X,Y), Switch))
         -> Either String (St app)
 handler st (mid, (xy,sw)) = Right st
-

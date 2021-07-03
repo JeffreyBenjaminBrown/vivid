@@ -4,9 +4,7 @@ module Montevideo.Test.Recording where
 
 import Test.HUnit
 
-import           Control.Lens hiding (op)
 import qualified Data.Map as M
-import           Data.Ratio
 import qualified Data.Vector as V
 
 import Montevideo.Dispatch.Recording

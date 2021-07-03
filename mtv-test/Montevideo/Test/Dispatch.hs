@@ -10,6 +10,7 @@ import qualified Data.Map as M
 import           Data.Ord (comparing)
 import           Data.Ratio
 import qualified Data.Vector as V
+import           Prelude hiding (pred)
 
 import Montevideo.Dispatch.Abbrevs
 import Montevideo.Dispatch.Join
@@ -125,10 +126,10 @@ test_gaps = TestCase $ do
 
 test_separateVoices :: Test
 test_separateVoices = TestCase $ do
-  let quads @ [a,b,c,d] = [ ( "a", RTime 0, RTime 1, "a1" )
-                          , ( "b", RTime 0, RTime 2, "b1" )
-                          , ( "a", RTime 2, RTime 3, "a2" )
-                          , ( "b", RTime 4, RTime 6, "b2" ) ]
+  let quads = [ ( "a", RTime 0, RTime 1, "a1" )
+              , ( "b", RTime 0, RTime 2, "b1" )
+              , ( "a", RTime 2, RTime 3, "a2" )
+              , ( "b", RTime 4, RTime 6, "b2" ) ]
   assertBool "" $ separateVoices (mkMuseq 10 quads) ==
     M.fromList [ ( "a", [ Event "a" (0,1) "a1"
                         , Event "a" (2,3) "a2" ] )

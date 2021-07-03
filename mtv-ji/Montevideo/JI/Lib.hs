@@ -7,10 +7,8 @@ import           Control.Lens
 import qualified Data.List as L
 import qualified Data.Set as S
 import           Data.Ratio
-import           Data.Ord (comparing)
 
 import Montevideo.Util hiding (tr)
-import Montevideo.Util.Edo
 import Montevideo.JI.Harmonics
 
 

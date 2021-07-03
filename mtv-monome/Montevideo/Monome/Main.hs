@@ -91,6 +91,8 @@ edoMonome edoCfg = do
     , _stPending_String = []
     , _stZotDefaults = mempty
     , _stZotRanges = zotDefaultRanges
+    , _stIsRecording = False
+    , _stRecordings = []
 
     , _stApp = EdoApp
         { _edoConfig = edoCfg
@@ -157,6 +159,8 @@ jiMonome scale shifts = do
     , _stPending_String = []
     , _stZotDefaults = mempty
     , _stZotRanges = mempty
+    , _stIsRecording = False
+    , _stRecordings = []
 
     , _stApp = JiApp { _jiGenerator = scale
                      , _jiShifts = shifts

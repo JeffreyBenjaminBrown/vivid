@@ -38,7 +38,6 @@ import           Data.Map (Map)
 import           Data.Maybe
 import           Data.Ord (comparing)
 import qualified Data.Vector as V
-import           Data.Vector (Vector)
 
 import Montevideo.Dispatch.Types
 import Montevideo.Util
@@ -184,15 +183,15 @@ insertOffs m = let
 
   -- PITFALL: The output of `addGapsToVoice` is unsorted.
   addGapsToVoice :: l -> [Ev l ScParams] -> [Ev l ScParams]
-  addGapsToVoice l es =
+  addGapsToVoice l0 es0 =
     let
       voiceGapArcs :: [Ev l a] -> [(RTime,RTime)]
       voiceGapArcs es = gaps (_sup m) $ map _evArc es
       gapArc_toOff :: l -> (RTime,RTime) -> Ev l ScParams
       gapArc_toOff l (s,e) = Event l (s,e) $ M.singleton "on" 0
       offs :: [Ev l ScParams] =
-        map (gapArc_toOff l) $ voiceGapArcs es
-    in es ++ offs
+        map (gapArc_toOff l0) $ voiceGapArcs es0
+    in es0 ++ offs
 
   in m { _vec = V.fromList
                 $ L.sortBy (comparing _evArc)
@@ -201,14 +200,14 @@ insertOffs m = let
 
 separateVoices :: forall l a. Ord l
                => Museq l a -> Map l [Event RTime l a]
-separateVoices m = let
+separateVoices m0 = let
   f :: Map l [Event RTime l a]
     ->        Event RTime l a
     -> Map l [Event RTime l a]
   f m e = case M.lookup      (_evLabel e)     m of
     Nothing -> M.insert      (_evLabel e) [e] m
-    Just l  -> M.adjust (e:) (_evLabel e)     m
-  in V.foldl f mempty $ V.reverse $ _vec m
+    Just _  -> M.adjust (e:) (_evLabel e)     m
+  in V.foldl f mempty $ V.reverse $ _vec m0
 
 gaps :: RTime -> [(RTime, RTime)] -> [(RTime, RTime)]
 gaps sup0 m = L.sort $ interiorGaps m ++ exteriorGaps sup0 m
@@ -228,6 +227,7 @@ data GapCalc = GapCalc -- ^ No need to export this.
   , _gaps :: [ (RTime,RTime) ] }
 
 interiorGaps :: [(RTime, RTime)] -> [(RTime, RTime)]
+interiorGaps [] = []
 interiorGaps ((s1,e1) : is) =
   let go :: GapCalc -> (RTime,RTime) -> GapCalc
       go gc (sk,ek) = let
@@ -252,6 +252,10 @@ interiorGaps ((s1,e1) : is) =
 --     Otherwise there are no gaps on either end.
 
 exteriorGaps :: RTime -> [(RTime, RTime)] -> [(RTime, RTime)]
+exteriorGaps sup0 [] = [(0,sup0)]
+  -- It's a bit of a stretch to call this gap "exterior",
+  -- as it's on neither side of the nonexistent events,
+  -- but calling it "interior" to those nonexistent events would be worse.
 exteriorGaps sup0 is @ ((s1,_) : _) =
   let ek :: RTime = maximum $ map snd is
   in if ek < sup0
