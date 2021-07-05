@@ -38,6 +38,8 @@ import           GHC.Float
 import Vivid
 import Vivid.OSC
 
+import           Montevideo.Dispatch.Recording
+import           Montevideo.Dispatch.Types
 import           Montevideo.Monome.Config.Monome
 import qualified Montevideo.Monome.Config.Mtv as Config
 import           Montevideo.Monome.Network.Util
@@ -61,8 +63,11 @@ import           Montevideo.Util
 -- ** The apps
 
 -- | For usage, see Montevideo.Monome.Interactive.hs
-edoMonome :: MonomeEdo -> IO ( MVar (St EdoApp)
-                             , IO (St EdoApp) )
+edoMonome :: MonomeEdo
+  -> IO ( MVar (St EdoApp) -- ^ Keeps the `St`.
+        , IO ()            -- ^ Starts recording.
+        , IO ()            -- ^ Stops recording.
+        , IO (St EdoApp) ) -- ^ Quits.
 edoMonome edoCfg = do
   toMonomes <- renameMonomes
   inbox :: Socket <- receivesAt "127.0.0.1" 8000
@@ -127,7 +132,19 @@ edoMonome edoCfg = do
             either (\s -> putStrLn s >> putMVar mst st)
               (putMVar mst) st'
 
-  let quit :: IO (St EdoApp) = do
+  let startRecording :: IO () = do
+        nr <- newRecording
+        modifyMVar_ mst $ return
+          . (stIsRecording .~ True)
+          . (stRecordings %~ (nr :))
+
+      stopRecording :: IO () = do
+        now <- unTimestamp <$> getTime
+        modifyMVar_ mst $ return
+          . (stIsRecording .~ False)
+          . (stRecordings . _head . recordingEnd .~ Just now)
+
+      quit :: IO (St EdoApp) = do
         close inbox
         killThread responder
         st <- readMVar mst
@@ -135,7 +152,8 @@ edoMonome edoCfg = do
           in mapM_ (f . (^. voiceSynth)) (M.elems $ _stVoices st)
         darkAllMonomes st
         return st
-  return (mst, quit)
+
+  return (mst, startRecording, stopRecording, quit)
 
 -- | One way to make a major scale it to use
 -- the generators [1,4/3,3/2] and [1,5/4,3/2].
