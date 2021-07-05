@@ -132,19 +132,7 @@ edoMonome edoCfg = do
             either (\s -> putStrLn s >> putMVar mst st)
               (putMVar mst) st'
 
-  let startRecording :: IO () = do
-        nr <- newRecording
-        modifyMVar_ mst $ return
-          . (stIsRecording .~ True)
-          . (stRecordings %~ (nr :))
-
-      stopRecording :: IO () = do
-        now <- unTimestamp <$> getTime
-        modifyMVar_ mst $ return
-          . (stIsRecording .~ False)
-          . (stRecordings . _head . recordingEnd .~ Just now)
-
-      quit :: IO (St EdoApp) = do
+  let quit :: IO (St EdoApp) = do
         close inbox
         killThread responder
         st <- readMVar mst
@@ -153,7 +141,7 @@ edoMonome edoCfg = do
         darkAllMonomes st
         return st
 
-  return (mst, startRecording, stopRecording, quit)
+  return (mst, startRecording mst, stopRecording mst, quit)
 
 -- | One way to make a major scale it to use
 -- the generators [1,4/3,3/2] and [1,5/4,3/2].
@@ -216,6 +204,20 @@ jiMonome scale shifts = do
 
 
 -- ** Utilities they use
+
+startRecording :: MVar (St app) -> IO ()
+startRecording mst = do
+  nr <- newRecording
+  modifyMVar_ mst $ return
+    . (stIsRecording .~ True)
+    . (stRecordings %~ (nr :))
+
+stopRecording :: MVar (St app) -> IO ()
+stopRecording mst = do
+  now <- unTimestamp <$> getTime
+  modifyMVar_ mst $ return
+    . (stIsRecording .~ False)
+    . (stRecordings . _head . recordingEnd .~ Just now)
 
 -- | Every time serialosc is restarted, the prefix that a monome uses
 -- to filter messages (i.e. to decide which ones to respond to) is reset,
