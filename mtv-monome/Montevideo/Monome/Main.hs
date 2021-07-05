@@ -75,12 +75,12 @@ edoMonome edoCfg = do
             , ((13,14), shiftWindow)
             , ((0,0), keyboardWindow) ] )
         , ( Monome_128
-          , [ ((0,6), changeWindow
-                      [ [ ((0,0), paramGroupWindow)
-                        , ((3,0), paramValWindow) ]
-                      , [ ((8,0), chordBankWindow ) ] ] )
-            , ((0,0), paramGroupWindow)
-            , ((3,0), paramValWindow) ] )
+          , let groupAndVal = [ ((0,0), paramGroupWindow)
+                              , ((3,0), paramValWindow) ]
+            in ((0,6), changeWindow
+                       [ groupAndVal
+                       , [ ((8,0), chordBankWindow ) ] ] )
+               : groupAndVal )
         , ( Monome_old
           , [ ((0,14), shiftWindow)
             , ((14,14), sustainWindow)

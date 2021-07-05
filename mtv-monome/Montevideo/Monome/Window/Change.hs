@@ -12,7 +12,11 @@ import           Montevideo.Monome.Types.Most
 import           Montevideo.Util
 
 
-type Choice app = [ ( (X,Y), Window app ) ]
+-- | PITFALL: None of the `Window`s described by a `Choice`
+-- sould overwrite the `ChangeWindow` itself.
+-- Otherwise, that `Window` will be inescapable.
+type Choice app = [ ( (X,Y) -- ^ the top-left corner
+                    , Window app ) ]
 
 label :: WindowId
 label = ChangeWindow
@@ -20,8 +24,8 @@ label = ChangeWindow
 changeWindow
   :: [Choice app] -- ^ PITFALL: The choices should not include
   -- the ChangeWindow. (If they did the recursion would never stop.)
-  -- Instead the handler finds the current ChangeWindow and puts it
-  -- at the front of the new list.
+  -- Instead, `handler` finds the current `ChangeWindow`
+  -- and puts it at the front of the new list.
   -> Window app
 changeWindow choices =  Window {
     windowLabel = label
