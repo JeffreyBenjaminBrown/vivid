@@ -113,7 +113,9 @@ data Window app = Window {
       St app
       -> (MonomeId, ((X,Y), Switch)) -- ^ incoming button press|release,
                                      -- relative to Window's top-left corner.
-      -> Either String (St app)
+      -> IO (Either String (St app)) -- ^ Needs IO, alas, because
+      -- if you press the "start or stop recording" button,
+      -- the handler must respond by immediately noting the time.
   }
 
 -- | The app allows the monome to control "voices" in SuperCollider.

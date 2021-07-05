@@ -33,7 +33,7 @@ changeWindow choices =  Window {
       x == 0
       && numBetween 0 (length choices - 1) y
   , windowInitLeds = \_ _ -> Right []
-  , windowHandler = handler choices }
+  , windowHandler = \x y -> return $ handler choices x y }
 
 handler :: forall app.
            [Choice app]

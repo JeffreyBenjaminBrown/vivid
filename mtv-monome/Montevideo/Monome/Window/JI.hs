@@ -32,7 +32,7 @@ jiWindow =  Window {
   , windowContains = \(x,y) -> let pred = numBetween 0 15
                                in pred x && pred y
   , windowInitLeds = \_ _ -> Right []
-  , windowHandler = handler }
+  , windowHandler = \x y -> return $ handler x y }
 
 -- TODO untested
 -- TODO ! duplicative of `Keyboard.handler`

@@ -277,10 +277,12 @@ handleSwitch st0 mi press@ (btn,sw) =
                                      pairSubtract btn topLeft ) ws
       of Nothing -> return $ Left $ "Switch " ++ show press ++
                     " claimed by no Window."
-         Just (topLeft, w) ->
-           case windowHandler w st0 (mi, (pairSubtract btn topLeft, sw))
-           of Left s    -> return $ Left s
-              Right st1 -> handlePending st1
+         Just (topLeft, w) -> do
+           newStateIfRight <- windowHandler
+             w st0 (mi, (pairSubtract btn topLeft, sw))
+           case newStateIfRight of
+             Left s    -> return $ Left s
+             Right st1 -> handlePending st1
 
 -- | Change a default parameter value, and
 -- notify SC to change all sounding voices.

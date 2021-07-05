@@ -72,7 +72,7 @@ sustainWindow = Window {
     -- this window only occupied the very coerner-most button,
     -- allowing the other two buttons to be part of the Keyboard window.
   , windowInitLeds = \_ _ -> Right []
-  , windowHandler = handler
+  , windowHandler = \x y -> return $ handler x y
 }
 
 

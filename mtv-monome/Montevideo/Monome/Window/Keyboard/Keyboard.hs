@@ -39,7 +39,7 @@ keyboardWindow =  Window {
       fmap concat $
       mapM (EM.pcToXys_st st mi ) $
       M.keys $ st ^. stApp . edoLit
-  , windowHandler = handler }
+  , windowHandler = \x y -> return $ handler x y }
 
 handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
         -> Either String (St EdoApp)

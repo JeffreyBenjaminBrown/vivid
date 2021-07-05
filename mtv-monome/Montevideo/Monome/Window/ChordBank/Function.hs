@@ -18,7 +18,7 @@ chordFunctionWindow =  Window {
     windowLabel = label
   , windowContains = flip elem [buttonStore]
   , windowInitLeds = \_ _ -> Right []
-  , windowHandler = handler }
+  , windowHandler = \x y -> return $ handler x y }
 
 handler :: forall app.
            St app -> (MonomeId, ((X,Y), Switch))

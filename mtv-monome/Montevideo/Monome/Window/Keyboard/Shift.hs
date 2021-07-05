@@ -59,7 +59,7 @@ shiftWindow = Window {
       Right $
       ( (mi, label) ,) . (,True) <$>
       [ upArrow, downArrow, leftArrow, rightArrow ]
-  , windowHandler = handler
+  , windowHandler = \x y -> return $ handler x y
 }
 
 handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))

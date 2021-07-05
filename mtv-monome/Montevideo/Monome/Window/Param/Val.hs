@@ -30,7 +30,7 @@ paramValWindow =  Window {
   , windowContains = \(x,y) -> numBetween 0 12 x &&
                                numBetween 0 5 y
   , windowInitLeds = \_ _ -> Right []
-  , windowHandler = handler }
+  , windowHandler = \x y -> return $ handler x y }
 
 handler :: St EdoApp -> (MonomeId, ((X,Y), Switch))
         -> Either String (St EdoApp)
