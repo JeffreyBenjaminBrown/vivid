@@ -39,7 +39,7 @@ handler :: forall app.
            [Choice app]
         -> St app -> (MonomeId, ((X,Y), Switch))
         -> Either String (St app)
-handler _       st (_ , (_    , False)) =
+handler _ st (_, (_, False)) =
   Right st
 
 handler choices st (mi, ((_,y), True )) = let
