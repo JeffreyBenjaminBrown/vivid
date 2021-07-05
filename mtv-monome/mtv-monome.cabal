@@ -50,6 +50,7 @@ library
     , Montevideo.Monome.Window.Keyboard.Sustain
     , Montevideo.Monome.Window.Param.Group
     , Montevideo.Monome.Window.Param.Val
+    , Montevideo.Monome.Window.Record
     , Montevideo.Monome.Window.Util
 
     , Montevideo.Monome.Test.Data

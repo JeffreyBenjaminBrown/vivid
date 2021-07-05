@@ -54,6 +54,7 @@ import           Montevideo.Monome.Window.Keyboard.Shift
 import           Montevideo.Monome.Window.Keyboard.Sustain
 import           Montevideo.Monome.Window.Param.Group
 import           Montevideo.Monome.Window.Param.Val
+import           Montevideo.Monome.Window.Record
 import           Montevideo.Monome.Window.Util
 import           Montevideo.Synth
 import           Montevideo.Synth.Msg
@@ -82,10 +83,11 @@ edoMonome edoCfg = do
         , ( Monome_128
           , let groupAndVal = [ ((0,0), paramGroupWindow)
                               , ((3,0), paramValWindow) ]
-            in ((0,6), changeWindow
-                       [ groupAndVal
-                       , [ ((8,0), chordBankWindow ) ] ] )
-               : groupAndVal )
+            in [ ((0,6), changeWindow
+                         [ groupAndVal
+                         , [ ((8,0), chordBankWindow ) ] ] )
+               , ((1,7), recordWindow) ]
+               ++ groupAndVal )
         , ( Monome_old
           , [ ((0,14), shiftWindow)
             , ((14,14), sustainWindow)

@@ -49,6 +49,7 @@ data WindowId = ChangeWindow
               | KeyboardWindow
               | ParamGroupWindow
               | ParamVal_Window
+              | RecordWindow
               | ShiftWindow
               | SustainWindow
   deriving (Show, Eq, Ord)
